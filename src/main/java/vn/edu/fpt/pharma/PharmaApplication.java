@@ -31,10 +31,10 @@ public class PharmaApplication implements CommandLineRunner {
     public void run(String... args) {
         User user = new User();
         user.setRole(UserRole.SYSTEM_ADMIN);
-        user.setFullName("Ha Duy Khanh");
+        user.setFullName("LE TUNG NGUYEN");
         user.setStoreCode("STORE001");
-        user.setEmail("khanh");
-        user.setPassword(passwordEncoder.encode("khanh.ha"));
+        user.setEmail("nguyen");
+        user.setPassword(passwordEncoder.encode("nguyen.le"));
         userRepository.save(user);
 
         for (int i = 1; i <= 100; i++) {
