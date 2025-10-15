@@ -1,0 +1,304 @@
+@startuml
+' ==============================
+' 💊 Pharmacy Management System ERD (Logical)
+' ==============================
+
+!theme plain
+hide circle
+hide methods
+skinparam linetype ortho
+
+entity "ROLE" as ROLE {
+  * role_id : PK
+  --
+  role_name
+  created_at
+}
+
+entity "USER" as USER {
+  * user_id : PK
+  --
+  username
+  password
+  fullname
+  role_id : FK
+  branch_id : FK
+  phone
+  email
+  address
+  status
+  created_at
+  updated_at
+  last_login
+}
+
+entity "BRANCH" as BRANCH {
+  * branch_id : PK
+  --
+  branch_name
+  branch_type
+  address
+  manager_id : FK
+}
+
+entity "SUPPLIER" as SUPPLIER {
+  * supplier_id : PK
+  --
+  supplier_name
+  phone
+  address
+}
+
+entity "CATEGORY" as CATEGORY {
+  * category_id : PK
+  --
+  category_name
+  parent_id : FK (self)
+}
+
+entity "UNIT" as UNIT {
+  * unit_id : PK
+  --
+  unit_name
+  base_quantity
+  description
+}
+
+entity "UNIT_CONVERSION" as UNIT_CONVERSION {
+  * conversion_id : PK
+  --
+  medicine_id : FK
+  from_unit_id : FK
+  to_unit_id : FK
+  conversion_rate
+  created_at
+  updated_at
+}
+
+entity "MEDICINE" as MEDICINE {
+  * medicine_id : PK
+  --
+  medicine_name
+  category_id : FK
+  active_ingredient
+  brand_name
+  manufacturer
+  country_of_origin
+  status
+}
+
+entity "MEDICINE_VARIANT" as MEDICINE_VARIANT {
+  * variant_id : PK
+  --
+  medicine_id : FK
+  dosage_form
+  dosage
+  strength
+  base_unit_id : FK
+  barcode
+  registration_number
+  storage_conditions
+  indications
+  contraindications
+  side_effects
+  instructions
+  prescription_required
+  uses
+  created_at
+  updated_at
+}
+
+entity "BATCH" as BATCH {
+  * batch_id : PK
+  --
+  variant_id : FK
+  batch_number
+  mfg_date
+  expiry_date
+  quantity_init
+  created_at
+  updated_at
+}
+
+entity "INVENTORY" as INVENTORY {
+  * inventory_id : PK
+  --
+  branch_id : FK
+  batch_id : FK
+  quantity
+  last_update
+}
+
+entity "IMPORT_FORM" as IMPORT_FORM {
+  * import_id : PK
+  --
+  branch_id : FK
+  supplier_id : FK
+  source_branch_id : FK
+  import_type
+  import_date
+  created_by : FK
+}
+
+entity "IMPORT_DETAIL" as IMPORT_DETAIL {
+  * import_detail_id : PK
+  --
+  import_id : FK
+  batch_id : FK
+  quantity
+  unit_price
+}
+
+entity "EXPORT_FORM" as EXPORT_FORM {
+  * export_id : PK
+  --
+  branch_id : FK
+  export_type
+  export_date
+  created_by : FK
+}
+
+entity "EXPORT_DETAIL" as EXPORT_DETAIL {
+  * export_detail_id : PK
+  --
+  export_id : FK
+  batch_id : FK
+  quantity
+  unit_price
+}
+
+entity "CUSTOMER" as CUSTOMER {
+  * customer_id : PK
+  --
+  customer_name
+  phone
+  note
+  created_at
+}
+
+entity "INVOICE" as INVOICE {
+  * invoice_id : PK
+  --
+  customer_id : FK
+  staff_id : FK
+  branch_id : FK
+  created_at
+  total_price
+  pay
+  description
+  status
+  payment_method
+}
+
+entity "INVOICE_DETAIL" as INVOICE_DETAIL {
+  * invoice_detail_id : PK
+  --
+  invoice_id : FK
+  batch_id : FK
+  quantity
+  unit_price
+}
+
+entity "PRICE" as PRICE {
+  * price_id : PK
+  --
+  variant_id : FK
+  branch_id : FK
+  import_price
+  sale_price
+}
+
+entity "SAMPLE_PRESCRIPTION" as SAMPLE_PRESCRIPTION {
+  * sample_id : PK
+  --
+  sample_name
+  variant_id : FK
+  dosage
+  frequency
+  duration
+  note
+  created_at
+}
+
+entity "SHIFT" as SHIFT {
+  * shift_id : PK
+  --
+  branch_id : FK
+  shift_name
+  start_time
+  end_time
+  note
+}
+
+entity "SHIFT_WORK" as SHIFT_WORK {
+  * shift_work_id : PK
+  --
+  shift_id : FK
+  user_id : FK
+  work_date
+  status
+  check_in_time
+  check_out_time
+  real_cash
+  is_locked
+}
+
+entity "REPORT" as REPORT {
+  * report_id : PK
+  --
+  branch_id : FK
+  report_type
+  report_date
+  total_revenue
+  total_profit
+  total_sales
+  created_by
+  created_at
+}
+
+' ==============================
+' 🔗 Relationships
+' ==============================
+
+ROLE ||--o{ USER : "has"
+
+BRANCH ||--o{ USER : "employs"
+USER ||--o{ BRANCH : "manages" 
+
+CATEGORY ||--o{ MEDICINE : "classifies"
+CATEGORY ||--o{ CATEGORY : "sub-category"
+
+MEDICINE ||--o{ MEDICINE_VARIANT : "has variants"
+UNIT ||--o{ MEDICINE_VARIANT : "base unit"
+UNIT ||--o{ UNIT_CONVERSION : "used in"
+MEDICINE ||--o{ UNIT_CONVERSION : "convertible"
+
+MEDICINE_VARIANT ||--o{ BATCH : "has batches"
+BATCH ||--o{ INVENTORY : "stocked in"
+BRANCH ||--o{ INVENTORY : "has inventory"
+
+SUPPLIER ||--o{ IMPORT_FORM : "supplies"
+BRANCH ||--o{ IMPORT_FORM : "imports"
+BRANCH ||--o{ EXPORT_FORM : "exports"
+
+IMPORT_FORM ||--o{ IMPORT_DETAIL : "details"
+EXPORT_FORM ||--o{ EXPORT_DETAIL : "details"
+
+IMPORT_DETAIL }o--|| BATCH
+EXPORT_DETAIL }o--|| BATCH
+
+CUSTOMER ||--o{ INVOICE : "makes"
+INVOICE ||--o{ INVOICE_DETAIL : "includes"
+BATCH ||--o{ INVOICE_DETAIL : "sold from"
+
+MEDICINE_VARIANT ||--o{ PRICE : "priced at"
+BRANCH ||--o{ PRICE : "sets price"
+
+MEDICINE_VARIANT ||--o{ SAMPLE_PRESCRIPTION : "used in"
+
+BRANCH ||--o{ SHIFT : "has shifts"
+SHIFT ||--o{ SHIFT_WORK : "work logs"
+USER ||--o{ SHIFT_WORK : "assigned"
+
+BRANCH ||--o{ REPORT : "summarizes"
+@enduml
