@@ -1,201 +1,232 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="globals.css" />
-    <link rel="stylesheet" href="styleguide.css" />
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Nhà Thuốc</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div class="main">
-    <div class="header">
-        <div class="container">
-            <div class="div-wrapper">
-                <button class="button">
-                    <div class="div"><div class="text-wrapper">menu</div></div>
-                </button>
-            </div>
-            <div class="container-2"><p class="text-wrapper-2">NHÀ THUỐC Chi nhánh DEMO</p></div>
-            <div class="div-wrapper-2">
-                <button class="button">
-                    <div class="div"><div class="text-wrapper">arrow_drop_down</div></div>
-                </button>
-            </div>
+<div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <header class="sidebar-header">
+            <h1 class="sidebar-title">QUẢN LÝ NHÀ THUỐC</h1>
+        </header>
+
+        <nav class="sidebar-nav">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="material-icons nav-icon">home</span>
+                        <span class="nav-text">Tổng quan</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="material-icons nav-icon">shopping_cart</span>
+                        <span class="nav-text">Bán hàng</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="material-icons nav-icon">receipt_long</span>
+                        <span class="nav-text">Quản lý danh sách đơn thuốc</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="material-icons nav-icon">bar_chart</span>
+                        <span class="nav-text">Tổng kết ca</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="material-icons nav-icon">bar_chart</span>
+                        <span class="nav-text">Weekly work</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="material-icons nav-icon">bar_chart</span>
+                        <span class="nav-text">Báo cao danh thu</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="back-button">
+                <span class="material-icons">arrow_back</span>
+            </button>
         </div>
-        <div class="container">
-            <div class="container">
-                <div class="container-2"><div class="text-wrapper-3">thermostat</div></div>
-                <div class="div-wrapper-2"><div class="text-wrapper-4">0°C</div></div>
-                <div class="margin"><div class="text-wrapper-5">cloud</div></div>
-                <div class="div-wrapper-2"><div class="text-wrapper-4">000</div></div>
-            </div>
-            <div class="div-wrapper-3">
-                <div class="container">
-                    <div class="container-2"><div class="text-wrapper-6">calendar_today</div></div>
-                    <div class="div-wrapper-2"><div class="text-wrapper-4">01/01/2200</div></div>
-                </div>
-            </div>
-            <div class="div-wrapper-3">
-                <button class="button">
-                    <div class="div"><div class="text-wrapper">play_arrow</div></div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Header -->
+        <header class="main-header">
+            <div class="header-left">
+                <button class="menu-button">
+                    <span class="material-icons">menu</span>
+                </button>
+                <h2 class="branch-title">NHÀ THUỐC Chi nhánh DEMO</h2>
+                <button class="dropdown-button">
+                    <span class="material-icons">arrow_drop_down</span>
                 </button>
             </div>
-            <div class="div-wrapper-3">
-                <div class="container">
-                    <div class="container-2"><div class="text-wrapper-7">lightbulb</div></div>
-                    <div class="div-wrapper-2"><div class="text-wrapper-4">Tiện ích</div></div>
+
+            <div class="header-right">
+                <div class="weather-info">
+                    <span class="material-icons weather-icon">thermostat</span>
+                    <span class="temperature">0°C</span>
+                    <span class="material-icons cloud-icon">cloud</span>
+                    <span class="weather-code">000</span>
                 </div>
-            </div>
-            <div class="div-wrapper-3">
-                <div class="container">
-                    <div class="container-2"><div class="text-wrapper-7">account_circle</div></div>
-                    <div class="div-wrapper-2"><div class="text-wrapper-4">hni8686_admin</div></div>
-                    <button class="container-wrapper">
-                        <div class="div"><div class="text-wrapper">arrow_drop_down</div></div>
+
+                <div class="date-info">
+                    <span class="material-icons date-icon">calendar_today</span>
+                    <span class="date-text">01/01/2200</span>
+                </div>
+
+                <button class="play-button">
+                    <span class="material-icons">play_arrow</span>
+                </button>
+
+                <div class="utilities">
+                    <span class="material-icons utility-icon">lightbulb</span>
+                    <span class="utility-text">Tiện ích</span>
+                </div>
+
+                <div class="user-info">
+                    <span class="material-icons user-icon">account_circle</span>
+                    <span class="user-name">nhan vien a</span>
+                    <button class="user-dropdown">
+                        <span class="material-icons">arrow_drop_down</span>
                     </button>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="background">
-        <div class="background-shadow">
-            <div class="horizontal-border">
-                <div class="div-wrapper-3">
-                    <div class="margin-wrapper">
-                        <div class="margin-2"><div class="text-wrapper-8">HÓA ĐƠN 1</div></div>
-                    </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <span class="material-icons title-icon">menu</span>
+                        Tổng kết Ca
+                    </h2>
                 </div>
-            </div>
-            <div class="table-wrapper">
-                <div class="div-2">
-                    <div class="row-wrapper">
-                        <div class="row">
-                            <div class="cell"><div class="text-wrapper-9">#</div></div>
-                            <div class="div-3"><div class="text-wrapper-9">Tên hàng</div></div>
-                            <div class="cell-2"><div class="text-wrapper-9">Đơn vị tính</div></div>
-                            <div class="cell-3"><div class="text-wrapper-9">Số lượng</div></div>
-                            <div class="cell-4"><div class="text-wrapper-9">Giá bán</div></div>
-                            <div class="cell-5"><div class="text-wrapper-9">Thành tiền</div></div>
+
+                <div class="schedule-card">
+                    <div class="schedule-controls">
+                        <div class="control-group">
+                            <label class="control-label">YEAR</label>
+                            <select class="control-select">
+                                <option>2025</option>
+                            </select>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label">WEEK</label>
+                            <select class="control-select week-select">
+                                <option>13/10 To 19/10</option>
+                            </select>
                         </div>
                     </div>
-                    <div class="div-2">
-                        <div class="row-2">
-                            <div class="data"><div class="text-wrapper-10">1</div></div>
-                            <div class="div-3">
-                                <div class="div-2"><div class="text-wrapper-11">Clopivir</div></div>
-                                <div class="div-2">
-                                    <p class="text-wrapper-12">Hộp 3 vỉ x 10 viên; 1 vỉ x 14 viên nén bao phim</p>
+
+                    <div class="schedule-table">
+                        <div class="table-header">
+                            <div class="header-cell empty-cell"></div>
+                            <div class="header-cell">MON<br>13/10</div>
+                            <div class="header-cell">TUE<br>14/10</div>
+                            <div class="header-cell">WED<br>15/10</div>
+                            <div class="header-cell">THU<br>16/10</div>
+                            <div class="header-cell">FRI<br>17/10</div>
+                            <div class="header-cell">SAT<br>18/10</div>
+                            <div class="header-cell">SUN<br>19/10</div>
+                        </div>
+
+                        <div class="table-body">
+                            <div class="table-row">
+                                <div class="row-label">Ca Sáng (8:00-11:00)</div>
+                                <div class="table-cell">
+                                    <span class="material-icons check-icon">check_circle</span>
                                 </div>
-                                <div class="div-2"><p class="text-wrapper-12">Số lô: 200402 - HSD: 22/04/2023</p></div>
-                                <div class="div-2"><div class="text-wrapper-13">Liều dùng</div></div>
+                                <div class="table-cell">
+                                    <span class="material-icons check-icon">check_circle</span>
+                                </div>
+                                <div class="table-cell">
+                                    <span class="material-icons check-icon">check_circle</span>
+                                </div>
+                                <div class="table-cell empty-cell"></div>
+                                <div class="table-cell">
+                                    <span class="material-icons check-icon">check_circle</span>
+                                </div>
+                                <div class="table-cell">
+                                    <span class="material-icons check-icon">check_circle</span>
+                                </div>
+                                <div class="table-cell empty-cell"></div>
                             </div>
-                            <div class="data-2">
-                                <div class="div-2"><div class="text-wrapper-14">Viên</div></div>
-                                <div class="div-2"><div class="text-wrapper-12">Tồn: 1,069</div></div>
+
+                            <div class="table-row">
+                                <div class="row-label">Ca Chiều (13:00- 17:00)</div>
+                                <div class="table-cell">
+                                    <span class="material-icons check-icon">check_circle</span>
+                                </div>
+                                <div class="table-cell empty-cell"></div>
+                                <div class="table-cell">
+                                    <span class="material-icons check-icon">check_circle</span>
+                                </div>
+                                <div class="table-cell">
+                                    <span class="material-icons check-icon">check_circle</span>
+                                </div>
+                                <div class="table-cell">
+                                    <span class="material-icons check-icon">check_circle</span>
+                                </div>
+                                <div class="table-cell empty-cell"></div>
+                                <div class="table-cell">
+                                    <span class="material-icons check-icon">check_circle</span>
+                                </div>
                             </div>
-                            <div class="data-3"><div class="text-wrapper-10">2</div></div>
-                            <div class="data-4"><div class="text-wrapper-10">1,000.00</div></div>
-                            <div class="data-5">
-                                <div class="div-2"><div class="text-wrapper-11">2,000.00</div></div>
-                                <div class="div-2"><div class="text-wrapper-12">VAT: 0.00 (0%)</div></div>
+
+                            <div class="table-row">
+                                <div class="row-label">Ca Tối (20:00-22:00)</div>
+                                <div class="table-cell empty-cell"></div>
+                                <div class="table-cell">
+                                    <span class="material-icons check-icon">check_circle</span>
+                                </div>
+                                <div class="table-cell empty-cell"></div>
+                                <div class="table-cell">
+                                    <span class="material-icons check-icon">check_circle</span>
+                                </div>
+                                <div class="table-cell empty-cell"></div>
+                                <div class="table-cell">
+                                    <span class="material-icons check-icon">check_circle</span>
+                                </div>
+                                <div class="table-cell">
+                                    <span class="material-icons check-icon">check_circle</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row-3">
-                            <div class="data-6"><div class="text-wrapper-10">2</div></div>
-                            <div class="div-3">
-                                <div class="div-2"><div class="text-wrapper-11">Panactol - Extra</div></div>
-                                <div class="div-2"><p class="text-wrapper-12">Hộp 10 vỉ x 10 viên</p></div>
-                                <div class="div-2"><p class="text-wrapper-12">Số lô: 123 - HSD: 12/02/2024</p></div>
-                            </div>
-                            <div class="data-7">
-                                <div class="div-2"><div class="text-wrapper-14">Viên</div></div>
-                                <div class="div-2"><div class="text-wrapper-12">Tồn: 991</div></div>
-                            </div>
-                            <div class="data-8"><div class="text-wrapper-10">3</div></div>
-                            <div class="data-9"><div class="text-wrapper-10">1,000.00</div></div>
-                            <div class="data-10">
-                                <div class="div-2"><div class="text-wrapper-11">3,000.00</div></div>
-                                <div class="div-2"><div class="text-wrapper-12">VAT: 0.00 (0%)</div></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="background-shadow-wrapper">
-            <div class="background-shadow-2">
-                <div class="div-wrapper-4">
-                    <div class="div-2"><div class="text-wrapper-15">Thanh toán</div></div>
-                </div>
-                <div class="div-wrapper-4">
-                    <div class="container-3">
-                        <div class="container">
-                            <div class="div-wrapper"><div class="text-wrapper-16">account_circle</div></div>
-                            <div class="container-2"><div class="text-wrapper-4">hni8686_admin</div></div>
-                        </div>
-                        <div class="container-2"><div class="text-wrapper-17">Ngày tạo: 10/08/2022 09:55</div></div>
-                    </div>
-                </div>
-                <div class="div-wrapper-4">
-                    <div class="container-4">
-                        <div class="div-2"><div class="text-wrapper-18">Tên khách hàng</div></div>
-                        <div class="div-2">
-                            <div class="input">
-                                <div class="container-5"><div class="text-wrapper-19">Trần Văn A</div></div>
-                            </div>
-                            <div class="button-2"></div>
                         </div>
                     </div>
                 </div>
-                <div class="div-wrapper-4">
-                    <div class="container-6">
-                        <div class="container-7">
-                            <div class="container-2"><div class="text-wrapper-4">Tổng tiền hàng</div></div>
-                            <div class="container-2"><div class="text-wrapper-2">5,000.00</div></div>
-                        </div>
-                        <div class="container-8">
-                            <div class="container-2"><div class="text-wrapper-4">Khách cần trả</div></div>
-                            <div class="container-9"><div class="text-wrapper-20">5,000.00</div></div>
-                        </div>
-                        <div class="container-10">
-                            <div class="container-2"><div class="text-wrapper-4">Khách trả đã</div></div>
-                            <div class="container-2"><div class="text-wrapper-20">&nbsp;&nbsp;5,000.00</div></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="div-wrapper-4">
-                    <div class="container-4">
-                        <div class="div-2"><p class="text-wrapper-18">Phương thức thanh toán : Tiền mặt</p></div>
-                    </div>
-                </div>
-                <div class="div-wrapper-4">
-                    <div class="container-3">
-                        <div class="container-2"><div class="text-wrapper-4">Tiền thừa trả khách</div></div>
-                        <div class="container-2"><div class="text-wrapper-2">0.00</div></div>
-                    </div>
-                </div>
-                <div class="margin-3">
-                    <div class="container-11">
-                        <div class="div-2"><div class="text-wrapper-18">Ghi chú</div></div>
-                        <div class="textarea"></div>
-                    </div>
-                </div>
-                <div class="container-12">
-                    <button class="button-3"><div class="text-wrapper-21">IN HOÁ ĐƠN</div></button>
-                    <button class="button-4">
-                        <div class="div"><div class="text-wrapper-22">comment</div></div>
-                    </button>
-                    <button class="button-5">
-                        <div class="div"><div class="text-wrapper-22">print</div></div>
-                    </button>
-                    <button class="button-6">
-                        <div class="div"><div class="text-wrapper-22">settings</div></div>
+
+                <div class="card-footer">
+                    <button class="return-button">
+                        <span class="material-icons">arrow_back</span>
+                        TRỞ VỀ
                     </button>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 </div>
+
+<script src="script.js"></script>
 </body>
 </html>
