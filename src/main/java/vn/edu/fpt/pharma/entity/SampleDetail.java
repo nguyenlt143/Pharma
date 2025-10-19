@@ -1,4 +1,4 @@
 package vn.edu.fpt.pharma.entity;
 
-public class ImportForm {
+public class SampleDetail {
 }

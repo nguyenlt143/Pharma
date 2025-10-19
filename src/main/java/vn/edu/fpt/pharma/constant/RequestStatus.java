@@ -1,4 +1,4 @@
 package vn.edu.fpt.pharma.constant;
 
-public enum ImportType {
+public enum RequestStatus {
 }
