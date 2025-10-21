@@ -38,3 +38,14 @@ out/
 
 ### JTE ###
 /jte-classes/
+
+### MySQL local data (ignore database files) ###
+db/
+*.ibd
+*.ibdata1
+*.frm
+*.cnf
+*.dblwr
+*.log
+*.sock
+*.err
