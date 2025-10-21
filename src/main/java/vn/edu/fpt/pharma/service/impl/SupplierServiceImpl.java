@@ -1,4 +1,4 @@
-package vn.edu.fpt.pharma.service;
+package vn.edu.fpt.pharma.service.impl;
 
-public class SupplierService {
+public class SupplierServiceImpl {
 }

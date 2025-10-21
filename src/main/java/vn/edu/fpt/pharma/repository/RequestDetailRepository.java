@@ -1,4 +1,8 @@
 package vn.edu.fpt.pharma.repository;
 
-public interface RequestDetailRepository extends org.springframework.data.repository.Repository<vn.edu.fpt.pharma.entity.RequestDetail, ID> {
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import vn.edu.fpt.pharma.entity.RequestDetail;
+
+public interface RequestDetailRepository extends JpaRepository<RequestDetail, Long>, JpaSpecificationExecutor<RequestDetail> {
 }

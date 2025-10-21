@@ -1,4 +1,8 @@
 package vn.edu.fpt.pharma.repository;
 
-public interface SampleDetailRepository extends org.springframework.data.repository.Repository<vn.edu.fpt.pharma.entity.SampleDetail, ID> {
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import vn.edu.fpt.pharma.entity.SampleDetail;
+
+public interface SampleDetailRepository extends JpaRepository<SampleDetail, Long>, JpaSpecificationExecutor<SampleDetail> {
 }

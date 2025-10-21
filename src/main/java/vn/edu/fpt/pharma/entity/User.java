@@ -1,13 +1,14 @@
 package vn.edu.fpt.pharma.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import vn.edu.fpt.pharma.base.BaseEntity;
-import vn.edu.fpt.pharma.constant.UserRole;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -19,10 +20,14 @@ import vn.edu.fpt.pharma.constant.UserRole;
 @SQLDelete(sql = "UPDATE users SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
 public class User extends BaseEntity<Long> {
-    private String email;
-    private String fullName;
+    private String userName;
     private String password;
-    private UserRole role;
-    private String storeCode;
-    private boolean active;
+    private String fullName;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id")
+    private Role role;
+    private Long branchId;
+    private String phoneNumber;
+    private String email;
+    private String imageUrl;
 }

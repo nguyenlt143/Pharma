@@ -3,7 +3,6 @@ package vn.edu.fpt.pharma.util;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import vn.edu.fpt.pharma.config.CustomUserDetails;
-import vn.edu.fpt.pharma.constant.UserRole;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -22,7 +21,7 @@ public class SecurityUtils {
         return Optional.of(1L);
     }
 
-    public static Optional<UserRole> getUserRole() {
+    public static Optional<String> getUserRole() {
         return getUserDetail()
                 .map(CustomUserDetails::getRole);
     }

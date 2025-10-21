@@ -1,4 +1,8 @@
 package vn.edu.fpt.pharma.repository;
 
-public interface RequestFormRepository extends org.springframework.data.repository.Repository<vn.edu.fpt.pharma.entity.RequestForm, ID> {
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import vn.edu.fpt.pharma.entity.RequestForm;
+
+public interface RequestFormRepository extends JpaRepository<RequestForm, Long>, JpaSpecificationExecutor<RequestForm> {
 }

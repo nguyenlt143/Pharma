@@ -1,6 +1,6 @@
 package vn.edu.fpt.pharma.constant;
 
-public enum ImportType {
-    SUPPLIER,
-    INTERNAL
+public enum RequestType {
+    IMPORT,
+    RETURN
 }

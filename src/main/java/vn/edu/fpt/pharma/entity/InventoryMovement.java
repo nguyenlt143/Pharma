@@ -6,22 +6,30 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import vn.edu.fpt.pharma.base.BaseEntity;
 import vn.edu.fpt.pharma.constant.BatchStatus;
+import vn.edu.fpt.pharma.constant.MovementStatus;
+import vn.edu.fpt.pharma.constant.MovementType;
 
 @Entity
-@Table(name = "inventorys")
+@Table(name = "inventorymovements")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@SQLDelete(sql = "UPDATE inventorys SET deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE inventorymovements SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
-public class Inventory extends BaseEntity<Long> {
-    private Long branchId;
+public class InventoryMovement extends BaseEntity<Long> {
+    private MovementType  movementType;
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "batch_id")
-    private Batch batch;
-    private Long quantity;
-    private Long minStock;
-    private boolean isLow;
+    @JoinColumn(name = "supplier_id_id")
+    private Supplier supplierId;
+    private Long sourceBranchId;
+    private Long destinationBranchId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "request_form_id")
+    private RequestForm requestForm;
+    private MovementStatus status;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "approved_by_id")
+    private User approvedBy;
 }

@@ -1,4 +1,8 @@
 package vn.edu.fpt.pharma.repository;
 
-public interface StockAdjustmentRepository extends org.springframework.data.repository.Repository<vn.edu.fpt.pharma.entity.StockAdjustment, ID> {
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import vn.edu.fpt.pharma.entity.StockAdjustment;
+
+public interface StockAdjustmentRepository extends JpaRepository<StockAdjustment, Long>, JpaSpecificationExecutor<StockAdjustment> {
 }

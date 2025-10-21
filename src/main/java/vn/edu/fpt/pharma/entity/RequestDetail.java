@@ -5,27 +5,20 @@ import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import vn.edu.fpt.pharma.base.BaseEntity;
-import vn.edu.fpt.pharma.constant.BatchStatus;
 
 @Entity
-@Table(name = "importdetails")
+@Table(name = "requestdetails")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@SQLDelete(sql = "UPDATE importdetails SET deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE requestdetails SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
-public class importDetail extends BaseEntity<Long> {
+public class RequestDetail extends BaseEntity<Long> {
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "import_form_id")
-    private ImportForm importForm;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "batch_id")
-    private Batch batch;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "unit_id")
-    private Unit unit;
+    @JoinColumn(name = "request_form_id")
+    private RequestForm requestForm;
+    private Long variant_id;
     private Long quantity;
-    private Double price;
 }

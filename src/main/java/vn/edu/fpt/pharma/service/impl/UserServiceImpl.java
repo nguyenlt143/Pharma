@@ -46,10 +46,10 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
     }
 
     public List<UserVM> transformUsers(List<User> users) {
-        List<String> storeCodes = users.stream().map(User::getStoreCode).toList();
-        List<Store> stores = storeRepository.findAllByStoreCodeIn(storeCodes);
-        Map<String, String> storeNameMap = stores.stream()
-                .collect(Collectors.toMap(Store::getStoreCode, Store::getStoreName, (s1, s2) -> s1));
-        return users.stream().map(user -> new UserVM(user, storeNameMap.get(user.getStoreCode()))).toList();
+//        List<String> storeCodes = users.stream().map(User::getStoreCode).toList();
+//        List<Store> stores = storeRepository.findAllByStoreCodeIn(storeCodes);
+//        Map<String, String> storeNameMap = stores.stream()
+//                .collect(Collectors.toMap(Store::getStoreCode, Store::getStoreName, (s1, s2) -> s1));
+        return List.of();
     }
 }
