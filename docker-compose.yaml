@@ -4,7 +4,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 123456
       MYSQL_DATABASE: medicine
-      MYSQL_USER: root
       MYSQL_PASSWORD: 123456
       MYSQL_ROOT_HOST: "%"
     ports:
