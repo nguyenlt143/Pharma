@@ -16,27 +16,9 @@ body {
 .app-container {
   display: flex;
   height: 100vh;
-  width: 100vw;
-  max-width: 768px;
-  margin: 0 auto;
-}
-
-@media (min-width: 769px) {
-  .app-container {
-    max-width: 1024px;
-  }
-}
-
-@media (min-width: 1025px) {
-  .app-container {
-    max-width: 1440px;
-  }
-}
-
-@media (min-width: 1441px) {
-  .app-container {
-    max-width: 1920px;
-  }
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
 }
 
 /* Sidebar Styles */
@@ -152,7 +134,7 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100vh;vh
   min-width: 0;
   overflow: hidden;
 }
