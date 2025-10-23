@@ -1,108 +1,6 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Nhà Thuốc - Báo Cáo Doanh Thu</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-</head>
-<body>
-<div class="container">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <h1>QUẢN LÝ NHÀ THUỐC</h1>
-        </div>
-        <nav class="sidebar-nav">
-            <ul class="nav-list">
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <span class="material-icons">home</span>
-                        <span>Tổng quan</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <span class="material-icons">shopping_cart</span>
-                        <span>Bán hàng</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <span class="material-icons">receipt_long</span>
-                        <span>Quản lý danh sách đơn thuốc</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <span class="material-icons">bar_chart</span>
-                        <span>Tổng kết ca</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <span class="material-icons">bar_chart</span>
-                        <span>Weekly work</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <span class="material-icons">receipt_long</span>
-                        <span>Báo cáo doanh thu</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-        <div class="sidebar-footer">
-            <button class="back-button">
-                <span class="material-icons">arrow_back</span>
-            </button>
-        </div>
-    </aside>
-
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-left">
-                <button class="menu-button">
-                    <span class="material-icons">menu</span>
-                </button>
-                <h2 class="branch-name">NHÀ THUỐC Chi nhánh DEMO</h2>
-                <button class="dropdown-button">
-                    <span class="material-icons">arrow_drop_down</span>
-                </button>
-            </div>
-            <div class="header-right">
-                <div class="weather-info">
-                    <span class="material-icons">thermostat</span>
-                    <span>0°C</span>
-                    <span class="material-icons">cloud</span>
-                    <span>000</span>
-                </div>
-                <div class="date-info">
-                    <span class="material-icons">calendar_today</span>
-                    <span>01/01/2200</span>
-                </div>
-                <button class="play-button">
-                    <span class="material-icons">play_arrow</span>
-                </button>
-                <div class="utilities">
-                    <span class="material-icons">lightbulb</span>
-                    <span>Tiện ích</span>
-                </div>
-                <div class="user-info">
-                    <span class="material-icons">account_circle</span>
-                    <span>nhan vien a</span>
-                    <button class="user-dropdown">
-                        <span class="material-icons">arrow_drop_down</span>
-                    </button>
-                </div>
-            </div>
-        </header>
-
+@template.layouts.pharmacist(
+    headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/revenue.css">`,
+    content = @`
         <!-- Main Content Area -->
         <main class="main">
             <div class="report-container">
@@ -236,9 +134,6 @@
                 </div>
             </div>
         </main>
-    </div>
-</div>
-
-<script src="script.js"></script>
-</body>
-</html>
+    `,
+    pageScript = @` <script src="/assets/js/pharmacist/revenue.js" defer></script>`
+)

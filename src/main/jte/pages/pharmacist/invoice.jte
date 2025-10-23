@@ -1,5 +1,5 @@
 @template.layouts.pharmacist(
-    headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/list_invoice.css">`,
+    headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/invoice.css">`,
     content = @`
     <!-- Main Content Area -->
     <main class="main-content">
@@ -303,5 +303,5 @@
         </div>
     </main>
     `,
-    pageScript = @` <script src="/assets/js/pharmacist/list_invoice.js" defer></script>`
+    pageScript = @` <script src="/assets/js/pharmacist/invoice.js" defer></script>`
 )

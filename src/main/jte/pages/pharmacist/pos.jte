@@ -10,7 +10,6 @@
                 </div>
             </div>
         </section>
-
         <!-- Right Panel -->
         <section class="right-panel">
             <!-- Prescription Section -->
