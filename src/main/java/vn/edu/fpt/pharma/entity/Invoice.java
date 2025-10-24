@@ -27,5 +27,6 @@ public class Invoice extends BaseEntity<Long> {
     private Double totalPrice;
     private String description;
     private String paymentMethod;
+    @Enumerated(EnumType.STRING)
     private InvoiceType  invoiceType;
 }

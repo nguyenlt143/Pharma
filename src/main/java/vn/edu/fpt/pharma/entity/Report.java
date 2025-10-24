@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 @SQLRestriction("deleted = false")
 public class Report extends BaseEntity<Long> {
     private Long branchId;
+    @Enumerated(EnumType.STRING)
     private ReportType reportType;
     private LocalDateTime reportDate;
     private Double totalRevenue;

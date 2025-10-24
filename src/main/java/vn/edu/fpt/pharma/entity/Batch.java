@@ -29,4 +29,7 @@ public class Batch extends BaseEntity<Long> {
     private Long sourceMovementId;
     private Long totalReceived;
     private Long totalIssued;
+    private Long movementId;
+    @Enumerated(EnumType.STRING)
+    private BatchStatus batchStatus;
 }

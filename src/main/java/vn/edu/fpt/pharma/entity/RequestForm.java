@@ -18,11 +18,10 @@ import vn.edu.fpt.pharma.constant.RequestType;
 @SQLDelete(sql = "UPDATE requestforms SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
 public class RequestForm extends BaseEntity<Long> {
-    private String branchId;
-    private String sourceBranchId;
+    private Long branchId;
+    @Enumerated(EnumType.STRING)
     private RequestType requestType;
+    @Enumerated(EnumType.STRING)
     private RequestStatus requestStatus;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    private User user;
+    private String note;
 }

@@ -19,15 +19,17 @@ import vn.edu.fpt.pharma.constant.MovementType;
 @SQLDelete(sql = "UPDATE inventorymovements SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
 public class InventoryMovement extends BaseEntity<Long> {
+    @Enumerated(EnumType.STRING)
     private MovementType  movementType;
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "supplier_id_id")
+    @JoinColumn(name = "supplier_id")
     private Supplier supplierId;
     private Long sourceBranchId;
     private Long destinationBranchId;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "request_form_id")
     private RequestForm requestForm;
+    @Enumerated(EnumType.STRING)
     private MovementStatus status;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "approved_by_id")

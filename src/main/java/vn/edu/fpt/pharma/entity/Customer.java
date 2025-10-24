@@ -18,7 +18,5 @@ import vn.edu.fpt.pharma.base.BaseEntity;
 @SQLRestriction("deleted = false")
 public class Customer extends BaseEntity<Long> {
     private String name;
-    private String email;
     private String phone;
-    private String note;
 }

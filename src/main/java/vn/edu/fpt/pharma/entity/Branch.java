@@ -1,6 +1,8 @@
 package vn.edu.fpt.pharma.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
@@ -19,6 +21,7 @@ import vn.edu.fpt.pharma.constant.BranchType;
 @SQLRestriction("deleted = false")
 public class Branch extends BaseEntity<Long> {
     private String name;
+    @Enumerated(EnumType.STRING)
     private BranchType branchType;
     private String address;
     private Long userId;

@@ -7,13 +7,13 @@ import org.hibernate.annotations.SQLRestriction;
 import vn.edu.fpt.pharma.base.BaseEntity;
 
 @Entity
-@Table(name = "units")
+@Table(name = "medicines")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@SQLDelete(sql = "UPDATE units SET deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE medicines SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
 public class Medicine extends BaseEntity<Long> {
     private String name;
