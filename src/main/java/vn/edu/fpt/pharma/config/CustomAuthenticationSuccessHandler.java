@@ -24,11 +24,11 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         // Kiểm tra role và chuyển hướng
         if (roles.contains("ROLE_SYSTEM_ADMIN")) {
-            response.sendRedirect("/system-admin/dashboard");
+            response.sendRedirect("/admin/dashboard");
         } else if (roles.contains("ROLE_BUSINESS_OWNER")) {
             response.sendRedirect("/owner/dashboard");
         } else if (roles.contains("ROLE_BRANCH_MANAGER")) {
-            response.sendRedirect("/branch/manager/dashboard");
+            response.sendRedirect("/manager/dashboard");
         } else if (roles.contains("ROLE_BRANCH_WAREHOUSE")) {
             response.sendRedirect("/branch/warehouse/dashboard");
         } else if (roles.contains("ROLE_GENERAL_WAREHOUSE")) {
