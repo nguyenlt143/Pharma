@@ -31,11 +31,9 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = repository.findByEmailIgnoreCase(email);
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found");
-        }
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = repository.findByUserNameIgnoreCase(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return new CustomUserDetails(user);
     }
 
