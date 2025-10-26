@@ -9,13 +9,13 @@ import vn.edu.fpt.pharma.constant.BatchStatus;
 import vn.edu.fpt.pharma.constant.MovementType;
 
 @Entity
-@Table(name = "inventorymovementdetails")
+@Table(name = "inventory_movement_details")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@SQLDelete(sql = "UPDATE inventorymovementdetails SET deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE inventory_movement_details SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
 public class InventoryMovementDetail extends BaseEntity<Long> {
     private Long movementId;

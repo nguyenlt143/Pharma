@@ -11,10 +11,10 @@ INSERT INTO branchs (name, branch_type, address, user_id, created_at, deleted)
 VALUES
   ('Chi nhánh Hà Nội', 'BRANCH', '123 Đường A, Hà Nội', NULL, NOW(), FALSE),
   ('Chi nhánh TP.HCM', 'BRANCH', '456 Đường B, TP.HCM', NULL, NOW(), FALSE),
-  ('Kho Trung tâm', 'DISPOSALAREA', 'Kho C - Bình Dương', NULL, NOW(), FALSE),
+  ('Kho Trung tâm', 'DISPOSAL_AREA', 'Kho C - Bình Dương', NULL, NOW(), FALSE),
   ('Chi nhánh Đà Nẵng', 'BRANCH', '789 Đường C, Đà Nẵng', NULL, NOW(), FALSE),
-  ('Tổng công ty', 'HEADQUARTER', 'Số 1 Phạm Hùng, Hà Nội', NULL, NOW(), FALSE),
-  ('Kho Khu vực Miền Tây', 'DISPOSALAREA', 'Kho D - Cần Thơ', NULL, NOW(), FALSE);
+  ('Tổng công ty', 'HEAD_QUARTER', 'Số 1 Phạm Hùng, Hà Nội', NULL, NOW(), FALSE),
+  ('Kho Khu vực Miền Tây', 'DISPOSAL_AREA', 'Kho D - Cần Thơ', NULL, NOW(), FALSE);
 
 INSERT INTO users (user_name, password, full_name, role_id, branch_id, phone_number, email, image_url, created_at, deleted)
 VALUES
@@ -32,15 +32,15 @@ UPDATE branchs SET user_id = 4 WHERE id = 4;
 UPDATE branchs SET user_id = 5 WHERE id = 5;
 UPDATE branchs SET user_id = 6 WHERE id = 6;
 
-
 INSERT INTO suppliers (name, phone, address, created_at, deleted)
 VALUES
-  ('Inventory Manager', NOW(), false),
-  ('Staff', NOW(), false),
-  ('WareHouse Manager', NOW(), false),
-  ('Business admin', NOW(), false),
-  ('System admin', NOW(), false),
-  ('Brand Manager', NOW(), false);
+('Công ty Dược Hòa Bình', '0901000001', '123 Lê Lợi, Hà Nội', NOW(), FALSE),
+('Công ty Dược Nam Dược', '0902000002', '45 Nguyễn Huệ, TP.HCM', NOW(), FALSE),
+('Công ty Dược Bình Dương', '0903000003', '12 Trần Phú, Bình Dương', NOW(), FALSE),
+('Công ty Dược Á Châu', '0904000004', '78 Hai Bà Trưng, Đà Nẵng', NOW(), FALSE),
+('Công ty Dược Thiên Ân', '0905000005', '56 Nguyễn Văn Linh, Cần Thơ', NOW(), FALSE),
+('Công ty Dược Phương Nam', '0906000006', '98 Pasteur, TP.HCM', NOW(), FALSE);
+
 
 INSERT INTO categorys (name, description, parent_id, deleted)
 VALUES ('Thuốc', 'Danh mục thuốc', NULL, false);
@@ -76,7 +76,7 @@ VALUES
   ('Thùng', 'Đơn vị bao gồm nhiều hộp hoặc chai, thường dùng trong nhập hàng', NOW(), FALSE),
   ('Đơn vị', 'Đơn vị tính tổng quát, dùng khi chưa xác định rõ quy cách', NOW(), FALSE);
 
-INSERT INTO medicines (name, activeIngredient, brandName, manufacturer, country, category_id, created_at, deleted)
+INSERT INTO medicines (name, active_ingredient, brand_name, manufacturer, country, category_id, created_at, deleted)
 VALUES
   -- ====== NHÓM THUỐC CẢM CÚM ======
   ('Paracetamol 500mg', 'Paracetamol ', 'Panadol', 'GlaxoSmithKline', 'Anh', 2, NOW(), FALSE),
@@ -90,9 +90,9 @@ VALUES
   ('Bromhexine 8mg', 'Bromhexine Hydrochloride 8mg', 'Bromhexine Stella', 'Stella Pharma', 'Việt Nam', 3, NOW(), FALSE),
   ('Terpin Codein', 'Codeine Phosphate 10mg + Terpin Hydrate 100mg', 'Terpin Codein', 'Imexpharm', 'Việt Nam', 3, NOW(), FALSE);
 
-INSERT INTO medicinevariants
-(dosage_form, dosage, strength, package_unit_id_id, base_unit_id_id, quantityPerPackage, barcode, registrationNumber,
- storageConditions, indications, contraindications, sideEffects, instructions, prescription_require, use,
+INSERT INTO medicine_variant
+(dosage_form, dosage, strength, package_unit_id_id, base_unit_id_id, quantity_per_package, barcode, registration_number,
+ storage_conditions, indications, contraindications, side_effects, instructions, prescription_require, uses,
  medicine_id, created_at, deleted)
 VALUES
 -- 1. Paracetamol 500mg
@@ -159,8 +159,8 @@ VALUES
  'Buồn ngủ, táo bón',
  'Không uống khi lái xe hoặc làm việc máy móc', TRUE, 'Uống với nước, sau bữa ăn, không nhai viên thuốc', 8, NOW(), FALSE);
 
-INSERT INTO batchs
-(batchCode, mfgDate, expiryDate, sourceMovementId, totalReceived, totalIssued, batch_status, movement_id, variant_id, supplier_id, created_at, deleted)
+INSERT INTO batches
+(batch_code, mfg_date, expiry_date, source_movement_id, total_received, total_issued, batch_status, movement_id, variant_id, supplier_id, created_at, deleted)
 VALUES
 -- 1. Paracetamol 500mg
 ('BATCH-PARA-2024-01', '2024-01-10', '2026-01-10', NULL, 5000, 1200, 'ACTIVE', NULL, 1, 1, NOW(), FALSE),
@@ -187,7 +187,7 @@ VALUES
 ('BATCH-TERP-2023-05', '2023-05-01', '2025-05-01', NULL, 1500, 1450, 'DISPOSED', NULL, 8, 2, NOW(), FALSE);
 
 
-INSERT INTO requestforms (branch_id, request_type, request_status, note, created_at, deleted)
+INSERT INTO request_forms (branch_id, request_type, request_status, note, created_at, deleted)
 VALUES
 -- Nhập hàng chi nhánh Hà Nội
 (1, 'IMPORT', 'REQUESTED', 'Yêu cầu nhập lô Paracetamol 500mg đợt 10/2024', NOW(), FALSE),
@@ -213,7 +213,7 @@ VALUES
 -- Trả hàng kho miền Tây
 (6, 'RETURN', 'CONFIRMED', 'Trả lại 10 hộp Terpin Codein do sai quy cách', NOW(), FALSE);
 
-INSERT INTO requestdetails (request_form_id, variant_id, quantity, is_accepted, created_at, deleted)
+INSERT INTO request_details (request_form_id, variant_id, quantity, is_accepted, created_at, deleted)
 VALUES
 -- 1. Phiếu nhập Hà Nội - Paracetamol
 (1, 1, 1000, FALSE, NOW(), FALSE),
@@ -241,7 +241,7 @@ VALUES
 -- 8. Phiếu trả hàng Kho miền Tây - Terpin Codein
 (8, 8, 10, TRUE, NOW(), FALSE);
 
-INSERT INTO inventorymovements (
+INSERT INTO inventory_movements (
   movement_type, supplier_id, source_branch_id, destination_branch_id,
   request_form_id, approved_by_id, movement_status, created_at, deleted
 )
@@ -270,8 +270,8 @@ VALUES
 -- 8. Xử lý hàng hủy tại kho miền Tây
 ('DISPOSAL', NULL, 6, NULL, 8, 5, 'CLOSED', NOW(), FALSE);
 
-INSERT INTO inventorymovementdetails (
-  movement_id, variant_id, batch_id, quantity, price, receivedQuantity, returnQuantity, cost, created_at, deleted
+INSERT INTO inventory_movement_details (
+  movement_id, variant_id, batch_id, quantity, price, received_quantity, return_quantity, cost, created_at, deleted
 )
 VALUES
 -- 1. SUPPLIER_IN → Hà Nội (Paracetamol)
@@ -300,8 +300,8 @@ VALUES
 -- 8. DISPOSAL → Kho miền Tây hủy Terpin Codein lỗi
 (8, 8, 8, 10, 2000.00, 0, 10, 20000.00, NOW(), FALSE);
 
-INSERT INTO inventorys (
-  branch_id, variant_id, batch_id, quantity, min_stock, lastMovementId, created_at, deleted
+INSERT INTO inventory (
+  branch_id, variant_id, batch_id, quantity, min_stock, last_movement_id, created_at, deleted
 )
 VALUES
 -- 1️ Hà Nội - Paracetamol (đã nhập 1000)
@@ -332,57 +332,48 @@ VALUES
 (6, 8, 8, 0, 50, 8, NOW(), FALSE);
 
 INSERT INTO shifts (
-  branch_id, startTime, endTime, note, created_at, deleted
+  branch_id, start_time, end_time, name, note, created_at, deleted
 )
 VALUES
---  Chi nhánh Hà Nội (branch_id = 1)
-(1, '07:00:00', '11:30:00', 'Ca sáng Hà Nội', NOW(), FALSE),
-(1, '13:00:00', '17:30:00', 'Ca chiều Hà Nội', NOW(), FALSE),
-(1, '18:00:00', '22:00:00', 'Ca tối Hà Nội', NOW(), FALSE),
+-- Chi nhánh Hà Nội (branch_id = 1)
+(1, '2025-10-27 07:00:00', '2025-10-27 11:30:00', 'Ca sáng Hà Nội', 'Ca sáng tại chi nhánh Hà Nội', NOW(), FALSE),
+(1, '2025-10-27 13:00:00', '2025-10-27 17:30:00', 'Ca chiều Hà Nội', 'Ca chiều tại chi nhánh Hà Nội', NOW(), FALSE),
 
 -- Chi nhánh TP.HCM (branch_id = 2)
-(2, '07:00:00', '11:30:00', 'Ca sáng TP.HCM', NOW(), FALSE),
-(2, '13:00:00', '17:30:00', 'Ca chiều TP.HCM', NOW(), FALSE),
-(2, '18:00:00', '22:00:00', 'Ca tối TP.HCM', NOW(), FALSE),
+(2, '2025-10-27 07:00:00', '2025-10-27 11:30:00', 'Ca sáng TP.HCM', 'Ca sáng tại chi nhánh TP.HCM', NOW(), FALSE),
+(2, '2025-10-27 13:00:00', '2025-10-27 17:30:00', 'Ca chiều TP.HCM', 'Ca chiều tại chi nhánh TP.HCM', NOW(), FALSE),
 
 -- Kho Trung tâm (branch_id = 3)
-(3, '06:00:00', '12:00:00', 'Ca sáng Kho trung tâm', NOW(), FALSE),
-(3, '13:00:00', '19:00:00', '
+(3, '2025-10-27 06:00:00', '2025-10-27 12:00:00', 'Ca sáng Kho trung tâm', 'Ca sáng tại kho trung tâm', NOW(), FALSE),
+(3, '2025-10-27 13:00:00', '2025-10-27 19:00:00', 'Ca chiều Kho trung tâm', 'Ca chiều tại kho trung tâm', NOW(), FALSE);
 
-INSERT INTO shiftworks (
-  branch_id, shift_id, user_id, work_date, work_type,created_at, deleted
-)
 
-INSERT INTO shiftworks (
-  branch_id, shift_id, user_id, work_date, work_type, status, created_at, deleted
+
+
+INSERT INTO shift_works (
+  branch_id, shift_id, user_id, work_date, work_type, created_at, deleted
 )
 VALUES
 -- Chi nhánh Hà Nội (user_id = 1)
-(1, 1, 1, '2025-10-25 08:00:00.000000', 'Ca sáng', 'InWork', NOW(), FALSE),
-(1, 2, 1, '2025-10-26', 'Ca chiều', 'NotStarted', NOW(), FALSE),
+(1, 1, 1, '2025-10-25', 'DONE', NOW(), FALSE),
+(1, 2, 1, '2025-10-26', 'IN_WORK', NOW(), FALSE),
+(1, 1, 1, '2025-10-27', 'NOT_STARTED', NOW(), FALSE),
 
 -- Chi nhánh TP.HCM (user_id = 2)
-(2, 4, 2, '2025-10-25', 'Ca sáng', 'Done', NOW(), FALSE),
-(2, 5, 2, '2025-10-26', 'Ca chiều', 'InWork', NOW(), FALSE),
+(2, 3, 2, '2025-10-25', 'IN_WORK', NOW(), FALSE),
+(2, 4, 2, '2025-10-26', 'DONE', NOW(), FALSE),
+(2, 3, 2, '2025-10-27', 'NOT_STARTED', NOW(), FALSE),
 
 -- Kho Trung tâm (user_id = 3)
-(3, 7, 3, '2025-10-25', 'Ca sáng', 'InWork', NOW(), FALSE),
-(3, 8, 3, '2025-10-26', 'Ca chiều', 'NotStarted', NOW(), FALSE),
+(3, 5, 3, '2025-10-25', 'IN_WORK', NOW(), FALSE),
+(3, 6, 3, '2025-10-26', 'DONE', NOW(), FALSE),
+(3, 5, 3, '2025-10-27', 'NOT_STARTED', NOW(), FALSE);
 
--- Chi nhánh Đà Nẵng (user_id = 4)
-(4, 9, 4, '2025-10-25', 'Ca sáng', 'Done', NOW(), FALSE),
-(4, 10, 4, '2025-10-26', 'Ca chiều', 'InWork', NOW(), FALSE),
 
--- Tổng công ty (user_id = 5)
-(5, 12, 5, '2025-10-25', 'Ca hành chính sáng', 'Done', NOW(), FALSE),
-(5, 13, 5, '2025-10-26', 'Ca hành chính chiều', 'InWork', NOW(), FALSE),
-
--- Kho Miền Tây (user_id = 6)
-(6, 14, 6, '2025-10-25', 'Ca sáng', 'InWork', NOW(), FALSE),
-(6, 15, 6, '2025-10-26', 'Ca chiều', 'NotStarted', NOW(), FALSE);
 
 INSERT INTO invoices (
-  invoiceNumber, customer_id, shift_work_id, branchId, totalPrice, paymentMethod, invoice_type, created_at, deleted
+  invoice_number, customer_id, shift_work_id, branch_id,
+  total_price, payment_method, invoice_type, created_at, deleted
 )
 VALUES
 --  Hóa đơn tại Chi nhánh Hà Nội
@@ -405,7 +396,7 @@ VALUES
 --  Hóa đơn tại Kho Miền Tây
 ('INV-20251025-008', 6, 14, 6, 310000.00, 'Cash', 'PAID', NOW(), FALSE);
 
-INSERT INTO invoicedetails (
+INSERT INTO invoice_details (
   invoice_id, batch_id, variant_id, quantity, price, created_at, deleted
 )
 VALUES
@@ -435,34 +426,36 @@ VALUES
 (8, 8, 8, 2, 155000.00, NOW(), FALSE);
 
 INSERT INTO prices (
-  variant_id, price, startDate, endDate, created_at, deleted
+  variant_id, sale_price, branch_price, start_date, end_date, created_at, deleted
 )
 VALUES
---  Paracetamol 500mg
-(1, 35000.00, '2025-10-01', NULL, NOW(), FALSE),
+-- Paracetamol 500mg
+(1, 35000.00, 34000.00, '2025-10-01 00:00:00', NULL, NOW(), FALSE),
 
---  Terpin Codein 100mg
-(2, 28000.00, '2025-10-01', NULL, NOW(), FALSE),
+-- Terpin Codein 100mg
+(2, 28000.00, 27000.00, '2025-10-01 00:00:00', NULL, NOW(), FALSE),
 
---  Decolgen Forte
-(3, 120000.00, '2025-10-01', NULL, NOW(), FALSE),
+-- Decolgen Forte
+(3, 120000.00, 115000.00, '2025-10-01 00:00:00', NULL, NOW(), FALSE),
 
---  Aspirin 81mg
-(4, 140000.00, '2025-10-01', NULL, NOW(), FALSE),
+-- Aspirin 81mg
+(4, 140000.00, 135000.00, '2025-10-01 00:00:00', NULL, NOW(), FALSE),
 
---  Vitamin C 500mg
-(5, 185000.00, '2025-10-01', NULL, NOW(), FALSE),
+-- Vitamin C 500mg
+(5, 185000.00, 180000.00, '2025-10-01 00:00:00', NULL, NOW(), FALSE),
 
---  Panadol Extra
-(6, 85000.00, '2025-10-01', NULL, NOW(), FALSE),
+-- Panadol Extra
+(6, 85000.00, 83000.00, '2025-10-01 00:00:00', NULL, NOW(), FALSE),
 
---  Amoxicillin 500mg
-(7, 104000.00, '2025-10-01', NULL, NOW(), FALSE),
+-- Amoxicillin 500mg
+(7, 104000.00, 99000.00, '2025-10-01 00:00:00', NULL, NOW(), FALSE),
 
---  Efferalgan 500mg
-(8, 155000.00, '2025-10-01', NULL, NOW(), FALSE);
+-- Efferalgan 500mg
+(8, 155000.00, 150000.00, '2025-10-01 00:00:00', NULL, NOW(), FALSE);
 
-INSERT INTO stockadjustment (
+
+
+INSERT INTO stock_adjustments (
   variant_id, brand_id, batch_id, before_quantity, after_quantity, difference_quantity, reason, created_at, deleted
 )
 VALUES
@@ -490,46 +483,9 @@ VALUES
 --  Efferalgan 500mg: thiếu 4 hộp do khách trả không hợp lệ
 (8, 6, 8, 60, 56, -4, 'Khách trả hàng nhưng không nhập lại kho', NOW(), FALSE);
 
-INSERT INTO samples (
-  name, description, created_at, deleted
-)
-VALUES
-('Đơn cảm cúm', 'Dành cho người bị cảm nhẹ, sốt, nghẹt mũi.', NOW(), FALSE),
-('Đơn ho thông thường', 'Giảm ho, long đờm, đau họng nhẹ.', NOW(), FALSE),
-('Đơn viêm họng', 'Điều trị viêm họng cấp, đau rát họng.', NOW(), FALSE),
-('Đơn đau đầu', 'Giảm đau đầu, mỏi cổ vai gáy.', NOW(), FALSE),
-('Đơn vitamin tổng hợp', 'Tăng sức đề kháng, giảm mệt mỏi.', NOW(), FALSE),
-('Đơn cảm cúm trẻ em', 'Giảm sốt, ho, nghẹt mũi cho trẻ nhỏ.', NOW(), FALSE);
 
-INSERT INTO sample_details (
-  sample_id, variant_id, instruction, created_at, deleted
-)
-VALUES
---  1. Đơn cảm cúm
-(1, 1, 'Paracetamol 500mg – uống 1 viên sau ăn, ngày 3 lần.', NOW(), FALSE),
-(1, 3, 'Decolgen Forte – uống 1 viên buổi sáng và tối.', NOW(), FALSE),
-(1, 5, 'Vitamin C 500mg – uống 1 viên sau bữa trưa.', NOW(), FALSE),
-
---  2. Đơn ho thông thường
-(2, 2, 'Terpin Codein – uống 1 viên sau ăn sáng và tối.', NOW(), FALSE),
-(2, 8, 'Efferalgan 500mg – khi sốt ≥ 38°C, 1 viên mỗi 6 giờ.', NOW(), FALSE),
-
---  3. Đơn viêm họng
-(3, 7, 'Amoxicillin 500mg – uống 1 viên mỗi 8 giờ, sau ăn.', NOW(), FALSE),
-(3, 1, 'Paracetamol 500mg – giảm đau họng, ngày 3 lần.', NOW(), FALSE),
-(3, 5, 'Vitamin C 500mg – tăng đề kháng, 1 viên/ngày.', NOW(), FALSE),
-
---  4. Đơn đau đầu
-(4, 6, 'Panadol Extra – uống 1 viên khi đau, tối đa 3 viên/ngày.', NOW(), FALSE),
-
---  5. Đơn vitamin tổng hợp
-(5, 5, 'Vitamin C 500mg – 1 viên/ngày.', NOW(), FALSE),
-
---  6. Đơn cảm cúm trẻ em
-(6, 8, 'Efferalgan 250mg – dùng theo cân nặng trẻ, mỗi 6 giờ nếu sốt.', NOW(), FALSE);
-
-INSERT INTO report (
-  branch_id, report_type, report_date, total_revenue, totalProfit, totalSales, created_at, deleted
+INSERT INTO reports (
+  branch_id, report_type, report_date, total_revenue, total_profit, total_sales, created_at, deleted
 )
 VALUES
 --  Chi nhánh Hà Nội

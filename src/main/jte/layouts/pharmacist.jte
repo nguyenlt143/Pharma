@@ -33,19 +33,19 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="@{/pharmacist/pos}" class="nav-link">
                         <span class="nav-icon material-icons">shopping_cart</span>
                         <span class="nav-text">Bán hàng</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="@{/pharmacist/invoice}" class="nav-link">
                         <span class="nav-icon material-icons">receipt_long</span>
                         <span class="nav-text">Quản lý danh sách đon thuốc</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="@{/pharmacist/shift}" class="nav-link">
                         <span class="nav-icon material-icons">bar_chart</span>
                         <span class="nav-text">Tổng kết ca</span>
                     </a>

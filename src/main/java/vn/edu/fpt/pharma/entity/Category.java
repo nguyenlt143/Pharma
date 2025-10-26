@@ -19,6 +19,7 @@ import java.util.List;
 @SQLDelete(sql = "UPDATE categorys SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
 public class Category extends BaseEntity<Long> {
+    @Column(unique = true, nullable = false)
     private String name;
     private String description;
     @ManyToOne

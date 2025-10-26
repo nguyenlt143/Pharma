@@ -9,13 +9,13 @@ import vn.edu.fpt.pharma.constant.RequestStatus;
 import vn.edu.fpt.pharma.constant.RequestType;
 
 @Entity
-@Table(name = "requestforms")
+@Table(name = "request_forms")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@SQLDelete(sql = "UPDATE requestforms SET deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE request_forms SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
 public class RequestForm extends BaseEntity<Long> {
     private Long branchId;

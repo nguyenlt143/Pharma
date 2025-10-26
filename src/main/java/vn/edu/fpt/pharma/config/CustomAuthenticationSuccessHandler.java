@@ -34,7 +34,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         } else if (roles.contains("ROLE_WAREHOUSE")) {
             response.sendRedirect("/warehouse/dashboard");
         } else if (roles.contains("ROLE_PHARMACIST")) {
-            response.sendRedirect("/pharmacist/dashboard");
+            response.sendRedirect("/pharmacist/pos");
         } else {
             // fallback nếu không khớp role nào
             response.sendRedirect("/dashboard");

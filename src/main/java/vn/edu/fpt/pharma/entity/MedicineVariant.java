@@ -7,13 +7,13 @@ import org.hibernate.annotations.SQLRestriction;
 import vn.edu.fpt.pharma.base.BaseEntity;
 
 @Entity
-@Table(name = "medicinevariants")
+@Table(name = "medicine_variant")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@SQLDelete(sql = "UPDATE medicinevariants SET deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE medicine_variant SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
 public class MedicineVariant extends BaseEntity<Long> {
     @ManyToOne(fetch = FetchType.EAGER)

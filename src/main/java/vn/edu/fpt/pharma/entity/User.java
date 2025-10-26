@@ -2,13 +2,10 @@ package vn.edu.fpt.pharma.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import vn.edu.fpt.pharma.base.BaseEntity;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")

@@ -18,11 +18,12 @@ import vn.edu.fpt.pharma.constant.InvoiceType;
 @SQLDelete(sql = "UPDATE invoices SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
 public class Invoice extends BaseEntity<Long> {
+    @Column(unique = true, nullable = false)
     private String invoiceNumber;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id")
     private Customer customer;
-    private Long shiftworkId;
+    private Long shiftWorkId;
     private Long branchId;
     private Double totalPrice;
     private String description;

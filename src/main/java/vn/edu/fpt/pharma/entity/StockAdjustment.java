@@ -7,20 +7,20 @@ import org.hibernate.annotations.SQLRestriction;
 import vn.edu.fpt.pharma.base.BaseEntity;
 
 @Entity
-@Table(name = "stockadjustment")
+@Table(name = "stock_adjustments")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@SQLDelete(sql = "UPDATE stockadjustment SET deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE stock_adjustments SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
 public class StockAdjustment extends BaseEntity<Long> {
     private Long BrandId;
     private Long variantId;
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "batch_id_id")
-    private Batch batchId;
+    @JoinColumn(name = "batch_id")
+    private Batch batch;
     private Long beforeQuantity;
     private Long afterQuantity;
     private Long differenceQuantity;

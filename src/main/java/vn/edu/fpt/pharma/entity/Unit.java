@@ -1,5 +1,6 @@
 package vn.edu.fpt.pharma.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.*;
@@ -17,6 +18,7 @@ import vn.edu.fpt.pharma.base.BaseEntity;
 @SQLDelete(sql = "UPDATE units SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
 public class Unit extends BaseEntity<Long> {
+    @Column(unique = true, nullable = false)
     private String name;
     private String description;
 }

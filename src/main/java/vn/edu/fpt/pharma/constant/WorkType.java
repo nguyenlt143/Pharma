@@ -1,7 +1,7 @@
 package vn.edu.fpt.pharma.constant;
 
 public enum WorkType {
-    NOTSTARTED,
-    INWORK,
+    NOT_STARTED,
+    IN_WORK,
     DONE
 }

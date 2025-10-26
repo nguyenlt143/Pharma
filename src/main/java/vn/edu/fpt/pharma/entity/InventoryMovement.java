@@ -10,13 +10,13 @@ import vn.edu.fpt.pharma.constant.MovementStatus;
 import vn.edu.fpt.pharma.constant.MovementType;
 
 @Entity
-@Table(name = "inventorymovements")
+@Table(name = "inventory_movements")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@SQLDelete(sql = "UPDATE inventorymovements SET deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE inventory_movements SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
 public class InventoryMovement extends BaseEntity<Long> {
     @Enumerated(EnumType.STRING)
@@ -30,7 +30,7 @@ public class InventoryMovement extends BaseEntity<Long> {
     @JoinColumn(name = "request_form_id")
     private RequestForm requestForm;
     @Enumerated(EnumType.STRING)
-    private MovementStatus status;
+    private MovementStatus movementStatus;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "approved_by_id")
     private User approvedBy;

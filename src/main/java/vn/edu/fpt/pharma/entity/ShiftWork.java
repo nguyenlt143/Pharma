@@ -6,17 +6,16 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import vn.edu.fpt.pharma.base.BaseEntity;
 import vn.edu.fpt.pharma.constant.WorkType;
-
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
-@Table(name = "shiftworks")
+@Table(name = "shift_works")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@SQLDelete(sql = "UPDATE shiftworks SET deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE shift_works SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
 public class ShiftWork extends BaseEntity<Long> {
     @ManyToOne(fetch = FetchType.EAGER)
@@ -24,7 +23,7 @@ public class ShiftWork extends BaseEntity<Long> {
     private Shift shift;
     private Long branchId;
     private Long userId;
-    private LocalDateTime workDate;
+    private LocalDate workDate;
     @Enumerated(EnumType.STRING)
     private WorkType workType;
 }
