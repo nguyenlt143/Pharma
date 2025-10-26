@@ -1,11 +1,11 @@
 INSERT INTO roles (name, created_at, deleted)
 VALUES
-  ('Inventory Manager', NOW(), false),
-  ('Staff', NOW(), false),
-  ('WareHouse Manager', NOW(), false),
-  ('Business admin', NOW(), false),
-  ('System admin', NOW(), false),
-  ('Brand Manager', NOW(), false);
+    ('SYSTEM_ADMIN', NOW(), false),
+    ('BUSINESS_OWNER', NOW(), false),
+    ('BRANCH_MANAGER', NOW(), false),
+    ('BRANCH_WAREHOUSE', NOW(), false),
+    ('GENERAL_WAREHOUSE', NOW(), false),
+    ('PHARMACIST', NOW(), false);
 
 INSERT INTO branchs (name, branch_type, address, user_id, created_at, deleted)
 VALUES
@@ -358,7 +358,7 @@ INSERT INTO shiftworks (
 )
 VALUES
 -- Chi nhánh Hà Nội (user_id = 1)
-(1, 1, 1, '2025-10-25', 'Ca sáng', 'InWork', NOW(), FALSE),
+(1, 1, 1, '2025-10-25 08:00:00.000000', 'Ca sáng', 'InWork', NOW(), FALSE),
 (1, 2, 1, '2025-10-26', 'Ca chiều', 'NotStarted', NOW(), FALSE),
 
 -- Chi nhánh TP.HCM (user_id = 2)
