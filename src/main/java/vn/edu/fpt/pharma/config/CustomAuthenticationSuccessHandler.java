@@ -23,16 +23,16 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         Set<String> roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
 
         // Kiểm tra role và chuyển hướng
-        if (roles.contains("ROLE_SYSTEM_ADMIN")) {
-            response.sendRedirect("/system-admin/dashboard");
-        } else if (roles.contains("ROLE_BUSINESS_OWNER")) {
+        if (roles.contains("ROLE_ADMIN")) {
+            response.sendRedirect("/admin/dashboard");
+        } else if (roles.contains("ROLE_OWNER")) {
             response.sendRedirect("/owner/dashboard");
-        } else if (roles.contains("ROLE_BRANCH_MANAGER")) {
-            response.sendRedirect("/branch/manager/dashboard");
-        } else if (roles.contains("ROLE_BRANCH_WAREHOUSE")) {
-            response.sendRedirect("/branch/warehouse/dashboard");
-        } else if (roles.contains("ROLE_GENERAL_WAREHOUSE")) {
-            response.sendRedirect("/warehouse/general/dashboard");
+        } else if (roles.contains("ROLE_MANAGER")) {
+            response.sendRedirect("/manager/dashboard");
+        } else if (roles.contains("ROLE_INVENTORY")) {
+            response.sendRedirect("/inventory/dashboard");
+        } else if (roles.contains("ROLE_WAREHOUSE")) {
+            response.sendRedirect("/warehouse/dashboard");
         } else if (roles.contains("ROLE_PHARMACIST")) {
             response.sendRedirect("/pharmacist/dashboard");
         } else {

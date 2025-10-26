@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 @SQLDelete(sql = "UPDATE users SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
 public class User extends BaseEntity<Long> {
+    @Column(unique = true, nullable = false)
     private String userName;
     private String password;
     private String fullName;
