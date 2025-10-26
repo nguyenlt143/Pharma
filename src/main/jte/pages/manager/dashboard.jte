@@ -1,4 +1,7 @@
-@template.layouts.manager.main(content = @`
+
+@template.layouts.manager(
+headContent = @``,
+content = @`
     <main class="main">
         <div class="main-container">
             <div class="page-header">
@@ -143,4 +146,7 @@
             </div>
         </div>
     </main>
-`)
+`,
+pageScript = @``
+)
+

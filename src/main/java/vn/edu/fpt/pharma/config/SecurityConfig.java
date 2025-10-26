@@ -24,12 +24,12 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/login", "/css/**", "/js/**", "/images/**").permitAll()
-                        .requestMatchers("/system-admin/**").hasRole("SYSTEM_ADMIN")
-                        .requestMatchers("/owner/**").hasRole("BUSINESS_OWNER")
-                        .requestMatchers("/branch-manager/**").hasRole("BRANCH_MANAGER")
-                        .requestMatchers("/branch-warehouse/**").hasRole("BRANCH_WAREHOUSE")
-                        .requestMatchers("/warehouse/**").hasRole("GENERAL_WAREHOUSE")
-                        .requestMatchers("/pharmacist/**").hasRole("PHARMACIST")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/owner/**").hasRole("OWNER")
+                        .requestMatchers("/manager/**").hasRole("MANAGER")
+                        .requestMatchers("/inventory/**").hasRole("INVENTORY")
+                        .requestMatchers("/warehouse/**").hasRole("WAREHOUSE")
+                        .requestMatchers("/pharmacist").hasRole("PHARMACIST")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

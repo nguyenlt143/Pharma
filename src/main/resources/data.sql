@@ -1,10 +1,10 @@
 INSERT INTO roles (name, created_at, deleted)
 VALUES
-    ('SYSTEM_ADMIN', NOW(), false),
-    ('BUSINESS_OWNER', NOW(), false),
-    ('BRANCH_MANAGER', NOW(), false),
-    ('BRANCH_WAREHOUSE', NOW(), false),
-    ('GENERAL_WAREHOUSE', NOW(), false),
+    ('ADMIN', NOW(), false),
+    ('OWNER', NOW(), false),
+    ('MANAGER', NOW(), false),
+    ('INVENTORY', NOW(), false),
+    ('WAREHOUSE', NOW(), false),
     ('PHARMACIST', NOW(), false);
 
 INSERT INTO branchs (name, branch_type, address, user_id, created_at, deleted)
@@ -18,12 +18,12 @@ VALUES
 
 INSERT INTO users (user_name, password, full_name, role_id, branch_id, phone_number, email, image_url, created_at, deleted)
 VALUES
-  ('inv_manager', '123456', 'Nguyễn Văn Quản', 1, 1, '0901000001', 'inv_manager@company.com', NULL, NOW(), FALSE),
-  ('staff01', '123456', 'Trần Thị Nhân Viên', 2, 2, '0902000002', 'staff01@company.com', NULL, NOW(), FALSE),
-  ('warehouse_mgr', '123456', 'Lê Văn Kho', 3, 3, '0903000003', 'warehouse_mgr@company.com', NULL, NOW(), FALSE),
-  ('business_admin', '123456', 'Phạm Thị Kinh Doanh', 4, 4, '0904000004', 'business_admin@company.com', NULL, NOW(), FALSE),
-  ('sys_admin', '123456', 'Đặng Văn Hệ Thống', 5, 5, '0905000005', 'sys_admin@company.com', NULL, NOW(), FALSE),
-  ('brand_manager', '123456', 'Vũ Thị Thương Hiệu', 6, 6, '0906000006', 'brand_manager@company.com', NULL, NOW(), FALSE);
+  ('ADMIN', '123456', 'Nguyễn Văn Quản', 1, 1, '0901000001', 'inv_manager@company.com', NULL, NOW(), FALSE),
+  ('OWNER', '123456', 'Trần Thị Nhân Viên', 2, 2, '0902000002', 'staff01@company.com', NULL, NOW(), FALSE),
+  ('MANAGER', '123456', 'Lê Văn Kho', 3, 3, '0903000003', 'warehouse_mgr@company.com', NULL, NOW(), FALSE),
+  ('INVENTORY', '123456', 'Phạm Thị Kinh Doanh', 4, 4, '0904000004', 'business_admin@company.com', NULL, NOW(), FALSE),
+  ('WAREHOUSE', '123456', 'Đặng Văn Hệ Thống', 5, 5, '0905000005', 'sys_admin@company.com', NULL, NOW(), FALSE),
+  ('PHARMACIST', '123456', 'Vũ Thị Thương Hiệu', 6, 6, '0906000006', 'brand_manager@company.com', NULL, NOW(), FALSE);
 
 UPDATE branchs SET user_id = 1 WHERE id = 1;
 UPDATE branchs SET user_id = 2 WHERE id = 2;
