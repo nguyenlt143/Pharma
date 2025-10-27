@@ -47,4 +47,12 @@ public class PharmacistController {
     }
 
 
+    @GetMapping("/pos/hieu")
+    public String Hieu(Model model) {
+
+        return "pages/warehouse/receipt_create";
+    }
+
+
+
 }
