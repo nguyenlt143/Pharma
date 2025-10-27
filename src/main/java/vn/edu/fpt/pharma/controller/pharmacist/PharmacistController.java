@@ -50,4 +50,12 @@ public class PharmacistController {
         return "pages/pharmacist/work_schedule";
     }
 
+    @GetMapping("/pos/hieu")
+    public String Hieu(Model model) {
+
+        return "pages/warehouse/receipt_create";
+    }
+
+
+
 }
