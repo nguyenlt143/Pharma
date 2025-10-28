@@ -8,6 +8,7 @@
                     <input type="text" class="search-input" placeholder="Search for medication...">
                     <button class="search-button">Search</button>
                 </div>
+
             </div>
         </section>
         <!-- Right Panel -->

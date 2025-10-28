@@ -9,19 +9,47 @@ const paymentAmountInput = document.querySelector('.payment-details .form-input'
 const paymentMethodSelect = document.querySelector('.form-select');
 const notesTextarea = document.querySelector('.form-textarea');
 
-// Navigation functionality
+const userInfo = document.querySelector('.user-info');
+const dropdownButton = userInfo.querySelector('.user-dropdown');
+
+// Toggle khi nhấn nút mũi tên
+dropdownButton.addEventListener('click', (event) => {
+  event.stopPropagation(); // chặn click lan ra ngoài
+  userInfo.classList.toggle('active');
+});
+
+// Đóng khi click ra ngoài
+document.addEventListener('click', (event) => {
+  if (!userInfo.contains(event.target)) {
+    userInfo.classList.remove('active');
+  }
+});
+
+
+// Navigation functionality (fixed)
 const navLinks = document.querySelectorAll('.nav-link');
 navLinks.forEach(link => {
   link.addEventListener('click', (e) => {
     e.preventDefault();
 
-    // Remove active class from all links
     navLinks.forEach(l => l.classList.remove('active'));
 
-    // Add active class to clicked link
     link.classList.add('active');
 
-    console.log('Navigation clicked:', link.querySelector('.nav-text').textContent);
+    const targetUrl = link.getAttribute('href');
+
+    if (targetUrl && targetUrl !== '#') {
+      window.location.href = targetUrl;
+    }
+  });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const currentPath = window.location.pathname;
+  navLinks.forEach(link => {
+    if (link.getAttribute('href') === currentPath) {
+      link.classList.add('active');
+    }
   });
 });
 

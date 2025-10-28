@@ -1,11 +1,82 @@
-@template.layouts.pharmacist(
-headContent = @`<link rel="stylesheet" href="/assets/css/profile/profile.css">`,
-content = @`
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmSystem - Hồ sơ Nhân viên</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/profile/profile.css">
+</head>
+<body>
+<div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-content">
+            <!-- Logo Section -->
+            <div class="logo-section">
+                <div class="logo-container">
+                    <img src="https://static.codia.ai/image/2025-10-28/J3aPit5AYj.png" alt="PharmSystem Logo" class="logo-icon">
+                    <h1 class="logo-text">PharmSystem</h1>
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="nav-menu">
+                <div class="nav-item">
+                    <img src="https://static.codia.ai/image/2025-10-28/cjtgQPk09i.png" alt="Tổng quan" class="nav-icon">
+                    <span class="nav-text">Tổng quan</span>
+                </div>
+                <div class="nav-item">
+                    <img src="https://static.codia.ai/image/2025-10-28/Ge9S7NpA8L.png" alt="Đơn hàng" class="nav-icon">
+                    <span class="nav-text">Đơn hàng</span>
+                </div>
+                <div class="nav-item">
+                    <img src="https://static.codia.ai/image/2025-10-28/Q2LxpyHgz1.png" alt="Sản phẩm" class="nav-icon">
+                    <span class="nav-text">Sản phẩm</span>
+                </div>
+                <div class="nav-item active">
+                    <img src="https://static.codia.ai/image/2025-10-28/vv5XkZVLTk.png" alt="Nhân viên" class="nav-icon">
+                    <span class="nav-text">Nhân viên</span>
+                </div>
+                <div class="nav-item">
+                    <img src="https://static.codia.ai/image/2025-10-28/fuv6hzJ8ok.png" alt="Báo cáo" class="nav-icon">
+                    <span class="nav-text">Báo cáo</span>
+                </div>
+            </nav>
+        </div>
+
+        <!-- User Profile Section -->
+        <div class="user-profile-section">
+            <div class="user-profile">
+                <div class="user-info">
+                    <img src="https://static.codia.ai/image/2025-10-28/G5xs1LE1eD.png" alt="User Avatar" class="user-avatar">
+                    <div class="user-details">
+                        <div class="user-name">Nguyễn Văn An</div>
+                        <div class="user-role">Quản trị viên</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav-item">
+                <img src="https://static.codia.ai/image/2025-10-28/cOM2E9qboT.png" alt="Cài đặt" class="nav-icon">
+                <span class="nav-text">Cài đặt</span>
+            </div>
+            <div class="nav-item">
+                <img src="https://static.codia.ai/image/2025-10-28/H4XUWFjZbQ.png" alt="Đăng xuất" class="nav-icon">
+                <span class="nav-text">Đăng xuất</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
     <main class="main-content">
         <div class="content-wrapper">
             <!-- Page Header -->
             <header class="page-header">
                 <h1 class="page-title">Hồ sơ Nhân viên</h1>
+                <p class="page-description">Quản lý thông tin cá nhân và hoạt động của bạn.</p>
             </header>
 
             <!-- Content Grid -->
@@ -20,6 +91,7 @@ content = @`
                             </div>
                             <div class="profile-info">
                                 <h2 class="profile-name">Nguyễn Văn An</h2>
+                                <p class="profile-id">Mã NV: NV12345</p>
                             </div>
                         </div>
                     </div>
@@ -31,6 +103,10 @@ content = @`
                             <div class="info-row">
                                 <div class="info-label">Chức vụ</div>
                                 <div class="info-value">Dược sĩ</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Phòng ban</div>
+                                <div class="info-value">Phòng Kinh Doanh</div>
                             </div>
                             <div class="info-row">
                                 <div class="info-label">Email</div>
@@ -50,6 +126,8 @@ content = @`
                         <!-- Tab Navigation -->
                         <div class="tab-navigation">
                             <button class="tab-button active">Chỉnh sửa thông tin</button>
+                            <button class="tab-button">Thay đổi mật khẩu</button>
+                            <button class="tab-button">Lịch sử hoạt động</button>
                         </div>
 
                         <!-- Form Content -->
@@ -82,17 +160,6 @@ content = @`
                                         <label for="phone" class="form-label">Số điện thoại</label>
                                         <input type="tel" id="phone" class="form-input" value="0901234567">
                                     </div>
-
-                                    <div class="form-group">
-                                        <label for="password" class="form-label">Mật khẩu mới</label>
-                                        <input type="password" id="password" class="form-input" placeholder="Nhập mật khẩu mới">
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="confirmPassword" class="form-label">Nhập lại mật khẩu</label>
-                                        <input type="password" id="confirmPassword" class="form-input" placeholder="Nhập lại mật khẩu">
-                                    </div>
-
                                 </div>
 
                                 <div class="form-group full-width">
@@ -118,7 +185,8 @@ content = @`
             </div>
         </div>
     </main>
-`,
-pageScript = @`<script src="/assets/js/profile/profile.js"></script>`
-)
+</div>
 
+<script src="/assets/js/profile/profile.js"></script>
+</body>
+</html>

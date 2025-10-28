@@ -46,5 +46,15 @@ public class PharmacistController {
         return "pages/pharmacist/shift_detail";
     }
 
+    @GetMapping("/work")
+    public String work(Model model) {
 
+        return "pages/pharmacist/work_schedule";
+    }
+
+    @GetMapping("/profile")
+    public String profile(Model model) {
+
+        return "pages/profile/profile";
+    }
 }

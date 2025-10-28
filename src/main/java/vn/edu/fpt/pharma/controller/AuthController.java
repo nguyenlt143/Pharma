@@ -1,6 +1,7 @@
 package vn.edu.fpt.pharma.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,5 +30,6 @@ public class AuthController {
     public CustomUserDetails me() {
         return SecurityUtils.getUserDetail().orElse(null);
     }
+
 
 }

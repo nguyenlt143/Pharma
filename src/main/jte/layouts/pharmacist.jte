@@ -21,43 +21,37 @@
     <!-- Sidebar -->
     <aside class="sidebar">
         <header class="sidebar-header">
-            <h1 class="sidebar-title">QUẢN LÝ NHÀ THUỐC</h1>
+            <h1 class="sidebar-title">PharmSystem</h1>
         </header>
 
         <nav class="sidebar-nav">
             <ul class="nav-list">
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <span class="nav-icon material-icons">home</span>
-                        <span class="nav-text">Tổng quan</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="@{/pharmacist/pos}" class="nav-link">
+                    <a href="/pharmacist/pos" class="nav-link">
                         <span class="nav-icon material-icons">shopping_cart</span>
                         <span class="nav-text">Bán hàng</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="@{/pharmacist/invoice}" class="nav-link">
+                    <a href="/pharmacist/invoice" class="nav-link">
                         <span class="nav-icon material-icons">receipt_long</span>
-                        <span class="nav-text">Quản lý danh sách đon thuốc</span>
+                        <span class="nav-text">Quản lý danh sách đơn thuốc</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="@{/pharmacist/shift}" class="nav-link">
+                    <a href="/pharmacist/shift" class="nav-link">
                         <span class="nav-icon material-icons">bar_chart</span>
                         <span class="nav-text">Tổng kết ca</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="/pharmacist/work" class="nav-link">
                         <span class="nav-icon material-icons">summarize</span>
                         <span class="nav-text">Weekly work</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="/pharmacist/revenue" class="nav-link">
                         <span class="nav-icon material-icons">event_note</span>
                         <span class="nav-text">Báo cao danh thu</span>
                     </a>
@@ -99,21 +93,17 @@
                     <span class="date-text">01/01/2200</span>
                 </div>
 
-                <button class="play-button">
-                    <span class="material-icons">play_arrow</span>
-                </button>
-
-                <div class="utilities">
-                    <span class="material-icons utility-icon">lightbulb</span>
-                    <span class="utility-text">Tiện ích</span>
-                </div>
-
                 <div class="user-info">
                     <span class="material-icons user-icon">account_circle</span>
                     <span class="user-name">nhan vien a</span>
-                    <button class="user-dropdown">
+                    <button class="user-dropdown" type="button">
                         <span class="material-icons">arrow_drop_down</span>
                     </button>
+
+                    <div class="dropdown-menu">
+                        <a href="/pharmacist/profile">Thông tin cá nhân</a>
+                        <a href="/logout">Đăng xuất</a>
+                    </div>
                 </div>
             </div>
         </header>

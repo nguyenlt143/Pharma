@@ -352,6 +352,42 @@ body {
   font-size: 20px;
 }
 
+.user-info {
+  position: relative;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 110%;
+  right: 0;
+  background-color: #fff;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  min-width: 160px;
+  z-index: 10;
+}
+
+.dropdown-menu a {
+  display: block;
+  padding: 8px 12px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  color: #374151;
+  text-decoration: none;
+}
+
+.dropdown-menu a:hover {
+  background-color: #F3F4F6;
+}
+
+/* Khi user-info được active (mở menu) */
+.user-info.active .dropdown-menu {
+  display: block;
+}
+
+
 /* Content Area Styles */
 .content-area {
   flex: 1;
