@@ -23,18 +23,6 @@ document.addEventListener('click', function(event) {
   }
 });
 
-// Handle sidebar navigation
-document.querySelectorAll('.nav-link').forEach(link => {
-  link.addEventListener('click', function(e) {
-    e.preventDefault();
-
-    // Remove active class from all links
-    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-
-    // Add active class to clicked link
-    this.classList.add('active');
-  });
-});
 
 // Handle search functionality
 document.querySelector('.search-button').addEventListener('click', function() {
@@ -75,15 +63,6 @@ document.addEventListener('DOMContentLoaded', function() {
     firstNavLink.classList.add('active');
   }
 });
-
-// Handle responsive sidebar toggle
-function toggleSidebar() {
-  const sidebar = document.querySelector('.sidebar');
-  sidebar.classList.toggle('collapsed');
-}
-
-// Add event listener for menu button
-document.querySelector('.menu-button').addEventListener('click', toggleSidebar);
 
 // Handle table row selection
 document.querySelectorAll('.invoice-table tbody tr').forEach(row => {

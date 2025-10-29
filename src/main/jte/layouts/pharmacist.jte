@@ -12,7 +12,7 @@
     <title>Quản Lý Nhà Thuốc</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Inter:wght@400&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/pharmacist/pos.css">
+    <link rel="stylesheet" href="/assets/css/pharmacist/layout.css">
     ${headContent}
 
 </head>
@@ -71,13 +71,7 @@
         <!-- Header -->
         <header class="main-header">
             <div class="header-left">
-                <button class="menu-button">
-                    <span class="material-icons">menu</span>
-                </button>
-                <h2 class="branch-name">NHÀ THUỐC Chi nhánh DEMO</h2>
-                <button class="dropdown-button">
-                    <span class="material-icons">arrow_drop_down</span>
-                </button>
+                <h2 class="branch-name">NHÀ THUỐC HÀ NỘI</h2>
             </div>
 
             <div class="header-right">
@@ -115,7 +109,7 @@
     </main>
 </div>
 
-<script src="/assets/js/pharmacist/pos.js" defer></script>
+<script src="/assets/js/pharmacist/layout.js" defer></script>
 ${pageScript}
 </body>
 </html>

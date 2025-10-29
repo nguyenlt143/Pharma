@@ -247,25 +247,25 @@ INSERT INTO inventory_movements (
 )
 VALUES
 -- 1. Nhập hàng từ nhà cung cấp vào chi nhánh Hà Nội
-('SUPPLIER_IN', 1, NULL, 1, 1, 5, 'RECEIVED', NOW(), FALSE),
+('SUP_TO_WARE', 1, NULL, 1, 1, 5, 'RECEIVED', NOW(), FALSE),
 
 -- 2. Nhập hàng từ nhà cung cấp vào chi nhánh TP.HCM
-('SUPPLIER_IN', 2, NULL, 2, 2, 5, 'CLOSED', NOW(), FALSE),
+('SUP_TO_WARE', 2, NULL, 2, 2, 5, 'CLOSED', NOW(), FALSE),
 
 -- 3. Nhập hàng từ nhà cung cấp vào kho trung tâm
-('SUPPLIER_IN', 1, NULL, 3, 3, 5, 'RECEIVED', NOW(), FALSE),
+('SUP_TO_WARE', 1, NULL, 3, 3, 5, 'RECEIVED', NOW(), FALSE),
 
 -- 4. Trả hàng từ chi nhánh Đà Nẵng về kho trung tâm
-('BRANCH_RETURN', NULL, 4, 3, 4, 5, 'SHIPPED', NOW(), FALSE),
+('BR_TO_WARE', NULL, 4, 3, 4, 5, 'SHIPPED', NOW(), FALSE),
 
 -- 5. Trả hàng từ chi nhánh Hà Nội về kho trung tâm
-('BRANCH_RETURN', NULL, 1, 3, 5, 5, 'APPROVED', NOW(), FALSE),
+('BR_TO_WARE', NULL, 1, 3, 5, 5, 'APPROVED', NOW(), FALSE),
 
 -- 6. Đơn nhập bị hủy tại tổng công ty
-('SUPPLIER_IN', 3, NULL, 5, 6, 5, 'CANCELLED', NOW(), FALSE),
+('SUP_TO_WARE', 3, NULL, 5, 6, 5, 'CANCELLED', NOW(), FALSE),
 
 -- 7. Xuất hàng từ kho trung tâm sang kho miền Tây
-('WAREHOUSE_OUT', NULL, 3, 6, 7, 5, 'SHIPPED', NOW(), FALSE),
+('WARE_TO_BR', NULL, 3, 6, 7, 5, 'SHIPPED', NOW(), FALSE),
 
 -- 8. Xử lý hàng hủy tại kho miền Tây
 ('DISPOSAL', NULL, 6, NULL, 8, 5, 'CLOSED', NOW(), FALSE);
