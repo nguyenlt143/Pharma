@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import vn.edu.fpt.pharma.entity.RequestForm;
 
 public interface RequestFormRepository extends JpaRepository<RequestForm, Long>, JpaSpecificationExecutor<RequestForm> {
+    int countByRequestStatus(String requestStatus);
 }
