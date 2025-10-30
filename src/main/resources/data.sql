@@ -372,29 +372,29 @@ VALUES
 
 
 INSERT INTO invoices (
-  invoice_number, customer_id, shift_work_id, branch_id,
-  total_price, payment_method, invoice_type, created_at, deleted
+  invoice_code, customer_id, shift_work_id, branch_id,
+  total_price, payment_method, invoice_type, created_at, created_by, deleted
 )
 VALUES
 --  Hóa đơn tại Chi nhánh Hà Nội
-('INV-20251025-001', 1, 1, 1, 350000.00, 'Cash', 'PAID', NOW(), FALSE),
-('INV-20251025-002', 2, 2, 1, 120000.00, 'Card', 'PAID', NOW(), FALSE),
+('INV-20251025-001', 1, 1, 1, 350000.00, 'Cash', 'PAID', NOW(), 5,  FALSE),
+('INV-20251025-002', 2, 2, 1, 120000.00, 'Card', 'PAID', NOW(), 5, FALSE),
 
 --  Hóa đơn tại Chi nhánh TP.HCM
-('INV-20251025-003', 3, 4, 2, 560000.00, 'Cash', 'PAID', NOW(), FALSE),
-('INV-20251025-004', 4, 5, 2, 98000.00, 'Transfer', 'CANCELLED', NOW(), FALSE),
+('INV-20251025-003', 3, 4, 2, 560000.00, 'Cash', 'PAID', NOW(), 5, FALSE),
+('INV-20251025-004', 4, 5, 2, 98000.00, 'Transfer', 'CANCELLED',NOW(), 5, FALSE),
 
 --  Hóa đơn tại Kho Trung tâm (xuất nội bộ)
-('INV-20251025-005', NULL, 7, 3, 1850000.00, 'Transfer', 'DRAFT', NOW(), FALSE),
+('INV-20251025-005', NULL, 7, 3, 1850000.00, 'Transfer', 'DRAFT',NOW(), 5, FALSE),
 
 --  Hóa đơn tại Chi nhánh Đà Nẵng
-('INV-20251025-006', 5, 9, 4, 255000.00, 'Cash', 'PAID', NOW(), FALSE),
+('INV-20251025-006', 5, 9, 4, 255000.00, 'Cash', 'PAID', NOW(), 5, FALSE),
 
 --  Hóa đơn tại Tổng công ty (xuất điều phối nội bộ)
-('INV-20251025-007', NULL, 12, 5, 520000.00, 'Transfer', 'DRAFT', NOW(), FALSE),
+('INV-20251025-007', NULL, 12, 5, 520000.00, 'Transfer', 'DRAFT', NOW(), 5, FALSE),
 
 --  Hóa đơn tại Kho Miền Tây
-('INV-20251025-008', 6, 14, 6, 310000.00, 'Cash', 'PAID', NOW(), FALSE);
+('INV-20251025-008', 6, 14, 6, 310000.00, 'Cash', 'PAID', NOW(), 5, FALSE);
 
 INSERT INTO invoice_details (
   invoice_id, batch_id, variant_id, quantity, price, created_at, deleted
