@@ -25,4 +25,5 @@ public class InvoiceDetail extends BaseEntity<Long> {
     private Long variantId;
     private Long quantity;
     private Double price;
+    private Double costPrice;
 }

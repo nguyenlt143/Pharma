@@ -37,8 +37,9 @@ public class CustomUserDetails  implements UserDetails {
     public Long getId() {
         return user.getId();
     }
-
-
+    public User getUser() {
+        return user;
+    }
 
     public String getFullName() {
         return user.getFullName();

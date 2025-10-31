@@ -1,6 +1,5 @@
-
 @template.layouts.manager(
-headContent = @``,
+headContent = @`<link rel="stylesheet" href="/assets/css/manager/dashboard.css">`,
 content = @`
     <main class="main">
         <div class="main-container">
@@ -147,6 +146,6 @@ content = @`
         </div>
     </main>
 `,
-pageScript = @``
+pageScript = @`<script src="/assets/js/manager/dashboard.js" defer></script>`
 )
 

@@ -62,22 +62,47 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Simulate data updates (optional)
-    function updateStats() {
-        const statValues = document.querySelectorAll('.stat-value');
-        const changeTexts = document.querySelectorAll('.change-text');
+    // // Simulate data updates (optional)
+    // function updateStats() {
+    //     const statValues = document.querySelectorAll('.stat-value');
+    //     const changeTexts = document.querySelectorAll('.change-text');
+    //
+    //     // This is just for demonstration - in a real app, you'd fetch data from an API
+    //     const mockData = {
+    //         revenue: ['đ59.5M', 'đ62.1M', 'đ58.3M'],
+    //         profit: ['đ19.7M', 'đ20.5M', 'đ18.9M'],
+    //         orders: ['45', '52', '41'],
+    //         changes: ['+12%', '+8%', '+5%']
+    //     };
+    //
+    //     // You could implement actual data updates here
+    //     console.log('Stats could be updated with new data');
+    // }
 
-        // This is just for demonstration - in a real app, you'd fetch data from an API
-        const mockData = {
-            revenue: ['đ59.5M', 'đ62.1M', 'đ58.3M'],
-            profit: ['đ19.7M', 'đ20.5M', 'đ18.9M'],
-            orders: ['45', '52', '41'],
-            changes: ['+12%', '+8%', '+5%']
-        };
-
-        // You could implement actual data updates here
-        console.log('Stats could be updated with new data');
+    function fetchDashboardData(period = 'today') {
+        fetch(`/api/manager/dashboard?period=${period}`)
+            .then(res => res.json())
+            .then(data => updateUI(data))
+            .catch(err => console.error('Failed to fetch dashboard data', err));
     }
+
+    function updateUI(data) {
+        document.querySelector('.stat-card:nth-child(1) .stat-value').textContent = data.revenue;
+        document.querySelector('.stat-card:nth-child(2) .stat-value').textContent = data.profit;
+        document.querySelector('.stat-card:nth-child(3) .stat-value').textContent = data.orders;
+
+        document.querySelector('.stat-card:nth-child(1) .change-text').textContent = data.changeRevenue;
+        document.querySelector('.stat-card:nth-child(2) .change-text').textContent = data.changeProfit;
+        document.querySelector('.stat-card:nth-child(3) .change-text').textContent = data.changeOrders;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Lần đầu load
+        fetchDashboardData('today');
+
+        // Cập nhật tự động mỗi 30s
+        setInterval(() => fetchDashboardData('today'), 30000);
+    });
 
     // Optional: Update stats every 30 seconds (commented out for demo)
     // setInterval(updateStats, 30000);
