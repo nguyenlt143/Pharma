@@ -19,7 +19,7 @@ import vn.edu.fpt.pharma.constant.InvoiceType;
 @SQLRestriction("deleted = false")
 public class Invoice extends BaseEntity<Long> {
     @Column(unique = true, nullable = false)
-    private String invoiceNumber;
+    private String invoiceCode;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id")
     private Customer customer;
