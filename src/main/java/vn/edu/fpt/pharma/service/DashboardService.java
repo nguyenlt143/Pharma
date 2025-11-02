@@ -1,8 +1,7 @@
 package vn.edu.fpt.pharma.service;
 
+import java.util.Map;
+
 public interface DashboardService {
-    int countWaitingOrders();
-    String getLastInventoryCheck();
-    int countNearlyExpiredMedicines();
-    int countLowStockItems();
+    Map<String, Object> getDashboardData();
 }
