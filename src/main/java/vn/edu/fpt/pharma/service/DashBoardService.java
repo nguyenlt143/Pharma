@@ -1,13 +1,9 @@
 package vn.edu.fpt.pharma.service;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import vn.edu.fpt.pharma.config.CustomUserDetails;
 import vn.edu.fpt.pharma.dto.manager.DailyRevenue;
 import vn.edu.fpt.pharma.dto.manager.DashboardData;
 import vn.edu.fpt.pharma.dto.manager.KpiData;
-import vn.edu.fpt.pharma.entity.User;
 import vn.edu.fpt.pharma.repository.InvoiceRepository;
 
 import java.time.LocalDate;

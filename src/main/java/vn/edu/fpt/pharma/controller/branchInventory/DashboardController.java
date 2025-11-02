@@ -4,13 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import vn.edu.fpt.pharma.service.DashboardService;
+import vn.edu.fpt.pharma.service.DashboardServicev2;
 
 @Controller
 @RequiredArgsConstructor
 public class DashboardController {
 
-    private final DashboardService dashboardService;
+    private final DashboardServicev2 dashboardService;
 
     @GetMapping("/inventory/dashboard")
     public String dashboard(Model model) {

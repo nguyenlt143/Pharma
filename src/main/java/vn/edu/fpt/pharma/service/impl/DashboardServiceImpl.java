@@ -1,10 +1,10 @@
 package vn.edu.fpt.pharma.service.impl;
 
 import org.springframework.stereotype.Service;
-import vn.edu.fpt.pharma.service.DashboardService;
+import vn.edu.fpt.pharma.service.DashboardServicev2;
 
 @Service
-public class DashboardServiceImpl implements DashboardService {
+public class DashboardServiceImpl implements DashboardServicev2 {
     @Override
     public int countWaitingOrders() {
         return 2;
