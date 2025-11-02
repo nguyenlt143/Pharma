@@ -1,59 +1,3 @@
-document.addEventListener('DOMContentLoaded', function() {
-  // Mobile menu toggle
-  const menuButton = document.querySelector('.menu-button');
-  const sidebar = document.querySelector('.sidebar');
-
-  if (menuButton && sidebar) {
-    menuButton.addEventListener('click', function() {
-      sidebar.classList.toggle('open');
-    });
-  }
-
-  // Close sidebar when clicking outside on mobile
-  document.addEventListener('click', function(event) {
-    if (window.innerWidth <= 768) {
-      if (!sidebar.contains(event.target) && !menuButton.contains(event.target)) {
-        sidebar.classList.remove('open');
-      }
-    }
-  });
-
-  // Navigation link interactions
-  const navLinks = document.querySelectorAll('.nav-link');
-  navLinks.forEach(link => {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-
-      // Remove active class from all links
-      navLinks.forEach(l => l.classList.remove('active'));
-
-      // Add active class to clicked link
-      this.classList.add('active');
-
-      // Close mobile menu if open
-      if (window.innerWidth <= 768) {
-        sidebar.classList.remove('open');
-      }
-    });
-  });
-
-  // Control buttons functionality
-  const pauseButton = document.querySelector('.pause-button');
-  const stopButton = document.querySelector('.stop-button');
-
-  if (pauseButton) {
-    pauseButton.addEventListener('click', function() {
-      console.log('Pause button clicked');
-      // Add pause functionality here
-    });
-  }
-
-  if (stopButton) {
-    stopButton.addEventListener('click', function() {
-      console.log('Stop button clicked');
-      // Add stop functionality here
-    });
-  }
 
   // Date input functionality
   const dateInput = document.querySelector('.date-input');
@@ -61,33 +5,6 @@ document.addEventListener('DOMContentLoaded', function() {
     dateInput.addEventListener('click', function() {
       // You can integrate a date picker library here
       console.log('Date input clicked');
-    });
-  }
-
-  // Dropdown button functionality
-  const dropdownButtons = document.querySelectorAll('.dropdown-button, .user-dropdown');
-  dropdownButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      console.log('Dropdown button clicked');
-      // Add dropdown menu functionality here
-    });
-  });
-
-  // Back button functionality
-  const backButton = document.querySelector('.back-button');
-  if (backButton) {
-    backButton.addEventListener('click', function() {
-      console.log('Back button clicked');
-      // Add navigation back functionality here
-    });
-  }
-
-  // Play button functionality
-  const playButton = document.querySelector('.play-button');
-  if (playButton) {
-    playButton.addEventListener('click', function() {
-      console.log('Play button clicked');
-      // Add play functionality here
     });
   }
 

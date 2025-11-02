@@ -1,38 +1,3 @@
-document.addEventListener('DOMContentLoaded', function() {
-  // Menu button functionality
-  const menuButton = document.querySelector('.menu-button');
-  const sidebar = document.querySelector('.sidebar');
-
-  menuButton.addEventListener('click', function() {
-    sidebar.classList.toggle('collapsed');
-  });
-
-  // Navigation link interactions
-  const navLinks = document.querySelectorAll('.nav-link');
-  navLinks.forEach(link => {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-
-      // Remove active class from all links
-      navLinks.forEach(l => l.classList.remove('active'));
-
-      // Add active class to clicked link
-      this.classList.add('active');
-
-      // Update main content based on selection
-      const linkText = this.querySelector('.nav-text').textContent;
-      console.log('Navigated to:', linkText);
-    });
-  });
-
-  // Dropdown functionality
-  const dropdownButtons = document.querySelectorAll('.dropdown-button, .user-dropdown');
-  dropdownButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      console.log('Dropdown clicked');
-      // Add dropdown menu functionality here
-    });
-  });
 
   // Control select changes
   const controlSelects = document.querySelectorAll('.control-select');
@@ -44,26 +9,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Return button functionality
-  const returnButton = document.querySelector('.return-button');
-  returnButton.addEventListener('click', function() {
-    console.log('Return button clicked');
-    // Navigate back or close current view
-  });
-
-  // Back button in sidebar
-  const backButton = document.querySelector('.back-button');
-  backButton.addEventListener('click', function() {
-    console.log('Back button clicked');
-    // Navigate back functionality
-  });
-
-  // Play button functionality
-  const playButton = document.querySelector('.play-button');
-  playButton.addEventListener('click', function() {
-    console.log('Play button clicked');
-    // Start/stop functionality
-  });
 
   // Function to update schedule table based on filters
   function updateScheduleTable() {
@@ -100,15 +45,6 @@ document.addEventListener('DOMContentLoaded', function() {
       icon.title = text;
     }
   });
-
-  // Responsive sidebar toggle for mobile
-  function handleResize() {
-    if (window.innerWidth <= 768) {
-      sidebar.classList.add('mobile');
-    } else {
-      sidebar.classList.remove('mobile');
-    }
-  }
 
   window.addEventListener('resize', handleResize);
   handleResize(); // Initial check
