@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700@display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/manager/dashboard.css">
+    <link rel="stylesheet" href="/assets/css/manager/header.css">
     ${headContent}
 </head>
 <body>
@@ -27,11 +27,11 @@
             </div>
 
             <nav class="nav">
-                <a href="#" class="nav-link active">Tổng quan</a>
-                <a href="#" class="nav-link">Hóa đơn</a>
-                <a href="#" class="nav-link">Sổ quỹ</a>
-                <a href="#" class="nav-link">Báo cáo</a>
-                <a href="#" class="nav-link">Nhân sự</a>
+                <a href="/manager/dashboard" class="nav-link active">Tổng quan</a>
+                <a href="/manager/sale" class="nav-link">Hóa đơn</a>
+                <a href="/manager/shift" class="nav-link">Ca làm việc</a>
+                <a href="/manager/report" class="nav-link">Báo cáo</a>
+                <a href="/manager/staff" class="nav-link">Nhân viên</a>
             </nav>
 
             <div class="user-section">
