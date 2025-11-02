@@ -8,5 +8,12 @@ public class TopProductItem {
     private long value; // Doanh thu hoặc số lượng
     private double percentage; // Tỷ lệ % so với item top 1 (dùng để vẽ thanh progress bar)
     // Getters & Setters
+
+
+    public TopProductItem(String name, long value) {
+        this.name = name;
+        this.value = value;
+        this.percentage = 0.0;
+    }
 }
 

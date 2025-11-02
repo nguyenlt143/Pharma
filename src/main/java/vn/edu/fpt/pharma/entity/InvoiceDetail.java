@@ -22,7 +22,9 @@ public class InvoiceDetail extends BaseEntity<Long> {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "batch_id")
     private Batch batch;
-    private Long variantId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "variant_id", nullable = false)
+    private MedicineVariant variant;
     private Long quantity;
     private Double price;
     private Double costPrice;

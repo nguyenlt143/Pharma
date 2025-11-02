@@ -9,7 +9,7 @@ public class DashboardData {
     private int days;
     private KpiData kpis;
     private List<DailyRevenue> dailyRevenues;
-    private TopProductsData topSellingProducts;
+    private List<TopProductItem> topSellingProducts;
     // Getters & Setters
 }
 

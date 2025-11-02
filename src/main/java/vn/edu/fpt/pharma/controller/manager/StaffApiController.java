@@ -24,7 +24,6 @@ public class StaffApiController {
         return userService.getStaffs(branchId);
     }
 
-
     @GetMapping("/{id}")
     public UserDto getById(@PathVariable Long id) {
         return userService.getById(id);

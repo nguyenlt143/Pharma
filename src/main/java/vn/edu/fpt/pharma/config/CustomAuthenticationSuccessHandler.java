@@ -31,13 +31,6 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         Set<String> roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
 
-        // 👉 Lưu thông tin user vào session
-        String username = authentication.getName();
-        User userEntity = userService.findByUserName(username);
-
-        HttpSession session = request.getSession();
-        session.setAttribute("user", userEntity);
-
         // 👉 Chuyển hướng theo role
         if (roles.contains("ROLE_ADMIN")) {
             response.sendRedirect("/admin/dashboard");

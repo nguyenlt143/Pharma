@@ -13,4 +13,5 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     Optional<User> findByUserNameIgnoreCase(String username);
     @Query("SELECT u FROM User u WHERE (u.role.id = 4 OR u.role.id = 6) AND u.branchId = :branchId")
     List<User> findStaffInBranchId( Long branchId);
+    List<User> findByBranchId(Long branchId);
 }

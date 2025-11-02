@@ -24,7 +24,7 @@ public class DashBoardService {
         this.invoiceRepository = invoiceRepository;
     }
 
-    public DashboardData getDashboardDataByPeriod(int days,Long branchId) {
+    public DashboardData getDashboardData(int days,Long branchId) {
         DashboardData data = new DashboardData();
         data.setDays(days);
         data.setKpis(getKpi(branchId,days));
@@ -52,5 +52,6 @@ public class DashBoardService {
                 today.plusDays(1).atStartOfDay()
         );
     }
+
 
 }

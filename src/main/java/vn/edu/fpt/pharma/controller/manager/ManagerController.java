@@ -10,27 +10,27 @@ public class ManagerController {
 
     @GetMapping("/dashboard")
     public String dashboard() {
-        return "manager/dashboard.jte";
+        return "pages/manager/dashboard";
     }
 
     @GetMapping("/staff")
     public String staffPage() {
-        return "manager/staff.jte";
+        return "pages/manager/staff";
     }
 
     @GetMapping("/report")
     public String reportsPage() {
-        return "manager/report.jte";
+        return "pages/manager/report";
     }
 
     @GetMapping("/shift")
     public String shiftPage() {
-        return "manager/shift.jte";
+        return "pages/manager/shift";
     }
 
     @GetMapping("/sale")
     public String saleReportPage() {
-        return "manager/sale.jte";
+        return "pages/manager/sale";
     }
 }
 

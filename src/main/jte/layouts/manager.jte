@@ -27,11 +27,11 @@
             </div>
 
             <nav class="nav">
-                <a href="#" class="nav-link active">Tổng quan</a>
-                <a href="#" class="nav-link">Hóa đơn</a>
-                <a href="#" class="nav-link">Sổ quỹ</a>
-                <a href="#" class="nav-link">Báo cáo</a>
-                <a href="#" class="nav-link">Nhân sự</a>
+                <a href="/manager/dashboard" class="nav-link active">Tổng quan</a>
+                <a href="/manager/sale" class="nav-link">Hóa đơn</a>
+                <a href="/manager/shift" class="nav-link">Ca làm việc</a>
+                <a href="/manager/report" class="nav-link">Báo cáo</a>
+                <a href="/manager/staff" class="nav-link">Nhân viên</a>
             </nav>
 
             <div class="user-section">

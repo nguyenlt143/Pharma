@@ -6,9 +6,9 @@ content = @`
             <div class="page-header">
                 <h2 class="page-title">Bảng điều khiển</h2>
                 <div class="time-filter">
-                    <button class="filter-btn active">Hôm nay</button>
-                    <button class="filter-btn">Tuần</button>
-                    <button class="filter-btn">Tháng</button>
+                    <button class="filter-btn active" data-range="0">Hôm nay</button>
+                    <button class="filter-btn" data-range="7">7 ngày</button>
+                    <button class="filter-btn" data-range="30">30 ngày</button>
                 </div>
             </div>
 
@@ -17,7 +17,7 @@ content = @`
                     <div class="stat-content">
                         <div class="stat-info">
                             <p class="stat-label">Doanh thu hôm nay</p>
-                            <p class="stat-value">đ59.5M</p>
+                            <p class="stat-value">đM</p>
                         </div>
                         <img src="https://static.codia.ai/image/2025-10-26/RY2aKkT255.png" alt="Revenue Icon" class="stat-icon">
                     </div>
@@ -30,7 +30,7 @@ content = @`
                 <div class="stat-card">
                     <div class="stat-content">
                         <div class="stat-info">
-                            <p class="stat-label">Lợi nhuận hôm nay</p>
+                            <p class="stat-label">Lợi nhuận </p>
                             <p class="stat-value">đ19.7M</p>
                         </div>
                         <img src="https://static.codia.ai/image/2025-10-26/osQnzvdUjA.png" alt="Profit Icon" class="stat-icon">

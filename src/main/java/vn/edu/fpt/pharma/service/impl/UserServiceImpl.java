@@ -14,7 +14,6 @@ import vn.edu.fpt.pharma.dto.user.UserVM;
 import vn.edu.fpt.pharma.entity.Role;
 import vn.edu.fpt.pharma.entity.User;
 import vn.edu.fpt.pharma.repository.RoleRepository;
-import vn.edu.fpt.pharma.repository.StoreRepository;
 import vn.edu.fpt.pharma.repository.UserRepository;
 import vn.edu.fpt.pharma.service.AuditService;
 import vn.edu.fpt.pharma.service.UserService;
@@ -25,16 +24,15 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository> implements UserService, UserDetailsService {
 
-    private final StoreRepository storeRepository;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
-    public UserServiceImpl(UserRepository repository, AuditService auditService, StoreRepository storeRepository, UserRepository userRepository, RoleRepository roleRepository) {
+    public UserServiceImpl(UserRepository repository, AuditService auditService, UserRepository userRepository, RoleRepository roleRepository) {
         super(repository, auditService);
-        this.storeRepository = storeRepository;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
     }
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -113,8 +111,8 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
 
     @Override
     public User findByUserName(String username) {
-        User u= repository.findByUserNameIgnoreCase(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));;
-        return u;
+        return repository.findByUserNameIgnoreCase(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
 

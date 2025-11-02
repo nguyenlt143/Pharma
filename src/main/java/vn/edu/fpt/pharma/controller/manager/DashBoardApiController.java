@@ -1,6 +1,5 @@
 package vn.edu.fpt.pharma.controller.manager;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,7 +14,6 @@ import vn.edu.fpt.pharma.service.DashBoardService;
 @RestController
 @RequestMapping("/api/manager/dashboard")
 public class DashBoardApiController {
-    @Autowired
     private final DashBoardService dashboardService;
     public DashBoardApiController(DashBoardService dashboardService) {
         this.dashboardService = dashboardService;
@@ -24,10 +22,10 @@ public class DashBoardApiController {
 
     @GetMapping
     public ResponseEntity<DashboardData> getDashboardData(
-            @RequestParam(name = "day", defaultValue = "0") int days,
+            @RequestParam(name = "days", defaultValue = "0") int days,
             @AuthenticationPrincipal UserDetails userDetails) {
         Long branchId = ((CustomUserDetails) userDetails).getUser().getBranchId();
-        DashboardData data = dashboardService.getDashboardDataByPeriod(days,branchId);
+        DashboardData data = dashboardService.getDashboardData(days,branchId);
         return ResponseEntity.ok(data);
     }
 }
