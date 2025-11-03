@@ -22,6 +22,12 @@ public class PharmacistController {
         return "pages/pharmacist/invoice";
     }
 
+    @GetMapping("/invoice/detail")
+    public String invoiceDetail(Model model) {
+
+        return "pages/pharmacist/invoice_detail";
+    }
+
     @GetMapping("/revenue")
     public String revenue(Model model) {
 
