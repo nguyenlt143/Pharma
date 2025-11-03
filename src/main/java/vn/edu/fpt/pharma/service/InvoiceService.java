@@ -1,6 +1,5 @@
 package vn.edu.fpt.pharma.service;
 
-import org.springframework.stereotype.Service;
 import vn.edu.fpt.pharma.base.BaseService;
 import vn.edu.fpt.pharma.dto.DataTableRequest;
 import vn.edu.fpt.pharma.dto.DataTableResponse;

@@ -25,8 +25,8 @@ public class InvoiceController {
     private final InvoiceService invoiceService;
 
     @GetMapping
-    public String index(){
-        return "pages/pharmacist/index";
+    public String invoices(){
+        return "pages/pharmacist/invoices";
     }
 
     @ExceptionHandler(Exception.class)
