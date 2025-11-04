@@ -2,7 +2,7 @@
     headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/revenue.css">`,
     content = @`
         <!-- Main Content Area -->
-        <main class="main">
+        <main class="main-content">
             <div class="report-container">
                 <!-- Report Header -->
                 <div class="report-header">
@@ -73,7 +73,7 @@
                             <td class="amount revenue"><strong>659,000.00</strong></td>
                         </tr>
                         <tr>
-                            <td>1</td>
+                            <td><a href="/pharmacist/revenue/detail" class="dropdown-item">1</a></td>
                             <td>8/2022</td>
                             <td class="amount">552,000.00</td>
                             <td class="amount">4,000.00</td>
@@ -81,7 +81,7 @@
                             <td class="amount">548,000.00</td>
                         </tr>
                         <tr class="alternate">
-                            <td>2</td>
+                            <td><a href="/pharmacist/revenue/detail" class="dropdown-item">2</a></td>
                             <td>7/2022</td>
                             <td class="amount">151,000.00</td>
                             <td class="amount">60,000.00</td>
@@ -89,7 +89,7 @@
                             <td class="amount">91,000.00</td>
                         </tr>
                         <tr>
-                            <td>3</td>
+                            <td><a href="/pharmacist/revenue/detail" class="dropdown-item">3</a></td>
                             <td>6/2022</td>
                             <td class="amount">20,000.00</td>
                             <td class="amount">0.00</td>
@@ -125,13 +125,6 @@
                     </div>
                 </div>
 
-                <!-- Back Button -->
-                <div class="action-buttons">
-                    <button class="back-action-button">
-                        <span class="material-icons">arrow_back</span>
-                        <span>TRỞ VỀ</span>
-                    </button>
-                </div>
             </div>
         </main>
     `,

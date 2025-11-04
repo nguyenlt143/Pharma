@@ -3,12 +3,6 @@
     content = @`
     <!-- Main Content Area -->
     <main class="main-content">
-        <div class="page-header">
-            <h2>
-                <span class="material-icons">menu</span>
-                QUẢN LÝ HÓA ĐƠN
-            </h2>
-        </div>
 
         <!-- Filter Section -->
         <div class="filter-section">
@@ -30,9 +24,9 @@
                 </div>
 
                 <div class="filter-group">
-                    <label>Loại thời gian tìm kiếm</label>
+                    <label>Ca Bán</label>
                     <select>
-                        <option>Ngày bán</option>
+                        <option>Ca sáng</option>
                     </select>
                 </div>
 
@@ -116,21 +110,6 @@
                                         <span class="material-icons">print</span>
                                         <span>In phiếu</span>
                                     </a>
-                                    <a href="#" class="dropdown-item">
-                                        <span class="material-icons">print</span>
-                                        <span>In liều dùng</span>
-                                    </a>
-                                    <a href="#" class="dropdown-item">
-                                        <span class="material-icons">close</span>
-                                    </a>
-                                    <a href="#" class="dropdown-item">
-                                        <span class="material-icons">assignment_return</span>
-                                        <span>Tạo phiếu khách trả</span>
-                                    </a>
-                                    <a href="#" class="dropdown-item">
-                                        <span class="material-icons">link</span>
-                                        <span>Liên thông phiếu</span>
-                                    </a>
                                 </div>
                             </div>
                         </td>
@@ -169,21 +148,6 @@
                                     <a href="#" class="dropdown-item">
                                         <span class="material-icons">print</span>
                                         <span>In phiếu</span>
-                                    </a>
-                                    <a href="#" class="dropdown-item">
-                                        <span class="material-icons">print</span>
-                                        <span>In liều dùng</span>
-                                    </a>
-                                    <a href="#" class="dropdown-item">
-                                        <span class="material-icons">close</span>
-                                    </a>
-                                    <a href="#" class="dropdown-item">
-                                        <span class="material-icons">assignment_return</span>
-                                        <span>Tạo phiếu khách trả</span>
-                                    </a>
-                                    <a href="#" class="dropdown-item">
-                                        <span class="material-icons">link</span>
-                                        <span>Liên thông phiếu</span>
                                     </a>
                                 </div>
                             </div>
@@ -224,21 +188,6 @@
                                         <span class="material-icons">print</span>
                                         <span>In phiếu</span>
                                     </a>
-                                    <a href="#" class="dropdown-item">
-                                        <span class="material-icons">print</span>
-                                        <span>In liều dùng</span>
-                                    </a>
-                                    <a href="#" class="dropdown-item">
-                                        <span class="material-icons">close</span>
-                                    </a>
-                                    <a href="#" class="dropdown-item">
-                                        <span class="material-icons">assignment_return</span>
-                                        <span>Tạo phiếu khách trả</span>
-                                    </a>
-                                    <a href="#" class="dropdown-item">
-                                        <span class="material-icons">link</span>
-                                        <span>Liên thông phiếu</span>
-                                    </a>
                                 </div>
                             </div>
                         </td>
@@ -277,21 +226,6 @@
                                     <a href="#" class="dropdown-item">
                                         <span class="material-icons">print</span>
                                         <span>In phiếu</span>
-                                    </a>
-                                    <a href="#" class="dropdown-item">
-                                        <span class="material-icons">print</span>
-                                        <span>In liều dùng</span>
-                                    </a>
-                                    <a href="#" class="dropdown-item">
-                                        <span class="material-icons">close</span>
-                                    </a>
-                                    <a href="#" class="dropdown-item">
-                                        <span class="material-icons">assignment_return</span>
-                                        <span>Tạo phiếu khách trả</span>
-                                    </a>
-                                    <a href="#" class="dropdown-item">
-                                        <span class="material-icons">link</span>
-                                        <span>Liên thông phiếu</span>
                                     </a>
                                 </div>
                             </div>

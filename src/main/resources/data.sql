@@ -247,25 +247,25 @@ INSERT INTO inventory_movements (
 )
 VALUES
 -- 1. Nhập hàng từ nhà cung cấp vào chi nhánh Hà Nội
-('SUPPLIER_IN', 1, NULL, 1, 1, 5, 'RECEIVED', NOW(), FALSE),
+('SUP_TO_WARE', 1, NULL, 1, 1, 5, 'RECEIVED', NOW(), FALSE),
 
 -- 2. Nhập hàng từ nhà cung cấp vào chi nhánh TP.HCM
-('SUPPLIER_IN', 2, NULL, 2, 2, 5, 'CLOSED', NOW(), FALSE),
+('SUP_TO_WARE', 2, NULL, 2, 2, 5, 'CLOSED', NOW(), FALSE),
 
 -- 3. Nhập hàng từ nhà cung cấp vào kho trung tâm
-('SUPPLIER_IN', 1, NULL, 3, 3, 5, 'RECEIVED', NOW(), FALSE),
+('SUP_TO_WARE', 1, NULL, 3, 3, 5, 'RECEIVED', NOW(), FALSE),
 
 -- 4. Trả hàng từ chi nhánh Đà Nẵng về kho trung tâm
-('BRANCH_RETURN', NULL, 4, 3, 4, 5, 'SHIPPED', NOW(), FALSE),
+('BR_TO_WARE', NULL, 4, 3, 4, 5, 'SHIPPED', NOW(), FALSE),
 
 -- 5. Trả hàng từ chi nhánh Hà Nội về kho trung tâm
-('BRANCH_RETURN', NULL, 1, 3, 5, 5, 'APPROVED', NOW(), FALSE),
+('BR_TO_WARE', NULL, 1, 3, 5, 5, 'APPROVED', NOW(), FALSE),
 
 -- 6. Đơn nhập bị hủy tại tổng công ty
-('SUPPLIER_IN', 3, NULL, 5, 6, 5, 'CANCELLED', NOW(), FALSE),
+('SUP_TO_WARE', 3, NULL, 5, 6, 5, 'CANCELLED', NOW(), FALSE),
 
 -- 7. Xuất hàng từ kho trung tâm sang kho miền Tây
-('WAREHOUSE_OUT', NULL, 3, 6, 7, 5, 'SHIPPED', NOW(), FALSE),
+('WARE_TO_BR', NULL, 3, 6, 7, 5, 'SHIPPED', NOW(), FALSE),
 
 -- 8. Xử lý hàng hủy tại kho miền Tây
 ('DISPOSAL', NULL, 6, NULL, 8, 5, 'CLOSED', NOW(), FALSE);
@@ -372,29 +372,29 @@ VALUES
 
 
 INSERT INTO invoices (
-  invoice_number, customer_id, shift_work_id, branch_id,
-  total_price, payment_method, invoice_type, created_at, deleted
+  invoice_code, customer_id, shift_work_id, branch_id,
+  total_price, payment_method, invoice_type, created_at, created_by, deleted
 )
 VALUES
 --  Hóa đơn tại Chi nhánh Hà Nội
-('INV-20251025-001', 1, 1, 1, 350000.00, 'Cash', 'PAID', NOW(), FALSE),
-('INV-20251025-002', 2, 2, 1, 120000.00, 'Card', 'PAID', NOW(), FALSE),
+('INV-20251025-001', 1, 1, 1, 350000.00, 'Cash', 'PAID', NOW(), 5,  FALSE),
+('INV-20251025-002', 2, 2, 1, 120000.00, 'Card', 'PAID', NOW(), 5, FALSE),
 
 --  Hóa đơn tại Chi nhánh TP.HCM
-('INV-20251025-003', 3, 4, 2, 560000.00, 'Cash', 'PAID', NOW(), FALSE),
-('INV-20251025-004', 4, 5, 2, 98000.00, 'Transfer', 'CANCELLED', NOW(), FALSE),
+('INV-20251025-003', 3, 4, 2, 560000.00, 'Cash', 'PAID', NOW(), 5, FALSE),
+('INV-20251025-004', 4, 5, 2, 98000.00, 'Transfer', 'CANCELLED',NOW(), 5, FALSE),
 
 --  Hóa đơn tại Kho Trung tâm (xuất nội bộ)
-('INV-20251025-005', NULL, 7, 3, 1850000.00, 'Transfer', 'DRAFT', NOW(), FALSE),
+('INV-20251025-005', NULL, 7, 3, 1850000.00, 'Transfer', 'DRAFT',NOW(), 5, FALSE),
 
 --  Hóa đơn tại Chi nhánh Đà Nẵng
-('INV-20251025-006', 5, 9, 4, 255000.00, 'Cash', 'PAID', NOW(), FALSE),
+('INV-20251025-006', 5, 9, 4, 255000.00, 'Cash', 'PAID', NOW(), 5, FALSE),
 
 --  Hóa đơn tại Tổng công ty (xuất điều phối nội bộ)
-('INV-20251025-007', NULL, 12, 5, 520000.00, 'Transfer', 'DRAFT', NOW(), FALSE),
+('INV-20251025-007', NULL, 12, 5, 520000.00, 'Transfer', 'DRAFT', NOW(), 5, FALSE),
 
 --  Hóa đơn tại Kho Miền Tây
-('INV-20251025-008', 6, 14, 6, 310000.00, 'Cash', 'PAID', NOW(), FALSE);
+('INV-20251025-008', 6, 14, 6, 310000.00, 'Cash', 'PAID', NOW(), 5, FALSE);
 
 INSERT INTO invoice_details (
   invoice_id, batch_id, variant_id, quantity, price, created_at, deleted

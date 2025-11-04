@@ -1,10 +1,10 @@
 package vn.edu.fpt.pharma.constant;
 
 public enum MovementType {
-    SUPPLIER_IN,
-    WAREHOUSE_OUT,
-    BRANCH_IN,
-    BRANCH_RETURN,
+    SUP_TO_WARE,
+    WARE_TO_SUP,
+    WARE_TO_BR,
+    BR_TO_WARE,
     ADJUSTMENT,
     DISPOSAL
 }
