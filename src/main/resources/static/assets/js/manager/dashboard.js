@@ -25,18 +25,36 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!response.ok) throw new Error('API error ' + response.status);
 
             const data = await response.json();
-            updateDashboardUI(data);
+            // Truyền 'days' vào hàm updateUI
+            updateDashboardUI(data, days);
         } catch (err) {
             console.error('Failed to load dashboard:', err);
         }
     }
 
-    function updateDashboardUI(data) {
-        document.getElementById('revenue').innerText = data.revenue;
-        document.getElementById('profit').innerText = data.profit;
-        document.getElementById('orders').innerText = data.orderCount;
+    function updateDashboardUI(data, days) {
 
-        // Nếu có change %
+        // --- PHẦN THÊM MỚI ĐỂ ĐỔI NHÃN ---
+        let timeLabel = "hôm nay";
+        if (days == 7) {
+            timeLabel = "7 ngày";
+        } else if (days == 30) {
+            timeLabel = "30 ngày";
+        }
+
+        // Cập nhật các nhãn
+        document.getElementById('revenue-label').innerText = `Doanh thu ${timeLabel}`;
+        document.getElementById('profit-label').innerText = `Lợi nhuận ${timeLabel}`;
+        document.getElementById('orders-label').innerText = `Số đơn ${timeLabel}`;
+        // --- HẾT PHẦN THÊM MỚI ---
+
+        // Lấy KPI từ payload (data.kpis) và cập nhật UI
+        const kpis = (data && data.kpis) ? data.kpis : {};
+        document.getElementById('revenue').innerText = kpis.revenue ?? '0';
+        document.getElementById('profit').innerText = kpis.profit ?? '0';
+        document.getElementById('orders').innerText = kpis.orderCount ?? '0';
+
+        // Nếu có change % từ API (không bắt buộc)
         document.getElementById('changeRevenue').innerText = data.changeRevenue || '';
         document.getElementById('changeProfit').innerText = data.changeProfit || '';
         document.getElementById('changeOrders').innerText = data.changeOrders || '';

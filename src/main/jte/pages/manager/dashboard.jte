@@ -16,42 +16,42 @@ content = @`
                 <div class="stat-card">
                     <div class="stat-content">
                         <div class="stat-info">
-                            <p class="stat-label">Doanh thu hôm nay</p>
-                            <p class="stat-value">đM</p>
+                            <p class="stat-label" id="revenue-label">Doanh thu hôm nay</p>
+                            <p class="stat-value" id="revenue">...</p>
                         </div>
                         <img src="https://static.codia.ai/image/2025-10-26/RY2aKkT255.png" alt="Revenue Icon" class="stat-icon">
                     </div>
                     <div class="stat-change">
                         <img src="https://static.codia.ai/image/2025-10-26/W1PWnLJdXO.png" alt="Up Arrow" class="change-icon">
-                        <span class="change-text positive">+12%</span>
+                        <span class="change-text positive" id="changeRevenue"></span>
                     </div>
                 </div>
 
                 <div class="stat-card">
                     <div class="stat-content">
                         <div class="stat-info">
-                            <p class="stat-label">Lợi nhuận </p>
-                            <p class="stat-value">đ19.7M</p>
+                            <p class="stat-label" id="profit-label">Lợi nhuận</p>
+                            <p class="stat-value" id="profit">...</p>
                         </div>
                         <img src="https://static.codia.ai/image/2025-10-26/osQnzvdUjA.png" alt="Profit Icon" class="stat-icon">
                     </div>
                     <div class="stat-change">
                         <img src="https://static.codia.ai/image/2025-10-26/edmzoyKK8e.png" alt="Up Arrow" class="change-icon">
-                        <span class="change-text positive">+8%</span>
+                        <span class="change-text positive" id="changeProfit"></span>
                     </div>
                 </div>
 
                 <div class="stat-card">
                     <div class="stat-content">
                         <div class="stat-info">
-                            <p class="stat-label">Số đơn bán</p>
-                            <p class="stat-value">45</p>
+                            <p class="stat-label" id="orders-label">Số đơn bán</p>
+                            <p class="stat-value" id="orders">...</p>
                         </div>
                         <img src="https://static.codia.ai/image/2025-10-26/LCzn3hLH8S.png" alt="Orders Icon" class="stat-icon">
                     </div>
                     <div class="stat-change">
                         <img src="https://static.codia.ai/image/2025-10-26/iDxrcNDhiN.png" alt="Up Arrow" class="change-icon">
-                        <span class="change-text positive">+5%</span>
+                        <span class="change-text positive" id="changeOrders"></span>
                     </div>
                 </div>
             </div>

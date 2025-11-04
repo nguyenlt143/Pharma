@@ -57,11 +57,12 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
 
     @Override
     public List<UserDto> getStaffs(Long branchId) {
-        return userRepository.findStaffInBranchId( branchId)
+        return userRepository.findStaffInBranchId(branchId)
                 .stream()
                 .map(this::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
+
 
     @Override
     public UserDto getById(Long id) {
@@ -72,6 +73,9 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
 
     @Override
     public UserDto create(UserRequest req) {
+        if (userRepository.existsByUserNameIgnoreCase(req.getUserName())) {
+            throw new RuntimeException("Username already exists");
+        }
         // Lấy role STAFF
         Role role = roleRepository.findByName("STAFF")
                 .orElseThrow(() -> new RuntimeException("Role STAFF not found"));
@@ -82,7 +86,6 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
         user.setPassword(req.getPassword()); //
         user.setEmail(req.getEmail());
         user.setPhoneNumber(req.getPhoneNumber());
-        user.setImageUrl(req.getImageUrl());
         user.setBranchId(req.getBranchId());
         user.setRole(role);
 
@@ -95,10 +98,19 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Staff not found"));
 
+        // ❗ Validate username nếu đổi
+        if (!user.getUserName().equalsIgnoreCase(req.getUserName())
+                && userRepository.existsByUserNameIgnoreCase(req.getUserName())) {
+            throw new RuntimeException("Username already exists");
+        }
+
+        // ❗ Không cho sửa branchId
+        req.setBranchId(user.getBranchId());
+
         user.setFullName(req.getFullName());
+        user.setUserName(req.getUserName());
         user.setEmail(req.getEmail());
         user.setPhoneNumber(req.getPhoneNumber());
-        user.setImageUrl(req.getImageUrl());
 
         userRepository.save(user);
         return toDto(user);
@@ -125,7 +137,6 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
                 .phoneNumber(u.getPhoneNumber())
                 .roleName(u.getRole().getName())
                 .branchId(u.getBranchId())
-                .imageUrl(u.getImageUrl())
                 .build();
     }
 }
