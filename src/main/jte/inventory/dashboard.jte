@@ -30,7 +30,7 @@
                     </a>
                 </li>
                 <li class="px-4 py-2 hover:bg-gray-700 rounded-md">
-                    <a class="flex items-center gap-2" href="#">
+                    <a class="flex items-center gap-2" href="/inventory/import_list">
                         <span class="material-icons-outlined">inventory_2</span>
                         <span>Nhập kho</span>
                     </a>
