@@ -24,7 +24,8 @@ document.addEventListener("DOMContentLoaded", () => {
             note: document.getElementById("note").value,
         };
 
-        await fetch("/api/manager/shifts", {
+        const url = payload.id ? `/api/manager/shifts/${payload.id}` : "/api/manager/shifts";
+        await fetch(url, {
             method: payload.id ? "PUT" : "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(payload),
@@ -45,7 +46,9 @@ document.addEventListener("DOMContentLoaded", () => {
         <td>${s.note || ""}</td>
         <td>
           <button onclick="editShift(${s.id})">Sửa</button>
+          <button onclick="DeleteShift(${s.id})">Xóa</button>
           <button onclick="viewEmployees(${s.id})">Nhân viên</button>
+
         </td>
       </tr>
     `).join("");
@@ -58,17 +61,37 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     window.viewEmployees = async (shiftId) => {
-        const res = await fetch(`/api/manager/shifts/${shiftId}/employees`);
-        const emps = await res.json();
+        const res = await fetch(`/api/manager/shifts/${shiftId}/works`);
+        let emps = await res.json();
+        emps = Array.isArray(emps) ? emps : [];
+
         const tbody = document.getElementById("employeeTableBody");
-        tbody.innerHTML = emps.map(e => `
-      <tr>
-        <td>${e.fullName}</td>
-        <td>${e.phoneNumber}</td>
-        <td>${e.workType}</td>
-      </tr>
-    `).join("");
+        tbody.innerHTML = emps.length > 0
+            ? emps.map(e => `
+            <tr>
+                <td>${e.userFullName || ''}</td>
+                <td>${e.phoneNumber || ''}</td>
+                <td>${e.workType || ''}</td>
+            </tr>
+        `).join("")
+            : `<tr><td colspan="3" style="text-align:center;">Không có nhân viên nào</td></tr>`;
+
         employeeModal.classList.remove("hidden");
+    };
+
+    window.DeleteShift = async (id) => {
+        if (!confirm("Bạn có chắc muốn xóa ca làm việc này?")) return;
+
+        const res = await fetch(`/api/manager/shifts/${id}`, {
+            method: "DELETE"
+        });
+
+        if (res.ok) {
+            alert("Đã xóa thành công!");
+            loadShifts();
+        } else {
+            alert("Xóa thất bại!");
+        }
     };
 
     function openShiftModal(s = {}) {

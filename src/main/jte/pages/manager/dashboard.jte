@@ -148,4 +148,3 @@ content = @`
 `,
 pageScript = @`<script src="/assets/js/manager/dashboard.js" defer></script>`
 )
-

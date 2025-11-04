@@ -1,5 +1,5 @@
 /* =========================================
-   SHIFT MANAGEMENT PAGE (S1 - Standalone)
+   STAFF MANAGEMENT PAGE (S1 - Standalone)
    Palette: Pharma Blue
    Table: Style B - Bordered
    Button: A - Solid Primary
@@ -42,7 +42,7 @@
 }
 
 /* ===== Table ===== */
-.shift-table {
+.staff-table {
     width: 100%;
     border-collapse: collapse;
     border: 1px solid #d1d5db;
@@ -50,20 +50,29 @@
     overflow: hidden;
 }
 
-.shift-table th {
+.staff-table th {
     background-color: #f9fafb;
     font-weight: 600;
 }
 
-.shift-table th, .shift-table td {
+.staff-table th, .staff-table td {
     border: 1px solid #d1d5db;
     padding: 10px 12px;
-    text-align: left;
     font-size: 14px;
+    text-align: left;
 }
 
-.shift-table tbody tr:hover {
+.staff-table tbody tr:hover {
     background-color: #f0f7ff;
+}
+
+/* ===== Avatar ===== */
+.staff-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #e5e7eb;
 }
 
 /* ===== Modal ===== */
@@ -90,13 +99,9 @@
     box-shadow: 0 4px 14px rgba(0,0,0,.1);
 }
 
-#employeeModal .modal-content {
-    width: 640px;
-}
-
 /* ===== Form ===== */
-#shiftForm input,
-#shiftForm textarea {
+.staff-form input,
+.staff-form select {
     width: 100%;
     padding: 8px 10px;
     margin-top: 4px;
@@ -106,14 +111,14 @@
     font-size: 14px;
     box-sizing: border-box;
 }
-#shiftForm input:focus,
-#shiftForm textarea:focus {
+.staff-form input:focus,
+.staff-form select:focus {
     border-color: #2563eb;
     outline: none;
     box-shadow: 0 0 0 2px rgba(37,99,235,.25);
 }
 
-#shiftForm label {
+.staff-form label {
     font-weight: 500;
     margin-bottom: 4px;
     display: block;
@@ -124,26 +129,4 @@
     justify-content: flex-end;
     gap: 8px;
     margin-top: 14px;
-}
-
-/* ===== Employee Table in Modal ===== */
-.employee-table {
-    width: 100%;
-    border-collapse: collapse;
-    border: 1px solid #d1d5db;
-    margin: 12px 0;
-}
-
-.employee-table th {
-    background-color: #f9fafb;
-    font-weight: 600;
-}
-
-.employee-table th, .employee-table td {
-    border: 1px solid #d1d5db;
-    padding: 8px 10px;
-    font-size: 14px;
-}
-.employee-table tbody tr:hover {
-    background-color: #f0f7ff;
 }

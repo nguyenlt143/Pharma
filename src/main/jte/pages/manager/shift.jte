@@ -1,5 +1,6 @@
 @template.layouts.manager(
-headContent = @`<link rel="stylesheet" href="/assets/css/manager/shift.css">`,
+headContent = @`<link rel="stylesheet" href="/assets/css/manager/shift.css">
+    <link rel="stylesheet" href="/assets/css/manager/form.css">`,
 content = @`
     <main class="main">
         <div class="main-container">
@@ -8,10 +9,10 @@ content = @`
                 <button class="btn-primary" id="btnAddShift">+ Thêm ca mới</button>
             </div>
 
-            <div class="search-bar">
-                <input type="text" id="searchInput" placeholder="Tìm kiếm theo tên ca...">
-                <button class="btn-search">Tìm</button>
-            </div>
+<%--            <div class="search-bar">--%>
+<%--                <input type="text" id="searchInput" placeholder="Tìm kiếm theo tên ca...">--%>
+<%--                <button class="btn-search">Tìm</button>--%>
+<%--            </div>--%>
 
             <table class="shift-table">
                 <thead>
