@@ -1,84 +1,76 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Time filter functionality
-    const filterButtons = document.querySelectorAll('.filter-btn');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Buttons filter
+        const filterButtons = document.querySelectorAll('.filter-btn');
 
-    filterButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Remove active class from all buttons
-            filterButtons.forEach(btn => btn.classList.remove('active'));
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
 
-            // Add active class to clicked button
-            this.classList.add('active');
-
-            // Here you could add functionality to update the data based on the selected time period
-            console.log('Selected time period:', this.textContent);
+                const days = this.dataset.range; // 0 / 7 / 30
+                loadDashboard(days);
+            });
         });
+
+        // Initial load: today (0)
+        loadDashboard(0);
+
+        // Hover effects (stat + chart cards)
+        addHoverEffect('.stat-card', -2);
+        addHoverEffect('.chart-card', -1);
+
+        async function loadDashboard(days) {
+            try {
+                const response = await fetch(`/api/manager/dashboard?days=${days}`);
+                if (!response.ok) throw new Error('API error ' + response.status);
+
+                const data = await response.json();
+                // Truyền 'days' vào hàm updateUI
+                updateDashboardUI(data, days);
+            } catch (err) {
+                console.error('Failed to load dashboard:', err);
+            }
+        }
+
+        function updateDashboardUI(data, days) {
+
+            // --- PHẦN THÊM MỚI ĐỂ ĐỔI NHÃN ---
+            let timeLabel = "hôm nay";
+            if (days == 7) {
+                timeLabel = "7 ngày";
+            } else if (days == 30) {
+                timeLabel = "30 ngày";
+            }
+
+            // Cập nhật các nhãn
+            document.getElementById('revenue-label').innerText = `Doanh thu ${timeLabel}`;
+            document.getElementById('profit-label').innerText = `Lợi nhuận ${timeLabel}`;
+            document.getElementById('orders-label').innerText = `Số đơn ${timeLabel}`;
+            // --- HẾT PHẦN THÊM MỚI ---
+
+            // Lấy KPI từ payload (data.kpis) và cập nhật UI
+            const kpis = (data && data.kpis) ? data.kpis : {};
+            document.getElementById('revenue').innerText = kpis.revenue ?? '0';
+            document.getElementById('profit').innerText = kpis.profit ?? '0';
+            document.getElementById('orders').innerText = kpis.orderCount ?? '0';
+
+            // Nếu có change % từ API (không bắt buộc)
+            document.getElementById('changeRevenue').innerText = data.changeRevenue || '';
+            document.getElementById('changeProfit').innerText = data.changeProfit || '';
+            document.getElementById('changeOrders').innerText = data.changeOrders || '';
+        }
+
+        function addHoverEffect(selector, translateY) {
+            const cards = document.querySelectorAll(selector);
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = `translateY(${translateY}px)`;
+                    card.style.boxShadow = '0px 4px 6px -1px rgba(0,0,0,0.1), 0px 2px 4px rgba(0,0,0,0.1)';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0)';
+                    card.style.boxShadow = '0px 1px 2px -1px rgba(0,0,0,0.1), 0px 1px 3px rgba(0,0,0,0.1)';
+                });
+            });
+        }
     });
-
-    // Navigation functionality
-    const navLinks = document.querySelectorAll('.nav-link');
-
-    navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-
-            // Remove active class from all nav links
-            navLinks.forEach(navLink => navLink.classList.remove('active'));
-
-            // Add active class to clicked link
-            this.classList.add('active');
-
-            console.log('Navigated to:', this.textContent);
-        });
-    });
-
-    // Add hover effects to stat cards
-    const statCards = document.querySelectorAll('.stat-card');
-
-    statCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-2px)';
-            this.style.boxShadow = '0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px rgba(0, 0, 0, 0.1)';
-        });
-
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-            this.style.boxShadow = '0px 1px 2px -1px rgba(0, 0, 0, 0.1), 0px 1px 3px rgba(0, 0, 0, 0.1)';
-        });
-    });
-
-    // Add hover effects to chart cards
-    const chartCards = document.querySelectorAll('.chart-card');
-
-    chartCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-1px)';
-            this.style.boxShadow = '0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px rgba(0, 0, 0, 0.1)';
-        });
-
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-            this.style.boxShadow = '0px 1px 2px -1px rgba(0, 0, 0, 0.1), 0px 1px 3px rgba(0, 0, 0, 0.1)';
-        });
-    });
-
-    // Simulate data updates (optional)
-    function updateStats() {
-        const statValues = document.querySelectorAll('.stat-value');
-        const changeTexts = document.querySelectorAll('.change-text');
-
-        // This is just for demonstration - in a real app, you'd fetch data from an API
-        const mockData = {
-            revenue: ['đ59.5M', 'đ62.1M', 'đ58.3M'],
-            profit: ['đ19.7M', 'đ20.5M', 'đ18.9M'],
-            orders: ['45', '52', '41'],
-            changes: ['+12%', '+8%', '+5%']
-        };
-
-        // You could implement actual data updates here
-        console.log('Stats could be updated with new data');
-    }
-
-    // Optional: Update stats every 30 seconds (commented out for demo)
-    // setInterval(updateStats, 30000);
-});

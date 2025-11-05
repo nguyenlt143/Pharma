@@ -8,6 +8,8 @@ import vn.edu.fpt.pharma.base.BaseEntity;
 import vn.edu.fpt.pharma.constant.BatchStatus;
 import vn.edu.fpt.pharma.constant.InvoiceType;
 
+import java.util.List;
+
 @Entity
 @Table(name = "invoices")
 @Builder
@@ -30,4 +32,6 @@ public class Invoice extends BaseEntity<Long> {
     private String paymentMethod;
     @Enumerated(EnumType.STRING)
     private InvoiceType  invoiceType;
+    @OneToMany(mappedBy = "invoice", fetch = FetchType.LAZY)
+    private List<InvoiceDetail> details;
 }

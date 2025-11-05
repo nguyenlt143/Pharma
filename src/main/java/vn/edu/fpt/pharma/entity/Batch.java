@@ -27,10 +27,6 @@ public class Batch extends BaseEntity<Long> {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "supplier_id")
     private Supplier supplierId;
-    private Long sourceMovementId;
-    private Long totalReceived;
-    private Long totalIssued;
-    private Long movementId;
     @Enumerated(EnumType.STRING)
     private BatchStatus batchStatus;
 }
