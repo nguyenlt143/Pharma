@@ -24,7 +24,8 @@ document.addEventListener("DOMContentLoaded", () => {
             note: document.getElementById("note").value,
         };
 
-        await fetch("/api/manager/shifts", {
+        const url = payload.id ? `/api/manager/shifts/${payload.id}` : "/api/manager/shifts";
+        await fetch(url, {
             method: payload.id ? "PUT" : "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(payload),
@@ -45,7 +46,9 @@ document.addEventListener("DOMContentLoaded", () => {
         <td>${s.note || ""}</td>
         <td>
           <button onclick="editShift(${s.id})">Sửa</button>
+          <button onclick="DeleteShift(${s.id})">Xóa</button>
           <button onclick="viewEmployees(${s.id})">Nhân viên</button>
+
         </td>
       </tr>
     `).join("");
@@ -58,17 +61,56 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     window.viewEmployees = async (shiftId) => {
-        const res = await fetch(`/api/manager/shifts/${shiftId}/employees`);
-        const emps = await res.json();
+        const res = await fetch(`/api/manager/shifts/${shiftId}/works`);
+        let emps = await res.json();
+        emps = Array.isArray(emps) ? emps : [];
+
+        document.getElementById("shiftEmployeeTitle").innerText = `Nhân viên trong ca #${shiftId}`;
+
         const tbody = document.getElementById("employeeTableBody");
-        tbody.innerHTML = emps.map(e => `
-      <tr>
-        <td>${e.fullName}</td>
-        <td>${e.phoneNumber}</td>
-        <td>${e.workType}</td>
-      </tr>
-    `).join("");
+
+        if (emps.length > 0) {
+            tbody.innerHTML = emps.map(e => `
+            <tr>
+                <td>${e.userFullName || ""}</td>
+                <td>${e.roleName || ""}</td>
+                <td>
+                    <span class="badge ${
+                e.status === 'Not Started' ? 'not-started' :
+                    e.status === 'In Work' ? 'in-work' : 'done'
+            }">${e.status}</span>
+                </td>
+                <td>${e.createdAt || ""}</td>
+                <td><span class="action-delete" onclick="removeEmployee(${e.id})">Delete</span></td>
+            </tr>
+        `).join("");
+        } else {
+            tbody.innerHTML = `
+            <tr>
+                <td colspan="5" style="text-align:center; padding: 12px; color: #6b7280;">
+                    Chưa có nhân viên nào trong ca
+                </td>
+            </tr>
+        `;
+        }
+
         employeeModal.classList.remove("hidden");
+    };
+
+
+    window.DeleteShift = async (id) => {
+        if (!confirm("Bạn có chắc muốn xóa ca làm việc này?")) return;
+
+        const res = await fetch(`/api/manager/shifts/${id}`, {
+            method: "DELETE"
+        });
+
+        if (res.ok) {
+            alert("Đã xóa thành công!");
+            loadShifts();
+        } else {
+            alert("Xóa thất bại!");
+        }
     };
 
     function openShiftModal(s = {}) {

@@ -22,6 +22,12 @@ public class PharmacistController {
         return "pages/pharmacist/invoice";
     }
 
+    @GetMapping("/invoice/detail")
+    public String invoiceDetail(Model model) {
+
+        return "pages/pharmacist/invoice_detail";
+    }
+
     @GetMapping("/revenue")
     public String revenue(Model model) {
 
@@ -37,7 +43,7 @@ public class PharmacistController {
     @GetMapping("/shift")
     public String shift(Model model) {
 
-        return "pages/pharmacist/shift";
+        return "pages/pharmacist/revenue_shift";
     }
 
     @GetMapping("/shift/detail")
@@ -58,9 +64,11 @@ public class PharmacistController {
         return "pages/profile/profile";
     }
 
+
     @GetMapping("/abc")
     public String index(Model model) {
 
         return "pages/home/abc";
     }
+
 }

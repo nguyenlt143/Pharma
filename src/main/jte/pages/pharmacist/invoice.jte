@@ -102,7 +102,7 @@
                                     <span class="material-icons">arrow_drop_down</span>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a href="#" class="dropdown-item">
+                                    <a href="/pharmacist/invoice/detail" class="dropdown-item">
                                         <span class="material-icons">visibility</span>
                                         <span>Chi tiết phiếu</span>
                                     </a>
@@ -141,7 +141,7 @@
                                     <span class="material-icons">arrow_drop_down</span>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a href="#" class="dropdown-item">
+                                    <a href="/pharmacist/invoice/detail" class="dropdown-item">
                                         <span class="material-icons">visibility</span>
                                         <span>Chi tiết phiếu</span>
                                     </a>
@@ -180,7 +180,7 @@
                                     <span class="material-icons">arrow_drop_down</span>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a href="#" class="dropdown-item">
+                                    <a href="/pharmacist/invoice/detail" class="dropdown-item">
                                         <span class="material-icons">visibility</span>
                                         <span>Chi tiết phiếu</span>
                                     </a>

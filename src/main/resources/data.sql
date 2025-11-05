@@ -9,12 +9,11 @@ VALUES
 
 INSERT INTO branchs (name, branch_type, address, user_id, created_at, deleted)
 VALUES
-  ('Chi nhánh Hà Nội', 'BRANCH', '123 Đường A, Hà Nội', NULL, NOW(), FALSE),
-  ('Chi nhánh TP.HCM', 'BRANCH', '456 Đường B, TP.HCM', NULL, NOW(), FALSE),
-  ('Kho Trung tâm', 'DISPOSAL_AREA', 'Kho C - Bình Dương', NULL, NOW(), FALSE),
-  ('Chi nhánh Đà Nẵng', 'BRANCH', '789 Đường C, Đà Nẵng', NULL, NOW(), FALSE),
-  ('Tổng công ty', 'HEAD_QUARTER', 'Số 1 Phạm Hùng, Hà Nội', NULL, NOW(), FALSE),
-  ('Kho Khu vực Miền Tây', 'DISPOSAL_AREA', 'Kho D - Cần Thơ', NULL, NOW(), FALSE);
+    ('Tổng công ty', 'HEAD_QUARTER', 'Số 1 Phạm Hùng, Hà Nội', NULL, NOW(), FALSE),
+    ('Kho hủy', 'DISPOSAL_AREA', 'Kho C - Bình Dương', NULL, NOW(), FALSE),
+    ('Chi nhánh Hà Nội', 'BRANCH', '123 Đường A, Hà Nội', NULL, NOW(), FALSE),
+    ('Chi nhánh TP.HCM', 'BRANCH', '456 Đường B, TP.HCM', NULL, NOW(), FALSE),
+    ('Chi nhánh Đà Nẵng', 'BRANCH', '789 Đường C, Đà Nẵng', NULL, NOW(), FALSE),
 
 INSERT INTO users (user_name, password, full_name, role_id, branch_id, phone_number, email, image_url, created_at, deleted)
 VALUES
@@ -24,7 +23,7 @@ VALUES
   ('INVENTORY', '123456', 'Phạm Thị Kinh Doanh', 4, 4, '0904000004', 'business_admin@company.com', NULL, NOW(), FALSE),
   ('WAREHOUSE', '123456', 'Đặng Văn Hệ Thống', 5, 5, '0905000005', 'sys_admin@company.com', NULL, NOW(), FALSE),
   ('PHARMACIST', '123456', 'Vũ Thị Thương Hiệu', 6, 6, '0906000006', 'brand_manager@company.com', NULL, NOW(), FALSE);
-
+-- update manager for branchs
 UPDATE branchs SET user_id = 1 WHERE id = 1;
 UPDATE branchs SET user_id = 2 WHERE id = 2;
 UPDATE branchs SET user_id = 3 WHERE id = 3;

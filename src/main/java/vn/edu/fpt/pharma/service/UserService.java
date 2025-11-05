@@ -1,5 +1,6 @@
 package vn.edu.fpt.pharma.service;
 
+import org.springframework.data.jpa.repository.Query;
 import vn.edu.fpt.pharma.base.BaseService;
 import vn.edu.fpt.pharma.dto.DataTableRequest;
 import vn.edu.fpt.pharma.dto.DataTableResponse;
