@@ -36,3 +36,10 @@ gg:
 
 server:
   port: 8080
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+    org.thymeleaf: TRACE
+    gg.jte: TRACE

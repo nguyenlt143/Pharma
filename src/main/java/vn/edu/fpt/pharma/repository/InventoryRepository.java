@@ -7,6 +7,10 @@ import org.springframework.data.jpa.repository.Query;
 
 
 public interface InventoryRepository extends JpaRepository<Inventory, Long>, JpaSpecificationExecutor<Inventory> {
-    @Query("SELECT COUNT(i) FROM Inventory i WHERE i.quantity < i.minStock")
-    int countByQuantityLessThanMinStock();
+    @Query(value = """
+        SELECT COUNT(*) FROM inventory 
+        WHERE branch_id != 1 
+          AND quantity <= min_stock
+        """, nativeQuery = true)
+    int countLowStock();
 }

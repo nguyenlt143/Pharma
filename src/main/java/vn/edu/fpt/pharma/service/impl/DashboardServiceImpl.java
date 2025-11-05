@@ -1,27 +1,39 @@
 package vn.edu.fpt.pharma.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import vn.edu.fpt.pharma.service.DashboardServicev2;
+import vn.edu.fpt.pharma.repository.*;
+import vn.edu.fpt.pharma.service.DashboardService;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
-public class DashboardServiceImpl implements DashboardServicev2 {
-    @Override
-    public int countWaitingOrders() {
-        return 2;
-    }
+
+@RequiredArgsConstructor
+public class DashboardServiceImpl implements DashboardService {
+
+    private final RequestFormRepository requestFormRepository;
+    private final StockAdjustmentRepository stockAdjustmentRepository;
+    private final BatchRepository batchRepository;
+    private final InventoryRepository inventoryRepository;
 
     @Override
-    public String getLastInventoryCheck() {
-        return "2 ngày trước";
-    }
+    public Map<String, Object> getDashboardData() {
+        Map<String, Object> result = new HashMap<>();
 
-    @Override
-    public int countNearlyExpiredMedicines() {
-        return 15;
-    }
+        int waitingOrders = requestFormRepository.countWaitingOrders();
+        LocalDateTime lastInventoryCheck = stockAdjustmentRepository.findLastInventoryCheck();
+        int nearlyExpiredCount = batchRepository.countNearlyExpired();
+        int lowStockCount = inventoryRepository.countLowStock();
 
-    @Override
-    public int countLowStockItems() {
-        return 8;
+        result.put("waitingOrders", waitingOrders);
+        result.put("lastInventoryCheck",
+                lastInventoryCheck != null ? lastInventoryCheck.toString() : "Chưa kiểm kho");
+        result.put("nearlyExpiredCount", nearlyExpiredCount);
+        result.put("lowStockCount", lowStockCount);
+
+        return result;
     }
 }

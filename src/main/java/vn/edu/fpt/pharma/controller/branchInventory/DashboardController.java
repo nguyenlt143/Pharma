@@ -6,6 +6,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import vn.edu.fpt.pharma.service.DashboardServicev2;
 
+import java.util.Map;
+
 @Controller
 @RequiredArgsConstructor
 public class DashboardController {
@@ -14,10 +16,8 @@ public class DashboardController {
 
     @GetMapping("/inventory/dashboard")
     public String dashboard(Model model) {
-        model.addAttribute("waitingOrders", dashboardService.countWaitingOrders());
-        model.addAttribute("lastInventoryCheck", dashboardService.getLastInventoryCheck());
-        model.addAttribute("nearlyExpiredCount", dashboardService.countNearlyExpiredMedicines());
-        model.addAttribute("lowStockCount", dashboardService.countLowStockItems());
+        Map<String, Object> data = dashboardService.getDashboardData();
+        model.addAllAttributes(data);
         return "inventory/dashboard";
     }
 }
