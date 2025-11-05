@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="resources/static/assets/css/warehouse/receipt_create.css">
+    <link rel="stylesheet" href="/assets/css/warehouse/receipt_create.css">
 </head>
 <body>
 <div class="app-container">
@@ -162,6 +162,6 @@
     </main>
 </div>
 
-<script src="resources/static/assets/js/warehouse/receipt_create.js"></script>
+<script src="/assets/js/warehouse/receipt_create.js"></script>
 </body>
 </html>

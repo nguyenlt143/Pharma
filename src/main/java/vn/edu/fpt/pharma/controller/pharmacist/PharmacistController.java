@@ -64,9 +64,11 @@ public class PharmacistController {
         return "pages/profile/profile";
     }
 
+
     @GetMapping("/abc")
     public String index(Model model) {
 
         return "pages/home/abc";
     }
+
 }
