@@ -43,7 +43,7 @@ public class PharmacistController {
     @GetMapping("/shift")
     public String shift(Model model) {
 
-        return "pages/pharmacist/shift";
+        return "pages/pharmacist/revenue_shift";
     }
 
     @GetMapping("/shift/detail")

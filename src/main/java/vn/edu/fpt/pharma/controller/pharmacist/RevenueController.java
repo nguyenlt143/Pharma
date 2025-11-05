@@ -59,7 +59,7 @@ public class RevenueController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("all/shift")
+    @GetMapping("all/shifts")
     public ResponseEntity<DataTableResponse<RevenueVM>> getAllRevenuesShift(HttpServletRequest request) {
         DataTableRequest reqDto = DataTableRequest.fromParams(request.getParameterMap());
         List<RevenueVM> data = revenueService.getRevenueSummary();

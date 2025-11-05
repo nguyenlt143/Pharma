@@ -45,9 +45,9 @@ public class InvoiceController {
     }
 
     @GetMapping("all")
-    public ResponseEntity<DataTableResponse<InvoiceVM>> getAllInvoices(HttpServletRequest request){
+    public ResponseEntity<DataTableResponse<InvoiceVM>> getAllInvoices(HttpServletRequest request, @RequestParam Long userId) {
         DataTableRequest reqDto = DataTableRequest.fromParams(request.getParameterMap());
-        return ResponseEntity.ok(invoiceService.findAllInvoices(reqDto).map(InvoiceVM::new));
+        return ResponseEntity.ok(invoiceService.findAllInvoices(reqDto, userId).map(InvoiceVM::new));
     }
 
 }

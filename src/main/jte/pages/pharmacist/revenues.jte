@@ -33,7 +33,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: '/pharmacist/revenues/all',
+                    url: '/pharmacist/revenues/all/revenue',
                     type: 'GET',
                     dataSrc: 'data'
                 },

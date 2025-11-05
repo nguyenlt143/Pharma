@@ -33,7 +33,8 @@ public class RevenueServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
 
     @Override
     public List<RevenueVM> getRevenueShiftSummary() {
-        List<Object[]> rows = repository.findRevenueShift();
+        Long userId = 0L;
+        List<Object[]> rows = repository.findRevenueShift(userId);
         return rows.stream()
                 .map(r -> new RevenueVM(
                         (String) r[0],

@@ -19,7 +19,7 @@ content = @`
                     <tr>
 
                         <th>Ca</th>
-                        <th>Thanh toán</th>
+                        <th>Số đơn</th>
                         <th>Tiền mặt</th>
                         <th>Chuyển khoản</th>
                         <th class="revenue-header">Doanh thu</th>
@@ -28,29 +28,29 @@ content = @`
                     <tbody>
                     <tr>
                         <td><a href="/pharmacist/shift/detail" class="dropdown-item">Ca sáng</a></td>
-                        <td>8/2022</td>
+                        <td>8</td>
                         <td class="amount">552,000.00</td>
                         <td class="amount">4,000.00</td>
                         <td class="amount">548,000.00</td>
                     </tr>
                     <tr class="alternate">
                         <td><a href="/pharmacist/shift/detail" class="dropdown-item">Ca chiều</a></td>
-                        <td>7/2022</td>
+                        <td>7</td>
                         <td class="amount">151,000.00</td>
                         <td class="amount">60,000.00</td>
                         <td class="amount">91,000.00</td>
                     </tr>
                     <tr>
                         <td><a href="/pharmacist/shift/detail" class="dropdown-item">Ca tối</a></td>
-                        <td>6/2022</td>
+                        <td>6</td>
                         <td class="amount">20,000.00</td>
                         <td class="amount">0.00</td>
                         <td class="amount">20,000.00</td>
                     </tr>
 
                     <tr class="total-row">
-                        <td></td>
                         <td><strong>Tổng:</strong></td>
+                        <td></td>
                         <td class="amount"><strong>723,000.00</strong></td>
                         <td class="amount"><strong>64,000.00</strong></td>
                         <td class="amount revenue"><strong>659,000.00</strong></td>
