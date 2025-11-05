@@ -65,19 +65,38 @@ document.addEventListener("DOMContentLoaded", () => {
         let emps = await res.json();
         emps = Array.isArray(emps) ? emps : [];
 
+        document.getElementById("shiftEmployeeTitle").innerText = `Nhân viên trong ca #${shiftId}`;
+
         const tbody = document.getElementById("employeeTableBody");
-        tbody.innerHTML = emps.length > 0
-            ? emps.map(e => `
+
+        if (emps.length > 0) {
+            tbody.innerHTML = emps.map(e => `
             <tr>
-                <td>${e.userFullName || ''}</td>
-                <td>${e.phoneNumber || ''}</td>
-                <td>${e.workType || ''}</td>
+                <td>${e.userFullName || ""}</td>
+                <td>${e.roleName || ""}</td>
+                <td>
+                    <span class="badge ${
+                e.status === 'Not Started' ? 'not-started' :
+                    e.status === 'In Work' ? 'in-work' : 'done'
+            }">${e.status}</span>
+                </td>
+                <td>${e.createdAt || ""}</td>
+                <td><span class="action-delete" onclick="removeEmployee(${e.id})">Delete</span></td>
             </tr>
-        `).join("")
-            : `<tr><td colspan="3" style="text-align:center;">Không có nhân viên nào</td></tr>`;
+        `).join("");
+        } else {
+            tbody.innerHTML = `
+            <tr>
+                <td colspan="5" style="text-align:center; padding: 12px; color: #6b7280;">
+                    Chưa có nhân viên nào trong ca
+                </td>
+            </tr>
+        `;
+        }
 
         employeeModal.classList.remove("hidden");
     };
+
 
     window.DeleteShift = async (id) => {
         if (!confirm("Bạn có chắc muốn xóa ca làm việc này?")) return;

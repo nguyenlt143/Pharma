@@ -11,6 +11,7 @@ import vn.edu.fpt.pharma.dto.manager.TopProductItem;
 import vn.edu.fpt.pharma.entity.Invoice;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import jakarta.persistence.Tuple;
 public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpecificationExecutor<Invoice> {

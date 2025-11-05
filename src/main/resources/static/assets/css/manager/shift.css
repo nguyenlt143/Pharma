@@ -147,3 +147,69 @@
 .employee-table tbody tr:hover {
     background-color: #f0f7ff;
 }
+.employee-modal {
+    width: 900px !important;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.shift-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 14px;
+}
+
+.assign-section {
+    margin-top: 16px;
+}
+
+.assign-controls {
+    display: flex;
+    gap: 12px;
+    margin-top: 6px;
+}
+
+.select-employee {
+    flex: 1;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.btn-success {
+    background-color: #16a34a;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.btn-success:hover {
+    background-color: #15803d;
+}
+
+/* Badge trạng thái */
+.badge {
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.badge.not-started { background: #fef3c7; color: #92400e; }
+.badge.in-work     { background: #dcfce7; color: #166534; }
+.badge.done        { background: #dbeafe; color: #1e40af; }
+
+.action-delete {
+    color: #dc2626;
+    cursor: pointer;
+    font-weight: 500;
+}
+.action-delete:hover { text-decoration: underline; }

@@ -3,7 +3,7 @@
    API base: /api/manager/staff
 */
 (() => {
-    const API_BASE = '/api/manager/staff';
+    const API_BASE = '/api/manager/staffs';
     const tableBody = document.getElementById('staffTableBody');
     const searchInput = document.getElementById('searchInput');
     const btnCreate = document.getElementById('btnCreateStaff');

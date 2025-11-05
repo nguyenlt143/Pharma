@@ -60,22 +60,40 @@ content = @`
     <!-- Popup xem nhân viên trong ca -->
     <div id="employeeModal" class="modal hidden">
         <div class="modal-content">
-            <h3>Nhân viên trong ca</h3>
+            <h2 class="shift-title">Ca sáng (08:00 - 12:00)</h2>
+
             <table class="employee-table">
                 <thead>
                 <tr>
-                    <th>Họ tên</th>
-                    <th>Số điện thoại</th>
-                    <th>Trạng thái làm việc</th>
+                    <th>Tên nhân viên</th>
+                    <th>Chức vụ</th>
+                    <th>Trạng thái</th>
+                    <th>Thời gian tạo</th>
+                    <th>Action</th>
                 </tr>
                 </thead>
                 <tbody id="employeeTableBody">
-                <!-- render bằng JS -->
+                <!-- Render bằng JS -->
                 </tbody>
             </table>
-            <button class="btn-secondary" id="closeEmployeeModal">Đóng</button>
+
+            <div class="assign-section">
+                <h3>Assign Employee</h3>
+                <div class="assign-controls">
+                    <select id="employeeSelect" class="select-employee">
+                        <option value="">Select an employee to assign...</option>
+                    </select>
+                    <button id="assignBtn" class="btn-primary">+ Assign to Shift</button>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" id="closeEmployeeModal">✖ Close</button>
+                <button class="btn-success" id="saveChangesBtn">✔ Save Changes</button>
+            </div>
         </div>
     </div>
+
 `,
 pageScript = @`<script src="/assets/js/manager/shift.js" defer></script>`
 )
