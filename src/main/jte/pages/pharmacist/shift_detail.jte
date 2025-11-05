@@ -1,4 +1,4 @@
-@template.layouts.pharmacist(
+   @template.layouts.pharmacist(
 headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/revenue_detail.css">`,
 content = @`
     <!-- Content Area -->

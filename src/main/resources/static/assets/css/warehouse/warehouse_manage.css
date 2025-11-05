@@ -1,0 +1,82 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: #ffffff;
+    overflow-x: auto;
+}
+
+.container {
+    width: 2120px;
+    height: 1400px;
+    position: relative;
+    background-color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    margin: 0 auto;
+}
+
+.main-frame {
+    position: absolute;
+    top: 100px;
+    left: 100px;
+    width: 1920px;
+    height: 1200px;
+    overflow: hidden;
+}
+
+.background-image {
+    width: 100%;
+    height: 100%;
+    background-image: url('https://static.codia.ai/image/2025-11-03/SBqHW31wFY.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Responsive adjustments */
+@media (max-width: 2120px) {
+    .container {
+        width: 100%;
+        max-width: 2120px;
+        height: auto;
+        min-height: 100vh;
+    }
+
+    .main-frame {
+        position: relative;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        margin: 0;
+    }
+}
+
+@media (max-width: 1920px) {
+    .container {
+        width: 100%;
+        height: auto;
+        min-height: 100vh;
+        border: none;
+    }
+
+    .main-frame {
+        width: 100%;
+        height: 100vh;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-frame {
+        height: 100vh;
+    }
+
+    .background-image {
+        background-size: cover;
+        background-position: center top;
+    }
+}
