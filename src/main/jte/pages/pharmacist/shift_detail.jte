@@ -1,4 +1,4 @@
-@template.layouts.pharmacist(
+   @template.layouts.pharmacist(
 headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/revenue_detail.css">`,
 content = @`
     <!-- Content Area -->
@@ -8,7 +8,7 @@ content = @`
             <div class="page-header">
                 <div class="page-title-section">
                     <span class="material-icons page-icon">menu</span>
-                    <h1 class="page-title">Doanh thu tháng 8</h1>
+                    <h1 class="page-title">Ca sáng</h1>
                 </div>
 
                 <div class="date-filter">

@@ -1,13 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-  // Menu toggle functionality
-  const menuButton = document.querySelector('.menu-button');
-  const sidebar = document.querySelector('.sidebar');
-
-  if (menuButton && sidebar) {
-    menuButton.addEventListener('click', function() {
-      sidebar.classList.toggle('collapsed');
-    });
-  }
 
   // Date input functionality
   const dateInputs = document.querySelectorAll('.date-input');
@@ -99,45 +90,6 @@ document.addEventListener('DOMContentLoaded', function() {
       applyFilters();
     });
   });
-
-  // Back button functionality
-  const backButtons = document.querySelectorAll('.back-button, .back-action-button');
-  backButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      console.log('Going back...');
-      // In a real application, you would navigate back
-      window.history.back();
-    });
-  });
-
-  // Dropdown functionality
-  const dropdownButtons = document.querySelectorAll('.dropdown-button, .user-dropdown');
-  dropdownButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      console.log('Dropdown clicked');
-      // In a real application, you would show/hide dropdown menu
-    });
-  });
-
-  // Navigation links
-  const navLinks = document.querySelectorAll('.nav-link');
-  navLinks.forEach(link => {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-
-      // Remove active class from all links
-      navLinks.forEach(l => l.classList.remove('active'));
-
-      // Add active class to clicked link
-      this.classList.add('active');
-
-      const linkText = this.querySelector('span:last-child').textContent;
-      console.log('Navigating to:', linkText);
-
-      // In a real application, you would navigate to the appropriate page
-    });
-  });
-});
 
 // Helper functions that would be implemented in a real application
 function performSearch(searchTerm) {

@@ -21,4 +21,5 @@ public record DataTableResponse<T>(
         List<R> transformed = transformer.apply(data);
         return new DataTableResponse<>(draw, recordsTotal, recordsFiltered, transformed);
     }
+
 }
