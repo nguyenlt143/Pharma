@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import vn.edu.fpt.pharma.service.DashboardServicev2;
+import vn.edu.fpt.pharma.service.DashboardService;
 
 import java.util.Map;
 
@@ -12,7 +12,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class DashboardController {
 
-    private final DashboardServicev2 dashboardService;
+    private final DashboardService dashboardService;
 
     @GetMapping("/inventory/dashboard")
     public String dashboard(Model model) {
