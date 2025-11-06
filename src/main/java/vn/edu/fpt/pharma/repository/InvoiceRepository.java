@@ -16,7 +16,6 @@ import java.util.List;
 import jakarta.persistence.Tuple;
 public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpecificationExecutor<Invoice> {
 //    List<Invoice> findByBrandId(Long brandId);
-    List<Invoice> findAllByInvoiceCodeIn(Collection<String> invoiceCodes);
 
     // doanh thu theo ngay
     @Query(value = """
@@ -75,13 +74,6 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
             @Param("toDate") LocalDateTime toDate,
             Pageable pageable
     );
-
-
-
-
-
-
-
 
     List<Invoice> findAllByInvoiceCodeIn(Collection<String> invoiceCodes);
 
