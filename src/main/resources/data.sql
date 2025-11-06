@@ -13,7 +13,7 @@ VALUES
     ('Kho hủy', 'DISPOSAL_AREA', 'Kho C - Bình Dương', NULL, NOW(), FALSE),
     ('Chi nhánh Hà Nội', 'BRANCH', '123 Đường A, Hà Nội', NULL, NOW(), FALSE),
     ('Chi nhánh TP.HCM', 'BRANCH', '456 Đường B, TP.HCM', NULL, NOW(), FALSE),
-    ('Chi nhánh Đà Nẵng', 'BRANCH', '789 Đường C, Đà Nẵng', NULL, NOW(), FALSE),
+    ('Chi nhánh Đà Nẵng', 'BRANCH', '789 Đường C, Đà Nẵng', NULL, NOW(), FALSE);
 
 INSERT INTO users (user_name, password, full_name, role_id, branch_id, phone_number, email, image_url, created_at, deleted)
 VALUES
@@ -159,7 +159,7 @@ VALUES
  'Không uống khi lái xe hoặc làm việc máy móc', TRUE, 'Uống với nước, sau bữa ăn, không nhai viên thuốc', 8, NOW(), FALSE);
 
 INSERT INTO batches
-(batch_code, mfg_date, expiry_date, source_movement_id, total_received, total_issued, batch_status, movement_id, variant_id, supplier_id, created_at, deleted)
+(batch_code, mfg_date, expiry_date, source_movement_id, total_received, total_issued, batch_status, variant_id, supplier_id, created_at, deleted)
 VALUES
 -- 1. Paracetamol 500mg
 ('BATCH-PARA-2024-01', '2024-01-10', '2026-01-10', NULL, 5000, 1200, 'ACTIVE', NULL, 1, 1, NOW(), FALSE),
