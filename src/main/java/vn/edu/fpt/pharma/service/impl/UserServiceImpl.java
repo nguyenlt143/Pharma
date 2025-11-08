@@ -41,12 +41,6 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
         return new CustomUserDetails(user);
     }
 
-    @Override
-    public DataTableResponse<User> getAllUsers(DataTableRequest reqDto) {
-        DataTableResponse<User> users = findAllForDataTable(reqDto, List.of("email", "fullName", "storeCode"));
-        return users.transform(auditService::addAuditInfo);
-    }
-
     public List<UserVM> transformUsers(List<User> users) {
 //        List<String> storeCodes = users.stream().map(User::getStoreCode).toList();
 //        List<Store> stores = storeRepository.findAllByStoreCodeIn(storeCodes);

@@ -12,7 +12,6 @@ import vn.edu.fpt.pharma.entity.User;
 import java.util.List;
 
 public interface UserService extends BaseService<User, Long> {
-    DataTableResponse<User> getAllUsers(DataTableRequest reqDto);
     List<UserVM> transformUsers(List<User> users);
     List<UserDto> getStaffs(Long branchId);
     UserDto getById(Long id);

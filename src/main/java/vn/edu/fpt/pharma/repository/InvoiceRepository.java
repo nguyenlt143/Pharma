@@ -125,5 +125,4 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     ORDER BY MIN(s.start_time)
 """, nativeQuery = true)
     List<Object[]> findRevenueShift(@Param("userId") Long userId);
-
 }
