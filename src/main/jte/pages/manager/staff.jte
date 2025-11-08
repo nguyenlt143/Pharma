@@ -86,10 +86,6 @@ content = @`
                         <input id="phoneNumber" name="phoneNumber" type="tel">
                     </label>
 
-                    <label>Ảnh (URL)
-                        <input id="imageUrl" name="imageUrl" type="text">
-                    </label>
-
                     <label id="passwordWrapper">Mật khẩu <span class="required">*</span>
                         <input id="password" name="password" type="password">
                     </label>

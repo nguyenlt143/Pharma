@@ -17,7 +17,6 @@ public class UserDto {
     private String phoneNumber;
     private String roleName;
     private Long branchId;
-    private String imageUrl;
 }
 
 

@@ -15,21 +15,40 @@ VALUES
     ('Chi nhánh TP.HCM', 'BRANCH', '456 Đường B, TP.HCM', NULL, NOW(), FALSE),
     ('Chi nhánh Đà Nẵng', 'BRANCH', '789 Đường C, Đà Nẵng', NULL, NOW(), FALSE);
 
+
 INSERT INTO users (user_name, password, full_name, role_id, branch_id, phone_number, email, image_url, created_at, deleted)
 VALUES
-  ('ADMIN', '123456', 'Nguyễn Văn Quản', 1, 1, '0901000001', 'inv_manager@company.com', NULL, NOW(), FALSE),
-  ('OWNER', '123456', 'Trần Thị Nhân Viên', 2, 2, '0902000002', 'staff01@company.com', NULL, NOW(), FALSE),
-  ('MANAGER', '123456', 'Lê Văn Kho', 3, 3, '0903000003', 'warehouse_mgr@company.com', NULL, NOW(), FALSE),
-  ('INVENTORY', '123456', 'Phạm Thị Kinh Doanh', 4, 4, '0904000004', 'business_admin@company.com', NULL, NOW(), FALSE),
-  ('WAREHOUSE', '123456', 'Đặng Văn Hệ Thống', 5, 5, '0905000005', 'sys_admin@company.com', NULL, NOW(), FALSE),
-  ('PHARMACIST', '123456', 'Vũ Thị Thương Hiệu', 6, 6, '0906000006', 'brand_manager@company.com', NULL, NOW(), FALSE);
+    --  kho tong
+    ('admin', '123456', 'Nguyễn Văn Admin', 1, 1, '0901000001', 'admin@hq.com', NULL, NOW(), FALSE),
+    ('owner', '123456', 'Trần Thị Owner', 2, 1, '0902000002', 'owner@hq.com', NULL, NOW(), FALSE),
+    ('warehouse', '123456', 'Lê Văn Warehouse', 5, 1, '0903000003', 'warehouse@hq.com', NULL, NOW(), FALSE),
+    -- HANOI BRANCH (branch_id = 3)
+    ('managerhn', '123456', 'Manager Hà Nội', 3, 3, 0901000004, 'managerhn@gmail.com', NULL,NOW(), FALSE),
+    ('inventoryhn', '123456', 'Inventory Hà Nội', 4, 3, 0901000005, 'inventoryhn@gmail.com', NULL,NOW(), FALSE),
+    ('pharmacist1hn', '123456', 'Pharmacist 1 Hà Nội', 6, 3, 0901000006, 'pharmacist1hn@gmail.com', NULL,NOW(), FALSE),
+    ('pharmacist2hn', '123456', 'Pharmacist 2 Hà Nội', 6, 3, 0901000007, 'pharmacist2hn@gmail.com', NULL,NOW(), FALSE),
+    ('pharmacist3hn', '123456', 'Pharmacist 3 Hà Nội', 6, 3, 0901000008, 'pharmacist3hn@gmail.com', NULL,NOW(), FALSE),
+-- HCM BRANCH (branch_id = 4)
+    ('managerhcm', '123456', 'Manager TP.HCM', 3, 4, 0901000009, 'managerhcm@gmail.com', NULL,NOW(), FALSE),
+    ('inventoryhcm', '123456', 'Inventory TP.HCM', 4, 4, 0901000010, 'inventoryhcm@gmail.com', NULL,NOW(), FALSE),
+    ('pharmacist1hcm', '123456', 'Pharmacist 1 TP.HCM', 6, 4, 0901000011, 'pharmacist1hcm@gmail.com', NULL,NOW(), FALSE),
+    ('pharmacist2hcm', '123456', 'Pharmacist 2 TP.HCM', 6, 4, 0901000012, 'pharmacist2hcm@gmail.com',NULL, NOW(), FALSE),
+    ('pharmacist3hcm', '123456', 'Pharmacist 3 TP.HCM', 6, 4, 0901000013, 'pharmacist3hcm@gmail.com', NULL,NOW(), FALSE),
+-- DANANG BRANCH (branch_id = 5)
+    ('managerdn', '123456', 'Manager Đà Nẵng', 3, 5, 0901000014, 'managerdn@gmail.com', NULL,NOW(), FALSE),
+    ('inventorydn', '123456', 'Inventory Đà Nẵng', 4, 5, 0901000015, 'inventorydn@gmail.com', NULL,NOW(), FALSE),
+    ('pharmacist1dn', '123456', 'Pharmacist 1 Đà Nẵng', 6, 5, 0901000016, 'pharmacist1dn@gmail.com', NULL,NOW(), FALSE),
+    ('pharmacist2dn', '123456', 'Pharmacist 2 Đà Nẵng', 6, 5, 0901000017, 'pharmacist2dn@gmail.com', NULL,NOW(), FALSE),
+    ('pharmacist3dn', '123456', 'Pharmacist 3 Đà Nẵng', 6, 5, 0901000018, 'pharmacist3dn@gmail.com', NULL,NOW(), FALSE);
 -- update manager for branchs
-UPDATE branchs SET user_id = 1 WHERE id = 1;
-UPDATE branchs SET user_id = 2 WHERE id = 2;
-UPDATE branchs SET user_id = 3 WHERE id = 3;
-UPDATE branchs SET user_id = 4 WHERE id = 4;
-UPDATE branchs SET user_id = 5 WHERE id = 5;
-UPDATE branchs SET user_id = 6 WHERE id = 6;
+UPDATE branchs SET user_id = NULL WHERE id = 1;
+UPDATE branchs SET user_id = NULL WHERE id = 2;
+-- Chi nhánh Hà Nội
+UPDATE branchs SET user_id = 4 WHERE id = 3;
+-- Chi nhánh TP.HCM
+UPDATE branchs SET user_id = 9 WHERE id = 4;
+-- Chi nhánh Đà Nẵng
+UPDATE branchs SET user_id = 14 WHERE id = 5;
 
 INSERT INTO suppliers (name, phone, address, created_at, deleted)
 VALUES

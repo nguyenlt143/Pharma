@@ -32,5 +32,4 @@ public class Batch extends BaseEntity<Long> {
     private Long sourceMovementId;
     private int totalReceived;
     private int totalIssued;
-
 }
