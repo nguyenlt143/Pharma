@@ -67,7 +67,19 @@ VALUES ('Nguyễn Văn A', '0901000001', NOW(), FALSE),
        ('Đặng Văn E', '0905000005', NOW(), FALSE),
        ('Hoàng Thị F', '0906000006', NOW(), FALSE);
 
- 
+
+INSERT INTO units (name, description, created_at, deleted)
+VALUES ('Viên', 'Dạng đơn vị thuốc nhỏ nhất, thường dùng cho thuốc viên nén hoặc viên nang', NOW(), FALSE),
+       ('Vỉ', 'Gồm nhiều viên thuốc (thường 10 viên) đóng chung trong một vỉ nhôm hoặc nhựa', NOW(), FALSE),
+       ('Hộp', 'Bao gồm nhiều vỉ hoặc gói thuốc, đơn vị bán phổ biến tại quầy', NOW(), FALSE),
+       ('Chai', 'Đựng dung dịch, siro hoặc thuốc nhỏ giọt', NOW(), FALSE),
+       ('Ống', 'Dùng cho thuốc tiêm, thuốc uống dạng ống nhựa hoặc thủy tinh', NOW(), FALSE),
+       ('Gói', 'Thường dùng cho thuốc bột, cốm hoặc thuốc hòa tan', NOW(), FALSE),
+       ('Tuýp', 'Dùng cho thuốc bôi, kem, gel hoặc thuốc mỡ', NOW(), FALSE),
+       ('Lọ', 'Đựng viên nén, viên nang hoặc dung dịch nhỏ', NOW(), FALSE),
+       ('Thùng', 'Đơn vị bao gồm nhiều hộp hoặc chai, thường dùng trong nhập hàng', NOW(), FALSE),
+       ('Đơn vị', 'Đơn vị tính tổng quát, dùng khi chưa xác định rõ quy cách', NOW(), FALSE),
+       ('Gói nhỏ', 'Dùng cho thuốc hòa tan dạng gói nhỏ', NOW(), FALSE);
 INSERT INTO CATEGORYS (name, description, parent_id, deleted)
 VALUES
 -- LEVEL 1 (PARENT)
@@ -78,7 +90,7 @@ VALUES
 -- LEVEL 2 – CHILD OF: Thuốc điều trị (Parent = 1)
     ('Thuốc cảm cúm', 'Điều trị cảm lạnh, nghẹt mũi, sổ mũi', 1, FALSE),
     ('Thuốc ho – long đờm', 'Giảm ho và hỗ trợ tiêu đờm', 1, FALSE),
-    ('Thuốc hạ sốt – giảm đau – kháng viêm', 'Hạ sốt, giảm đau và kháng viêm', 1, FALSE),
+    ('Thuốc hạ sốt – giảm đau ', 'Hạ sốt, giảm đau ', 1, FALSE),
     ('Thuốc dị ứng – kháng histamin', 'Giảm dị ứng, mề đay, ngứa, nổi mẩn', 1, FALSE),
     ('Thuốc sát khuẩn – khử trùng', 'Sát khuẩn, vệ sinh và ngừa nhiễm trùng', 1, FALSE),
 -- LEVEL 2 – CHILD OF: Thuốc theo bệnh lý (Parent = 2)
@@ -100,65 +112,83 @@ VALUES
     ('Xịt mũi – nhỏ mũi trẻ em', 'Vệ sinh và hỗ trợ thông mũi cho trẻ', 4, FALSE),
     ('Dinh dưỡng trẻ em', 'Sản phẩm dinh dưỡng và phát triển cho trẻ em', 4, FALSE);
 
-INSERT INTO units (name, description, created_at, deleted)
-VALUES ('Viên', 'Dạng đơn vị thuốc nhỏ nhất, thường dùng cho thuốc viên nén hoặc viên nang', NOW(), FALSE),
-       ('Vỉ', 'Gồm nhiều viên thuốc (thường 10 viên) đóng chung trong một vỉ nhôm hoặc nhựa', NOW(), FALSE),
-       ('Hộp', 'Bao gồm nhiều vỉ hoặc gói thuốc, đơn vị bán phổ biến tại quầy', NOW(), FALSE),
-       ('Chai', 'Đựng dung dịch, siro hoặc thuốc nhỏ giọt', NOW(), FALSE),
-       ('Ống', 'Dùng cho thuốc tiêm, thuốc uống dạng ống nhựa hoặc thủy tinh', NOW(), FALSE),
-       ('Gói', 'Thường dùng cho thuốc bột, cốm hoặc thuốc hòa tan', NOW(), FALSE),
-       ('Tuýp', 'Dùng cho thuốc bôi, kem, gel hoặc thuốc mỡ', NOW(), FALSE),
-       ('Lọ', 'Đựng viên nén, viên nang hoặc dung dịch nhỏ', NOW(), FALSE),
-       ('Thùng', 'Đơn vị bao gồm nhiều hộp hoặc chai, thường dùng trong nhập hàng', NOW(), FALSE),
-       ('Đơn vị', 'Đơn vị tính tổng quát, dùng khi chưa xác định rõ quy cách', NOW(), FALSE),
-       ('Gói nhỏ', 'Dùng cho thuốc hòa tan dạng gói nhỏ', NOW(), FALSE);
 
--- ====== NHÓM THUỐC CẢM CÚM ======
+
 INSERT INTO medicines (name, active_ingredient, brand_name, manufacturer, country, category_id, created_at, deleted)
-VALUES ('Paracetamol', 'Paracetamol', 'Panadol', 'GlaxoSmithKline', 'Anh', 2, NOW(), FALSE),
-       ('Decolgen', 'Paracetamol + Phenylephrine HCl + Chlorpheniramine Maleate', 'Decolgen', 'United Pharma',
-        'Philippines', 2, NOW(), FALSE),
-       ('Tiffy', 'Paracetamol + Chlorpheniramine Maleate', 'Tiffy', 'Medica Laboratories', 'Thái Lan', 2, NOW(), FALSE),
-       ('Aspirin', 'Acetylsalicylic Acid', 'Aspirin Bayer', 'Bayer AG', 'Đức', 2, NOW(), FALSE),
-       ('Coldrex MaxGrip', 'Paracetamol + Phenylephrine HCl + Vitamin C', 'Coldrex', 'GlaxoSmithKline', 'Anh', 2, NOW(),
-        FALSE),
-       ('Vicks Formula 44', 'Dextromethorphan HBr 15mg/5ml', 'Vicks', 'Procter & Gamble', 'Mỹ', 2, NOW(), FALSE);
+VALUES
+    -- ====== NHÓM THUỐC CẢM CÚM 5======
+    ('Paracetamol', 'Paracetamol', 'Panadol', 'GlaxoSmithKline', 'Anh', 5, NOW(), FALSE),
+    ('Decolgen', 'Paracetamol + Phenylephrine HCl + Chlorpheniramine Maleate', 'Decolgen', 'United Pharma','Philippines', 5, NOW(), FALSE),
+    ('Tiffy', 'Paracetamol + Chlorpheniramine Maleate', 'Tiffy', 'Medica Laboratories', 'Thái Lan', 5, NOW(), FALSE),
+    ('Aspirin', 'Acetylsalicylic Acid', 'Aspirin Bayer', 'Bayer AG', 'Đức', 5, NOW(), FALSE),
+    ('Coldrex MaxGrip', 'Paracetamol + Phenylephrine HCl + Vitamin C', 'Coldrex', 'GlaxoSmithKline', 'Anh', 5, NOW(),FALSE),
+    ('Vicks Formula 44', 'Dextromethorphan HBr 15mg/5ml', 'Vicks', 'Procter & Gamble', 'Mỹ', 5, NOW(), FALSE),
 
--- ====== NHÓM THUỐC HO ======
-INSERT INTO medicines (name, active_ingredient, brand_name, manufacturer, country, category_id, created_at, deleted)
-VALUES ('Prospan Syrup ', 'Hedera Helix Extract (Lá thường xuân) 7mg/ml', 'Prospan', 'Engelhard Arzneimittel', 'Đức', 3,
-        NOW(), FALSE),
-       ('Atussin Syrup ', 'Guaifenesin 100mg/5ml + Dextromethorphan HBr 10mg/5ml + Chlorpheniramine Maleate 2mg/5ml',
-        'Atussin', 'DHG Pharma', 'Việt Nam', 3, NOW(), FALSE),
-       ('Bromhexine ', 'Bromhexine Hydrochloride 8mg', 'Bromhexine Stella', 'Stella Pharma', 'Việt Nam', 3, NOW(),
-        FALSE),
-       ('Terpin Codein', 'Codeine Phosphate 10mg + Terpin Hydrate 100mg', 'Terpin Codein', 'Imexpharm', 'Việt Nam', 3,
-        NOW(), FALSE),
-       ('Ho Pha Viên', 'Dextromethorphan HBr + Guaifenesin', 'Ho Pha', 'Medipharm', 'Việt Nam', 3, NOW(), FALSE);
+-- ====== NHÓM THUỐC HO 6======
+ ('Prospan Syrup ', 'Hedera Helix Extract 7mg/ml', 'Prospan', 'Engelhard Arzneimittel', 'Đức', 6,NOW(), FALSE),
+       ('Atussin Syrup ', 'Guaifenesin 100mg/5ml + Dextromethorphan HBr 10mg/5ml + Chlorpheniramine Maleate 2mg/5ml','Atussin', 'DHG Pharma', 'Việt Nam', 6, NOW(), FALSE),
+       ('Bromhexine ', 'Bromhexine Hydrochloride 8mg', 'Bromhexine Stella', 'Stella Pharma', 'Việt Nam', 6, NOW(),FALSE),
+       ('Terpin Codein', 'Codeine Phosphate 10mg + Terpin Hydrate 100mg', 'Terpin Codein', 'Imexpharm', 'Việt Nam', 6,NOW(), FALSE),
+       ('Ho Pha Viên', 'Dextromethorphan HBr + Guaifenesin', 'Ho Pha', 'Medipharm', 'Việt Nam', 6, NOW(), FALSE),
 
--- ====== NHÓM THUỐC HẠ SỐT – GIẢM ĐAU ======
-INSERT INTO medicines (name, active_ingredient, brand_name, manufacturer, country, category_id, created_at, deleted)
-VALUES ('Panadol Extra ', 'Paracetamol + Caffeine', 'Panadol', 'GlaxoSmithKline', 'Anh', 4, NOW(), FALSE),
-       ('Efferalgan ', 'Paracetamol', 'Efferalgan', 'Bristol-Myers', 'Pháp', 4, NOW(), FALSE),
-       ('Ibuprofen ', 'Ibuprofen', 'Nurofen', 'Reckitt Benckiser', 'Anh', 4, NOW(), FALSE);
+-- ====== NHÓM THUỐC HẠ SỐT – GIẢM ĐAU 7======
+('Panadol Extra ', 'Paracetamol + Caffeine', 'Panadol', 'GlaxoSmithKline', 'Anh', 7, NOW(), FALSE),
+       ('Efferalgan ', 'Paracetamol', 'Efferalgan', 'Bristol-Myers', 'Pháp', 7, NOW(), FALSE),
+       ('Ibuprofen ', 'Ibuprofen', 'Nurofen', 'Reckitt Benckiser', 'Anh', 7, NOW(), FALSE),
 
--- ====== NHÓM KHÁNG SINH phổ biến ======
-INSERT INTO medicines (name, active_ingredient, brand_name, manufacturer, country, category_id, created_at, deleted)
-VALUES ('Amoxicillin ', 'Amoxicillin', 'Amoxil', 'GlaxoSmithKline', 'Anh', 5, NOW(), FALSE),
-       ('Azithromycin ', 'Azithromycin', 'Zithromax', 'Pfizer', 'Mỹ', 5, NOW(), FALSE),
-       ('Cefixime ', 'Cefixime', 'Suprax', 'Sanofi', 'Pháp', 5, NOW(), FALSE);
+    -- Thuốc dị ứng – kháng histamin (ID = 8)
+    ('Cetirizine', 'Cetirizine 10mg', 'Zyrtec', 'UCB Pharma', 'Belgium', 8, NOW(), FALSE),
+    ('Loratadine', 'Loratadine 10mg', 'Claritine', 'Bayer', 'Germany', 8, NOW(), FALSE),
+    ('Fexofenadine', 'Fexofenadine Hydrochloride 180mg', 'Telfast', 'Sanofi', 'France', 8, NOW(), FALSE),
+    -- Thuốc sát khuẩn – khử trùng (ID = 9)
+    ('Betadine', 'Povidone Iodine 10%', 'Betadine', 'Mundipharma', 'Singapore', 9, NOW(), FALSE),
+    ('Oxy già', 'Hydrogen Peroxide 3%', 'Hydrogen Peroxide', 'Medipharma', 'Vietnam', 9, NOW(), FALSE),
+    -- Dạ dày – tiêu hóa (ID = 10)
+    ('Omeprazole', 'Omeprazole 20mg', 'Losec', 'AstraZeneca', 'UK', 10, NOW(), FALSE),
+    ('Esomeprazole', 'Esomeprazole 40mg', 'Nexium', 'AstraZeneca', 'Sweden', 10, NOW(), FALSE),
+    ('Domperidone', 'Domperidone 10mg', 'Motilium', 'Janssen', 'Belgium', 10, NOW(), FALSE),
+    -- Tim mạch – huyết áp (ID = 11
+    ('Amlodipine', 'Amlodipine 5mg', 'Amlor', 'Pfizer', 'USA', 11, NOW(), FALSE),
+    ('Losartan', 'Losartan Potassium 50mg', 'Cozaar', 'Merck Sharp & Dohme', 'USA', 11, NOW(), FALSE),
+    ('Bisoprolol', 'Bisoprolol Fumarate 5mg', 'Concor', 'Merck', 'Germany', 11, NOW(), FALSE),
+    -- Xương khớp – đau nhức (ID = 12)
+    ('Glucosamine', 'Glucosamine Sulfate 1500mg', 'Schiff Glucosamine', 'Schiff', 'USA', 12, NOW(), FALSE),
+    ('Meloxicam', 'Meloxicam 7.5mg', 'Mobic', 'Boehringer Ingelheim', 'Germany', 12, NOW(), FALSE),
+    -- Gan – giải độc (ID = 13)
+    ('Essentiale Forte', 'Phospholipid Extract', 'Essentiale', 'Sanofi', 'France', 13, NOW(), FALSE),
+    ('LiverGold', 'Milk Thistle Extract', 'LiverGold', 'Nature''s Way', 'USA', 13, NOW(), FALSE),
+    -- Thần kinh – giấc ngủ (ID = 14)
+    ('Melatonin', 'Melatonin 3mg', 'Natrol Melatonin', 'Natrol', 'USA', 14, NOW(), FALSE),
+    ('Magnesium B6', 'Magnesium + Vitamin B6', 'MagB6', 'Sanofi', 'France', 14, NOW(), FALSE),
+    -- Vitamin và khoáng chất (ID = 15)
+    ('Centrum', 'Multivitamins & Minerals', 'Centrum', 'Pfizer', 'USA', 15, NOW(), FALSE),
+    -- Tăng đề kháng – miễn dịch (ID = 16)
+    ('Vitamin C', 'Ascorbic Acid 1000mg', 'Vitamin C', 'Blackmores', 'Australia', 16, NOW(), FALSE),
+    -- Điện giải – dinh dưỡng (ID = 17)
+    ('ORS', 'Oral Rehydration Salts', 'ORESOL', 'DHG Pharma', 'Vietnam', 17, NOW(), FALSE),
+    -- Hỗ trợ tiêu hóa – men vi sinh (ID = 18
+    ('BioGaia', 'Lactobacillus reuteri Protectis', 'BioGaia', 'BioGaia AB', 'Sweden', 18, NOW(), FALSE),
+    -- Sức khỏe phụ nữ (ID = 19)
+    ('Evening Primrose Oil', 'Evening Primrose Oil 1000mg', 'EPO', 'Blackmores', 'Australia', 19, NOW(), FALSE),
+    -- Thuốc cảm – ho – sốt cho trẻ (ID = 20
+    ('Tylenol Children', 'Acetaminophen 160mg/5ml', 'Tylenol Children', 'Johnson & Johnson', 'USA', 20, NOW(), FALSE),
+    -- Vitamin và khoáng chất trẻ em (ID = 21)
+    ('Kids Smart Vita Gummies', 'Multivitamins for Kids', 'Nature',' Way', 'Australia', 21, NOW(), FALSE),
+    -- Điện giải và tiêu hóa cho trẻ (ID = 22)
+    ('Hydrite', 'ORS for Kids', 'Hydrite', 'United Pharma', 'Philippines', 22, NOW(), FALSE),
+    -- Xịt mũi – nhỏ mũi trẻ em (ID = 23)
+    ('Sterimar Baby', 'aaa','sea water', 'Sterimar', 'France', 23, NOW(), FALSE),
+    -- Dinh dưỡng trẻ em (ID = 24)
+    ('PediaSure', 'Child Nutrition Formula', 'PediaSure', 'Abbott', 'USA', 24, NOW(), FALSE);
 
 
- ===
--- Medicine_variant batch
- ===
-
--- 1. Paracetamol (OTC + 1 variant kê đơn)
 INSERT INTO medicine_variant
 (dosage_form, dosage, strength, package_unit_id_id, base_unit_id_id, quantity_per_package, barcode, registration_number,
  storage_conditions, indications, contraindications, side_effects, instructions, prescription_require, uses,
  medicine_id, created_at, deleted)
-VALUES ('Viên nén', 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '500mg', 3, 1, 10, '8935000000011', 'VN-10001',
+VALUES
+    -- 1. Paracetamol (OTC + 1 variant kê đơn)
+        ('Viên nén', 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '500mg', 3, 1, 10, '8935000000011', 'VN-10001',
         'Bảo quản nơi khô, dưới 30°C', 'Giảm đau, hạ sốt', 'Mẫn cảm với Paracetamol', 'Buồn nôn, phát ban',
         'Không quá 8 viên/ngày', FALSE, 'Uống với nhiều nước', 1, NOW(), FALSE),
        ('Viên nén', 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '650mg', 3, 1, 10, '8935000000012', 'VN-10002',
@@ -225,18 +255,87 @@ VALUES ('Viên nén', 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '500mg
        ('Viên nén', 'Uống 1–2 viên mỗi 6–8 giờ nếu cần', '400mg', 3, 1, 10, '8935000000141', 'VN-10018',
         'Bảo quản nơi khô, dưới 30°C', 'Giảm đau, hạ sốt', 'Mẫn cảm với Ibuprofen', 'Buồn nôn, đau dạ dày',
         'Uống với nước đầy', FALSE, 'Sau bữa ăn', 14, NOW(), FALSE),
--- 15. Amoxicillin 500mg (Kê đơn)
-       ('Viên nén', 'Uống 1 viên mỗi 8 giờ', '500mg', 3, 1, 10, '8935000000151', 'VN-10019',
-        'Bảo quản nơi khô, dưới 30°C', 'Kháng sinh', 'Mẫn cảm với Amoxicillin', 'Buồn nôn, tiêu chảy',
-        'Uống với nước đầy', TRUE, 'Sau bữa ăn', 15, NOW(), FALSE),
--- 16. Azithromycin 250mg (Kê đơn)
-       ('Viên nén', 'Uống 1 viên mỗi 12 giờ', '250mg', 3, 1, 10, '8935000000161', 'VN-10020',
-        'Bảo quản nơi khô, dưới 30°C', 'Kháng sinh', 'Mẫn cảm với Azithromycin', 'Buồn nôn, tiêu chảy',
-        'Uống với nước đầy', TRUE, 'Sau bữa ăn', 16, NOW(), FALSE),
--- 17. Cefixime 200mg (Kê đơn)
-       ('Viên nén', 'Uống 1 viên mỗi 12 giờ', '200mg', 3, 1, 10, '8935000000171', 'VN-10021',
-        'Bảo quản nơi khô, dưới 30°C', 'Kháng sinh', 'Mẫn cảm với Cefixime', 'Buồn nôn, tiêu chảy', 'Uống với nước đầy',
-        TRUE, 'Sau bữa ăn', 17, NOW(), FALSE);
+    -- Dị ứng 15: Cetirizine
+    ('Viên nén', 'Uống 1 viên mỗi ngày khi cần', '10mg', 3, 1, 10, '8935000001501', 'VN-15001',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm triệu chứng dị ứng: ngứa, chảy nước mũi, sổ mũi', 'Quá mẫn với cetirizine', 'Buồn ngủ nhẹ, mệt mỏi',
+     'Uống nguyên viên; không lái xe nếu thấy buồn ngủ', FALSE, 'Giảm triệu chứng dị ứng', 15, NOW(), FALSE),
+    -- Dị ứng 15: Cetirizine (variant lớn hộp)
+    ('Viên nén', 'Uống 1 viên mỗi ngày khi cần', '10mg', 3, 1, 30, '8935000001502', 'VN-15002',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm triệu chứng dị ứng: ngứa, chảy nước mũi, sổ mũi', 'Quá mẫn với cetirizine', 'Buồn ngủ nhẹ, mệt mỏi',
+     'Uống nguyên viên; không lái xe nếu thấy buồn ngủ', FALSE, 'Giảm triệu chứng dị ứng', 15, NOW(), FALSE),
+    -- Dị ứng 16: Loratadine
+    ('Viên nén', 'Uống 1 viên mỗi ngày', '10mg', 3, 1, 10, '8935000001601', 'VN-16001',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm dị ứng, mề đay, ngứa', 'Quá mẫn với loratadine', 'Khô miệng, đau đầu',
+     'Uống nguyên viên, 1 lần/ngày', FALSE, 'Giảm dị ứng', 16, NOW(), FALSE),
+    -- Dị ứng 17: Fexofenadine (OTC thấp liều)
+    ('Viên nén', 'Uống 1 viên mỗi ngày', '60mg', 3, 1, 10, '8935000001701', 'VN-17001',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm triệu chứng dị ứng', 'Quá mẫn với fexofenadine', 'Nhức đầu, buồn nôn',
+     'Uống nguyên viên, mỗi ngày', FALSE, 'Giảm dị ứng nhẹ', 17, NOW(), FALSE),
+    -- Dị ứng 17: Fexofenadine (Rx cao liều)
+    ('Viên nén', 'Uống 1 viên mỗi ngày', '180mg', 3, 1, 10, 'INT0000001702', 'INT-17002',
+     'Bảo quản nơi khô, dưới 30°C', 'Dị ứng nặng hoặc không đáp ứng với liệu pháp khác', 'Quá mẫn với fexofenadine', 'Nhức đầu, mệt mỏi',
+     'Dùng theo chỉ định bác sĩ', TRUE, 'Dị ứng trung bình–nặng', 17, NOW(), FALSE),
+    -- Sát khuẩn 18: Betadine (chất sát khuẩn)
+    ('Dung dịch bôi', 'Rửa hoặc bôi vùng cần sát khuẩn 1–2 lần/ngày', 'Povidone Iodine 10%', 8, 8, 100, '8935000001801', 'VN-18001',
+     'Bảo quản nơi khô, tránh ánh nắng trực tiếp', 'Sát khuẩn vết thương, vệ sinh da', 'Không dùng ở vùng có tổn thương nặng hoặc rách da lớn', 'Kích ứng da hiếm gặp',
+     'Rửa vết thương, bôi một lớp mỏng', FALSE, 'Sát khuẩn ngoài da', 18, NOW(), FALSE),
+    -- Sát khuẩn 19: Oxy già (Hydrogen Peroxide)
+    ('Dung dịch', 'Rửa vùng cần sát khuẩn, sau đó rửa lại bằng nước', 'Hydrogen Peroxide 3%', 4, 8, 100, '8935000001901', 'VN-19001',
+     'Bảo quản nơi khô, tránh ánh nắng', 'Vệ sinh vết thương, sát khuẩn nhẹ', 'Không nuốt, không dùng cho vết thương sâu', 'Rát nhẹ khi bôi',
+     'Sử dụng ngoài da, rửa kỹ sau khi dùng', FALSE, 'Vệ sinh vết thương', 19, NOW(), FALSE),
+    -- Dạ dày 20: Omeprazole (OTC thấp liều)
+    ('Viên nang', 'Uống 1 viên mỗi ngày trước bữa sáng', '10mg', 3, 1, 14, '8935000002001', 'VN-20001',
+     'Bảo quản nơi khô, nhiệt độ phòng', 'Giảm triệu chứng ợ nóng, trào ngược nhẹ', 'Quá mẫn với omeprazole', 'Đau đầu, tiêu chảy',
+     'Uống nguyên viên trước ăn', FALSE, 'Giảm ợ nóng/GERD nhẹ', 20, NOW(), FALSE),
+    -- Dạ dày 20: Omeprazole (Rx cao liều)
+    ('Viên nang', 'Uống 1 viên mỗi ngày trước bữa sáng', '20mg', 3, 1, 28, 'INT0000002002', 'INT-20002',
+     'Bảo quản nơi khô, nhiệt độ phòng', 'Điều trị loét, GERD trung bình–nặng', 'Quá mẫn với omeprazole', 'Đau đầu, tiêu chảy, buồn nôn',
+     'Dùng theo hướng dẫn bác sĩ', TRUE, 'Điều trị loét/GERD', 20, NOW(), FALSE),
+    -- Dạ dày 21: Esomeprazole (thường Rx)
+    ('Viên nang', 'Uống 1 viên mỗi ngày trước ăn', '40mg', 3, 1, 28, 'INT0000002101', 'INT-21001',
+     'Bảo quản nơi khô, nhiệt độ phòng', 'Điều trị GERD, loét dạ dày tá tràng', 'Quá mẫn với esomeprazole', 'Đau đầu, tiêu chảy',
+     'Dùng theo chỉ định bác sĩ', TRUE, 'Điều trị loét/GERD', 21, NOW(), FALSE),
+    -- Dạ dày 22: Domperidone (thường Rx)
+    ('Viên nén', 'Uống 1 viên trước bữa ăn, 3 lần/ngày', '10mg', 3, 1, 20, '8935000002201', 'VN-22001',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm buồn nôn, nôn, hỗ trợ tiêu hóa', 'Quá mẫn với domperidone; bệnh tim nặng', 'Mệt mỏi, khô miệng',
+     'Dùng theo hướng dẫn; không dùng quá liều khuyến cáo', TRUE, 'Giảm buồn nôn, nôn', 22, NOW(), FALSE),
+    -- Tim mạch 23: Amlodipine (Rx)
+    ('Viên nén', 'Uống 1 viên mỗi ngày', '5mg', 3, 1, 30, 'INT0000002301', 'INT-23001',
+     'Bảo quản nơi khô, nhiệt độ phòng', 'Hạ huyết áp, điều trị tăng huyết áp', 'Suy tim nặng chưa kiểm soát, quá mẫn', 'Chóng mặt, phù chân',
+     'Uống vào cùng một thời điểm mỗi ngày', TRUE, 'Điều trị tăng huyết áp', 23, NOW(), FALSE),
+    -- Tim mạch 24: Losartan (Rx)
+    ('Viên nén', 'Uống 1 viên mỗi ngày', '50mg', 3, 1, 30, 'INT0000002401', 'INT-24001',
+     'Bảo quản nơi khô, nhiệt độ phòng', 'Hỗ trợ điều trị tăng huyết áp', 'Phụ nữ có thai, quá mẫn với losartan', 'Tiêu chảy, chóng mặt',
+     'Uống theo chỉ dẫn bác sĩ', TRUE, 'Điều trị huyết áp', 24, NOW(), FALSE),
+    -- Tim mạch 25: Bisoprolol (Rx)
+    ('Viên nén', 'Uống 1 viên mỗi ngày', '5mg', 3, 1, 28, 'INT0000002501', 'INT-25001',
+     'Bảo quản nơi khô, nhiệt độ phòng', 'Hỗ trợ điều trị tăng huyết áp, suy tim', 'Hen, block tim nặng, quá mẫn', 'Mệt mỏi, mạch chậm',
+     'Dùng theo chỉ định bác sĩ', TRUE, 'Tăng huyết áp, suy tim', 25, NOW(), FALSE),
+    -- Xương khớp 26: Glucosamine (OTC)
+    ('Viên nang', 'Uống 1 viên mỗi ngày', '1500mg', 3, 1, 30, '8935000002601', 'VN-26001',
+     'Bảo quản nơi khô, tránh ánh nắng', 'Hỗ trợ sụn khớp, giảm đau nhẹ xương khớp', 'Quá mẫn với thành phần', 'Tiêu hóa nhẹ, buồn nôn',
+     'Uống cùng bữa ăn nếu đau dạ dày', FALSE, 'Hỗ trợ xương khớp', 26, NOW(), FALSE),
+    -- Xương khớp 27: Meloxicam (Rx, NSAID)
+    ('Viên nén', 'Uống 1 viên mỗi ngày', '7.5mg', 3, 1, 20, 'INT0000002701', 'INT-27001',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm đau viêm xương khớp', 'Loét tiêu hóa, suy thận nặng, quá mẫn', 'Đau dạ dày, chóng mặt',
+     'Dùng theo chỉ định; uống sau ăn để giảm kích ứng dạ dày', TRUE, 'Giảm đau viêm', 27, NOW(), FALSE),
+    -- Gan 28: Essentiale Forte (OTC / hỗ trợ gan)
+    ('Viên nang', 'Uống 1 viên, 2–3 lần/ngày', '300mg phospholipid', 3, 1, 30, '8935000002801', 'VN-28001',
+     'Bảo quản nơi khô, tránh ánh nắng', 'Hỗ trợ chức năng gan, giải độc', 'Quá mẫn với thành phần', 'Tiêu hóa nhẹ',
+     'Uống sau ăn để hỗ trợ hấp thu', FALSE, 'Hỗ trợ chức năng gan', 28, NOW(), FALSE),
+    -- Gan 29: LiverGold (Milk Thistle, OTC)
+    ('Viên nang', 'Uống 1 viên mỗi ngày', 'Silymarin 140mg', 3, 1, 30, '8935000002901', 'VN-29001',
+     'Bảo quản nơi khô, tránh ánh nắng', 'Hỗ trợ giải độc gan', 'Quá mẫn với cây kế sữa', 'Tiêu hóa nhẹ',
+     'Uống sau ăn', FALSE, 'Hỗ trợ chức năng gan', 29, NOW(), FALSE),
+    -- Thần kinh 30: Melatonin (OTC)
+    ('Viên nén', 'Uống 1 viên trước khi ngủ', '3mg', 3, 1, 30, '8935000003001', 'VN-30001',
+     'Bảo quản nơi khô, tránh ánh nắng', 'Hỗ trợ giấc ngủ, giảm thời gian khó ngủ', 'Phụ nữ mang thai cho con bú chưa có nghiên cứu đầy đủ', 'Buồn ngủ, chóng mặt',
+     'Uống 30 phút trước khi ngủ; không lái xe nếu buồn ngủ', FALSE, 'Hỗ trợ giấc ngủ', 30, NOW(), FALSE),
+    -- Thần kinh 31: Magnesium B6 (OTC)
+    ('Viên nén', 'Uống 1 viên mỗi ngày', 'Magnesium + Vitamin B6', 3, 1, 30, '8935000003101', 'VN-31001',
+     'Bảo quản nơi khô, tránh ánh nắng', 'Hỗ trợ giảm căng cơ, mệt mỏi, cải thiện giấc ngủ', 'Quá mẫn với thành phần', 'Tiêu hóa nhẹ',
+     'Uống sau ăn nếu gây khó chịu dạ dày', FALSE, 'Hỗ trợ thần kinh và giấc ngủ', 31, NOW(), FALSE);
+
 
 INSERT INTO batches
 (batch_code, mfg_date, expiry_date, source_movement_id, total_received, total_issued, batch_status, variant_id,
@@ -302,56 +401,30 @@ VALUES
 INSERT INTO request_forms (branch_id, request_type, request_status, note, created_at, deleted)
 VALUES
 -- Nhập hàng chi nhánh Hà Nội
-(1, 'IMPORT', 'REQUESTED', 'Yêu cầu nhập lô Paracetamol 500mg đợt 10/2024', NOW(), FALSE),
+(3, 'IMPORT', 'CONFIRMED', 'Yêu cầu nhập lô Paracetamol 500mg đợt 10/2024', NOW(), FALSE),
 
--- Nhập hàng chi nhánh TP.HCM
-(2, 'IMPORT', 'CONFIRMED', 'Đã xác nhận nhập lô Decolgen 3/2024', NOW(), FALSE),
+-- Nhập hàng chi nhánh Hà Nội
+(3, 'IMPORT', 'CONFIRMED', 'Đã xác nhận nhập lô Decolgen 3/2024', NOW(), FALSE),
 
--- Nhập hàng kho trung tâm
-(3, 'IMPORT', 'RECEIVED', 'Kho trung tâm đã nhận đủ hàng đợt 2024-05', NOW(), FALSE),
-
--- Trả hàng chi nhánh Đà Nẵng
-(4, 'RETURN', 'REQUESTED', 'Chi nhánh Đà Nẵng trả lại 50 hộp Prospan do lỗi nhãn', NOW(), FALSE),
+-- Trả hàng chi nhánh TP.HCM
+(4, 'IMPORT', 'CONFIRMED', 'Chi nhánh Đà Nẵng trả lại 50 hộp Prospan do lỗi nhãn', NOW(), FALSE),
 
 -- Trả hàng chi nhánh Hà Nội
-(1, 'RETURN', 'CONFIRMED', 'Đã xác nhận trả lại 20 lọ Atussin hết hạn', NOW(), FALSE),
+(3, 'RETURN', 'REQUESTED', 'Đã xác nhận trả lại 20 lọ Atussin hết hạn', NOW(), FALSE);
 
--- Nhập hàng tổng công ty
-(5, 'IMPORT', 'CANCELLED', 'Đơn nhập lô Aspirin bị hủy do sai đơn giá', NOW(), FALSE),
 
--- Nhập hàng kho miền Tây
-(6, 'IMPORT', 'RECEIVED', 'Kho miền Tây đã nhập đủ lô Bromhexine 8mg', NOW(), FALSE),
-
--- Trả hàng kho miền Tây
-(6, 'RETURN', 'CONFIRMED', 'Trả lại 10 hộp Terpin Codein do sai quy cách', NOW(), FALSE);
-
-INSERT INTO request_details (request_form_id, variant_id, quantity, is_accepted, created_at, deleted)
+INSERT INTO request_details (request_form_id, variant_id, quantity,deleted)
 VALUES
 -- 1. Phiếu nhập Hà Nội - Paracetamol
-(1, 1, 1000, FALSE, NOW(), FALSE),
-
--- 2. Phiếu nhập TP.HCM - Decolgen
-(2, 2, 800, TRUE, NOW(), FALSE),
-
+(1, 1, 1000,false),
 -- 3. Phiếu nhập Kho trung tâm - nhiều thuốc
-(3, 1, 500, TRUE, NOW(), FALSE),
-(3, 3, 600, TRUE, NOW(), FALSE),
-(3, 4, 400, TRUE, NOW(), FALSE),
+(2, 1, 500,false),
+(2, 3, 600,false),
+(2, 4, 400,false),
+(3, 2, 800,false),
+-- 4. Phiếu trả hàng Hà nội - Prospan lỗi
+(4, 5, 50,false);
 
--- 4. Phiếu trả hàng Đà Nẵng - Prospan lỗi
-(4, 5, 50, FALSE, NOW(), FALSE),
-
--- 5. Phiếu trả hàng Hà Nội - Atussin hết hạn
-(5, 6, 20, TRUE, NOW(), FALSE),
-
--- 6. Phiếu nhập Tổng công ty - Aspirin (bị hủy)
-(6, 4, 300, FALSE, NOW(), FALSE),
-
--- 7. Phiếu nhập Kho miền Tây - Bromhexine
-(7, 7, 400, TRUE, NOW(), FALSE),
-
--- 8. Phiếu trả hàng Kho miền Tây - Terpin Codein
-(8, 8, 10, TRUE, NOW(), FALSE);
 
 INSERT INTO inventory_movements (movement_type, supplier_id, source_branch_id, destination_branch_id,
                                  request_form_id, approved_by_id, movement_status, created_at, deleted)
