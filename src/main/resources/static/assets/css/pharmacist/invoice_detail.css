@@ -1,0 +1,376 @@
+
+.invoice-container {
+  width: 832px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px -4px rgba(0, 0, 0, 0.1), 0px 10px 15px -3px rgba(0, 0, 0, 0.1);
+  padding: 32px;
+  position: relative;
+}
+
+/* Header Section */
+.invoice-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.pharmacy-name {
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 32px;
+  color: #111827;
+  margin-bottom: 0;
+}
+
+.pharmacy-address {
+  font-size: 14px;
+  line-height: 20px;
+  color: #4B5563;
+  margin-top: 0;
+}
+
+/* Invoice Title Section */
+.invoice-title-section {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.invoice-title {
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 36px;
+  color: #111827;
+  margin-bottom: 0;
+}
+
+.invoice-date {
+  font-size: 16px;
+  line-height: 24px;
+  color: #4B5563;
+  margin-top: 0;
+}
+
+/* Info Section */
+.info-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 32px;
+  padding-top: 8px;
+  margin-bottom: 24px;
+}
+
+.customer-info,
+.staff-info {
+  flex: 1;
+}
+
+.customer-info p,
+.staff-info p {
+  font-weight: 600;
+  color: #1A202C;
+  margin-bottom: 0;
+  line-height: 20px;
+}
+
+.customer-info {
+  text-align: left;
+}
+
+.staff-info {
+  text-align: right;
+}
+
+.name-value {
+  font-weight: 600;
+  color: #1A202C;
+}
+
+/* Table Section */
+.table-section {
+  margin-bottom: 24px;
+}
+
+.invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
+}
+
+.table-header {
+  background-color: #ffffff;
+}
+
+.table-header th {
+  padding: 12px 16px;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  text-transform: uppercase;
+  color: #374151;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.col-stt {
+  width: 48.83px;
+  text-align: left;
+}
+
+.col-medicine {
+  width: 307.11px;
+  text-align: left;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.col-unit {
+  width: 76.89px;
+  text-align: center;
+}
+
+.col-quantity {
+  width: 111.66px;
+  text-align: center;
+}
+
+.col-price {
+  width: 100.13px;
+  text-align: right;
+}
+
+.col-total {
+  width: 123.39px;
+  text-align: right;
+}
+
+.table-row td {
+  padding: 16px;
+  color: #6B7280;
+  border-bottom: 1px solid #E5E7EB;
+  line-height: 20px;
+}
+
+.table-row:last-child td {
+  border-bottom: none;
+}
+
+.table-row .col-medicine {
+  font-weight: 500;
+  color: #111827;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.table-row .col-stt {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.table-row .col-unit,
+.table-row .col-quantity {
+  text-align: center;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.table-row .col-price,
+.table-row .col-total {
+  text-align: right;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+/* Total Section */
+.total-section {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.total-row {
+  display: flex;
+  align-items: center;
+  gap: 0px;
+}
+
+.total-label {
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 28px;
+  color: #111827;
+  padding-right: 16px;
+}
+
+.total-amount {
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 28px;
+  color: #111827;
+  width: 68px;
+}
+
+/* Notes Section */
+.notes-section {
+  margin-bottom: 48px;
+}
+
+.notes-label {
+  font-weight: 600;
+  color: #1A202C;
+  line-height: 20px;
+}
+
+/* Signature Section */
+.signature-section {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.seller-signature {
+  width: 151px;
+  text-align: center;
+}
+
+.signature-title {
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  color: #1A202C;
+  margin-bottom: 0;
+}
+
+.signature-name {
+  font-size: 14px;
+  line-height: 20px;
+  color: #1A202C;
+  margin-top: 0;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.print-button {
+  background-color: #1E40AF;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-family: 'Roboto', sans-serif;
+  height: 40px;
+}
+
+.print-button:hover {
+  background-color: #1D4ED8;
+}
+
+.button-text {
+  font-size: 24px;
+  line-height: 24px;
+  font-family: 'Material Icons', sans-serif;
+  width: 88px;
+  height: 24px;
+  text-align: center;
+}
+
+.back-button {
+  background-color: #EF4444;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  position: absolute;
+  top: 12px;
+  right: 32px;
+  height: 20px;
+}
+
+.back-button:hover {
+  background-color: #DC2626;
+}
+
+.back-button .material-icons {
+  font-size: 24px;
+  line-height: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .invoice-container {
+    width: 100%;
+    max-width: 832px;
+    margin: 0 auto;
+  }
+
+  .info-section {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .staff-info {
+    text-align: left;
+  }
+
+  .invoice-table {
+    font-size: 12px;
+  }
+
+  .col-medicine {
+    min-width: 200px;
+  }
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 10px;
+  }
+
+  .invoice-container {
+    padding: 16px;
+  }
+
+  .pharmacy-name {
+    font-size: 20px;
+    line-height: 28px;
+  }
+
+  .invoice-title {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  .invoice-table {
+    font-size: 11px;
+  }
+
+  .table-header th,
+  .table-row td {
+    padding: 8px 4px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .back-button {
+    position: static;
+    margin-top: 8px;
+  }
+}

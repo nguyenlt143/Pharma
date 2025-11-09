@@ -13,12 +13,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700@display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/manager/dashboard.css">
+    <link rel="stylesheet" href="/assets/css/manager/header.css">
     ${headContent}
 </head>
 <body>
+
 <div class="dashboard">
-    <!-- Header -->
     <header class="header">
         <div class="header-container">
             <div class="logo-container">
@@ -27,11 +27,11 @@
             </div>
 
             <nav class="nav">
-                <a href="#" class="nav-link active">Tổng quan</a>
-                <a href="#" class="nav-link">Hóa đơn</a>
-                <a href="#" class="nav-link">Sổ quỹ</a>
-                <a href="#" class="nav-link">Báo cáo</a>
-                <a href="#" class="nav-link">Nhân sự</a>
+                <a href="/manager/dashboard" class="nav-link">Tổng quan</a>
+                <a href="/manager/sale" class="nav-link">Hóa đơn</a>
+                <a href="/manager/shift" class="nav-link">Ca làm việc</a>
+                <a href="/manager/report" class="nav-link">Báo cáo</a>
+                <a href="/manager/staff" class="nav-link">Nhân viên</a>
             </nav>
 
             <div class="user-section">
@@ -47,5 +47,25 @@
 
 <script src="script.js"></script>
 ${pageScript}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const navLinks = document.querySelectorAll('.nav-link');
+        const currentPath = window.location.pathname;
+
+        navLinks.forEach(link => {
+            const linkPath = new URL(link.href).pathname;
+
+            // Xóa class 'active' có thể bị gán cứng (nếu có)
+            link.classList.remove('active');
+
+            // Nếu đường dẫn của link khớp với đường dẫn hiện tại, thêm class 'active'
+            if (currentPath === linkPath) {
+                link.classList.add('active');
+            }
+        });
+    });
+</script>
+
 </body>
 </html>

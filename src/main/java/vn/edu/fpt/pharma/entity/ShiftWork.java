@@ -26,4 +26,5 @@ public class ShiftWork extends BaseEntity<Long> {
     private LocalDate workDate;
     @Enumerated(EnumType.STRING)
     private WorkType workType;
+    
 }

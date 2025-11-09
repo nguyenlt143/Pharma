@@ -31,8 +31,7 @@ public class StoreServiceImpl extends BaseServiceImpl<Store, Long, StoreReposito
 
     @Override
     public DataTableResponse<Store> findAllStores(DataTableRequest request) {
-        DataTableResponse<Store> stores = findAllForDataTable(request, List.of("storeCode", "storeName"));
-        return stores.transform(auditService::addAuditInfo);
+        return null;
     }
 
     @Override
