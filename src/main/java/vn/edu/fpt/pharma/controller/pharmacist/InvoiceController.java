@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -58,12 +59,9 @@ public class InvoiceController {
     }
 
     @GetMapping("detail")
-    public ResponseEntity<DataTableResponse<InvoiceVM>> getInvoiceDetail(HttpServletRequest request) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
-        Long userId = userDetails.getId();
+    public String viewDetails(@RequestParam("invoiceId") Long invoiceId, Model model){
 
-        return null;
+        return "pages/pharmacist/invoice_detail";
     }
 
 }

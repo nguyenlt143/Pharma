@@ -13,6 +13,8 @@ import vn.edu.fpt.pharma.entity.Invoice;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+
 import jakarta.persistence.Tuple;
 public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpecificationExecutor<Invoice> {
 //    List<Invoice> findByBrandId(Long brandId);
@@ -125,4 +127,14 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     ORDER BY MIN(s.start_time)
 """, nativeQuery = true)
     List<Object[]> findRevenueShift(@Param("userId") Long userId);
+
+
+
+    @Query(value = "SELECT b.name, b.address, c.name, c.phone, i.created_at, i.total_price, i.description " +
+            "FROM invoices i " +
+            "JOIN customers c ON i.customer_id = c.id " +
+            "JOIN branchs b ON i.branch_id = b.id " +
+            "WHERE i.id = :id",
+            nativeQuery = true)
+    Optional<Object[]> findInvoiceInfoById(@Param("id") long id);
 }
