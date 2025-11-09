@@ -159,31 +159,31 @@ VALUES
  'Không uống khi lái xe hoặc làm việc máy móc', TRUE, 'Uống với nước, sau bữa ăn, không nhai viên thuốc', 8, NOW(), FALSE);
 
 INSERT INTO batches
-(batch_code, mfg_date, expiry_date, source_movement_id, total_received, total_issued, batch_status, movement_id, variant_id, supplier_id, created_at, deleted)
+(batch_code, mfg_date, expiry_date, source_movement_id, total_received, total_issued, batch_status, variant_id, supplier_id, created_at, deleted)
 VALUES
 -- 1. Paracetamol 500mg
-('BATCH-PARA-2024-01', '2024-01-10', '2026-01-10', NULL, 5000, 1200, 'ACTIVE', NULL, 1, 1, NOW(), FALSE),
+('BATCH-PARA-2024-01', '2024-01-10', '2026-01-10', NULL, 5000, 1200, 'ACTIVE', 1, 1, NOW(), FALSE),
 
 -- 2. Decolgen
-('BATCH-DECO-2024-02', '2024-03-15', '2026-03-15', NULL, 4000, 800, 'ACTIVE', NULL, 2, 1, NOW(), FALSE),
+('BATCH-DECO-2024-02', '2024-03-15', '2026-03-15', NULL, 4000, 800, 'ACTIVE', 2, 1, NOW(), FALSE),
 
 -- 3. Tiffy
-('BATCH-TIFFY-2023-12', '2023-12-01', '2025-12-01', NULL, 3000, 2900, 'EXHAUSTED', NULL, 3, 2, NOW(), FALSE),
+('BATCH-TIFFY-2023-12', '2023-12-01', '2025-12-01', NULL, 3000, 2900, 'EXHAUSTED', 3, 2, NOW(), FALSE),
 
 -- 4. Aspirin
-('BATCH-ASP-2023-06', '2023-06-01', '2025-06-01', NULL, 2000, 1800, 'ACTIVE', NULL, 4, 1, NOW(), FALSE),
+('BATCH-ASP-2023-06', '2023-06-01', '2025-06-01', NULL, 2000, 1800, 'ACTIVE', 4, 1, NOW(), FALSE),
 
 -- 5. Prospan Syrup
-('BATCH-PRO-2023-04', '2023-04-20', '2025-04-20', NULL, 1200, 1180, 'EXHAUSTED', NULL, 5, 3, NOW(), FALSE),
+('BATCH-PRO-2023-04', '2023-04-20', '2025-04-20', NULL, 1200, 1180, 'EXHAUSTED', 5, 3, NOW(), FALSE),
 
 -- 6. Atussin Syrup
-('BATCH-ATUS-2022-09', '2022-09-01', '2024-09-01', NULL, 1000, 950, 'EXPIRED', NULL, 6, 3, NOW(), FALSE),
+('BATCH-ATUS-2022-09', '2022-09-01', '2024-09-01', NULL, 1000, 950, 'EXPIRED', 6, 3, NOW(), FALSE),
 
 -- 7. Bromhexine 8mg
-('BATCH-BROM-2024-02', '2024-02-10', '2026-02-10', NULL, 2500, 400, 'ACTIVE', NULL, 7, 2, NOW(), FALSE),
+('BATCH-BROM-2024-02', '2024-02-10', '2026-02-10', NULL, 2500, 400, 'ACTIVE', 7, 2, NOW(), FALSE),
 
 -- 8. Terpin Codein
-('BATCH-TERP-2023-05', '2023-05-01', '2025-05-01', NULL, 1500, 1450, 'DISPOSED', NULL, 8, 2, NOW(), FALSE);
+('BATCH-TERP-2023-05', '2023-05-01', '2025-05-01', NULL, 1500, 1450, 'DISPOSED', 8, 2, NOW(), FALSE);
 
 INSERT INTO request_forms (branch_id, request_type, request_status, note, created_at, deleted)
 VALUES
