@@ -66,7 +66,38 @@ VALUES ('Nguyễn Văn A', '0901000001', NOW(), FALSE),
        ('Phạm Thị D', '0904000004', NOW(), FALSE),
        ('Đặng Văn E', '0905000005', NOW(), FALSE),
        ('Hoàng Thị F', '0906000006', NOW(), FALSE);
+INSERT INTO shifts (branch_id, start_time, end_time, name, note, created_at, deleted)
+VALUES
+-- Chi nhánh Hà Nội (branch_id = 3)
+(3, '07:00:00', '11:30:00', 'Ca sáng Hà Nội', 'Ca sáng tại chi nhánh Hà Nội', NOW(), FALSE),
+(3, '13:00:00', '17:30:00', 'Ca chiều Hà Nội', 'Ca chiều tại chi nhánh Hà Nội', NOW(), FALSE),
 
+-- Chi nhánh TP.HCM (branch_id = 4)
+(4, '07:00:00', '11:30:00', 'Ca sáng TP.HCM', 'Ca sáng tại chi nhánh TP.HCM', NOW(), FALSE),
+(4, '13:00:00', '17:30:00', 'Ca chiều TP.HCM', 'Ca chiều tại chi nhánh TP.HCM', NOW(), FALSE),
+
+-- Kho Trung tâm (branch_id = 5)
+(5, '06:00:00', '12:00:00', 'Ca sáng Kho trung tâm', 'Ca sáng tại kho trung tâm', NOW(), FALSE),
+(5, '13:00:00', '19:00:00', 'Ca chiều Kho trung tâm', 'Ca chiều tại kho trung tâm', NOW(), FALSE);
+
+
+
+INSERT INTO shift_works (branch_id, shift_id, user_id, work_date, work_type, created_at, deleted)
+VALUES
+-- Chi nhánh Hà Nội (user_id = 1)
+(3, 1, 6, '2025-10-25', 'DONE', NOW(), FALSE),
+(3, 1, 7, '2025-10-26', 'IN_WORK', NOW(), FALSE),
+(3, 2, 8, '2025-10-27', 'NOT_STARTED', NOW(), FALSE),
+
+-- Chi nhánh TP.HCM (user_id = 2)
+(4, 3, 11, '2025-10-25', 'IN_WORK', NOW(), FALSE),
+(4, 3, 12, '2025-10-26', 'DONE', NOW(), FALSE),
+(4, 4, 13, '2025-10-27', 'NOT_STARTED', NOW(), FALSE),
+
+-- Kho Trung tâm (user_id = 3)
+(5, 5, 16, '2025-10-25', 'IN_WORK', NOW(), FALSE),
+(5, 5, 17, '2025-10-26', 'DONE', NOW(), FALSE),
+(5, 6, 18, '2025-10-27', 'NOT_STARTED', NOW(), FALSE);
 
 INSERT INTO units (name, description, created_at, deleted)
 VALUES ('Viên', 'Dạng đơn vị thuốc nhỏ nhất, thường dùng cho thuốc viên nén hoặc viên nang', NOW(), FALSE),
@@ -338,63 +369,63 @@ VALUES
 
 
 INSERT INTO batches
-(batch_code, mfg_date, expiry_date, source_movement_id, total_received, total_issued, batch_status, variant_id,
+(batch_code, mfg_date, expiry_date, source_movement_id, total_received, batch_status, variant_id,
  supplier_id, created_at, deleted)
 VALUES
 -- ===== Paracetamol variants =====
-('BATCH-PARA-500-2024-01', '2024-01-10', '2026-01-10', NULL, 5000, 1200, 'ACTIVE', 1, 1, NOW(), FALSE),
-('BATCH-PARA-650-2024-02', '2024-02-05', '2026-02-05', NULL, 3000, 500, 'ACTIVE', 2, 1, NOW(), FALSE),
-('BATCH-PARA-SF-2024-03', '2024-03-01', '2026-03-01', NULL, 2000, 300, 'ACTIVE', 3, 1, NOW(), FALSE),
+('BATCH-PARA-500-2024-01', '2024-01-10', '2026-01-10', NULL, 5000, 'ACTIVE', 1, 1, NOW(), FALSE),
+('BATCH-PARA-650-2024-02', '2024-02-05', '2026-02-05', NULL, 3000,  'ACTIVE', 2, 1, NOW(), FALSE),
+('BATCH-PARA-SF-2024-03', '2024-03-01', '2026-03-01', NULL, 2000,  'ACTIVE', 3, 1, NOW(), FALSE),
 
 -- ===== Decolgen variants =====
-('BATCH-DECO-2024-01', '2024-03-15', '2026-03-15', NULL, 4000, 800, 'ACTIVE', 4, 2, NOW(), FALSE),
-('BATCH-DECO-2024-02', '2024-04-10', '2026-04-10', NULL, 3000, 500, 'ACTIVE', 5, 2, NOW(), FALSE),
+('BATCH-DECO-2024-01', '2024-03-15', '2026-03-15', NULL, 4000,  'ACTIVE', 4, 2, NOW(), FALSE),
+('BATCH-DECO-2024-02', '2024-04-10', '2026-04-10', NULL, 3000,  'ACTIVE', 5, 2, NOW(), FALSE),
 
 -- ===== Tiffy variants =====
-('BATCH-TIFFY-500-2023-12', '2023-12-01', '2025-12-01', NULL, 3000, 2900, 'EXHAUSTED', 6, 2, NOW(), FALSE),
-('BATCH-TIFFY-SF-2024-01', '2024-01-10', '2026-01-10', NULL, 1500, 200, 'ACTIVE', 7, 2, NOW(), FALSE),
+('BATCH-TIFFY-500-2023-12', '2023-12-01', '2025-12-01', NULL, 3000,  'EXHAUSTED', 6, 2, NOW(), FALSE),
+('BATCH-TIFFY-SF-2024-01', '2024-01-10', '2026-01-10', NULL, 1500, 'ACTIVE', 7, 2, NOW(), FALSE),
 
 -- ===== Aspirin 500mg =====
-('BATCH-ASP-2023-06', '2023-06-01', '2025-06-01', NULL, 2000, 1800, 'ACTIVE', 8, 1, NOW(), FALSE),
+('BATCH-ASP-2023-06 ', '2023-06-01', '2025-06-01', NULL, 2000,  'ACTIVE', 8, 1, NOW(), FALSE),
 
 -- ===== Coldrex MaxGrip =====
-('BATCH-COLD-2024-01', '2024-01-15', '2026-01-15', NULL, 3500, 1200, 'ACTIVE', 9, 1, NOW(), FALSE),
+('BATCH-COLD-2024-01', '2024-01-15', '2026-01-15', NULL, 3500, 'ACTIVE', 9, 1, NOW(), FALSE),
 
 -- ===== Vicks Formula 44 =====
-('BATCH-VICKS-2023-11', '2023-11-01', '2025-11-01', NULL, 2500, 400, 'ACTIVE', 10, 3, NOW(), FALSE),
+('BATCH-VICKS-2023-11', '2023-11-01', '2025-11-01', NULL, 2500, 'ACTIVE', 10, 3, NOW(), FALSE),
 
 -- ===== Prospan Syrup =====
-('BATCH-PRO-2023-04', '2023-04-20', '2025-04-20', NULL, 1200, 1180, 'EXHAUSTED', 11, 3, NOW(), FALSE),
+('BATCH-PRO-2023-04', '2023-04-20', '2025-04-20', NULL, 1200,  'EXHAUSTED', 11, 3, NOW(), FALSE),
 
 -- ===== Atussin Syrup =====
-('BATCH-ATUS-2022-09', '2022-09-01', '2024-09-01', NULL, 1000, 950, 'EXPIRED', 12, 3, NOW(), FALSE),
+('BATCH-ATUS-2022-09', '2022-09-01', '2024-09-01', NULL, 1000,  'EXPIRED', 12, 3, NOW(), FALSE),
 
 -- ===== Bromhexine 8mg =====
-('BATCH-BROM-2024-02', '2024-02-10', '2026-02-10', NULL, 2500, 400, 'ACTIVE', 13, 2, NOW(), FALSE),
+('BATCH-BROM-2024-02', '2024-02-10', '2026-02-10', NULL, 2500,  'ACTIVE', 13, 2, NOW(), FALSE),
 
 -- ===== Terpin Codein =====
-('BATCH-TERP-2023-05', '2023-05-01', '2025-05-01', NULL, 1500, 1450, 'DISPOSED', 14, 2, NOW(), FALSE),
+('BATCH-TERP-2023-05', '2023-05-01', '2025-05-01', NULL, 1500, 'DISPOSED', 14, 2, NOW(), FALSE),
 
 -- ===== Ho Pha Viên =====
-('BATCH-HOPHA-2024-01', '2024-01-20', '2026-01-20', NULL, 2000, 300, 'ACTIVE', 15, 3, NOW(), FALSE),
+('BATCH-HOPHA-2024-01', '2024-01-20', '2026-01-20', NULL, 2000,  'ACTIVE', 15, 3, NOW(), FALSE),
 
 -- ===== Panadol Extra 500mg =====
-('BATCH-PANA-2024-01', '2024-01-10', '2026-01-10', NULL, 3000, 1000, 'ACTIVE', 16, 1, NOW(), FALSE),
+('BATCH-PANA-2024-01', '2024-01-10', '2026-01-10', NULL, 3000,  'ACTIVE', 16, 1, NOW(), FALSE),
 
 -- ===== Efferalgan 500mg =====
-('BATCH-EFFER-2024-01', '2024-01-15', '2026-01-15', NULL, 2500, 700, 'ACTIVE', 17, 1, NOW(), FALSE),
+('BATCH-EFFER-2024-01', '2024-01-15', '2026-01-15', NULL, 2500,  'ACTIVE', 17, 1, NOW(), FALSE),
 
 -- ===== Ibuprofen 400mg =====
-('BATCH-IBU-2024-01', '2024-01-05', '2026-01-05', NULL, 2000, 400, 'ACTIVE', 18, 2, NOW(), FALSE),
+('BATCH-IBU-2024-01', '2024-01-05', '2026-01-05', NULL, 2000,  'ACTIVE', 18, 2, NOW(), FALSE),
 
 -- ===== Amoxicillin 500mg =====
-('BATCH-AMOX-2024-01', '2024-01-10', '2026-01-10', NULL, 1500, 200, 'ACTIVE', 19, 1, NOW(), FALSE),
+('BATCH-AMOX-2024-01', '2024-01-10', '2026-01-10', NULL, 1500,  'ACTIVE', 19, 1, NOW(), FALSE),
 
 -- ===== Azithromycin 250mg =====
-('BATCH-AZI-2024-01', '2024-01-12', '2026-01-12', NULL, 1200, 100, 'ACTIVE', 20, 1, NOW(), FALSE),
+('BATCH-AZI-2024-01', '2024-01-12', '2026-01-12', NULL, 1200,  'ACTIVE', 20, 1, NOW(), FALSE),
 
 -- ===== Cefixime 200mg =====
-('BATCH-CEF-2024-01', '2024-01-15', '2026-01-15', NULL, 1000, 50, 'ACTIVE', 21, 1, NOW(), FALSE);
+('BATCH-CEF-2024-01', '2024-01-15', '2026-01-15', NULL, 1000,  'ACTIVE', 21, 1, NOW(), FALSE);
 
 
 
@@ -430,10 +461,10 @@ INSERT INTO inventory_movements (movement_type, supplier_id, source_branch_id, d
                                  request_form_id, approved_by_id, movement_status, created_at, deleted)
 VALUES
 -- 1. Nhập hàng từ nhà cung cấp vào chi nhánh Hà Nội
-('SUP_TO_WARE', 1, NULL, 1, 1, 5, 'RECEIVED', NOW(), FALSE),
+('SUP_TO_WARE', 1, NULL, 3, 1, 5, 'RECEIVED', NOW(), FALSE),
 
 -- 2. Nhập hàng từ nhà cung cấp vào chi nhánh TP.HCM
-('SUP_TO_WARE', 2, NULL, 2, 2, 5, 'CLOSED', NOW(), FALSE),
+('SUP_TO_WARE', 2, NULL, 4, 2, 5, 'CLOSED', NOW(), FALSE),
 
 -- 3. Nhập hàng từ nhà cung cấp vào kho trung tâm
 ('SUP_TO_WARE', 1, NULL, 3, 3, 5, 'RECEIVED', NOW(), FALSE),
@@ -447,11 +478,11 @@ VALUES
 -- 6. Đơn nhập bị hủy tại tổng công ty
 ('SUP_TO_WARE', 3, NULL, 5, 6, 5, 'CANCELLED', NOW(), FALSE),
 
--- 7. Xuất hàng từ kho trung tâm sang kho miền Tây
+-- 7. Xuất hàng từ kho trung tâm sang kho HN
 ('WARE_TO_BR', NULL, 3, 6, 7, 5, 'SHIPPED', NOW(), FALSE),
 
--- 8. Xử lý hàng hủy tại kho miền Tây
-('DISPOSAL', NULL, 6, NULL, 8, 5, 'CLOSED', NOW(), FALSE);
+-- 8. Xử lý hàng hủy tại kho HN
+('DISPOSAL', NULL, 3, NULL, 8, 5, 'CLOSED', NOW(), FALSE);
 
 INSERT INTO inventory_movement_details (movement_id, variant_id, batch_id, quantity, price, received_quantity,
                                         return_quantity, cost, created_at, deleted)
@@ -511,38 +542,7 @@ VALUES
 (6, 7, 7, 400, 150, 7, NOW(), FALSE),
 (6, 8, 8, 0, 50, 8, NOW(), FALSE);
 
-INSERT INTO shifts (branch_id, start_time, end_time, name, note, created_at, deleted)
-VALUES
--- Chi nhánh Hà Nội (branch_id = 1)
-(1, '2025-10-27 07:00:00', '2025-10-27 11:30:00', 'Ca sáng Hà Nội', 'Ca sáng tại chi nhánh Hà Nội', NOW(), FALSE),
-(1, '2025-10-27 13:00:00', '2025-10-27 17:30:00', 'Ca chiều Hà Nội', 'Ca chiều tại chi nhánh Hà Nội', NOW(), FALSE),
 
--- Chi nhánh TP.HCM (branch_id = 2)
-(2, '2025-10-27 07:00:00', '2025-10-27 11:30:00', 'Ca sáng TP.HCM', 'Ca sáng tại chi nhánh TP.HCM', NOW(), FALSE),
-(2, '2025-10-27 13:00:00', '2025-10-27 17:30:00', 'Ca chiều TP.HCM', 'Ca chiều tại chi nhánh TP.HCM', NOW(), FALSE),
-
--- Kho Trung tâm (branch_id = 3)
-(3, '2025-10-27 06:00:00', '2025-10-27 12:00:00', 'Ca sáng Kho trung tâm', 'Ca sáng tại kho trung tâm', NOW(), FALSE),
-(3, '2025-10-27 13:00:00', '2025-10-27 19:00:00', 'Ca chiều Kho trung tâm', 'Ca chiều tại kho trung tâm', NOW(), FALSE);
-
-
-
-INSERT INTO shift_works (branch_id, shift_id, user_id, work_date, work_type, created_at, deleted)
-VALUES
--- Chi nhánh Hà Nội (user_id = 1)
-(1, 1, 1, '2025-10-25', 'DONE', NOW(), FALSE),
-(1, 2, 1, '2025-10-26', 'IN_WORK', NOW(), FALSE),
-(1, 1, 1, '2025-10-27', 'NOT_STARTED', NOW(), FALSE),
-
--- Chi nhánh TP.HCM (user_id = 2)
-(2, 3, 2, '2025-10-25', 'IN_WORK', NOW(), FALSE),
-(2, 4, 2, '2025-10-26', 'DONE', NOW(), FALSE),
-(2, 3, 2, '2025-10-27', 'NOT_STARTED', NOW(), FALSE),
-
--- Kho Trung tâm (user_id = 3)
-(3, 5, 3, '2025-10-25', 'IN_WORK', NOW(), FALSE),
-(3, 6, 3, '2025-10-26', 'DONE', NOW(), FALSE),
-(3, 5, 3, '2025-10-27', 'NOT_STARTED', NOW(), FALSE);
 
 
 
