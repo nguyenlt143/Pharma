@@ -3,7 +3,7 @@ package vn.edu.fpt.pharma.dto.user;
 import vn.edu.fpt.pharma.entity.User;
 
 public record ProfileVM(
-        String userName,
+        String fullName,
         String phone,
         String email,
         String password,
@@ -12,7 +12,7 @@ public record ProfileVM(
 ) {
     public ProfileVM(User user) {
         this(
-                user.getUserName(),
+                user.getFullName(),
                 user.getPhoneNumber(),
                 user.getEmail(),
                 "",

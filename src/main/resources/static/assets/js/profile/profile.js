@@ -20,8 +20,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Form submission
   editForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-
     // Get form data
     const formData = new FormData(editForm);
     const data = {
@@ -33,18 +31,6 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     console.log('Form data:', data);
-
-    // Simulate API call
-    setTimeout(() => {
-      // Show success message
-      successMessage.classList.add('show');
-
-      // Hide success message after 3 seconds
-      setTimeout(() => {
-        successMessage.classList.remove('show');
-      }, 3000);
-    }, 500);
-  });
 
   // Cancel button functionality
   const cancelButton = document.querySelector('.btn-secondary');

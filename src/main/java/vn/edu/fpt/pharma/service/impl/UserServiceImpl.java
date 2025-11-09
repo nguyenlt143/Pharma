@@ -126,7 +126,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
     public void updateProfile(Long id, ProfileVM profileVM) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        user.setUserName(profileVM.userName());
+        user.setFullName(profileVM.fullName());
         user.setEmail(profileVM.email());
         user.setPhoneNumber(profileVM.phone());
         if (profileVM.password() != null && !profileVM.password().isBlank()) {

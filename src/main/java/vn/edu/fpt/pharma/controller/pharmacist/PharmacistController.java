@@ -81,14 +81,14 @@ public class PharmacistController {
         return "pages/profile/profile";
     }
 
-    @PostMapping("/update")
+    @PostMapping("/profile/update")
     public String update(@ModelAttribute ProfileVM profileVM,  RedirectAttributes redirectAttributes) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
         Long userId = userDetails.getId();
         userService.updateProfile(userId, profileVM);
         redirectAttributes.addFlashAttribute("success", "Cập nhật thành công!");
-        return "redirect:/profile";
+        return "redirect:/pharmacist/profile";
     }
 
     @GetMapping("/abc")
