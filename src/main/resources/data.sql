@@ -90,7 +90,7 @@ VALUES
   ('Terpin Codein', 'Codeine Phosphate 10mg + Terpin Hydrate 100mg', 'Terpin Codein', 'Imexpharm', 'Việt Nam', 3, NOW(), FALSE);
 
 INSERT INTO medicine_variant
-(dosage_form, dosage, strength, package_unit_id_id, base_unit_id_id, quantity_per_package, barcode, registration_number,
+(dosage_form, dosage, strength, package_unit_id, base_unit_id, quantity_per_package, barcode, registration_number,
  storage_conditions, indications, contraindications, side_effects, instructions, prescription_require, uses,
  medicine_id, created_at, deleted)
 VALUES

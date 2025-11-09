@@ -57,4 +57,13 @@ public class InvoiceController {
         return ResponseEntity.ok(invoiceService.findAllInvoices(reqDto, userId).map(InvoiceVM::new));
     }
 
+    @GetMapping("detail")
+    public ResponseEntity<DataTableResponse<InvoiceVM>> getInvoiceDetail(HttpServletRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        Long userId = userDetails.getId();
+
+        return null;
+    }
+
 }
