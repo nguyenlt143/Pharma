@@ -13,7 +13,7 @@ VALUES
     ('Kho hủy', 'DISPOSAL_AREA', 'Kho C - Bình Dương', NULL, NOW(), FALSE),
     ('Chi nhánh Hà Nội', 'BRANCH', '123 Đường A, Hà Nội', NULL, NOW(), FALSE),
     ('Chi nhánh TP.HCM', 'BRANCH', '456 Đường B, TP.HCM', NULL, NOW(), FALSE),
-    ('Chi nhánh Đà Nẵng', 'BRANCH', '789 Đường C, Đà Nẵng', NULL, NOW(), FALSE),
+    ('Chi nhánh Đà Nẵng', 'BRANCH', '789 Đường C, Đà Nẵng', NULL, NOW(), FALSE);
 
 INSERT INTO users (user_name, password, full_name, role_id, branch_id, phone_number, email, image_url, created_at, deleted)
 VALUES
@@ -22,7 +22,7 @@ VALUES
   ('MANAGER', '123456', 'Lê Văn Kho', 3, 3, '0903000003', 'warehouse_mgr@company.com', NULL, NOW(), FALSE),
   ('INVENTORY', '123456', 'Phạm Thị Kinh Doanh', 4, 4, '0904000004', 'business_admin@company.com', NULL, NOW(), FALSE),
   ('WAREHOUSE', '123456', 'Đặng Văn Hệ Thống', 5, 5, '0905000005', 'sys_admin@company.com', NULL, NOW(), FALSE),
-  ('PHARMACIST', '123456', 'Vũ Thị Thương Hiệu', 6, 6, '0906000006', 'brand_manager@company.com', NULL, NOW(), FALSE);
+  ('PHARMACIST', '123456', 'Vũ Thị Thương Hiệu', 6, 1, '0906000006', 'brand_manager@company.com', NULL, NOW(), FALSE);
 -- update manager for branchs
 UPDATE branchs SET user_id = 1 WHERE id = 1;
 UPDATE branchs SET user_id = 2 WHERE id = 2;
@@ -184,7 +184,6 @@ VALUES
 
 -- 8. Terpin Codein
 ('BATCH-TERP-2023-05', '2023-05-01', '2025-05-01', NULL, 1500, 1450, 'DISPOSED', NULL, 8, 2, NOW(), FALSE);
-
 
 INSERT INTO request_forms (branch_id, request_type, request_status, note, created_at, deleted)
 VALUES
@@ -353,10 +352,10 @@ INSERT INTO shift_works (
   branch_id, shift_id, user_id, work_date, work_type, created_at, deleted
 )
 VALUES
--- Chi nhánh Hà Nội (user_id = 1)
-(1, 1, 1, '2025-10-25', 'DONE', NOW(), FALSE),
-(1, 2, 1, '2025-10-26', 'IN_WORK', NOW(), FALSE),
-(1, 1, 1, '2025-10-27', 'NOT_STARTED', NOW(), FALSE),
+-- Chi nhánh Hà Nội (user_id = 6)
+(1, 1, 6, '2025-10-25', 'DONE', NOW(), FALSE),
+(1, 2, 6, '2025-10-26', 'IN_WORK', NOW(), FALSE),
+(1, 1, 6, '2025-10-27', 'NOT_STARTED', NOW(), FALSE),
 
 -- Chi nhánh TP.HCM (user_id = 2)
 (2, 3, 2, '2025-10-25', 'IN_WORK', NOW(), FALSE),
@@ -372,28 +371,28 @@ VALUES
 
 INSERT INTO invoices (
   invoice_code, customer_id, shift_work_id, branch_id,
-  total_price, payment_method, invoice_type, created_at, created_by, deleted
+  total_price, payment_method, invoice_type, created_at, created_by, deleted, user_id
 )
 VALUES
 --  Hóa đơn tại Chi nhánh Hà Nội
-('INV-20251025-001', 1, 1, 1, 350000.00, 'Cash', 'PAID', NOW(), 5,  FALSE),
-('INV-20251025-002', 2, 2, 1, 120000.00, 'Card', 'PAID', NOW(), 5, FALSE),
+('INV-20251025-001', 1, 1, 1, 350000.00, 'Cash', 'PAID', NOW(), 5,  FALSE, 6),
+('INV-20251025-002', 2, 2, 1, 120000.00, 'Card', 'PAID', NOW(), 5, FALSE, 6),
 
 --  Hóa đơn tại Chi nhánh TP.HCM
-('INV-20251025-003', 3, 4, 2, 560000.00, 'Cash', 'PAID', NOW(), 5, FALSE),
-('INV-20251025-004', 4, 5, 2, 98000.00, 'Transfer', 'CANCELLED',NOW(), 5, FALSE),
+('INV-20251025-003', 3, 4, 2, 560000.00, 'Cash', 'PAID', NOW(), 5, FALSE, 2),
+('INV-20251025-004', 4, 5, 2, 98000.00, 'Transfer', 'CANCELLED',NOW(), 5, FALSE, 2),
 
 --  Hóa đơn tại Kho Trung tâm (xuất nội bộ)
-('INV-20251025-005', NULL, 7, 3, 1850000.00, 'Transfer', 'DRAFT',NOW(), 5, FALSE),
+('INV-20251025-005', NULL, 7, 3, 1850000.00, 'Transfer', 'DRAFT',NOW(), 5, FALSE, 3),
 
 --  Hóa đơn tại Chi nhánh Đà Nẵng
-('INV-20251025-006', 5, 9, 4, 255000.00, 'Cash', 'PAID', NOW(), 5, FALSE),
+('INV-20251025-006', 5, 9, 4, 255000.00, 'Cash', 'PAID', NOW(), 5, FALSE, 3),
 
 --  Hóa đơn tại Tổng công ty (xuất điều phối nội bộ)
-('INV-20251025-007', NULL, 12, 5, 520000.00, 'Transfer', 'DRAFT', NOW(), 5, FALSE),
+('INV-20251025-007', NULL, 12, 5, 520000.00, 'Transfer', 'DRAFT', NOW(), 5, FALSE, NULL),
 
 --  Hóa đơn tại Kho Miền Tây
-('INV-20251025-008', 6, 14, 6, 310000.00, 'Cash', 'PAID', NOW(), 5, FALSE);
+('INV-20251025-008', 6, 14, 6, 310000.00, 'Cash', 'PAID', NOW(), 5, FALSE, NULL);
 
 INSERT INTO invoice_details (
   invoice_id, batch_id, variant_id, quantity, price, created_at, deleted

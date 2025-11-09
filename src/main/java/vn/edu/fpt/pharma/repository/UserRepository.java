@@ -23,5 +23,5 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     List<User> findByBranchId(Long branchId);
     boolean existsByUserNameIgnoreCase(String userName);
 
-    User findById(long id);
+    Optional<User> findById(long id);
 }

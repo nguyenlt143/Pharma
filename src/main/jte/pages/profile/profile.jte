@@ -1,3 +1,5 @@
+@param vn.edu.fpt.pharma.dto.user.ProfileVM profile
+
 @template.layouts.pharmacist(
 headContent = @`<link rel="stylesheet" href="/assets/css/profile/profile.css">`,
 content = @`
@@ -19,7 +21,7 @@ content = @`
                                 <img src="https://static.codia.ai/image/2025-10-28/Ot4EUiUOos.png" alt="Profile Avatar" class="avatar-image">
                             </div>
                             <div class="profile-info">
-                                <h2 class="profile-name">Nguyễn Văn An</h2>
+                                <h2 class="profile-name">${profile.userName()}</h2>
                             </div>
                         </div>
                     </div>
@@ -30,15 +32,15 @@ content = @`
                         <div class="info-list">
                             <div class="info-row">
                                 <div class="info-label">Chức vụ</div>
-                                <div class="info-value">Dược sĩ</div>
+                                <div class="info-value">${profile.role()}</div>
                             </div>
                             <div class="info-row">
                                 <div class="info-label">Email</div>
-                                <div class="info-value">nguyenvana@example.com</div>
+                                <div class="info-value">${profile.email()}</div>
                             </div>
                             <div class="info-row">
                                 <div class="info-label">Số điện thoại</div>
-                                <div class="info-value">0901234567</div>
+                                <div class="info-value">${profile.phone()}</div>
                             </div>
                         </div>
                     </div>
@@ -54,17 +56,16 @@ content = @`
 
                         <!-- Form Content -->
                         <div class="form-content">
-                            <form class="edit-form" id="editForm">
+                            <form class="edit-form" id="editForm" action="/profile/update" method="post">
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="fullName" class="form-label">Họ và Tên</label>
-                                        <input type="text" id="fullName" class="form-input" value="Nguyễn Văn An">
+                                        <input type="text" id="fullName"  name="userName" class="form-input" value="${profile.userName()}">
                                     </div>
                                     <div class="form-group">
                                         <label for="birthDate" class="form-label">Ngày sinh</label>
                                         <div class="date-input-container">
                                             <input type="date" id="birthDate" class="form-input date-input" value="1990-01-15">
-                                            <img src="https://static.codia.ai/image/2025-10-28/pTv4pPanpz.png" alt="Calendar" class="date-icon">
                                         </div>
                                     </div>
                                 </div>
@@ -80,24 +81,19 @@ content = @`
                                     </div>
                                     <div class="form-group">
                                         <label for="phone" class="form-label">Số điện thoại</label>
-                                        <input type="tel" id="phone" class="form-input" value="0901234567">
+                                        <input type="tel" id="phone" name="phone" class="form-input" value="${profile.phone()}">
                                     </div>
 
                                     <div class="form-group">
                                         <label for="password" class="form-label">Mật khẩu mới</label>
-                                        <input type="password" id="password" class="form-input" placeholder="Nhập mật khẩu mới">
+                                        <input type="password" id="password" name="password" class="form-input" placeholder="Nhập mật khẩu mới">
                                     </div>
 
                                     <div class="form-group">
                                         <label for="confirmPassword" class="form-label">Nhập lại mật khẩu</label>
-                                        <input type="password" id="confirmPassword" class="form-input" placeholder="Nhập lại mật khẩu">
+                                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-input" placeholder="Nhập lại mật khẩu">
                                     </div>
 
-                                </div>
-
-                                <div class="form-group full-width">
-                                    <label for="address" class="form-label">Địa chỉ</label>
-                                    <input type="text" id="address" class="form-input" value="123 Đường ABC, Phường X, Quận Y, TP. HCM">
                                 </div>
 
                                 <!-- Form Actions -->
