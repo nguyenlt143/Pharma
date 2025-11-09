@@ -25,4 +25,6 @@ public interface RequestFormRepository extends JpaRepository<RequestForm, Long>,
         """, nativeQuery = true)
     List<RequestForm> findRequestFormsByBranch(Long branchId);
 
+    List<RequestForm> findByBranchId(Long branchId);
+
 }
