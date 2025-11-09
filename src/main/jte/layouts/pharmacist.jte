@@ -75,15 +75,7 @@
             </div>
 
             <div class="header-right">
-                <div class="weather-info">
-                    <span class="material-icons weather-icon">thermostat</span>
-                    <span class="temperature">0°C</span>
-                    <span class="material-icons cloud-icon">cloud</span>
-                    <span class="weather-code">000</span>
-                </div>
-
                 <div class="date-info">
-                    <span class="material-icons date-icon">calendar_today</span>
                     <span class="date-text">01/01/2200</span>
                 </div>
 

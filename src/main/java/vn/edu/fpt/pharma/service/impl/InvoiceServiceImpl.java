@@ -21,14 +21,13 @@ public class InvoiceServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
     }
 
 
+    @Override
     public DataTableResponse<Invoice> findAllInvoices(DataTableRequest request) {
-        DataTableResponse<Invoice> invoices = findAllForDataTable(request, List.of("invoiceNumber", "customerName"));
-        return invoices.transform(auditService::addAuditInfo);
+        return null;
     }
 
-    @Override
     public DataTableResponse<Invoice> findAllInvoices(DataTableRequest request, Long userId) {
-
-        return null;
+        DataTableResponse<Invoice> invoices = findAllForDataTable(request, List.of("invoiceCode", "customer.name"),  userId);
+        return invoices.transform(auditService::addAuditInfo);
     }
 }

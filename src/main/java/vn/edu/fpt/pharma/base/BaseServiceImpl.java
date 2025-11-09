@@ -1,6 +1,8 @@
 package vn.edu.fpt.pharma.base;
 
+import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -70,19 +72,30 @@ public abstract class BaseServiceImpl<T extends BaseEntity<ID>, ID, RE extends J
 
     protected DataTableResponse<T> findAllForDataTable(
             DataTableRequest request,
-            List<String> searchableColumns
+            List<String> searchableColumns,
+            Long userId
     ) {
         int page = request.start() / request.length();
 
         Sort sort = Sort.unsorted();
+
         if (request.orderColumn() != null && !request.orderColumn().isEmpty()) {
+            // Cho phép sort theo field lồng (vd: "customer.name")
+            String[] props = request.orderColumn().split("\\.");
             sort = "desc".equalsIgnoreCase(request.orderDir()) ?
-                    Sort.by(request.orderColumn()).descending() :
-                    Sort.by(request.orderColumn()).ascending();
+                    Sort.by(props).descending() :
+                    Sort.by(props).ascending();
         }
         Pageable pageable = PageRequest.of(page, request.length(), sort);
 
         Specification<T> spec = buildSearchSpec(request, searchableColumns);
+
+        // Filter theo userId
+        if (userId != null) {
+            Specification<T> userSpec = (root, query, cb) ->
+                    cb.equal(root.get("userId"), userId);
+            spec = spec == null ? userSpec : spec.and(userSpec);
+        }
 
         Page<T> pageResult = (spec != null) ?
                 repository.findAll(spec, pageable) :
@@ -101,13 +114,28 @@ public abstract class BaseServiceImpl<T extends BaseEntity<ID>, ID, RE extends J
             return null;
         }
 
-        String keyword = "%" + request.searchValue() + "%";
-        return (root, _, cb) -> {
+        String keyword = "%" + request.searchValue().toLowerCase() + "%";
+
+        return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
             for (String col : searchableColumns) {
-                predicates.add(cb.like(root.get(col), keyword));
+                Path<String> path = resolvePath(root, col);
+                predicates.add(cb.like(cb.lower(path.as(String.class)), keyword));
             }
+
             return cb.or(predicates.toArray(new Predicate[0]));
         };
     }
+
+    @SuppressWarnings("unchecked")
+    private Path<String> resolvePath(Root<?> root, String fieldPath) {
+        String[] parts = fieldPath.split("\\.");
+        Path<?> path = root;
+        for (String part : parts) {
+            path = path.get(part);
+        }
+        return (Path<String>) path;
+    }
+
 }

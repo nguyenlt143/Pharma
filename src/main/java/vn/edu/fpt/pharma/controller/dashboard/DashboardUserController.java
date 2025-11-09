@@ -28,8 +28,6 @@ public class DashboardUserController {
 
     @GetMapping("/all")
     public ResponseEntity<DataTableResponse<UserVM>> getAllUsers(HttpServletRequest request) {
-        DataTableRequest reqDto = DataTableRequest.fromParams(request.getParameterMap());
-        DataTableResponse<User> users = userService.getAllUsers(reqDto);
-        return ResponseEntity.ok(users.transform(userService::transformUsers));
+        return null;
     }
 }

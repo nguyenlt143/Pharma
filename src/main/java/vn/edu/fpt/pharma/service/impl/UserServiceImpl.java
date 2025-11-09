@@ -1,15 +1,16 @@
 package vn.edu.fpt.pharma.service.impl;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.pharma.base.BaseServiceImpl;
 import vn.edu.fpt.pharma.config.CustomUserDetails;
-import vn.edu.fpt.pharma.dto.DataTableRequest;
-import vn.edu.fpt.pharma.dto.DataTableResponse;
 import vn.edu.fpt.pharma.dto.manager.UserDto;
 import vn.edu.fpt.pharma.dto.manager.UserRequest;
+import vn.edu.fpt.pharma.dto.user.ProfileVM;
 import vn.edu.fpt.pharma.dto.user.UserVM;
 import vn.edu.fpt.pharma.entity.Role;
 import vn.edu.fpt.pharma.entity.User;
@@ -19,18 +20,18 @@ import vn.edu.fpt.pharma.service.AuditService;
 import vn.edu.fpt.pharma.service.UserService;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository> implements UserService, UserDetailsService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-
-    public UserServiceImpl(UserRepository repository, AuditService auditService, UserRepository userRepository, RoleRepository roleRepository) {
+    private final PasswordEncoder passwordEncoder;
+    public UserServiceImpl(UserRepository repository, AuditService auditService, UserRepository userRepository, RoleRepository roleRepository, @Lazy PasswordEncoder passwordEncoder) {
         super(repository, auditService);
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -39,12 +40,6 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
         User user = repository.findByUserNameIgnoreCase(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return new CustomUserDetails(user);
-    }
-
-    @Override
-    public DataTableResponse<User> getAllUsers(DataTableRequest reqDto) {
-        DataTableResponse<User> users = findAllForDataTable(reqDto, List.of("email", "fullName", "storeCode"));
-        return users.transform(auditService::addAuditInfo);
     }
 
     public List<UserVM> transformUsers(List<User> users) {
@@ -126,6 +121,23 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
         return repository.findByUserNameIgnoreCase(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
+
+    @Override
+    public void updateProfile(Long id, ProfileVM profileVM) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setFullName(profileVM.fullName());
+        user.setEmail(profileVM.email());
+        user.setPhoneNumber(profileVM.phone());
+        if (profileVM.password() != null && !profileVM.password().isBlank()) {
+            if (!profileVM.password().equals(profileVM.confirmPassword())) {
+                throw new IllegalArgumentException("Mật khẩu xác nhận không khớp");
+            }
+            user.setPassword(passwordEncoder.encode(profileVM.password()));
+        }
+        userRepository.save(user);
+    }
+
 
 
     private UserDto toDto(User u) {

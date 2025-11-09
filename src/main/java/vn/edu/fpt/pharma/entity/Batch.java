@@ -6,8 +6,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import vn.edu.fpt.pharma.base.BaseEntity;
 import vn.edu.fpt.pharma.constant.BatchStatus;
-
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "batches")
@@ -22,8 +21,8 @@ public class Batch extends BaseEntity<Long> {
     private Long variantId;
     @Column(unique = true, nullable = false)
     private String batchCode;
-    private LocalDateTime mfgDate;
-    private LocalDateTime expiryDate;
+    private LocalDate mfgDate;
+    private LocalDate expiryDate;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "supplier_id")
     private Supplier supplierId;
