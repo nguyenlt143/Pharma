@@ -34,17 +34,17 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
             @Param("toDate") LocalDateTime toDate
     );
     // KPI total
-    @Query("""
+@Query("""
     SELECT new vn.edu.fpt.pharma.dto.manager.KpiData(
-    SUM(i.totalPrice),
-    COUNT(DISTINCT i.id),
-    SUM((id.price - id.costPrice) * id.quantity)
-    )
+    CAST(COALESCE(SUM(i.totalPrice), 0) AS double),
+    CAST(COALESCE(COUNT(DISTINCT i.id), 0) AS long),
+    CAST(COALESCE(SUM((id.price - id.costPrice) * id.quantity), 0) AS double)
+            )
     FROM Invoice i
-    JOIN i.details id 
+    LEFT JOIN i.details id
     WHERE i.createdAt >= :fromDate
-      AND i.createdAt < :toDate
-      AND i.branchId = :branchId
+    AND i.createdAt < :toDate
+    AND i.branchId = :branchId
 """)
     KpiData sumRevenue(
             @Param("branchId") Long branchId,

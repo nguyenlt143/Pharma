@@ -46,8 +46,8 @@ VALUES
     ('pharmacist3dn', '123456', 'Pharmacist 3 Đà Nẵng', 6, 5, 0901000018, 'pharmacist3dn@gmail.com', NULL, NOW(),
      FALSE);
 -- update manager for branchs
-UPDATE branchs SET user_id = NULL WHERE id = 1;
-UPDATE branchs SET user_id = NULL WHERE id = 2;
+UPDATE branchs SET user_id = 2 WHERE id = 1;
+UPDATE branchs SET user_id = 2 WHERE id = 2;
 -- Chi nhánh Hà Nội
 UPDATE branchs SET user_id = 4 WHERE id = 3;
 -- Chi nhánh TP.HCM
@@ -338,63 +338,63 @@ VALUES
 
 
 INSERT INTO batches
-(batch_code, mfg_date, expiry_date, source_movement_id, total_received, total_issued, batch_status, variant_id,
+(batch_code, mfg_date, expiry_date, source_movement_id, total_received, batch_status, variant_id,
  supplier_id, created_at, deleted)
 VALUES
 -- ===== Paracetamol variants =====
-('BATCH-PARA-500-2024-01', '2024-01-10', '2026-01-10', NULL, 5000, 1200, 'ACTIVE', 1, 1, NOW(), FALSE),
-('BATCH-PARA-650-2024-02', '2024-02-05', '2026-02-05', NULL, 3000, 500, 'ACTIVE', 2, 1, NOW(), FALSE),
-('BATCH-PARA-SF-2024-03', '2024-03-01', '2026-03-01', NULL, 2000, 300, 'ACTIVE', 3, 1, NOW(), FALSE),
+('BATCH-PARA-500-2024-01', '2024-01-10', '2026-01-10', NULL, 5000, 'ACTIVE', 1, 1, NOW(), FALSE),
+('BATCH-PARA-650-2024-02', '2024-02-05', '2026-02-05', NULL, 3000,  'ACTIVE', 2, 1, NOW(), FALSE),
+('BATCH-PARA-SF-2024-03', '2024-03-01', '2026-03-01', NULL, 2000,  'ACTIVE', 3, 1, NOW(), FALSE),
 
 -- ===== Decolgen variants =====
-('BATCH-DECO-2024-01', '2024-03-15', '2026-03-15', NULL, 4000, 800, 'ACTIVE', 4, 2, NOW(), FALSE),
-('BATCH-DECO-2024-02', '2024-04-10', '2026-04-10', NULL, 3000, 500, 'ACTIVE', 5, 2, NOW(), FALSE),
+('BATCH-DECO-2024-01', '2024-03-15', '2026-03-15', NULL, 4000,  'ACTIVE', 4, 2, NOW(), FALSE),
+('BATCH-DECO-2024-02', '2024-04-10', '2026-04-10', NULL, 3000,  'ACTIVE', 5, 2, NOW(), FALSE),
 
 -- ===== Tiffy variants =====
-('BATCH-TIFFY-500-2023-12', '2023-12-01', '2025-12-01', NULL, 3000, 2900, 'EXHAUSTED', 6, 2, NOW(), FALSE),
-('BATCH-TIFFY-SF-2024-01', '2024-01-10', '2026-01-10', NULL, 1500, 200, 'ACTIVE', 7, 2, NOW(), FALSE),
+('BATCH-TIFFY-500-2023-12', '2023-12-01', '2025-12-01', NULL, 3000,  'EXHAUSTED', 6, 2, NOW(), FALSE),
+('BATCH-TIFFY-SF-2024-01', '2024-01-10', '2026-01-10', NULL, 1500,  'ACTIVE', 7, 2, NOW(), FALSE),
 
 -- ===== Aspirin 500mg =====
-('BATCH-ASP-2023-06', '2023-06-01', '2025-06-01', NULL, 2000, 1800, 'ACTIVE', 8, 1, NOW(), FALSE),
+('BATCH-ASP-2023-06', '2023-06-01', '2025-06-01', NULL, 2000,  'ACTIVE', 8, 1, NOW(), FALSE),
 
 -- ===== Coldrex MaxGrip =====
-('BATCH-COLD-2024-01', '2024-01-15', '2026-01-15', NULL, 3500, 1200, 'ACTIVE', 9, 1, NOW(), FALSE),
+('BATCH-COLD-2024-01', '2024-01-15', '2026-01-15', NULL, 3500,  'ACTIVE', 9, 1, NOW(), FALSE),
 
 -- ===== Vicks Formula 44 =====
-('BATCH-VICKS-2023-11', '2023-11-01', '2025-11-01', NULL, 2500, 400, 'ACTIVE', 10, 3, NOW(), FALSE),
+('BATCH-VICKS-2023-11', '2023-11-01', '2025-11-01', NULL, 2500,  'ACTIVE', 10, 3, NOW(), FALSE),
 
 -- ===== Prospan Syrup =====
-('BATCH-PRO-2023-04', '2023-04-20', '2025-04-20', NULL, 1200, 1180, 'EXHAUSTED', 11, 3, NOW(), FALSE),
+('BATCH-PRO-2023-04', '2023-04-20', '2025-04-20', NULL, 1200,  'EXHAUSTED', 11, 3, NOW(), FALSE),
 
 -- ===== Atussin Syrup =====
-('BATCH-ATUS-2022-09', '2022-09-01', '2024-09-01', NULL, 1000, 950, 'EXPIRED', 12, 3, NOW(), FALSE),
+('BATCH-ATUS-2022-09', '2022-09-01', '2024-09-01', NULL, 1000,  'EXPIRED', 12, 3, NOW(), FALSE),
 
 -- ===== Bromhexine 8mg =====
-('BATCH-BROM-2024-02', '2024-02-10', '2026-02-10', NULL, 2500, 400, 'ACTIVE', 13, 2, NOW(), FALSE),
+('BATCH-BROM-2024-02', '2024-02-10', '2026-02-10', NULL, 2500,  'ACTIVE', 13, 2, NOW(), FALSE),
 
 -- ===== Terpin Codein =====
-('BATCH-TERP-2023-05', '2023-05-01', '2025-05-01', NULL, 1500, 1450, 'DISPOSED', 14, 2, NOW(), FALSE),
+('BATCH-TERP-2023-05', '2023-05-01', '2025-05-01', NULL, 1500,  'DISPOSED', 14, 2, NOW(), FALSE),
 
 -- ===== Ho Pha Viên =====
-('BATCH-HOPHA-2024-01', '2024-01-20', '2026-01-20', NULL, 2000, 300, 'ACTIVE', 15, 3, NOW(), FALSE),
+('BATCH-HOPHA-2024-01', '2024-01-20', '2026-01-20', NULL, 2000,  'ACTIVE', 15, 3, NOW(), FALSE),
 
 -- ===== Panadol Extra 500mg =====
-('BATCH-PANA-2024-01', '2024-01-10', '2026-01-10', NULL, 3000, 1000, 'ACTIVE', 16, 1, NOW(), FALSE),
+('BATCH-PANA-2024-01', '2024-01-10', '2026-01-10', NULL, 3000,  'ACTIVE', 16, 1, NOW(), FALSE),
 
 -- ===== Efferalgan 500mg =====
-('BATCH-EFFER-2024-01', '2024-01-15', '2026-01-15', NULL, 2500, 700, 'ACTIVE', 17, 1, NOW(), FALSE),
+('BATCH-EFFER-2024-01', '2024-01-15', '2026-01-15', NULL, 2500,  'ACTIVE', 17, 1, NOW(), FALSE),
 
 -- ===== Ibuprofen 400mg =====
-('BATCH-IBU-2024-01', '2024-01-05', '2026-01-05', NULL, 2000, 400, 'ACTIVE', 18, 2, NOW(), FALSE),
+('BATCH-IBU-2024-01', '2024-01-05', '2026-01-05', NULL, 2000, 'ACTIVE', 18, 2, NOW(), FALSE),
 
 -- ===== Amoxicillin 500mg =====
-('BATCH-AMOX-2024-01', '2024-01-10', '2026-01-10', NULL, 1500, 200, 'ACTIVE', 19, 1, NOW(), FALSE),
+('BATCH-AMOX-2024-01', '2024-01-10', '2026-01-10', NULL, 1500,  'ACTIVE', 19, 1, NOW(), FALSE),
 
 -- ===== Azithromycin 250mg =====
-('BATCH-AZI-2024-01', '2024-01-12', '2026-01-12', NULL, 1200, 100, 'ACTIVE', 20, 1, NOW(), FALSE),
+('BATCH-AZI-2024-01', '2024-01-12', '2026-01-12', NULL, 1200,  'ACTIVE', 20, 1, NOW(), FALSE),
 
 -- ===== Cefixime 200mg =====
-('BATCH-CEF-2024-01', '2024-01-15', '2026-01-15', NULL, 1000, 50, 'ACTIVE', 21, 1, NOW(), FALSE);
+('BATCH-CEF-2024-01', '2024-01-15', '2026-01-15', NULL, 1000, 'ACTIVE', 21, 1, NOW(), FALSE);
 
 
 

@@ -72,8 +72,8 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
             throw new RuntimeException("Username already exists");
         }
         // Lấy role STAFF
-        Role role = roleRepository.findByName("STAFF")
-                .orElseThrow(() -> new RuntimeException("Role STAFF not found"));
+        Role role = roleRepository.findById(req.getRoleId())
+                .orElseThrow(() -> new RuntimeException("Role  not found"));
 
         User user = new User();
         user.setFullName(req.getFullName());

@@ -23,8 +23,8 @@ public class DashBoardApiController {
     @GetMapping
     public ResponseEntity<DashboardData> getDashboardData(
             @RequestParam(name = "days", defaultValue = "0") int days,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        Long branchId = ((CustomUserDetails) userDetails).getUser().getBranchId();
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long branchId = userDetails.getUser().getBranchId();
         DashboardData data = managerDashBoardService.getDashboardDataByPeriod(days,branchId);
         return ResponseEntity.ok(data);
     }
