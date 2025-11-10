@@ -35,7 +35,7 @@ content = @`
 
         <section class="tab-section">
             <div class="tab-container">
-                <div class="tab active">
+                <div class="tab">
                     <span class="tab-text">Tất cả yêu cầu</span>
                 </div>
                 <div class="tab">

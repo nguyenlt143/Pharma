@@ -9,17 +9,16 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false            # tắt log SQL mặc định, dùng logging bên dưới
+    properties:
       hibernate:
-        ddl-auto: update
-      show-sql: false   # tắt cái này vì sẽ dùng log tốt hơn bên dưới
-      properties:
-        hibernate:
-          format_sql: true
-          highlight_sql: true
-          use_sql_comments: true
-      open-in-view: false
-      defer-datasource-initialization: true
-
+        format_sql: true
+        highlight_sql: true
+        use_sql_comments: true
+    open-in-view: false
+    defer-datasource-initialization: true
 
   sql:
     init:
@@ -43,8 +42,6 @@ logging:
   level:
     root: INFO
     org.springframework.web: DEBUG
-    org.thymeleaf: TRACE
     gg.jte: TRACE
-    org.hibernate.type.descriptor.sql:
-    org.hibernate.SQL: debug               # log câu SQL
-    org.hibernate.orm.jdbc.bind: trace
+    org.hibernate.SQL: DEBUG                 # hiển thị câu SQL
+    org.hibernate.orm.jdbc.bind: TRACE       # hiển thị giá trị bind parameter
