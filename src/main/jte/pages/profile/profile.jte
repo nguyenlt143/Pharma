@@ -21,7 +21,7 @@ content = @`
                                 <img src="https://static.codia.ai/image/2025-10-28/Ot4EUiUOos.png" alt="Profile Avatar" class="avatar-image">
                             </div>
                             <div class="profile-info">
-                                <h2 class="profile-name">${profile.userName()}</h2>
+                                <h2 class="profile-name">${profile.fullName()}</h2>
                             </div>
                         </div>
                     </div>
@@ -56,11 +56,11 @@ content = @`
 
                         <!-- Form Content -->
                         <div class="form-content">
-                            <form class="edit-form" id="editForm" action="/profile/update" method="post">
+                            <form class="edit-form" id="editForm" action="/pharmacist/profile/update" method="post">
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="fullName" class="form-label">Họ và Tên</label>
-                                        <input type="text" id="fullName"  name="userName" class="form-input" value="${profile.userName()}">
+                                        <input type="text" id="fullName"  name="fullName" class="form-input" value="${profile.fullName()}">
                                     </div>
                                     <div class="form-group">
                                         <label for="birthDate" class="form-label">Ngày sinh</label>
@@ -115,6 +115,6 @@ content = @`
         </div>
     </main>
 `,
-pageScript = @`<script src="/assets/js/profile/profile.js"></script>`
+pageScript = @``
 )
 

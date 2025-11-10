@@ -8,20 +8,23 @@ spring:
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
 
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
+  spring:
+    jpa:
       hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.MySQLDialect
-    open-in-view: false
-    defer-datasource-initialization: true
+        ddl-auto: update
+      show-sql: false   # tắt cái này vì sẽ dùng log tốt hơn bên dưới
+      properties:
+        hibernate:
+          format_sql: true
+          highlight_sql: true
+          use_sql_comments: true
+      open-in-view: false
+      defer-datasource-initialization: true
+
 
   sql:
     init:
-      mode: always
+      mode: never
       continue-on-error: true
 
   h2:
@@ -43,3 +46,6 @@ logging:
     org.springframework.web: DEBUG
     org.thymeleaf: TRACE
     gg.jte: TRACE
+    org.hibernate.type.descriptor.sql:
+    org.hibernate.SQL: debug               # log câu SQL
+    org.hibernate.orm.jdbc.bind: trace
