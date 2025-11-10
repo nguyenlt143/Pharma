@@ -8,8 +8,7 @@ spring:
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
 
-  spring:
-    jpa:
+  jpa:
       hibernate:
         ddl-auto: update
       show-sql: false   # tắt cái này vì sẽ dùng log tốt hơn bên dưới
@@ -24,7 +23,7 @@ spring:
 
   sql:
     init:
-      mode: never
+      mode: always
       continue-on-error: true
 
   h2:
