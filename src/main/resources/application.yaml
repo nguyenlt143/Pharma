@@ -11,7 +11,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: false            # tắt log SQL mặc định, dùng logging bên dưới
+    show-sql: false                  # tắt log SQL mặc định, dùng logging bên dưới
     properties:
       hibernate:
         format_sql: true
@@ -31,7 +31,7 @@ spring:
 
 gg:
   jte:
-    development-mode: true
+    development-mode: true           # bật chế độ dev để reload template trực tiếp
     use-spring-web: true
     template-location: src/main/jte
 

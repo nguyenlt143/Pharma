@@ -5,7 +5,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import vn.edu.fpt.pharma.dto.requestform.RequestFormVM;
 import vn.edu.fpt.pharma.service.DashboardService;
+import vn.edu.fpt.pharma.service.RequestFormService;
+
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -13,6 +17,7 @@ import vn.edu.fpt.pharma.service.DashboardService;
 public class InventoryController {
 
     private final DashboardService dashboardService;
+    private final RequestFormService requestFormService;
 
     // -------------------- DASHBOARD --------------------
     @GetMapping("/dashboard")
@@ -24,7 +29,9 @@ public class InventoryController {
 
     // -------------------- IMPORT --------------------
     @GetMapping("/import/list")
-    public String importList() {
+    public String importList(Model model) {
+        List<RequestFormVM> imports = requestFormService.getRequestFormsByBranch(1L);
+        model.addAttribute("imports", imports);
         return "pages/inventory/import_list";
     }
 
