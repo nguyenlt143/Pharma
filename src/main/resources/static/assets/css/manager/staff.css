@@ -13,15 +13,23 @@
 }
 
 /* ===== Buttons ===== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: 0.15s ease-in-out;
+}
+.btn:focus { outline: none; box-shadow: 0 0 0 3px rgba(37,99,235,.25); }
+
 .btn-primary {
     background-color: #2563eb;
     color: #fff;
     border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: 0.15s;
 }
 .btn-primary:hover { background-color: #1e4ed8; }
 
@@ -29,14 +37,30 @@
     background: white;
     border: 1px solid #d1d5db;
     color: #374151;
-    padding: 8px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: 0.15s;
 }
-.btn-outline:hover {
-    background-color: #f3f4f6;
+.btn-outline:hover { background-color: #f3f4f6; }
+
+.btn-danger {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fecaca;
 }
+.btn-danger:hover { background: #fecaca; }
+
+.btn-ghost {
+    background: transparent;
+    color: #374151;
+    border-color: transparent;
+}
+.btn-ghost:hover { background: #f3f4f6; }
+
+.btn-success {
+    background: #16a34a;
+    color: #fff;
+}
+.btn-success:hover { background: #15803d; }
+
+.btn-icon { padding: 6px 8px; }
 
 /* ===== Card ===== */
 .card {
