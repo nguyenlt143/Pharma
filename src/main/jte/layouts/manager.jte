@@ -28,9 +28,15 @@
 
             <nav class="nav">
                 <a href="/manager/dashboard" class="nav-link">Tổng quan</a>
-                <a href="/manager/sale" class="nav-link">Hóa đơn</a>
+                <!-- Dropdown menu cho Báo cáo -->
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-link">Báo cáo ▾</a>
+                    <div class="dropdown-content">
+                        <a href="/manager/report/revenue">Doanh thu</a>
+                        <a href="/manager/report/inventory">Báo cáo kho</a>
+                    </div>
+                </div>
                 <a href="/manager/shift" class="nav-link">Ca làm việc</a>
-                <a href="/manager/report" class="nav-link">Báo cáo</a>
                 <a href="/manager/staff" class="nav-link">Nhân viên</a>
             </nav>
 
@@ -53,17 +59,38 @@ ${pageScript}
         const navLinks = document.querySelectorAll('.nav-link');
         const currentPath = window.location.pathname;
 
+        // --- RESET mọi trạng thái active ---
+        navLinks.forEach(link => link.classList.remove('active'));
+
+        // --- Kích hoạt link trùng URL ---
         navLinks.forEach(link => {
-            const linkPath = new URL(link.href).pathname;
-
-            // Xóa class 'active' có thể bị gán cứng (nếu có)
-            link.classList.remove('active');
-
-            // Nếu đường dẫn của link khớp với đường dẫn hiện tại, thêm class 'active'
-            if (currentPath === linkPath) {
+            const href = link.getAttribute('href');
+            if (href && href !== '#' && currentPath === new URL(link.href).pathname) {
                 link.classList.add('active');
             }
         });
+
+        // --- Kích hoạt riêng menu Báo cáo khi đang ở trang con ---
+        if (currentPath.startsWith('/manager/report')) {
+            const reportMenu = document.querySelector('.nav-dropdown > .nav-link');
+            if (reportMenu) reportMenu.classList.add('active');
+        }
+
+        // --- Dropdown hover behavior ---
+        const dropdown = document.querySelector('.nav-dropdown');
+        if (dropdown) {
+            const dropdownContent = dropdown.querySelector('.dropdown-content');
+
+            // Hiện khi hover vào
+            dropdown.addEventListener('mouseenter', () => {
+                dropdownContent.style.display = 'flex';
+            });
+
+            // Ẩn khi rời chuột
+            dropdown.addEventListener('mouseleave', () => {
+                dropdownContent.style.display = 'none';
+            });
+        }
     });
 </script>
 

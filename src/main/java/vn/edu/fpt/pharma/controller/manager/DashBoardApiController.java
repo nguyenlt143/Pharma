@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.edu.fpt.pharma.config.CustomUserDetails;
 import vn.edu.fpt.pharma.dto.manager.DashboardData;
+import vn.edu.fpt.pharma.entity.User;
 import vn.edu.fpt.pharma.service.ManagerDashBoardService;
 
 @RestController
@@ -24,6 +25,7 @@ public class DashBoardApiController {
     public ResponseEntity<DashboardData> getDashboardData(
             @RequestParam(name = "days", defaultValue = "0") int days,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
+        User u = userDetails.getUser();
         Long branchId = userDetails.getUser().getBranchId();
         DashboardData data = managerDashBoardService.getDashboardDataByPeriod(days,branchId);
         return ResponseEntity.ok(data);

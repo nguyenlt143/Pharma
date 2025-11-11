@@ -187,3 +187,102 @@ body {
         padding-right: 2rem;
     }
 }
+
+/* ==========================
+   Dropdown menu (Báo cáo)
+   ========================== */
+/* ==========================
+   Dropdown menu (Báo cáo)
+   ========================== */
+.nav-dropdown {
+    position: relative;
+}
+
+/* Nút Báo cáo */
+.nav-dropdown > .nav-link {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+/* Container dropdown */
+.nav-dropdown .dropdown-content {
+    display: none; /* Ẩn mặc định */
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    z-index: 100;
+    border-radius: 0.5rem;
+    min-width: 180px;
+    padding: 0.5rem 0;
+
+    /* bố cục dọc */
+    display: flex;
+    flex-direction: column;
+
+    /* hiệu ứng mượt */
+    opacity: 0;
+    transform: translateY(5px);
+    pointer-events: none;
+    transition: all 0.2s ease;
+}
+
+/* Hiện khi hover hoặc khi JS bật display:flex */
+.nav-dropdown:hover .dropdown-content,
+.nav-dropdown .dropdown-content[style*="display: flex"] {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+/* Item trong dropdown */
+.nav-dropdown .dropdown-content a {
+    text-decoration: none;
+    color: var(--muted-light);
+    font-weight: 500;
+    white-space: nowrap;
+    padding: 0.5rem 1rem;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Hover item */
+.nav-dropdown .dropdown-content a:hover {
+    background-color: var(--hover-light);
+    color: var(--green-logo);
+}
+
+/* Item active trong dropdown */
+.nav-dropdown .dropdown-content a.active {
+    color: var(--green-logo);
+    font-weight: 600;
+    background-color: var(--green-active-bg);
+}
+
+/* Khi ở trang con -> Báo cáo cũng active */
+.nav-dropdown > .nav-link.active {
+    background-color: var(--green-active-bg);
+    color: var(--green-logo);
+    font-weight: 600;
+}
+
+/* Hover item */
+.nav-dropdown .dropdown-content a:hover {
+    color: var(--green-logo);
+}
+
+/* Item active trong dropdown */
+.nav-dropdown .dropdown-content a.active {
+    color: var(--green-logo);
+    font-weight: 600;
+}
+
+/* Khi ở trang con -> Báo cáo cũng active */
+.nav-dropdown > .nav-link.active {
+    background-color: var(--green-active-bg);
+    color: var(--green-logo);
+    font-weight: 600;
+}
+
+
