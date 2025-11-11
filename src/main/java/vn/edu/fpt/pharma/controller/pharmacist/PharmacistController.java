@@ -91,11 +91,4 @@ public class PharmacistController {
         redirectAttributes.addFlashAttribute("success", "Cập nhật thành công!");
         return "redirect:/pharmacist/profile";
     }
-
-    @GetMapping("/abc")
-    public String index(Model model) {
-
-        return "pages/home/abc";
-    }
-
 }

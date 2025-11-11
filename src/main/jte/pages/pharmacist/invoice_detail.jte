@@ -1,11 +1,14 @@
+@param vn.edu.fpt.pharma.dto.invoice.InvoiceDetailVM invoice
+@param vn.edu.fpt.pharma.dto.invoice.MedicineItemVM medicines
+
 @template.layouts.pharmacist(
 headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/invoice_detail.css">`,
 content = @`
     <div class="invoice-container">
         <!-- Header Section -->
         <header class="invoice-header">
-            <h1 class="pharmacy-name">NHÀ THUỐC Demo</h1>
-            <p class="pharmacy-address">Địa chỉ: 225 Nguyễn Lương Bằng</p>
+            <h1 class="pharmacy-name">${invoice.branchName()}</h1>
+            <p class="pharmacy-address">${invoice.branchAddress()}</p>
         </header>
 
         <!-- Invoice Title Section -->
@@ -17,8 +20,8 @@ content = @`
         <!-- Customer and Staff Info -->
         <section class="info-section">
             <div class="customer-info">
-                <p class="customer-name">Khách hàng: <span class="name-value">TRẦN VĂN A</span></p>
-                <p class="customer-phone">Điện thoại:</p>
+                <p class="customer-name">Khách hàng: <span class="name-value">${invoice.customerName()}</span></p>
+                <p class="customer-phone">Điện thoại:${invoice.customerPhone()}</p>
             </div>
             <div class="staff-info">
                 <p class="staff-name">NV bán hàng: <span class="name-value">DS Hoàng Thị Thu Trang</span></p>
