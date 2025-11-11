@@ -37,7 +37,7 @@ public class InvoiceController {
     public String handleException(Exception ex, RedirectAttributes redirectAttributes){
         log.error("Exception: ", ex);
         redirectAttributes.addFlashAttribute("error", ex.getMessage());
-        return "redirect:/pharmacist/invoice";
+        return "redirect:/pharmacist/invoices";
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -45,7 +45,7 @@ public class InvoiceController {
         log.error("MethodArgumentNotValidException: ", ex);
         String errorMsg = StringUtils.convertValidationExceptionToString(ex.getBindingResult().getAllErrors());
         redirectAttributes.addFlashAttribute("error", ex.getMessage());
-        return "redirect:/pharmacist/invoice";
+        return "redirect:/pharmacist/invoices";
     }
 
     @GetMapping("all")

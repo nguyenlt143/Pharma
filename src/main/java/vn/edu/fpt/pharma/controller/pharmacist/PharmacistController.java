@@ -70,6 +70,7 @@ public class PharmacistController {
 
         return "pages/pharmacist/work_schedule";
     }
+
     @GetMapping("/profile")
     public String profile(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

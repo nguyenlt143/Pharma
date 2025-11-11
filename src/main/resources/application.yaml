@@ -11,7 +11,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: false   # tắt cái này vì sẽ dùng log tốt hơn bên dưới
+    show-sql: false            # tắt log SQL mặc định, dùng logging bên dưới
     properties:
       hibernate:
         format_sql: true
