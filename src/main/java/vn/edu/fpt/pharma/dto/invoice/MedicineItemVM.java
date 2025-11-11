@@ -6,5 +6,5 @@ public record MedicineItemVM(
         Long quantity,
         Double unitPrice,
         Double amount
-) {
+){
 }

@@ -15,6 +15,11 @@ public class OwnerController {
         return "pages/owner/medicine_list";
     }
 
+    @GetMapping("/price/list")
+    public String priceList(Model model) {
+        return "pages/owner/price_list";
+    }
+
     // --- Quản lý nhóm hàng hóa ---
     @GetMapping("/category/list")
     public String categoryList(Model model) {
@@ -37,14 +42,5 @@ public class OwnerController {
         return "pages/owner/supplier_create";
     }
 
-    // --- Quản lý khách hàng ---
-    @GetMapping("/customer/list")
-    public String customerList(Model model) {
-        return "pages/owner/customer_list";
-    }
 
-    @GetMapping("/customer/create")
-    public String customerCreate(Model model) {
-        return "pages/owner/customer_create";
-    }
 }
