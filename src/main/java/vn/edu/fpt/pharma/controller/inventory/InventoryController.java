@@ -4,11 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import vn.edu.fpt.pharma.service.DashboardService;
-import vn.edu.fpt.pharma.service.RequestFormService;
-import vn.edu.fpt.pharma.dto.requestform.RequestFormVM;
 
-import java.util.List;
+import vn.edu.fpt.pharma.service.DashboardService;
 
 @Controller
 @RequiredArgsConstructor
@@ -16,7 +13,6 @@ import java.util.List;
 public class InventoryController {
 
     private final DashboardService dashboardService;
-    private final RequestFormService requestFormService;
 
     // -------------------- DASHBOARD --------------------
     @GetMapping("/dashboard")
@@ -28,45 +24,41 @@ public class InventoryController {
 
     // -------------------- IMPORT --------------------
     @GetMapping("/import/list")
-    public String importList(Model model) {
-        Long branchId = 2L;
-        List<RequestFormVM> requests = requestFormService.getRequestFormsByBranch(branchId);
-        model.addAttribute("requestForms", requestFormService.getRequestFormsByBranch(branchId));
+    public String importList() {
         return "pages/inventory/import_list";
     }
 
-    //@GetMapping("/import/detail/{id}")
-    //public String importDetail(@PathVariable Long id, Model model) {
-        //RequestFormVM form = requestFormService.getDetailById(id);
-        //model.addAttribute("requestForm", form);
-        //return "pages/inventory/import_detail";
-    //}
+    @GetMapping("/import/detail/{id}")
+    public String importDetail(@PathVariable Long id) {
+        return "pages/inventory/import_detail";
+    }
 
     // -------------------- EXPORT --------------------
-    //@GetMapping("/export/list")
-    //public String exportList(Model model) {
-        //Long branchId = 2L;
-        //List<RequestFormVM> exports = requestFormService.getExportRequestsByBranch(branchId);
-        //model.addAttribute("requestForms", exports);
-        //return "pages/inventory/export_list";
-    //}
+    @GetMapping("/export/list")
+    public String exportList() {
+        return "pages/inventory/export_list";
+    }
 
-    //@GetMapping("/export/detail/{id}")
-    //public String exportDetail(@PathVariable Long id, Model model) {
-        //RequestFormVM form = requestFormService.getDetailById(id);
-        //model.addAttribute("requestForm", form);
-        //return "pages/inventory/export_detail";
-   // }
+    @GetMapping("/export/detail/{id}")
+    public String exportDetail(@PathVariable Long id) {
+        return "pages/inventory/export_detail";
+    }
 
     // -------------------- CHECK INVENTORY --------------------
     @GetMapping("/check")
-    public String checkList(Model model) {
+    public String checkList() {
         return "pages/inventory/check_list";
+    }
+
+    // -------------------- CHECK INVENTORY --------------------
+    @GetMapping("/expiring_medicine")
+    public String expireMedicine() {
+        return "pages/inventory/expiring_medicine";
     }
 
     // -------------------- REPORT --------------------
     @GetMapping("/report")
-    public String reportPage(Model model) {
+    public String reportPage() {
         return "pages/inventory/report_overview";
     }
 }

@@ -51,7 +51,7 @@
                     </a>
                 </li>
                 <li class="px-4 py-2 hover:bg-gray-700 rounded-md">
-                    <a href="#" class="flex items-center gap-2">
+                    <a href="import/list" class="flex items-center gap-2">
                         <span class="material-icons-outlined">archive</span>Quản lý nhập kho
                     </a>
                 </li>

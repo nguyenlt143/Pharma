@@ -12,9 +12,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class RequestFormServiceImpl  {
+public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, RequestFormRepository> implements RequestFormService {
 
+    public RequestFormServiceImpl(RequestFormRepository repository, AuditService auditService) {
+        super(repository, auditService);
+        this.repository = repository;
+        this.auditService = auditService;
+    }
 
+    private final RequestFormRepository repository;
+    private final AuditService auditService;
 
-
+    @Override
+    public List<RequestFormVM> getRequestFormsByBranch(Long branchId) {
+        return repository.findByBranchId(branchId)
+                .stream()
+                .map(RequestFormVM::new)
+                .collect(Collectors.toList());
+    }
 }
