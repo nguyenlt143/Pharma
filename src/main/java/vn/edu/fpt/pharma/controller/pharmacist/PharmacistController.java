@@ -29,42 +29,6 @@ public class PharmacistController {
         return "pages/pharmacist/pos";
     }
 
-    @GetMapping("/invoice")
-    public String invoice(Model model) {
-
-        return "pages/pharmacist/invoice";
-    }
-
-    @GetMapping("/invoice/detail")
-    public String invoiceDetail(Model model) {
-
-        return "pages/pharmacist/invoice_detail";
-    }
-
-    @GetMapping("/revenue")
-    public String revenue(Model model) {
-
-        return "pages/pharmacist/revenue";
-    }
-
-    @GetMapping("/revenue/detail")
-    public String revenueDetail(Model model) {
-
-        return "pages/pharmacist/revenue_detail";
-    }
-
-    @GetMapping("/shift")
-    public String shift(Model model) {
-
-        return "pages/pharmacist/revenue_shift";
-    }
-
-    @GetMapping("/shift/detail")
-    public String shiftDetail(Model model) {
-
-        return "pages/pharmacist/shift_detail";
-    }
-
     @GetMapping("/work")
     public String work(Model model) {
 
