@@ -56,7 +56,6 @@ public class InvoiceController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
         Long userId = userDetails.getId();
-
         DataTableRequest reqDto = DataTableRequest.fromParams(request.getParameterMap());
         return ResponseEntity.ok(invoiceService.findAllInvoices(reqDto, userId).map(InvoiceVM::new));
     }
@@ -64,9 +63,11 @@ public class InvoiceController {
     @GetMapping("detail")
     public String viewDetails(@RequestParam("invoiceId") Long invoiceId, Model model){
         InvoiceDetailVM invoiceDetailVM = invoiceService.getInvoiceDetail(invoiceId);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        model.addAttribute("user", userDetails);
         model.addAttribute("invoice", invoiceDetailVM);
         model.addAttribute("medicines", invoiceDetailVM.medicines());
         return "pages/pharmacist/invoice_detail";
     }
-
 }

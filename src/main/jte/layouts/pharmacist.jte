@@ -39,7 +39,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/pharmacist/shift" class="nav-link">
+                    <a href="/pharmacist/shifts" class="nav-link">
                         <span class="nav-icon material-icons">bar_chart</span>
                         <span class="nav-text">Tổng kết ca</span>
                     </a>
@@ -51,7 +51,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/pharmacist/revenue" class="nav-link">
+                    <a href="/pharmacist/revenues" class="nav-link">
                         <span class="nav-icon material-icons">event_note</span>
                         <span class="nav-text">Báo cao danh thu</span>
                     </a>

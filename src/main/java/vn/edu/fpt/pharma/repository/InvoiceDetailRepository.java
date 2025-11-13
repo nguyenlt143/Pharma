@@ -29,5 +29,4 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, Lo
         WHERE idt.invoice_id = :id
 """, nativeQuery = true)
     List<Object[]> findByInvoiceId(@Param("id") long id);
-
 }
