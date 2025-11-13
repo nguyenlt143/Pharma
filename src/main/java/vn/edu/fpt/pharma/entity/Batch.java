@@ -25,7 +25,7 @@ public class Batch extends BaseEntity<Long> {
     private LocalDate expiryDate;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "supplier_id")
-    private Supplier supplierId;
+    private Supplier supplier;
     @Enumerated(EnumType.STRING)
     private BatchStatus batchStatus;
     private Long sourceMovementId;

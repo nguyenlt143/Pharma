@@ -92,10 +92,5 @@ public class PharmacistController {
         return "redirect:/pharmacist/profile";
     }
 
-    @GetMapping("/abc")
-    public String index(Model model) {
-
-        return "pages/home/abc";
-    }
 
 }
