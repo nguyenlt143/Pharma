@@ -8,6 +8,7 @@ import vn.edu.fpt.pharma.repository.RequestFormRepository;
 import vn.edu.fpt.pharma.service.AuditService;
 import vn.edu.fpt.pharma.service.RequestFormService;
 
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -37,5 +38,29 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
                         entity.getCreatedAt() != null ? entity.getCreatedAt().format(fmt) : ""
                 )
         ).toList();
+    }
+
+    @Override
+    public List<RequestFormVM> searchRequestForms(Long branchId, String code, java.time.LocalDate createdAt) {
+        Long id = null;
+        if (code != null && code.startsWith("#RQ")) {
+            try {
+                id = Long.parseLong(code.substring(3));
+            } catch (NumberFormatException ignored) {}
+        }
+
+        // Gọi repository với id
+        List<RequestForm> entities = repository.searchRequestForms(branchId, id, createdAt);
+
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        return entities.stream()
+                .map(entity -> new RequestFormVM(
+                        "#RQ" + String.format("%03d", entity.getId()),
+                        entity.getRequestType() != null ? entity.getRequestType().name() : "N/A",
+                        entity.getRequestStatus() != null ? entity.getRequestStatus().name() : "N/A",
+                        entity.getNote() != null ? entity.getNote() : "",
+                        entity.getCreatedAt() != null ? entity.getCreatedAt().format(fmt) : ""
+                ))
+                .toList();
     }
 }
