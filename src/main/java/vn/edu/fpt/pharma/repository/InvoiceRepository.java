@@ -114,7 +114,6 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     @Query(value = """
     SELECT
         s.name AS shiftName,
-        MIN(s.start_time) AS startTime,
         COUNT(i.id) AS orderCount,
         SUM(CASE WHEN LOWER(i.payment_method) = 'cash' THEN i.total_price ELSE 0 END) AS cashTotal,
         SUM(CASE WHEN LOWER(i.payment_method) = 'transfer' THEN i.total_price ELSE 0 END) AS transferTotal,
@@ -128,7 +127,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     GROUP BY s.name
     ORDER BY MIN(s.start_time)
 """, nativeQuery = true)
-    List<Object[]> findRevenueShift(@Param("userId") Long userId);
+    List<Object[]> findRevenueShiftByUser(@Param("userId") Long userId);
 
     @Query(value =
             "SELECT b.name AS branchName, b.address AS branchAddress, c.name AS customerName, " +

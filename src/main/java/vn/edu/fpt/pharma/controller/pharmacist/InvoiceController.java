@@ -56,7 +56,6 @@ public class InvoiceController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
         Long userId = userDetails.getId();
-
         DataTableRequest reqDto = DataTableRequest.fromParams(request.getParameterMap());
         return ResponseEntity.ok(invoiceService.findAllInvoices(reqDto, userId).map(InvoiceVM::new));
     }

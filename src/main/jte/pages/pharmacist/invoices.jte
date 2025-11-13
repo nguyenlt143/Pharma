@@ -60,9 +60,7 @@
                                 '<button class="btn btn-sm btn-outline-primary me-2 view-btn" data-id="' + row.id + '">' +
                                 '<i class="bi bi-eye"></i>Xem chi tiết</button>'
                         }
-
                     }
-
                 ],
                 paging: true,
                 searching: true,
@@ -70,7 +68,20 @@
                 pageLength: 5,
                 scrollCollapse: true,
                 scrollY: '65vh',
-                order: [[0, "asc"]]
+                order: [[0, "asc"]],
+                language: {
+                    search: "Tìm kiếm:",
+                    lengthMenu: "Hiển thị _MENU_ dòng",
+                    info: "Hiển thị _START_ đến _END_ trong tổng _TOTAL_ kết quả",
+                    infoFiltered: "",
+                    paginate: {
+                        first: "Đầu",
+                        last: "Cuối",
+                        next: "Sau",
+                        previous: "Trước"
+                    },
+                    processing: "Đang tải dữ liệu..."
+                }
             });
         });
 
