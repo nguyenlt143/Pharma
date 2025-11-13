@@ -23,6 +23,7 @@
             <th>Ngày bán hàng</th>
             <th>Tổng tiền</th>
             <th>Phương thức thanh toán</th>
+            <th></th>
         </tr>
         </thead>
         <tbody></tbody>
@@ -46,11 +47,20 @@
                       title: 'Ngày bán hàng',
                       render: function (data, type, row) {
                         return '<span>' + (data ? dayjs(data).format("YYYY/MM/DD HH:mm") : '') + '</span>'
-                             + '<br/><span>(' + (row.createdByName || 'unknown') + ')</span>';
                         }
                     },
                     {data: 'totalPrice', title: 'Tổng tiền'},
-                    {data: 'paymentMethod', title: 'Phương thức thanh toán'}
+                    {data: 'paymentMethod', title: 'Phương thức thanh toán'},
+                    {
+                        data: null,
+                        orderable: false,
+                        searchable: false,
+                        render: function (data, type, row) {
+                        return '' +
+                                '<button class="btn btn-sm btn-outline-primary me-2 view-btn" data-id="' + row.id + '">' +
+                                '<i class="bi bi-eye"></i>Xem chi tiết</button>'
+                        }
+                    }
                 ],
                 paging: true,
                 searching: true,
@@ -58,8 +68,26 @@
                 pageLength: 5,
                 scrollCollapse: true,
                 scrollY: '65vh',
-                order: [[0, "asc"]]
+                order: [[0, "asc"]],
+                language: {
+                    search: "Tìm kiếm:",
+                    lengthMenu: "Hiển thị _MENU_ dòng",
+                    info: "Hiển thị _START_ đến _END_ trong tổng _TOTAL_ kết quả",
+                    infoFiltered: "",
+                    paginate: {
+                        first: "Đầu",
+                        last: "Cuối",
+                        next: "Sau",
+                        previous: "Trước"
+                    },
+                    processing: "Đang tải dữ liệu..."
+                }
             });
+        });
+
+        $('#invoiceTable').on('click', '.view-btn', function () {
+            const id = $(this).data('id');
+            window.location.href = '/pharmacist/invoices/detail?invoiceId=' + id;
         });
     </script>
 `)

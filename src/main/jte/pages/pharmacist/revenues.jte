@@ -1,7 +1,7 @@
 @param String error = null
 @param String message = null
 
-@template.layouts.main(content = @`
+@template.layouts.layout_test(content = @`
     @if(error != null)
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             ${error}
@@ -33,7 +33,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: '/pharmacist/revenues/all/revenue',
+                    url: '/pharmacist/all/revenue',
                     type: 'GET',
                     dataSrc: 'data'
                 },
@@ -49,7 +49,19 @@
                 pageLength: 5,
                 scrollCollapse: true,
                 scrollY: '65vh',
-                order: [[0, "asc"]]
+                order: [[0, "asc"]],
+                language: {
+                    search: "Tìm kiếm:",
+                    lengthMenu: "Hiển thị _MENU_ dòng",
+                    info: "Hiển thị _START_ đến _END_ trong tổng _TOTAL_ kết quả",
+                    paginate: {
+                        first: "Đầu",
+                        last: "Cuối",
+                        next: "Sau",
+                        previous: "Trước"
+                    },
+                    processing: "Đang tải dữ liệu..."
+                }
             });
         });
     </script>

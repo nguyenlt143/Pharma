@@ -1,5 +1,6 @@
 package vn.edu.fpt.pharma.dto.invoice;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -9,7 +10,7 @@ public record InvoiceDetailVM(
     String customerName,
     String customerPhone,
     LocalDateTime invoiceDate,
-    Double totalAAmount,
+    BigDecimal totalAmount,
     String note,
     List<MedicineItemVM> medicines
 ){

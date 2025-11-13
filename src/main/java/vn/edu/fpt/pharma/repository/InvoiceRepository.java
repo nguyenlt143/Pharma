@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import vn.edu.fpt.pharma.dto.invoice.InvoiceDetailVM;
+import vn.edu.fpt.pharma.dto.invoice.InvoiceInfoVM;
 import vn.edu.fpt.pharma.dto.manager.DailyRevenue;
 import vn.edu.fpt.pharma.dto.manager.KpiData;
 import vn.edu.fpt.pharma.dto.manager.TopProductItem;
@@ -152,7 +154,6 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     @Query(value = """
     SELECT
         s.name AS shiftName,
-        MIN(s.start_time) AS startTime,
         COUNT(i.id) AS orderCount,
         SUM(CASE WHEN LOWER(i.payment_method) = 'cash' THEN i.total_price ELSE 0 END) AS cashTotal,
         SUM(CASE WHEN LOWER(i.payment_method) = 'transfer' THEN i.total_price ELSE 0 END) AS transferTotal,
@@ -166,15 +167,15 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     GROUP BY s.name
     ORDER BY MIN(s.start_time)
 """, nativeQuery = true)
-    List<Object[]> findRevenueShift(@Param("userId") Long userId);
+    List<Object[]> findRevenueShiftByUser(@Param("userId") Long userId);
 
-
-
-    @Query(value = "SELECT b.name, b.address, c.name, c.phone, i.created_at, i.total_price, i.description " +
-            "FROM invoices i " +
-            "JOIN customers c ON i.customer_id = c.id " +
-            "JOIN branchs b ON i.branch_id = b.id " +
-            "WHERE i.id = :id",
+    @Query(value =
+            "SELECT b.name AS branchName, b.address AS branchAddress, c.name AS customerName, " +
+                    "c.phone AS customerPhone, i.created_at AS createdAt, i.total_price AS totalPrice, i.description AS description " +
+                    "FROM invoices i " +
+                    "JOIN customers c ON i.customer_id = c.id " +
+                    "JOIN branchs b ON i.branch_id = b.id " +
+                    "WHERE i.id = :id",
             nativeQuery = true)
-    Optional<Object[]> findInvoiceInfoById(@Param("id") long id);
+    InvoiceInfoVM findInvoiceInfoById(@Param("id") long id);
 }
