@@ -1,7 +1,7 @@
 @param String error = null
 @param String message = null
 
-@template.layouts.main(content = @`
+@template.layouts.layout_test(content = @`
     @if(error != null)
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             ${error}
@@ -33,7 +33,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: '/pharmacist/revenues/all/revenue',
+                    url: '/pharmacist/all/revenue',
                     type: 'GET',
                     dataSrc: 'data'
                 },

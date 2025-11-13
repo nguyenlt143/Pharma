@@ -14,7 +14,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.pharma.config.CustomUserDetails;
 import vn.edu.fpt.pharma.dto.DataTableRequest;
 import vn.edu.fpt.pharma.dto.DataTableResponse;
+import vn.edu.fpt.pharma.dto.invoice.InvoiceDetailVM;
 import vn.edu.fpt.pharma.dto.invoice.InvoiceVM;
+import vn.edu.fpt.pharma.service.InvoiceDetailService;
 import vn.edu.fpt.pharma.service.InvoiceService;
 import vn.edu.fpt.pharma.util.StringUtils;
 
@@ -27,6 +29,7 @@ import java.util.List;
 public class InvoiceController {
 
     private final InvoiceService invoiceService;
+
 
     @GetMapping
     public String invoices(){
@@ -60,8 +63,12 @@ public class InvoiceController {
 
     @GetMapping("detail")
     public String viewDetails(@RequestParam("invoiceId") Long invoiceId, Model model){
-
+        InvoiceDetailVM invoiceDetailVM = invoiceService.getInvoiceDetail(invoiceId);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        model.addAttribute("user", userDetails);
+        model.addAttribute("invoice", invoiceDetailVM);
+        model.addAttribute("medicines", invoiceDetailVM.medicines());
         return "pages/pharmacist/invoice_detail";
     }
-
 }
