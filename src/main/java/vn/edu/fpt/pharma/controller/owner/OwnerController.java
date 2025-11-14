@@ -31,16 +31,7 @@ public class OwnerController {
         return "pages/owner/category_create";
     }
 
-    // --- Quản lý nhà cung cấp ---
-    @GetMapping("/supplier/list")
-    public String supplierList(Model model) {
-        return "pages/owner/supplier_list";
-    }
 
-    @GetMapping("/supplier/create")
-    public String supplierCreate(Model model) {
-        return "pages/owner/supplier_create";
-    }
 
 
 }

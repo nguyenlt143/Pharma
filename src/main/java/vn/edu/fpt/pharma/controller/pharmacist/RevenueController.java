@@ -21,15 +21,21 @@ import java.util.List;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/pharmacist/revenues")
+@RequestMapping("/pharmacist")
 public class RevenueController {
 
     private final RevenueService revenueService;
 
-    @GetMapping
+    @GetMapping("/revenues")
     public String revenues(){
         return "pages/pharmacist/revenues";
     }
+
+    @GetMapping("/shifts")
+    public String shifts(){
+        return "pages/pharmacist/shifts";
+    }
+
 
     @ExceptionHandler(Exception.class)
     public String handleException(Exception ex, RedirectAttributes redirectAttributes){
@@ -46,7 +52,7 @@ public class RevenueController {
         return "redirect:/pharmacist/revenues";
     }
 
-    @GetMapping("all/revenue")
+    @GetMapping("/all/revenue")
     public ResponseEntity<DataTableResponse<RevenueVM>> getAllRevenues(HttpServletRequest request) {
         DataTableRequest reqDto = DataTableRequest.fromParams(request.getParameterMap());
         List<RevenueVM> data = revenueService.getRevenueSummary();
@@ -59,7 +65,7 @@ public class RevenueController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("all/shifts")
+    @GetMapping("/all/shift")
     public ResponseEntity<DataTableResponse<RevenueVM>> getAllRevenuesShift(HttpServletRequest request) {
         DataTableRequest reqDto = DataTableRequest.fromParams(request.getParameterMap());
         List<RevenueVM> data = revenueService.getRevenueSummary();

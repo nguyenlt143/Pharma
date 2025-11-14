@@ -18,9 +18,14 @@ public class ManagerController {
         return "pages/manager/staff";
     }
 
-    @GetMapping("/report")
-    public String reportsPage() {
-        return "pages/manager/report";
+    @GetMapping("/report/revenue")
+    public String revenueReportPage() {
+        return "pages/manager/revenue";
+    }
+
+    @GetMapping("/report/inventory")
+    public String inventoryReportPage() {
+        return "pages/manager/inventory";
     }
 
     @GetMapping("/shift")
@@ -28,9 +33,5 @@ public class ManagerController {
         return "pages/manager/shift";
     }
 
-    @GetMapping("/sale")
-    public String saleReportPage() {
-        return "pages/manager/sale";
-    }
 }
 

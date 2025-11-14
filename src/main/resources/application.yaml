@@ -20,6 +20,7 @@ spring:
     open-in-view: false
     defer-datasource-initialization: true
 
+
   sql:
     init:
       mode: never
@@ -42,6 +43,8 @@ logging:
   level:
     root: INFO
     org.springframework.web: DEBUG
+    org.thymeleaf: TRACE
     gg.jte: TRACE
-    org.hibernate.SQL: DEBUG                 # hiển thị câu SQL
-    org.hibernate.orm.jdbc.bind: TRACE       # hiển thị giá trị bind parameter
+    org.hibernate.type.descriptor.sql:
+#    org.hibernate.SQL: debug               # log câu SQL
+#    org.hibernate.orm.jdbc.bind: trace

@@ -21,11 +21,22 @@ public class StaffApiController {
         this.userService = userService;
     }
 
-    // ✅ Lấy tất cả staff thuộc branch của manager
+    // ✅ Lấy tất cả staff thuộc branch của manager (mặc định ẩn đã xóa)
     @GetMapping
-    public ResponseEntity<List<UserDto>> getAll(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<List<UserDto>> getAll(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                @RequestParam(name = "showDeleted", defaultValue = "false") boolean showDeleted) {
         Long branchId = userDetails.getUser().getBranchId();
-        return ResponseEntity.ok(userService.getStaffs(branchId));
+        if (showDeleted) {
+            return ResponseEntity.ok(userService.getStaffs(branchId)); // includes deleted
+        }
+        return ResponseEntity.ok(userService.getStaffsActive(branchId)); // active only
+    }
+
+    // ✅ Lấy danh sách Dược sĩ (roleId=6) thuộc branch của manager
+    @GetMapping("/pharmacists")
+    public ResponseEntity<List<UserDto>> getPharmacists(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long branchId = userDetails.getUser().getBranchId();
+        return ResponseEntity.ok(userService.getPharmacists(branchId));
     }
 
     // ✅ Get by ID
@@ -52,6 +63,13 @@ public class StaffApiController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         userService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ✅ Restore staff (soft-deleted)
+    @PatchMapping("/{id}/restore")
+    public ResponseEntity<Void> restore(@PathVariable Long id) {
+        userService.restore(id);
         return ResponseEntity.noContent().build();
     }
 }

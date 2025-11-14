@@ -52,7 +52,23 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
 
     @Override
     public List<UserDto> getStaffs(Long branchId) {
+        return userRepository.findStaffInBranchIdIncludingDeleted(branchId)
+                .stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    @Override
+    public List<UserDto> getStaffsActive(Long branchId) {
         return userRepository.findStaffInBranchId(branchId)
+                .stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    @Override
+    public List<UserDto> getPharmacists(Long branchId) {
+        return userRepository.findPharmacistsInBranchId(branchId)
                 .stream()
                 .map(this::toDto)
                 .toList();
@@ -101,7 +117,6 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
 
         // ❗ Không cho sửa branchId
         req.setBranchId(user.getBranchId());
-
         user.setFullName(req.getFullName());
         user.setUserName(req.getUserName());
         user.setEmail(req.getEmail());
@@ -114,6 +129,11 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
     @Override
     public void delete(Long id) {
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public void restore(Long id) {
+        userRepository.restoreById(id);
     }
 
     @Override
@@ -149,6 +169,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
                 .phoneNumber(u.getPhoneNumber())
                 .roleName(u.getRole().getName())
                 .branchId(u.getBranchId())
+                .deleted(u.isDeleted())
                 .build();
     }
 }

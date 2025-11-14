@@ -23,7 +23,7 @@ public class InventoryMovement extends BaseEntity<Long> {
     private MovementType  movementType;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "supplier_id")
-    private Supplier supplierId;
+    private Supplier supplier;
     private Long sourceBranchId;
     private Long destinationBranchId;
     @ManyToOne(fetch = FetchType.EAGER)

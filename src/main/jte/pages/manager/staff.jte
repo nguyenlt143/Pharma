@@ -10,7 +10,7 @@ content = @`
             <div class="page-header">
                 <h2 class="page-title">Nhân viên</h2>
                 <div class="page-actions">
-                    <button id="btnCreateStaff" class="btn-primary">+ Tạo mới</button>
+                    <button id="btnCreateStaff" class="btn btn-primary">+ Tạo mới</button>
                 </div>
             </div>
 
@@ -21,7 +21,8 @@ content = @`
                         <input id="searchInput" class="input input-search" placeholder="Tìm theo tên đăng nhập, họ tên, email hoặc vai trò">
                     </div>
                     <div class="card-actions">
-                        <button id="btnRefresh" class="btn">Làm mới</button>
+                        <button id="btnToggleDeleted" class="btn btn-outline">Hiển thị nhân viên đã xóa</button>
+                        <button id="btnRefresh" class="btn" hidden="hidden">Làm mới</button>
                     </div>
                 </div>
 
