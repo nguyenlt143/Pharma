@@ -33,5 +33,12 @@ public class OwnerController {
 
 
 
+        @GetMapping("/owner/dashboard-report")
+        public String dashboardReport() {
+            return "owner/dashboard_report.jte";
+        }
+
+
+
 
 }
