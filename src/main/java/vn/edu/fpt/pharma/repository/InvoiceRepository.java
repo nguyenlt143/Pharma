@@ -5,12 +5,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
 import vn.edu.fpt.pharma.dto.invoice.InvoiceDetailVM;
 import vn.edu.fpt.pharma.dto.invoice.InvoiceInfoVM;
 import vn.edu.fpt.pharma.dto.manager.DailyRevenue;
 import vn.edu.fpt.pharma.dto.manager.KpiData;
 import vn.edu.fpt.pharma.dto.manager.TopProductItem;
 import vn.edu.fpt.pharma.dto.manager.InvoiceListItem;
+import vn.edu.fpt.pharma.dto.manager.*;
 import vn.edu.fpt.pharma.entity.Invoice;
 
 import java.time.LocalDateTime;
@@ -65,7 +67,9 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
         return sumRevenue(branchId, fromDate, toDate, null, null);
     }
 
+
     // top 5 item ????
+
     @Query("""
     SELECT new vn.edu.fpt.pharma.dto.manager.TopProductItem(
         c.name, SUM(id.quantity)
@@ -169,13 +173,45 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
 """, nativeQuery = true)
     List<Object[]> findRevenueShiftByUser(@Param("userId") Long userId);
 
-    @Query(value =
-            "SELECT b.name AS branchName, b.address AS branchAddress, c.name AS customerName, " +
-                    "c.phone AS customerPhone, i.created_at AS createdAt, i.total_price AS totalPrice, i.description AS description " +
-                    "FROM invoices i " +
-                    "JOIN customers c ON i.customer_id = c.id " +
-                    "JOIN branchs b ON i.branch_id = b.id " +
-                    "WHERE i.id = :id",
+
+
+    @Query(value = "SELECT b.name, b.address, c.name, c.phone, i.created_at, i.total_price, i.description " +
+            "FROM invoices i " +
+            "JOIN customers c ON i.customer_id = c.id " +
+            "JOIN branchs b ON i.branch_id = b.id " +
+            "WHERE i.id = :id",
             nativeQuery = true)
-    InvoiceInfoVM findInvoiceInfoById(@Param("id") long id);
+    Optional<Object[]> findInvoiceInfoById(@Param("id") long id);
+
+    @Query("""
+SELECT new vn.edu.fpt.pharma.dto.manager.InvoiceSummary(
+    i.id,
+    i.invoiceCode,
+    COALESCE(u.fullName, '') AS employeeName,
+    COALESCE(s.name, '') AS shiftName,
+    i.createdAt,
+    i.totalPrice,
+    COALESCE(CAST(SUM((d.price - d.costPrice) * d.quantity) AS double), 0)
+)
+FROM Invoice i
+LEFT JOIN i.details d
+LEFT JOIN ShiftWork sw ON i.shiftWorkId = sw.id
+LEFT JOIN Shift s ON sw.id = s.id
+LEFT JOIN User u ON i.userId = u.id
+WHERE i.createdAt BETWEEN :fromDate AND :toDate
+  AND (:branchId IS NULL OR i.branchId = :branchId)
+  AND (:shift IS NULL OR s.id = :shift)
+  AND (:employeeId IS NULL OR u.id = :employeeId)
+GROUP BY i.id, i.invoiceCode, u.fullName, s.name, i.createdAt, i.totalPrice
+ORDER BY i.createdAt DESC
+""")
+    List<InvoiceSummary> findInvoicesForReport(
+            @Param("branchId") Long branchId,
+            @Param("fromDate") LocalDateTime fromDate,
+            @Param("toDate") LocalDateTime toDate,
+            @Param("shift") Long shift,
+            @Param("employeeId") Long employeeId
+    );
+
+
 }

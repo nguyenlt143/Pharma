@@ -46,5 +46,7 @@ logging:
     org.thymeleaf: TRACE
     gg.jte: TRACE
     org.hibernate.type.descriptor.sql:
+
     org.hibernate.SQL: debug               # log câu SQL
     org.hibernate.orm.jdbc.bind: trace
+

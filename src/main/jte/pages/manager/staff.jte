@@ -22,7 +22,9 @@ content = @`
                     </div>
                     <div class="card-actions">
                         <button id="btnToggleDeleted" class="btn btn-outline">Hiển thị nhân viên đã xóa</button>
-                        <button id="btnRefresh" class="btn">Làm mới</button>
+
+                        <button id="btnRefresh" class="btn" hidden="hidden">Làm mới</button>
+
                     </div>
                 </div>
 
