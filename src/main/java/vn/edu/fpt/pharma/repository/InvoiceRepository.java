@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import vn.edu.fpt.pharma.dto.invoice.InvoiceDetailVM;
 import vn.edu.fpt.pharma.dto.invoice.InvoiceInfoVM;
 import vn.edu.fpt.pharma.dto.manager.DailyRevenue;
 import vn.edu.fpt.pharma.dto.manager.KpiData;
@@ -18,9 +17,7 @@ import vn.edu.fpt.pharma.entity.Invoice;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
-import jakarta.persistence.Tuple;
 public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpecificationExecutor<Invoice> {
 //    List<Invoice> findByBrandId(Long brandId);
 
@@ -181,7 +178,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
             "JOIN branchs b ON i.branch_id = b.id " +
             "WHERE i.id = :id",
             nativeQuery = true)
-    Optional<Object[]> findInvoiceInfoById(@Param("id") long id);
+    InvoiceInfoVM findInvoiceInfoById(@Param("id") long id);
 
     @Query("""
 SELECT new vn.edu.fpt.pharma.dto.manager.InvoiceSummary(

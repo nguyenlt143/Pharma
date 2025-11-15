@@ -17,10 +17,10 @@ public class WarehouseController {
     @GetMapping("/receipt/create")
     public String receiptCreate(Model model) {
         // Lấy phiếu nhập rỗng hoặc từ DB
-        InventoryMovementVM inventoryMovementVM = new InventoryMovementVM(new InventoryMovement());
+//        InventoryMovementVM inventoryMovementVM = new InventoryMovementVM(new InventoryMovement());
         List<InventoryMovementDetailVM> inventoryMovementDetails = List.of(); // hoặc từ DB
 
-        model.addAttribute("inventoryMovementVM", inventoryMovementVM);
+//        model.addAttribute("inventoryMovementVM", inventoryMovementVM);
         model.addAttribute("inventoryMovementDetails", inventoryMovementDetails);
 
         return "pages/warehouse/receipt_create";
