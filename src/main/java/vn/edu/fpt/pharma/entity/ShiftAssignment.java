@@ -9,7 +9,6 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import vn.edu.fpt.pharma.base.BaseEntity;
 
-import java.time.LocalDateTime;
 @Entity
 @Table(name = "shift_assignments")
 @Builder
@@ -17,7 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-@SQLDelete(sql = "UPDATE shifts SET deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE shift_assignments SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
 public class ShiftAssignment extends BaseEntity<Long> {
 

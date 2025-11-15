@@ -50,10 +50,3 @@ jte {
 tasks.named('test') {
     useJUnitPlatform()
 }
-sourceSets {
-    main {
-        resources {
-            srcDir 'src/main/resources'
-        }
-    }
-}

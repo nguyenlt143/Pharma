@@ -5,7 +5,6 @@ import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import vn.edu.fpt.pharma.base.BaseEntity;
-import vn.edu.fpt.pharma.constant.WorkType;
 import java.time.LocalDate;
 
 @Entity
