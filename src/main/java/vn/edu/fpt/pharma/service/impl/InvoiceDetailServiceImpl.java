@@ -49,6 +49,4 @@ public class InvoiceDetailServiceImpl extends BaseServiceImpl<InvoiceDetail, Lon
                 ))
                 .collect(Collectors.toList());
     }
-
-
 }

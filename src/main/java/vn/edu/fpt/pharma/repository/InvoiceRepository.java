@@ -6,11 +6,14 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+
 import vn.edu.fpt.pharma.dto.invoice.InvoiceInfoVM;
 import vn.edu.fpt.pharma.dto.manager.DailyRevenue;
 import vn.edu.fpt.pharma.dto.manager.KpiData;
 import vn.edu.fpt.pharma.dto.manager.TopProductItem;
 import vn.edu.fpt.pharma.dto.manager.InvoiceListItem;
+
+import vn.edu.fpt.pharma.dto.invoice.InvoiceInfoVM;
 import vn.edu.fpt.pharma.dto.manager.*;
 import vn.edu.fpt.pharma.entity.Invoice;
 
@@ -169,7 +172,6 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     ORDER BY MIN(s.start_time)
 """, nativeQuery = true)
     List<Object[]> findRevenueShiftByUser(@Param("userId") Long userId);
-
 
 
     @Query(value = "SELECT b.name, b.address, c.name, c.phone, i.created_at, i.total_price, i.description " +

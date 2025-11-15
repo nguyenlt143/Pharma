@@ -15,6 +15,7 @@ public record InventoryMovementVM(
         String approvedByName,
         String createdAt
 ) {
+
 //    public InventoryMovementVM(InventoryMovement entity) {
 //        this(
 //                entity.getId(),
@@ -30,5 +31,6 @@ public record InventoryMovementVM(
 //                        : ""
 //        );
 //    }
+
 }
 
