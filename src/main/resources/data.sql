@@ -740,11 +740,11 @@ VALUES (47, 1, 1, 15, 21000, 0, 0, 0, NOW(), FALSE),
 
 -- Inventory at HQ (NULL branch) after SUP_TO_WARE and WARE_TO_SUP/WARE_TO_BR
 INSERT INTO inventory (branch_id, variant_id, batch_id, quantity, min_stock, last_movement_id, created_at, deleted)
-VALUES (NULL, 1, 1, (2000 + 1000 + 600 + 800) - (600 + 800 + 200 + 210), 0, 41, NOW(), FALSE),
-       (NULL, 2, 2, (1500 + 800 + 220) - (200 + 150 + 190), 0, 40, NOW(), FALSE),
-       (NULL, 3, 3, (1200 + 900 + 600) - (250 + 170 + 200), 0, 41, NOW(), FALSE),
-       (NULL, 4, 4, (1000 + 500 + 500) - (200 + 120 + 60 + 5), 0, 41, NOW(), FALSE),
-       (NULL, 5, 5, (1800 + 700 + 400) - (500 + 140 + 160), 0, 18, NOW(), FALSE);
+VALUES (1, 1, 1, (2000 + 1000 + 600 + 800) - (600 + 800 + 200 + 210), 0, 41, NOW(), FALSE),
+       (1, 2, 2, (1500 + 800 + 220) - (200 + 150 + 190), 0, 40, NOW(), FALSE),
+       (1, 3, 3, (1200 + 900 + 600) - (250 + 170 + 200), 0, 41, NOW(), FALSE),
+       (1, 4, 4, (1000 + 500 + 500) - (200 + 120 + 60 + 5), 0, 41, NOW(), FALSE),
+       (1, 5, 5, (1800 + 700 + 400) - (500 + 140 + 160), 0, 18, NOW(), FALSE);
 
 -- Inventory at Branch 3 (Hà Nội)
 INSERT INTO inventory (branch_id, variant_id, batch_id, quantity, min_stock, last_movement_id, created_at, deleted)
@@ -791,8 +791,8 @@ VALUES ('INV-HN-2001', 1, 1, 3, 70000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
        ('INV-HN-2008', 3, 5, 3, 76000, 'Cash', 'PAID', NOW(), 6, FALSE, 8),
        ('INV-HN-2009', 4, 6, 3, 125000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
        ('INV-HN-2010', 5, 7, 3, 54000, 'Card', 'PAID', NOW(), 7, FALSE, 7),
-       ('INV-INT-3001', NULL, 11, 1, 185000, 'Transfer', 'DRAFT', NOW(), 1, FALSE, NULL),
-       ('INV-INT-3002', NULL, 12, 3, 250000, 'Transfer', 'DRAFT', NOW(), 1, FALSE, NULL),
+       ('INV-INT-3001',1, 11, 1, 185000, 'Transfer', 'DRAFT', NOW(), 1, FALSE, NULL),
+       ('INV-INT-3002',2, 12, 3, 250000, 'Transfer', 'DRAFT', NOW(), 1, FALSE, NULL),
        ('INV-HN-2011', 6, 2, 3, 92000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
        ('INV-HN-2012', 1, 3, 3, 68000, 'Card', 'PAID', NOW(), 7, FALSE, 7),
        ('INV-HN-2013', 2, 1, 3, 43000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
@@ -800,7 +800,7 @@ VALUES ('INV-HN-2001', 1, 1, 3, 70000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
        ('INV-HN-2015', 4, 5, 3, 112000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
        ('INV-HN-2016', 5, 6, 3, 30000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
        ('INV-HN-2017', 6, 7, 3, 87000, 'Card', 'PAID', NOW(), 7, FALSE, 7),
-       ('INV-HN-2018', 7, 8, 3, 142000, 'Cash', 'PAID', NOW(), 6, FALSE, 6);
+       ('INV-HN-2018', null, 8, 3, 142000, 'Cash', 'PAID', NOW(), 6, FALSE, 6);
 
 -- invoice_id will be 1..20 etc.
 
