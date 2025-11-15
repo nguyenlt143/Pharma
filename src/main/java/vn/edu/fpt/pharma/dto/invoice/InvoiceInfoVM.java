@@ -8,7 +8,7 @@ public interface InvoiceInfoVM {
     String getBranchAddress();
     String getCustomerName();
     String getCustomerPhone();
-    LocalDateTime getCreatedAt();  // hoặc Date tuỳ kiểu dữ liệu DB
+    LocalDateTime getCreatedAt();
     BigDecimal getTotalPrice();
     String getDescription();
 }

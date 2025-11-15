@@ -5,15 +5,22 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+
+import vn.edu.fpt.pharma.dto.invoice.InvoiceInfoVM;
+import vn.edu.fpt.pharma.dto.manager.DailyRevenue;
+import vn.edu.fpt.pharma.dto.manager.KpiData;
+import vn.edu.fpt.pharma.dto.manager.TopProductItem;
+import vn.edu.fpt.pharma.dto.manager.InvoiceListItem;
+
+import vn.edu.fpt.pharma.dto.invoice.InvoiceInfoVM;
 import vn.edu.fpt.pharma.dto.manager.*;
 import vn.edu.fpt.pharma.entity.Invoice;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
-import jakarta.persistence.Tuple;
 public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpecificationExecutor<Invoice> {
 //    List<Invoice> findByBrandId(Long brandId);
 
@@ -60,7 +67,9 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
         return sumRevenue(branchId, fromDate, toDate, null, null);
     }
 
-    // top5 item
+
+    // top 5 item ????
+
     @Query("""
     SELECT new vn.edu.fpt.pharma.dto.manager.TopProductItem(
         c.name, SUM(id.quantity)
@@ -165,14 +174,13 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     List<Object[]> findRevenueShiftByUser(@Param("userId") Long userId);
 
 
-
     @Query(value = "SELECT b.name, b.address, c.name, c.phone, i.created_at, i.total_price, i.description " +
             "FROM invoices i " +
             "JOIN customers c ON i.customer_id = c.id " +
             "JOIN branchs b ON i.branch_id = b.id " +
             "WHERE i.id = :id",
             nativeQuery = true)
-    Optional<Object[]> findInvoiceInfoById(@Param("id") long id);
+    InvoiceInfoVM findInvoiceInfoById(@Param("id") long id);
 
     @Query("""
 SELECT new vn.edu.fpt.pharma.dto.manager.InvoiceSummary(
