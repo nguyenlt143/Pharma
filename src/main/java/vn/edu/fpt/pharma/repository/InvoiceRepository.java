@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import vn.edu.fpt.pharma.dto.invoice.InvoiceInfoVM;
 import vn.edu.fpt.pharma.dto.manager.*;
 import vn.edu.fpt.pharma.entity.Invoice;
 
@@ -165,14 +166,13 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     List<Object[]> findRevenueShiftByUser(@Param("userId") Long userId);
 
 
-
     @Query(value = "SELECT b.name, b.address, c.name, c.phone, i.created_at, i.total_price, i.description " +
             "FROM invoices i " +
             "JOIN customers c ON i.customer_id = c.id " +
             "JOIN branchs b ON i.branch_id = b.id " +
             "WHERE i.id = :id",
             nativeQuery = true)
-    Optional<Object[]> findInvoiceInfoById(@Param("id") long id);
+    InvoiceInfoVM findInvoiceInfoById(@Param("id") long id);
 
     @Query("""
 SELECT new vn.edu.fpt.pharma.dto.manager.InvoiceSummary(

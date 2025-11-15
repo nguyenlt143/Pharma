@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,8 +16,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.pharma.config.CustomUserDetails;
 import vn.edu.fpt.pharma.dto.DataTableRequest;
 import vn.edu.fpt.pharma.dto.DataTableResponse;
+import vn.edu.fpt.pharma.dto.reveuce.RevenueDetailVM;
 import vn.edu.fpt.pharma.dto.reveuce.RevenueShiftVM;
 import vn.edu.fpt.pharma.dto.reveuce.RevenueVM;
+import vn.edu.fpt.pharma.service.InvoiceDetailService;
 import vn.edu.fpt.pharma.service.RevenueService;
 import vn.edu.fpt.pharma.util.StringUtils;
 
@@ -29,6 +32,7 @@ import java.util.List;
 public class RevenueController {
 
     private final RevenueService revenueService;
+    private final InvoiceDetailService invoiceDetailService;
 
     @GetMapping("/revenues")
     public String revenues(){
@@ -64,6 +68,15 @@ public class RevenueController {
         DataTableRequest reqDto = DataTableRequest.fromParams(request.getParameterMap());
         DataTableResponse<RevenueVM> response = revenueService.findAllRevenues(reqDto, userId);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/all/revenue/detail")
+    public String detail(Model model){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        List<RevenueDetailVM> revenueDetailVMS = invoiceDetailService.getRevenueDetail(userDetails.getId(), 2025, 11);
+        model.addAttribute("revenueDetailVMS", revenueDetailVMS);
+        return "pages/pharmacist/revenue_detail";
     }
 
 
