@@ -76,6 +76,18 @@ content = @`
         </thead>
         <tbody id="productTableBody">
         <!-- Rows sẽ được JS thêm vào -->
+
+<%--        @for(int i = 0; i < medicines.size(); i++)--%>
+<%--            <tr class="table-row">--%>
+<%--                <td class="col-stt">${i + 1}</td>--%>
+<%--                <td class="col-medicine">${medicines.get(i).medicineName()}</td>--%>
+<%--                <td class="col-unit">${medicines.get(i).unit()}</td>--%>
+<%--                <td class="col-quantity">${medicines.get(i).quantity()}</td>--%>
+<%--                <td class="col-price">${String.format("%,.0f", medicines.get(i).unitPrice())}</td>--%>
+<%--                <td class="col-total">${String.format("%,.0f", medicines.get(i).unitPrice() * medicines.get(i).quantity())}</td>--%>
+<%--            </tr>--%>
+<%--        @endfor--%>
+
         </tbody>
             </table>
             </div>
@@ -84,8 +96,8 @@ content = @`
 
             <!-- Action Buttons -->
             <div class="action-buttons">
-                <button class="btn-secondary">LƯU NHÁP (F8)</button>
-                <button class="btn-primary">HOÀN THÀNH (F9)</button>
+                <button class="btn-secondary">LƯU NHÁP</button>
+                <button class="btn-primary">HOÀN THÀNH</button>
             </div>
     </main>
 `

@@ -5,6 +5,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import vn.edu.fpt.pharma.dto.invoice.InvoiceDetailVM;
+import vn.edu.fpt.pharma.dto.invoice.InvoiceInfoVM;
+import vn.edu.fpt.pharma.dto.manager.DailyRevenue;
+import vn.edu.fpt.pharma.dto.manager.KpiData;
+import vn.edu.fpt.pharma.dto.manager.TopProductItem;
+import vn.edu.fpt.pharma.dto.manager.InvoiceListItem;
 import vn.edu.fpt.pharma.dto.manager.*;
 import vn.edu.fpt.pharma.entity.Invoice;
 
@@ -60,7 +67,9 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
         return sumRevenue(branchId, fromDate, toDate, null, null);
     }
 
-    // top5 item
+
+    // top 5 item ????
+
     @Query("""
     SELECT new vn.edu.fpt.pharma.dto.manager.TopProductItem(
         c.name, SUM(id.quantity)
