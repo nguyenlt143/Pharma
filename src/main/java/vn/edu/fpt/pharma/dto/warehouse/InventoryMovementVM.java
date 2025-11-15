@@ -19,7 +19,7 @@ public record InventoryMovementVM(
         this(
                 entity.getId(),
                 entity.getMovementType() != null ? entity.getMovementType().name() : "N/A",
-                entity.getSupplierId() != null ? entity.getSupplierId().getName() : "N/A",
+                entity.getSupplier().getName() != null ? entity.getSupplier().getName() : "N/A",
                 entity.getSourceBranchId() != null ? "CN#" + entity.getSourceBranchId() : "N/A",
                 entity.getDestinationBranchId() != null ? "CN#" + entity.getDestinationBranchId() : "N/A",
                 entity.getRequestForm() != null ? entity.getRequestForm().getId() :null,

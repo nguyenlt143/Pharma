@@ -18,13 +18,13 @@ import java.time.LocalDate;
 @SQLDelete(sql = "UPDATE shift_works SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
 public class ShiftWork extends BaseEntity<Long> {
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "shift_id")
-    private Shift shift;
-    private Long branchId;
-    private Long userId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assignment_id")
+    private ShiftAssignment assignment;
+
     private LocalDate workDate;
-    @Enumerated(EnumType.STRING)
-    private WorkType workType;
-    
+//    private int realMoney;
+//    private boolean isClosed;
 }
+

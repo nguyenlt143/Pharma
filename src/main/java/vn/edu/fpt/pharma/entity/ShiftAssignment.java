@@ -1,16 +1,17 @@
 package vn.edu.fpt.pharma.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import vn.edu.fpt.pharma.base.BaseEntity;
 
-import java.time.LocalTime;
-
+import java.time.LocalDateTime;
 @Entity
-@Table(name = "shifts")
+@Table(name = "shift_assignments")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,10 +19,11 @@ import java.time.LocalTime;
 @Setter
 @SQLDelete(sql = "UPDATE shifts SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
-public class Shift extends BaseEntity<Long> {
-    private Long branchId;
-    private String name;
-    private LocalTime startTime;
-    private LocalTime  endTime;
-    private String note;
+public class ShiftAssignment extends BaseEntity<Long> {
+
+    private Long userId;
+    @ManyToOne
+    @JoinColumn(name = "shift_id")
+    private Shift shift;
+
 }
