@@ -3,6 +3,7 @@ package vn.edu.fpt.pharma.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import vn.edu.fpt.pharma.constant.RequestType;
 import vn.edu.fpt.pharma.entity.RequestForm;
 
 import java.util.List;
@@ -25,4 +26,6 @@ public interface RequestFormRepository extends JpaRepository<RequestForm, Long>,
         """, nativeQuery = true)
     List<RequestForm> findRequestFormsByBranch(Long branchId);
 
+    List<RequestForm> findByRequestType(RequestType requestType);
+    // IMPORT / RETURN
 }

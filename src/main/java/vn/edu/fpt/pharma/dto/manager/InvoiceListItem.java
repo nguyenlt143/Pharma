@@ -10,3 +10,4 @@ public interface InvoiceListItem {
     Double getTotalPrice();
     Double getProfit();
 }
+
