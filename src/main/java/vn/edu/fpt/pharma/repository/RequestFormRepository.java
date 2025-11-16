@@ -28,6 +28,7 @@ public interface RequestFormRepository extends JpaRepository<RequestForm, Long>,
         """, nativeQuery = true)
     List<RequestForm> findRequestFormsByBranch(Long branchId);
 
+
     @Query(value = """
         SELECT * FROM request_forms 
         WHERE branch_id = :branchId

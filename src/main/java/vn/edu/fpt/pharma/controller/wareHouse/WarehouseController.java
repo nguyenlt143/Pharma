@@ -32,17 +32,11 @@ public class WarehouseController {
         return "pages/warehouse/receipt_list";
     }
 
-    @GetMapping("/request/list")
-    public String requestList(Model model) {
-
-        return "pages/warehouse/request_list";
-    }
-
-    @GetMapping("/request/detail")
-    public String requestDetail(Model model) {
-
-        return "pages/warehouse/request_detail";
-    }
+//    @GetMapping("/request/detail")
+//    public String requestDetail(Model model) {
+//
+//        return "pages/warehouse/request_detail";
+//    }
 
     @GetMapping("/inventory")
     public String warehouseInventory(Model model) {
