@@ -21,10 +21,12 @@ public class InventoryMovementDetail extends BaseEntity<Long> {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "movement_id")
     private InventoryMovement movement;
-    private Long variantId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "variant_id")
+    private MedicineVariant variant;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "batch_id")
-    private Batch batchId;
+    private Batch batch;
     private Long quantity;
     private Double price;
     private Long receivedQuantity;

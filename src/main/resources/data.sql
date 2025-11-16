@@ -106,27 +106,27 @@ VALUES
     (16, 5, NOW(), FALSE), -- pharmacist1dn
     (17, 5, NOW(), FALSE), -- pharmacist2dn
     (18, 6, NOW(), FALSE);
--- pharmacist3dn
 
--- Hà Nội
 INSERT INTO shift_works (assignment_id, work_date, created_at, deleted)
-VALUES (1, '2025-11-16', NOW(), FALSE),
-       (1, '2025-11-17', NOW(), FALSE),
-       (1, '2025-11-18', NOW(), FALSE),
-       (2, '2025-11-16', NOW(), FALSE),
-       (2, '2025-11-17', NOW(), FALSE),
-       (2, '2025-11-18', NOW(), FALSE),
-       (3, '2025-11-16', NOW(), FALSE),
-       (3, '2025-11-17', NOW(), FALSE),
-       (3, '2025-11-18', NOW(), FALSE),
+VALUES
+-- Hà Nội
+(1, DATE_SUB(NOW(), INTERVAL 2 DAY),  NOW(), FALSE),
+(2, DATE_SUB(NOW(), INTERVAL 2 DAY),  NOW(), FALSE),
+(3, DATE_SUB(NOW(), INTERVAL 2 DAY),  NOW(), FALSE),
+(1, DATE_SUB(NOW(), INTERVAL 1 DAY),  NOW(), FALSE),
+(2, DATE_SUB(NOW(), INTERVAL 1 DAY),  NOW(), FALSE),
+(3, DATE_SUB(NOW(), INTERVAL 1 DAY),  NOW(), FALSE),
+(1, NOW(),                            NOW(), FALSE),
+(2, NOW(),                            NOW(), FALSE),
+(3, NOW(),                            NOW(), FALSE),
 -- TP.HCM
-       (4, '2025-11-16', NOW(), FALSE),
-       (5, '2025-11-16', NOW(), FALSE),
-       (6, '2025-11-16', NOW(), FALSE),
--- TP DN
-       (7, '2025-11-16', NOW(), FALSE),
-       (8, '2025-11-16', NOW(), FALSE),
-       (9, '2025-11-16', NOW(), FALSE);
+(4, NOW(),                           NOW(), FALSE),
+(5, NOW(),                           NOW(), FALSE),
+(6, NOW(),                           NOW(), FALSE),
+-- TP. Đà Nẵng
+(7, NOW(),                           NOW(), FALSE),
+(8, NOW(),                           NOW(), FALSE),
+(9, NOW(),                           NOW(), FALSE);
 
 INSERT INTO units (name, description, created_at, deleted)
 VALUES ('Viên', 'Dạng đơn vị thuốc nhỏ nhất, thường dùng cho thuốc viên nén hoặc viên nang', NOW(), FALSE),
@@ -529,16 +529,16 @@ VALUES
 INSERT INTO inventory_movements
 (movement_type, supplier_id, source_branch_id, destination_branch_id, request_form_id, approved_by_id, movement_status,
  created_at, deleted)
-VALUES ('SUP_TO_WARE', 1, NULL, NULL, NULL, 1, 'RECEIVED', NOW(), FALSE),
-       ('SUP_TO_WARE', 2, NULL, NULL, NULL, 1, 'RECEIVED', NOW(), FALSE),
-       ('SUP_TO_WARE', 1, NULL, NULL, NULL, 2, 'RECEIVED', NOW(), FALSE),
-       ('SUP_TO_WARE', 3, NULL, NULL, NULL, 3, 'RECEIVED', NOW(), FALSE),
-       ('SUP_TO_WARE', 1, NULL, NULL, NULL, 4, 'RECEIVED', NOW(), FALSE),
-       ('SUP_TO_WARE', 2, NULL, NULL, NULL, 5, 'RECEIVED', NOW(), FALSE),
-       ('SUP_TO_WARE', 3, NULL, NULL, NULL, 6, 'RECEIVED', NOW(), FALSE),
-       ('SUP_TO_WARE', 1, NULL, NULL, NULL, 7, 'RECEIVED', NOW(), FALSE),
-       ('SUP_TO_WARE', 2, NULL, NULL, NULL, 8, 'RECEIVED', NOW(), FALSE),
-       ('SUP_TO_WARE', 3, NULL, NULL, NULL, 8, 'RECEIVED', NOW(), FALSE);
+VALUES ('SUP_TO_WARE', 1, NULL, 1, NULL, null, 'RECEIVED', NOW(), FALSE),
+       ('SUP_TO_WARE', 2, NULL, 1, NULL, null, 'RECEIVED', NOW(), FALSE),
+       ('SUP_TO_WARE', 1, NULL, 1, NULL, null, 'RECEIVED', NOW(), FALSE),
+       ('SUP_TO_WARE', 3, NULL, 1, NULL, null, 'RECEIVED', NOW(), FALSE),
+       ('SUP_TO_WARE', 1, NULL, 1, NULL, null, 'RECEIVED', NOW(), FALSE),
+       ('SUP_TO_WARE', 2, NULL, 1, NULL, null, 'RECEIVED', NOW(), FALSE),
+       ('SUP_TO_WARE', 3, NULL, 1, NULL, null, 'RECEIVED', NOW(), FALSE),
+       ('SUP_TO_WARE', 1, NULL, 1, NULL, null, 'RECEIVED', NOW(), FALSE),
+       ('SUP_TO_WARE', 2, NULL, 1, NULL, null, 'RECEIVED', NOW(), FALSE),
+       ('SUP_TO_WARE', 3, NULL, 1, NULL, null, 'RECEIVED', NOW(), FALSE);
 
 -- movement_id 1..10
 
@@ -693,9 +693,9 @@ VALUES (11, 1, 1, 600, 21000, 600, 0, 12600000, NOW(), FALSE),
 -- =========================================================
 INSERT INTO inventory_movements (movement_type, supplier_id, source_branch_id, destination_branch_id, request_form_id,
                                  approved_by_id, movement_status, created_at, deleted)
-VALUES ('BR_TO_WARE', NULL, 3, NULL, 9, 5, 'RECEIVED', NOW(), FALSE),  -- movement 42
-       ('BR_TO_WARE', NULL, 3, NULL, 10, 5, 'RECEIVED', NOW(), FALSE), -- movement 43
-       ('BR_TO_WARE', NULL, 3, NULL, NULL, 5, 'RECEIVED', NOW(), FALSE); -- movement 44 (ad-hoc)
+VALUES ('BR_TO_WARE', NULL, 3, 1, 9, 5, 'RECEIVED', NOW(), FALSE),  -- movement 42
+       ('BR_TO_WARE', NULL, 3, 1, 10, 5, 'RECEIVED', NOW(), FALSE), -- movement 43
+       ('BR_TO_WARE', NULL, 3, 1, NULL, 5, 'RECEIVED', NOW(), FALSE); -- movement 44 (ad-hoc)
 
 INSERT INTO inventory_movement_details (movement_id, variant_id, batch_id, quantity, price, received_quantity,
                                         return_quantity, cost, created_at, deleted)
@@ -775,60 +775,58 @@ VALUES (1, 35000, 34000, NOW(), NULL, NOW(), FALSE),
        (8, 155000, 150000, NOW(), NULL, NOW(), FALSE),
        (9, 60000, 58000, NOW(), NULL, NOW(), FALSE),
        (10, 30000, 29000, NOW(), NULL, NOW(), FALSE);
+-- Done
+INSERT INTO invoices (invoice_code, customer_id, shift_work_id, branch_id, total_price,
+                      payment_method, invoice_type, created_at, created_by, deleted, user_id)
+VALUES
+-- user_id 6 → shift_work_id {1,4,7}
+('INV-HN-2001', 1, 1, 3, 98000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 2 DAY), 6, FALSE, 6),
+('INV-HN-2004', 1, 4, 3, 85000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 1 DAY), 6, FALSE, 6),
+('INV-HN-2006', 5, 7, 3, 30000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
+('INV-INT-3001', 1, 1, 1, 350000, 'Transfer', 'DRAFT', DATE_SUB(NOW(), INTERVAL 2 DAY), 6, FALSE, 6),
+('INV-HN-2011', 6, 4, 3, 85000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 1 DAY), 6, FALSE, 6),
+('INV-HN-2012', 1, 7, 3, 120000, 'Card', 'PAID', NOW(), 6, FALSE, 6),
+('INV-HN-2013', 2, 1, 3, 104000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 2 DAY), 6, FALSE, 6),
+('INV-HN-2016', 5, 4, 3, 28000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 1 DAY), 6, FALSE, 6),
+('INV-HN-2018', NULL, 7, 3, 120000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
 
--- =========================================================
--- 10) INVOICES: tạo ~20 hóa đơn bán lẻ cho branch 3 (HN) và nội bộ
--- =========================================================
-INSERT INTO invoices (invoice_code, customer_id, shift_work_id, branch_id, total_price, payment_method, invoice_type,
-                      created_at, created_by, deleted, user_id)
-VALUES ('INV-HN-2001', 1, 1, 3, 70000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
-       ('INV-HN-2002', 2, 2, 3, 120000, 'Card', 'PAID', NOW(), 6, FALSE, 7),
-       ('INV-HN-2003', 3, 3, 3, 185000, 'Cash', 'PAID', NOW(), 7, FALSE, 8),
-       ('INV-HN-2004', 1, 1, 3, 98000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
-       ('INV-HN-2005', 4, 2, 3, 150000, 'Card', 'PAID', NOW(), 7, FALSE, 7),
-       ('INV-HN-2006', 5, 3, 3, 45000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
-       ('INV-HN-2007', 2, 4, 3, 230000, 'Card', 'PAID', NOW(), 7, FALSE, 7),
-       ('INV-HN-2008', 3, 5, 3, 76000, 'Cash', 'PAID', NOW(), 6, FALSE, 8),
-       ('INV-HN-2009', 4, 6, 3, 125000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
-       ('INV-HN-2010', 5, 7, 3, 54000, 'Card', 'PAID', NOW(), 7, FALSE, 7),
-       ('INV-INT-3001',1, 11, 1, 185000, 'Transfer', 'DRAFT', NOW(), 1, FALSE, NULL),
-       ('INV-INT-3002',2, 12, 3, 250000, 'Transfer', 'DRAFT', NOW(), 1, FALSE, NULL),
-       ('INV-HN-2011', 6, 2, 3, 92000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
-       ('INV-HN-2012', 1, 3, 3, 68000, 'Card', 'PAID', NOW(), 7, FALSE, 7),
-       ('INV-HN-2013', 2, 1, 3, 43000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
-       ('INV-HN-2014', 3, 4, 3, 155000, 'Card', 'PAID', NOW(), 7, FALSE, 7),
-       ('INV-HN-2015', 4, 5, 3, 112000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
-       ('INV-HN-2016', 5, 6, 3, 30000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
-       ('INV-HN-2017', 6, 7, 3, 87000, 'Card', 'PAID', NOW(), 7, FALSE, 7),
-       ('INV-HN-2018', null, 8, 3, 142000, 'Cash', 'PAID', NOW(), 6, FALSE, 6);
+-- user_id 7 → shift_work_id {2,5,8}
+('INV-HN-2002', 2, 2, 3, 120000, 'Card', 'PAID', DATE_SUB(NOW(), INTERVAL 2 DAY), 7, FALSE, 7),
+('INV-HN-2005', 4, 5, 3, 208000, 'Card', 'PAID', DATE_SUB(NOW(), INTERVAL 1 DAY), 7, FALSE, 7),
+('INV-HN-2007', 2, 8, 3, 105000, 'Card', 'PAID', NOW(), 7, FALSE, 7),
+('INV-HN-2010', 5, 2, 3, 56000, 'Card', 'PAID', DATE_SUB(NOW(), INTERVAL 2 DAY), 7, FALSE, 7),
+('INV-INT-3002', 2, 5, 3, 700000, 'Transfer', 'DRAFT', DATE_SUB(NOW(), INTERVAL 1 DAY), 7, FALSE, 7),
+('INV-HN-2014', 3, 8, 3, 30000, 'Card', 'PAID', NOW(), 7, FALSE, 7),
+('INV-HN-2015', 4, 2, 3, 185000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 2 DAY), 7, FALSE, 7),
+('INV-HN-2017', 6, 5, 3, 155000, 'Card', 'PAID', DATE_SUB(NOW(), INTERVAL 1 DAY), 7, FALSE, 7),
 
--- invoice_id will be 1..20 etc.
-
--- =========================================================
--- 11) INVOICE_DETAILS: map some real sold items (use batches as above)
--- =========================================================
+-- user_id 8 → shift_work_id {3,6,9}
+('INV-HN-2003', 3, 3, 3, 185000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 2 DAY), 8, FALSE, 8),
+('INV-HN-2008', 3, 6, 3, 185000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 1 DAY), 8, FALSE, 8),
+('INV-HN-2009', 4, 9, 3, 140000, 'Cash', 'PAID', NOW(), 8, FALSE, 8);
+-- Done
 INSERT INTO invoice_details (invoice_id, batch_id, variant_id, quantity, price, created_at, deleted)
-VALUES (1, 1, 1, 2, 35000, NOW(), FALSE),
-       (1, 2, 2, 1, 28000, NOW(), FALSE),
-       (2, 3, 3, 1, 120000, NOW(), FALSE),
-       (3, 5, 5, 1, 185000, NOW(), FALSE),
-       (4, 6, 6, 1, 85000, NOW(), FALSE),
-       (5, 7, 7, 2, 104000, NOW(), FALSE),
-       (6, 10, 10, 1, 30000, NOW(), FALSE),
-       (7, 1, 1, 3, 35000, NOW(), FALSE),
-       (8, 5, 5, 1, 185000, NOW(), FALSE),
-       (9, 4, 4, 1, 140000, NOW(), FALSE),
-       (10, 2, 2, 2, 28000, NOW(), FALSE),
-       (11, 1, 1, 10, 35000, NOW(), FALSE),
-       (12, 4, 4, 5, 140000, NOW(), FALSE),
-       (13, 6, 6, 1, 85000, NOW(), FALSE),
-       (14, 3, 3, 1, 120000, NOW(), FALSE),
-       (15, 7, 7, 1, 104000, NOW(), FALSE),
-       (16, 10, 10, 1, 30000, NOW(), FALSE),
-       (17, 5, 5, 1, 185000, NOW(), FALSE),
-       (18, 2, 2, 1, 28000, NOW(), FALSE),
-       (19, 8, 8, 1, 155000, NOW(), FALSE),
-       (20, 9, 9, 2, 60000, NOW(), FALSE);
+VALUES (1, 1, 1, 2, 35000, DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
+       (1, 2, 2, 1, 28000, DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
+       (2, 6, 6, 1, 85000, DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),
+       (3, 10, 10, 1, 30000, NOW(), FALSE),
+       (4, 1, 1, 10, 35000, DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
+       (5, 6, 6, 1, 85000, DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),
+       (6, 3, 3, 1, 120000, NOW(), FALSE),
+       (7, 7, 7, 1, 104000, DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
+       (8, 2, 2, 1, 28000, DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),
+       (9, 9, 9, 2, 60000, NOW(), FALSE),
+       (10, 3, 3, 1, 120000, DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
+       (11, 7, 7, 2, 104000, DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),
+       (12, 1, 1, 3, 35000, NOW(), FALSE),
+       (13, 2, 2, 2, 28000, DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
+       (14, 4, 4, 5, 140000, DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),
+       (15, 10, 10, 1, 30000, NOW(), FALSE),
+       (16, 5, 5, 1, 185000, DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
+       (17, 8, 8, 1, 155000, DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),
+       (18, 5, 5, 1, 185000, DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
+       (19, 5, 5, 1, 185000, DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),
+       (20, 4, 4, 1, 140000, NOW(), FALSE);
 
 -- =========================================================
 -- 12) STOCK ADJUSTMENTS: vài dòng để test kiểm kê
