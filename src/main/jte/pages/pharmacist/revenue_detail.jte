@@ -1,3 +1,5 @@
+@param java.util.List<vn.edu.fpt.pharma.dto.reveuce.RevenueDetailVM> revenueDetailVMS
+
 @template.layouts.pharmacist(
 headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/revenue_detail.css">`,
 content = @`
@@ -25,76 +27,26 @@ content = @`
                     <thead>
                     <tr class="table-header">
                         <th class="table-cell header-cell">TÊN THUỐC</th>
-                        <th class="table-cell header-cell">SỐ<br>LƯỢNG</th>
-                        <th class="table-cell header-cell">KIỂU ĐÓNG<br>GÓI</th>
+                        <th class="table-cell header-cell">SỐ LƯỢNG</th>
+                        <th class="table-cell header-cell">KIỂU ĐÓNG GÓI</th>
                         <th class="table-cell header-cell">HOẠT CHẤT</th>
                         <th class="table-cell header-cell">HÃNG SẢN XUẤT</th>
                         <th class="table-cell header-cell">NƯỚC SẢN XUẤT</th>
-                        <th class="table-cell header-cell">GIÁ<br>BÁN</th>
-                        <th class="table-cell header-cell">THÀNH<br>TIỀN</th>
+                        <th class="table-cell header-cell">GIÁ BÁN</th>
+                        <th class="table-cell header-cell">THÀNH TIỀN</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr class="table-row">
-                        <td class="table-cell data-cell drug-name">Parasorb</td>
-                        <td class="table-cell data-cell">2</td>
-                        <td class="table-cell data-cell">Hộp</td>
-                        <td class="table-cell data-cell">Paracetamol 500<br>mg -</td>
-                        <td class="table-cell data-cell">Hộp 10 vỉ, 20 vỉ x 10 viên nén dài</td>
-                        <td class="table-cell data-cell">Việt Nam</td>
-                        <td class="table-cell data-cell">25,000</td>
-                        <td class="table-cell data-cell">50,000</td>
-                    </tr>
-                    <tr class="table-row">
-                        <td class="table-cell data-cell drug-name">paradol</td>
-                        <td class="table-cell data-cell">2</td>
-                        <td class="table-cell data-cell">Hộp</td>
-                        <td class="table-cell data-cell">Paracetamol -<br>250mg</td>
-                        <td class="table-cell data-cell">Hộp 10 vỉ * 10 viên</td>
-                        <td class="table-cell data-cell">Việt Nam</td>
-                        <td class="table-cell data-cell">20,000</td>
-                        <td class="table-cell data-cell">40,000</td>
-                    </tr>
-                    <tr class="table-row">
-                        <td class="table-cell data-cell drug-name">Paracetamol 500<br>mg</td>
-                        <td class="table-cell data-cell">2</td>
-                        <td class="table-cell data-cell">Hộp</td>
-                        <td class="table-cell data-cell">Paracetamol 500<br>mg -</td>
-                        <td class="table-cell data-cell">Hộp 10 vỉ x 10 viên, Chai 100 viên, 200 viên,<br>500 viên</td>
-                        <td class="table-cell data-cell">Việt Nam</td>
-                        <td class="table-cell data-cell">18,000</td>
-                        <td class="table-cell data-cell">36,000</td>
-                    </tr>
-                    <tr class="table-row">
-                        <td class="table-cell data-cell drug-name">Parasorb</td>
-                        <td class="table-cell data-cell">2</td>
-                        <td class="table-cell data-cell">Vỉ</td>
-                        <td class="table-cell data-cell">Paracetamol 500<br>mg -</td>
-                        <td class="table-cell data-cell">Hộp 10 vỉ, 20 vỉ x 10 viên nén dài</td>
-                        <td class="table-cell data-cell">Việt Nam</td>
-                        <td class="table-cell data-cell">2,500</td>
-                        <td class="table-cell data-cell">5,000</td>
-                    </tr>
-                    <tr class="table-row">
-                        <td class="table-cell data-cell drug-name">paradol</td>
-                        <td class="table-cell data-cell">2</td>
-                        <td class="table-cell data-cell">Vỉ</td>
-                        <td class="table-cell data-cell">Paracetamol -<br>250mg</td>
-                        <td class="table-cell data-cell">Hộp 10 vỉ * 10 viên</td>
-                        <td class="table-cell data-cell">Việt Nam</td>
-                        <td class="table-cell data-cell">2,000</td>
-                        <td class="table-cell data-cell">4,000</td>
-                    </tr>
-                    <tr class="table-row total-row">
-                        <td class="table-cell data-cell drug-name">Doanh thu</td>
-                        <td class="table-cell data-cell"></td>
-                        <td class="table-cell data-cell"></td>
-                        <td class="table-cell data-cell"></td>
-                        <td class="table-cell data-cell"></td>
-                        <td class="table-cell data-cell"></td>
-                        <td class="table-cell data-cell"></td>
-                        <td class="table-cell data-cell">135,000</td>
-                    </tr>
+                    @for(int i = 0; i < revenueDetailVMS.size(); i++)
+                        <tr class="table-row">
+                            <td class="col-stt">${i + 1}</td>
+                            <td class="col-medicine">${revenueDetailVMS.get(i).drugName()}</td>
+                            <td class="col-unit">${revenueDetailVMS.get(i).unit()}</td>
+                            <td class="col-quantity">${revenueDetailVMS.get(i).quantity()}</td>
+                            <td class="col-price">${String.format("%,.0f", revenueDetailVMS.get(i).price())}</td>
+                            <td class="col-total">${String.format("%,.0f", revenueDetailVMS.get(i).totalAmount())}</td>
+                        </tr>
+                    @endfor
                     </tbody>
                 </table>
             </div>

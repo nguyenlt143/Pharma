@@ -33,13 +33,13 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/pharmacist/invoice" class="nav-link">
+                    <a href="/pharmacist/invoices" class="nav-link">
                         <span class="nav-icon material-icons">receipt_long</span>
                         <span class="nav-text">Quản lý danh sách đơn thuốc</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/pharmacist/shift" class="nav-link">
+                    <a href="/pharmacist/shifts" class="nav-link">
                         <span class="nav-icon material-icons">bar_chart</span>
                         <span class="nav-text">Tổng kết ca</span>
                     </a>
@@ -51,7 +51,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/pharmacist/revenue" class="nav-link">
+                    <a href="/pharmacist/revenues" class="nav-link">
                         <span class="nav-icon material-icons">event_note</span>
                         <span class="nav-text">Báo cao danh thu</span>
                     </a>
@@ -75,15 +75,7 @@
             </div>
 
             <div class="header-right">
-                <div class="weather-info">
-                    <span class="material-icons weather-icon">thermostat</span>
-                    <span class="temperature">0°C</span>
-                    <span class="material-icons cloud-icon">cloud</span>
-                    <span class="weather-code">000</span>
-                </div>
-
                 <div class="date-info">
-                    <span class="material-icons date-icon">calendar_today</span>
                     <span class="date-text">01/01/2200</span>
                 </div>
 

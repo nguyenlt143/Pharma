@@ -13,4 +13,5 @@ public class BatchServiceImpl extends BaseServiceImpl<Batch, Long, BatchReposito
     public BatchServiceImpl(BatchRepository repository, AuditService auditService) {
         super(repository, auditService);
     }
+
 }

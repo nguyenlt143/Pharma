@@ -1,0 +1,249 @@
+/* =========================================
+   STAFF MANAGEMENT PAGE (S2 - Unified Style)
+   Palette: Pharma Blue
+   Components: Card, Table-Bordered, Modal-Panel, Form Grid
+========================================= */
+
+/* ===== Layout ===== */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+/* ===== Buttons ===== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: 0.15s ease-in-out;
+}
+.btn:focus { outline: none; box-shadow: 0 0 0 3px rgba(37,99,235,.25); }
+
+.btn-primary {
+    background-color: #2563eb;
+    color: #fff;
+    border: none;
+}
+.btn-primary:hover { background-color: #1e4ed8; }
+
+.btn-outline {
+    background: white;
+    border: 1px solid #d1d5db;
+    color: #374151;
+}
+.btn-outline:hover { background-color: #f3f4f6; }
+
+.btn-danger {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fecaca;
+}
+.btn-danger:hover { background: #fecaca; }
+
+.btn-ghost {
+    background: transparent;
+    color: #374151;
+    border-color: transparent;
+}
+.btn-ghost:hover { background: #f3f4f6; }
+
+.btn-success {
+    background: #16a34a;
+    color: #fff;
+}
+.btn-success:hover { background: #15803d; }
+
+.btn-icon { padding: 6px 8px; }
+
+/* ===== Card ===== */
+.card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    padding: 0;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.card-body {
+    padding: 0;
+}
+
+/* ===== Search Bar ===== */
+.search-wrap {
+    display: flex;
+    align-items: center;
+    background: #f9fafb;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 6px 10px;
+    width: 360px;
+    gap: 6px;
+}
+
+.input-search {
+    border: none;
+    background: transparent;
+    outline: none;
+    flex: 1;
+}
+
+/* ===== Table ===== */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table thead {
+    background-color: #f9fafb;
+}
+
+.table th, .table td {
+    border: 1px solid #e5e7eb;
+    padding: 10px 12px;
+    font-size: 14px;
+}
+
+.table tbody tr:hover {
+    background-color: #f0f7ff;
+}
+
+.text-center { text-align: center; }
+
+/* ===== Avatar ===== */
+.staff-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #e5e7eb;
+}
+
+/* ===== Badge trạng thái ===== */
+.badge {
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.badge.active { background: #dcfce7; color: #166534; } /* xanh */
+.badge.inactive { background: #fee2e2; color: #991b1b; } /* đỏ */
+.badge.locked { background: #fef3c7; color: #92400e; } /* vàng */
+
+/* ===== Modal ===== */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+.modal.hidden { display: none; }
+
+.modal-panel {
+    background: #fff;
+    border-radius: 12px;
+    width: 540px;
+    padding: 0;
+    box-shadow: 0 4px 14px rgba(0,0,0,.1);
+    animation: fadeIn 0.2s ease;
+}
+
+.modal-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-form {
+    padding: 16px 20px 20px;
+}
+
+/* ===== Form Grid ===== */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px 18px;
+}
+
+.form-grid label {
+    font-weight: 500;
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.input, input, select {
+    padding: 8px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+}
+input:focus, select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37,99,235,.25);
+    outline: none;
+}
+
+.required { color: #dc2626; }
+
+/* ===== Form actions ===== */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+/* ===== Toast ===== */
+.toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #111827;
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: 8px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: 0.25s;
+}
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+.toast.success { background: #16a34a; }
+.toast.error { background: #dc2626; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(.96); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* ===== Empty State ===== */
+.empty {
+    padding: 14px;
+    text-align: center;
+    color: #6b7280;
+}
+.hidden { display: none; }

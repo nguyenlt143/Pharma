@@ -2,10 +2,13 @@ package vn.edu.fpt.pharma.controller.manager;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import vn.edu.fpt.pharma.config.CustomUserDetails;
 import vn.edu.fpt.pharma.dto.manager.ShiftRequest;
 import vn.edu.fpt.pharma.dto.manager.ShiftResponse;
+import vn.edu.fpt.pharma.entity.User;
 import vn.edu.fpt.pharma.service.ShiftService;
 
 import java.util.List;
@@ -22,8 +25,9 @@ public class ShiftApiController {
 
     @GetMapping
     public List<ShiftResponse> list(@RequestParam(required = false) String q,
-                                    @RequestParam(required = false) Long branchId) {
-        return shiftService.listShifts(q, branchId);
+                                    @AuthenticationPrincipal CustomUserDetails userDetails) {
+        User u = userDetails.getUser();
+        return shiftService.listShifts(q, u.getBranchId());
     }
 
     @GetMapping("/{id}")
@@ -33,16 +37,18 @@ public class ShiftApiController {
 
     @PostMapping
     public ResponseEntity<ShiftResponse> create(@Valid @RequestBody ShiftRequest req,
-                                                @RequestParam(required = false) Long branchId) {
-        ShiftResponse s = shiftService.save(req, branchId);
+                                                @AuthenticationPrincipal CustomUserDetails userDetails) {
+        User u = userDetails.getUser();
+        ShiftResponse s = shiftService.save(req, u.getBranchId());
         return ResponseEntity.ok(s);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ShiftResponse> update(@PathVariable Long id, @Valid @RequestBody ShiftRequest req,
-                                                @RequestParam(required = false) Long branchId) {
+                                                @AuthenticationPrincipal CustomUserDetails userDetails) {
+        User u = userDetails.getUser();
         req.setId(id);
-        ShiftResponse s = shiftService.save(req, branchId);
+        ShiftResponse s = shiftService.save(req, u.getBranchId());
         return ResponseEntity.ok(s);
     }
 

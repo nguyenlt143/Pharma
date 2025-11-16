@@ -11,13 +11,15 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false            # tắt log SQL mặc định, dùng logging bên dưới
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.MySQLDialect
+        highlight_sql: true
+        use_sql_comments: true
     open-in-view: false
     defer-datasource-initialization: true
+
 
   sql:
     init:
@@ -36,3 +38,15 @@ gg:
 
 server:
   port: 8080
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+    org.thymeleaf: TRACE
+    gg.jte: TRACE
+    org.hibernate.type.descriptor.sql:
+
+    org.hibernate.SQL: debug               # log câu SQL
+    org.hibernate.orm.jdbc.bind: trace
+

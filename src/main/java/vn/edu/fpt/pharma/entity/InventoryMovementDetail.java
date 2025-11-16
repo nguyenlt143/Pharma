@@ -18,7 +18,9 @@ import vn.edu.fpt.pharma.constant.MovementType;
 @SQLDelete(sql = "UPDATE inventory_movement_details SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
 public class InventoryMovementDetail extends BaseEntity<Long> {
-    private Long movementId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "movement_id")
+    private InventoryMovement movement;
     private Long variantId;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "batch_id")

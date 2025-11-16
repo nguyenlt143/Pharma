@@ -30,6 +30,7 @@ public class Invoice extends BaseEntity<Long> {
     private Double totalPrice;
     private String description;
     private String paymentMethod;
+    private Long userId;
     @Enumerated(EnumType.STRING)
     private InvoiceType  invoiceType;
     @OneToMany(mappedBy = "invoice", fetch = FetchType.LAZY)

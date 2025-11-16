@@ -44,19 +44,13 @@ public class ShiftServiceImpl implements ShiftService {
         } else {
             s = new Shift();
         }
-
         s.setBranchId(branchId);
         s.setName(request.getName());
         s.setNote(request.getNote());
-
-        // parse LocalTime from request (expect HH:mm or HH:mm:ss)
         LocalTime st = parseLocalTime(request.getStartTime());
         LocalTime et = parseLocalTime(request.getEndTime());
-        // combine with today's date
-        LocalDate today = LocalDate.now();
-        s.setStartTime(LocalDateTime.of(today, st));
-        s.setEndTime(LocalDateTime.of(today, et));
-
+        s.setStartTime(st);
+        s.setEndTime(et);
         s = repo.save(s);
         return toDto(s);
     }
@@ -71,8 +65,8 @@ public class ShiftServiceImpl implements ShiftService {
         return ShiftResponse.builder()
                 .id(s.getId())
                 .name(s.getName())
-                .startTime(s.getStartTime() != null ? s.getStartTime().toLocalTime().toString() : null)
-                .endTime(s.getEndTime() != null ? s.getEndTime().toLocalTime().toString() : null)
+                .startTime(s.getStartTime() != null ? s.getStartTime().toString() : null)
+                .endTime(s.getEndTime() != null ? s.getEndTime().toString() : null)
                 .note(s.getNote())
                 .build();
     }

@@ -1,15 +1,16 @@
 package vn.edu.fpt.pharma.service.impl;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.pharma.base.BaseServiceImpl;
 import vn.edu.fpt.pharma.config.CustomUserDetails;
-import vn.edu.fpt.pharma.dto.DataTableRequest;
-import vn.edu.fpt.pharma.dto.DataTableResponse;
 import vn.edu.fpt.pharma.dto.manager.UserDto;
 import vn.edu.fpt.pharma.dto.manager.UserRequest;
+import vn.edu.fpt.pharma.dto.user.ProfileVM;
 import vn.edu.fpt.pharma.dto.user.UserVM;
 import vn.edu.fpt.pharma.entity.Role;
 import vn.edu.fpt.pharma.entity.User;
@@ -19,18 +20,18 @@ import vn.edu.fpt.pharma.service.AuditService;
 import vn.edu.fpt.pharma.service.UserService;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository> implements UserService, UserDetailsService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-
-    public UserServiceImpl(UserRepository repository, AuditService auditService, UserRepository userRepository, RoleRepository roleRepository) {
+    private final PasswordEncoder passwordEncoder;
+    public UserServiceImpl(UserRepository repository, AuditService auditService, UserRepository userRepository, RoleRepository roleRepository, @Lazy PasswordEncoder passwordEncoder) {
         super(repository, auditService);
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -39,12 +40,6 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
         User user = repository.findByUserNameIgnoreCase(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return new CustomUserDetails(user);
-    }
-
-    @Override
-    public DataTableResponse<User> getAllUsers(DataTableRequest reqDto) {
-        DataTableResponse<User> users = findAllForDataTable(reqDto, List.of("email", "fullName", "storeCode"));
-        return users.transform(auditService::addAuditInfo);
     }
 
     public List<UserVM> transformUsers(List<User> users) {
@@ -57,11 +52,28 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
 
     @Override
     public List<UserDto> getStaffs(Long branchId) {
-        return userRepository.findStaffInBranchId( branchId)
+        return userRepository.findStaffInBranchIdIncludingDeleted(branchId)
                 .stream()
                 .map(this::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
+
+    @Override
+    public List<UserDto> getStaffsActive(Long branchId) {
+        return userRepository.findStaffInBranchId(branchId)
+                .stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    @Override
+    public List<UserDto> getPharmacists(Long branchId) {
+        return userRepository.findPharmacistsInBranchId(branchId)
+                .stream()
+                .map(this::toDto)
+                .toList();
+    }
+
 
     @Override
     public UserDto getById(Long id) {
@@ -72,9 +84,12 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
 
     @Override
     public UserDto create(UserRequest req) {
+        if (userRepository.existsByUserNameIgnoreCase(req.getUserName())) {
+            throw new RuntimeException("Username already exists");
+        }
         // Lấy role STAFF
-        Role role = roleRepository.findByName("STAFF")
-                .orElseThrow(() -> new RuntimeException("Role STAFF not found"));
+        Role role = roleRepository.findById(req.getRoleId())
+                .orElseThrow(() -> new RuntimeException("Role  not found"));
 
         User user = new User();
         user.setFullName(req.getFullName());
@@ -82,7 +97,6 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
         user.setPassword(req.getPassword()); //
         user.setEmail(req.getEmail());
         user.setPhoneNumber(req.getPhoneNumber());
-        user.setImageUrl(req.getImageUrl());
         user.setBranchId(req.getBranchId());
         user.setRole(role);
 
@@ -95,10 +109,18 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Staff not found"));
 
+        // ❗ Validate username nếu đổi
+        if (!user.getUserName().equalsIgnoreCase(req.getUserName())
+                && userRepository.existsByUserNameIgnoreCase(req.getUserName())) {
+            throw new RuntimeException("Username already exists");
+        }
+
+        // ❗ Không cho sửa branchId
+        req.setBranchId(user.getBranchId());
         user.setFullName(req.getFullName());
+        user.setUserName(req.getUserName());
         user.setEmail(req.getEmail());
         user.setPhoneNumber(req.getPhoneNumber());
-        user.setImageUrl(req.getImageUrl());
 
         userRepository.save(user);
         return toDto(user);
@@ -110,10 +132,32 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
     }
 
     @Override
+    public void restore(Long id) {
+        userRepository.restoreById(id);
+    }
+
+    @Override
     public User findByUserName(String username) {
         return repository.findByUserNameIgnoreCase(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
+
+    @Override
+    public void updateProfile(Long id, ProfileVM profileVM) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setFullName(profileVM.fullName());
+//        user.setEmail(profileVM.email());
+        user.setPhoneNumber(profileVM.phone());
+        if (profileVM.password() != null && !profileVM.password().isBlank()) {
+            if (!profileVM.password().equals(profileVM.confirmPassword())) {
+                throw new IllegalArgumentException("Mật khẩu xác nhận không khớp");
+            }
+            user.setPassword(passwordEncoder.encode(profileVM.password()));
+        }
+        userRepository.save(user);
+    }
+
 
 
     private UserDto toDto(User u) {
@@ -125,7 +169,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
                 .phoneNumber(u.getPhoneNumber())
                 .roleName(u.getRole().getName())
                 .branchId(u.getBranchId())
-                .imageUrl(u.getImageUrl())
+                .deleted(u.isDeleted())
                 .build();
     }
 }

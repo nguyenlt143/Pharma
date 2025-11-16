@@ -2,19 +2,19 @@ package vn.edu.fpt.pharma.service.impl;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.edu.fpt.pharma.constant.WorkType;
 import vn.edu.fpt.pharma.dto.manager.ShiftWorkAssignRequest;
 import vn.edu.fpt.pharma.dto.manager.ShiftWorkResponse;
 import vn.edu.fpt.pharma.entity.Shift;
+import vn.edu.fpt.pharma.entity.ShiftAssignment;
 import vn.edu.fpt.pharma.entity.ShiftWork;
 import vn.edu.fpt.pharma.entity.User;
+import vn.edu.fpt.pharma.repository.ShiftAssignmentRepository;
 import vn.edu.fpt.pharma.repository.ShiftRepository;
 import vn.edu.fpt.pharma.repository.ShiftWorkRepository;
 import vn.edu.fpt.pharma.repository.UserRepository;
 import vn.edu.fpt.pharma.service.ShiftWorkService;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,11 +24,14 @@ public class ShiftWorkServiceImpl implements ShiftWorkService {
 
     private final ShiftWorkRepository shiftWorkRepo;
     private final ShiftRepository shiftRepo;
+    private final ShiftAssignmentRepository assignmentRepo;
     private final UserRepository userRepo;
 
-    public ShiftWorkServiceImpl(ShiftWorkRepository shiftWorkRepo, ShiftRepository shiftRepo, UserRepository userRepo) {
+    public ShiftWorkServiceImpl(ShiftWorkRepository shiftWorkRepo, ShiftRepository shiftRepo,
+                                ShiftAssignmentRepository assignmentRepo, UserRepository userRepo) {
         this.shiftWorkRepo = shiftWorkRepo;
         this.shiftRepo = shiftRepo;
+        this.assignmentRepo = assignmentRepo;
         this.userRepo = userRepo;
     }
 
@@ -46,22 +49,25 @@ public class ShiftWorkServiceImpl implements ShiftWorkService {
         User user = userRepo.findById(req.getUserId()).orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         LocalDate date = LocalDate.parse(req.getWorkDate());
+
         // prevent duplicates
         shiftWorkRepo.findByShiftIdAndUserIdAndWorkDate(shiftId, req.getUserId(), date)
-                .ifPresent(sw -> { throw new IllegalArgumentException("User already assigned to this shift on date"); });
+                .ifPresent(_ -> { throw new IllegalArgumentException("User already assigned to this shift on date"); });
 
+        // Find or create ShiftAssignment
+        ShiftAssignment assignment = assignmentRepo.findByShiftIdAndUserId(shiftId, req.getUserId())
+                .orElseGet(() -> {
+                    ShiftAssignment newAssignment = new ShiftAssignment();
+                    newAssignment.setShift(shift);
+                    newAssignment.setUserId(user.getId());
+                    return assignmentRepo.save(newAssignment);
+                });
+
+        // Create ShiftWork
         ShiftWork sw = new ShiftWork();
-        sw.setShift(shift);
-        sw.setBranchId(shift.getBranchId());
-        sw.setUserId(user.getId());
+        sw.setAssignment(assignment);
         sw.setWorkDate(date);
 
-        // parse workType, default NOT_STARTED
-        try {
-            sw.setWorkType(req.getWorkType() == null ? WorkType.NOT_STARTED : WorkType.valueOf(req.getWorkType()));
-        } catch (Exception ex) {
-            sw.setWorkType(WorkType.NOT_STARTED);
-        }
 
         ShiftWork saved = shiftWorkRepo.save(sw);
         return toDto(saved);
@@ -73,14 +79,15 @@ public class ShiftWorkServiceImpl implements ShiftWorkService {
     }
 
     private ShiftWorkResponse toDto(ShiftWork sw) {
-        User u = userRepo.findById(sw.getUserId()).orElse(null);
+        ShiftAssignment assignment = sw.getAssignment();
+        User u = assignment != null ? userRepo.findById(assignment.getUserId()).orElse(null) : null;
         return ShiftWorkResponse.builder()
                 .id(sw.getId())
-                .userId(sw.getUserId())
+                .userId(assignment != null ? assignment.getUserId() : null)
                 .userFullName(u != null ? u.getFullName() : null)
                 .userName(u != null ? u.getUserName() : null)
                 .phoneNumber(u != null ? u.getPhoneNumber() : null)
-                .workType(sw.getWorkType() != null ? sw.getWorkType().name() : null)
+                .workType(null) // workType is no longer in ShiftWork entity
                 .createdAt(sw.getCreatedAt() != null ? sw.getCreatedAt().toString() : null)
                 .build();
     }

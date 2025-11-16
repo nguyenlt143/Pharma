@@ -21,5 +21,4 @@ public class RequestDetail extends BaseEntity<Long> {
     private RequestForm requestForm;
     private Long variant_id;
     private Long quantity;
-    private Boolean isAccepted;
 }
