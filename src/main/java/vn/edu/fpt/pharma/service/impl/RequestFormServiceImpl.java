@@ -2,6 +2,7 @@ package vn.edu.fpt.pharma.service.impl;
 
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.pharma.base.BaseServiceImpl;
+import vn.edu.fpt.pharma.constant.RequestType;
 import vn.edu.fpt.pharma.dto.requestform.RequestFormVM;
 import vn.edu.fpt.pharma.dto.warehouse.RequestList;
 import vn.edu.fpt.pharma.entity.RequestForm;
@@ -29,5 +30,29 @@ public class RequestFormServiceImpl
                 .collect(Collectors.toList());
     }
 
+    // Request List
+    @Override
+    public List<RequestList> getAllRequestForms() {
+        return repository.findAll()
+                .stream()
+                .map(RequestList::new)
+                .toList();
+    }
+
+    @Override
+    public List<RequestList> getImportRequests() {
+        return repository.findByRequestType(RequestType.IMPORT)
+                .stream()
+                .map(RequestList::new)
+                .toList();
+    }
+
+    @Override
+    public List<RequestList> getReturnRequests() {
+        return repository.findByRequestType(RequestType.RETURN)
+                .stream()
+                .map(RequestList::new)
+                .toList();
+    }
 
 }

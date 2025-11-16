@@ -10,4 +10,8 @@ import java.util.List;
 public interface RequestFormService extends BaseService<RequestForm, Long> {
     List<RequestFormVM> getRequestFormsByBranch(Long branchId);
 
+//    Request List
+    List<RequestList> getAllRequestForms();              // all
+    List<RequestList> getImportRequests();               // import
+    List<RequestList> getReturnRequests();               // return
 }
