@@ -30,6 +30,5 @@ public class InventoryMovementDetail extends BaseEntity<Long> {
     private Long quantity;
     private Double price;
     private Long receivedQuantity;
-    private Long returnQuantity;
-    private Double cost;
+    private Double snapCost;
 }

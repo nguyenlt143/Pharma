@@ -32,6 +32,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     WHERE i.created_at >= :fromDate
       AND i.created_at < :toDate
       AND i.branch_id = :branchId
+      AND i.invoice_type = 'PAID'
     GROUP BY DATE(i.created_at)
     ORDER BY DATE(i.created_at)
 """, nativeQuery = true)
@@ -45,14 +46,18 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     SELECT new vn.edu.fpt.pharma.dto.manager.KpiData(
     CAST(COALESCE(SUM(i.totalPrice), 0) AS double),
     CAST(COALESCE(COUNT(DISTINCT i.id), 0) AS long),
-    CAST(COALESCE(SUM((id.price - id.costPrice) * id.quantity), 0) AS double)
+    CAST(COALESCE(SUM((COALESCE(id.price,0) - COALESCE(id.costPrice,0)) * COALESCE(id.quantity,0)), 0) AS double)
             )
     FROM Invoice i
     LEFT JOIN i.details id
+    LEFT JOIN vn.edu.fpt.pharma.entity.ShiftWork sw ON sw.id = i.shiftWorkId
+    LEFT JOIN sw.assignment sa
+    LEFT JOIN sa.shift s
     WHERE i.createdAt >= :fromDate
     AND i.createdAt < :toDate
     AND i.branchId = :branchId
-    AND (:shiftId IS NULL OR i.shiftWorkId = :shiftId)
+    AND i.invoiceType = vn.edu.fpt.pharma.constant.InvoiceType.PAID
+    AND (:shiftId IS NULL OR s.id = :shiftId)
     AND (:employeeId IS NULL OR i.userId = :employeeId)
 """)
     KpiData sumRevenue(
@@ -69,7 +74,6 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
 
 
     // top 5 item ????
-
     @Query("""
     SELECT new vn.edu.fpt.pharma.dto.manager.TopProductItem(
         c.name, SUM(id.quantity)
@@ -79,10 +83,14 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     JOIN id.variant mv
     JOIN mv.medicine m
     JOIN m.category c
+    LEFT JOIN vn.edu.fpt.pharma.entity.ShiftWork sw ON sw.id = i.shiftWorkId
+    LEFT JOIN sw.assignment sa
+    LEFT JOIN sa.shift s
     WHERE i.createdAt >= :fromDate
       AND i.createdAt < :toDate
       AND i.branchId = :branchId
-      AND (:shiftId IS NULL OR i.shiftWorkId = :shiftId)
+      AND i.invoiceType = vn.edu.fpt.pharma.constant.InvoiceType.PAID
+      AND (:shiftId IS NULL OR s.id = :shiftId)
       AND (:employeeId IS NULL OR i.userId = :employeeId)
     GROUP BY c.id, c.name
     ORDER BY SUM(id.quantity) DESC
@@ -97,25 +105,29 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     );
 
     @Query("""
-    SELECT 
+    SELECT
       i.createdAt AS createdAt,
       i.invoiceCode AS invoiceCode,
       COALESCE(c.name, '') AS customerName,
       i.paymentMethod AS paymentMethod,
       COALESCE(i.totalPrice, 0) AS totalPrice,
-      COALESCE(SUM((d.price - d.costPrice) * d.quantity), 0) AS profit
+      COALESCE(SUM((COALESCE(d.price,0) - COALESCE(d.costPrice,0)) * COALESCE(d.quantity,0)), 0) AS profit
     FROM Invoice i
     LEFT JOIN i.customer c
     LEFT JOIN i.details d
+    LEFT JOIN vn.edu.fpt.pharma.entity.ShiftWork sw ON sw.id = i.shiftWorkId
+    LEFT JOIN sw.assignment sa
+    LEFT JOIN sa.shift s
     WHERE i.createdAt >= :fromDate
       AND i.createdAt < :toDate
       AND i.branchId = :branchId
-      AND (:shiftId IS NULL OR i.shiftWorkId = :shiftId)
+      AND i.invoiceType = vn.edu.fpt.pharma.constant.InvoiceType.PAID
+      AND (:shiftId IS NULL OR s.id = :shiftId)
       AND (:employeeId IS NULL OR i.userId = :employeeId)
     GROUP BY i.id, i.createdAt, i.invoiceCode, c.name, i.paymentMethod, i.totalPrice
     ORDER BY i.createdAt DESC
     """)
-    List<InvoiceListItem> findInvoiceItems(
+    List<vn.edu.fpt.pharma.dto.manager.InvoiceListItem> findInvoiceItems(
             @Param("branchId") Long branchId,
             @Param("fromDate") LocalDateTime fromDate,
             @Param("toDate") LocalDateTime toDate,
@@ -190,15 +202,17 @@ SELECT new vn.edu.fpt.pharma.dto.manager.InvoiceSummary(
     COALESCE(s.name, '') AS shiftName,
     i.createdAt,
     i.totalPrice,
-    COALESCE(CAST(SUM((d.price - d.costPrice) * d.quantity) AS double), 0)
+    COALESCE(CAST(SUM((COALESCE(d.price,0) - COALESCE(d.costPrice,0)) * COALESCE(d.quantity,0)) AS double), 0)
 )
 FROM Invoice i
 LEFT JOIN i.details d
-LEFT JOIN ShiftWork sw ON i.shiftWorkId = sw.id
-LEFT JOIN Shift s ON sw.id = s.id
-LEFT JOIN User u ON i.userId = u.id
+LEFT JOIN vn.edu.fpt.pharma.entity.ShiftWork sw ON sw.id = i.shiftWorkId
+LEFT JOIN sw.assignment sa
+LEFT JOIN sa.shift s
+LEFT JOIN vn.edu.fpt.pharma.entity.User u ON i.userId = u.id
 WHERE i.createdAt BETWEEN :fromDate AND :toDate
   AND (:branchId IS NULL OR i.branchId = :branchId)
+  AND i.invoiceType = vn.edu.fpt.pharma.constant.InvoiceType.PAID
   AND (:shift IS NULL OR s.id = :shift)
   AND (:employeeId IS NULL OR u.id = :employeeId)
 GROUP BY i.id, i.invoiceCode, u.fullName, s.name, i.createdAt, i.totalPrice
@@ -210,6 +224,35 @@ ORDER BY i.createdAt DESC
             @Param("toDate") LocalDateTime toDate,
             @Param("shift") Long shift,
             @Param("employeeId") Long employeeId
+    );
+
+    @Query("""
+    SELECT c.name AS categoryName,
+           COALESCE(SUM(id.price * id.quantity),0) AS revenueValue
+    FROM Invoice i
+    JOIN i.details id
+    JOIN id.variant mv
+    JOIN mv.medicine m
+    JOIN m.category c
+    LEFT JOIN vn.edu.fpt.pharma.entity.ShiftWork sw ON sw.id = i.shiftWorkId
+    LEFT JOIN sw.assignment sa
+    LEFT JOIN sa.shift s
+    WHERE i.createdAt >= :fromDate
+      AND i.createdAt < :toDate
+      AND i.branchId = :branchId
+      AND i.invoiceType = vn.edu.fpt.pharma.constant.InvoiceType.PAID
+      AND (:shiftId IS NULL OR s.id = :shiftId)
+      AND (:employeeId IS NULL OR i.userId = :employeeId)
+    GROUP BY c.id, c.name
+    ORDER BY SUM(id.price * id.quantity) DESC
+    """)
+    List<Object[]> categoryRevenue(
+            @Param("branchId") Long branchId,
+            @Param("fromDate") LocalDateTime fromDate,
+            @Param("toDate") LocalDateTime toDate,
+            @Param("shiftId") Long shiftId,
+            @Param("employeeId") Long employeeId,
+            Pageable pageable
     );
 
 
