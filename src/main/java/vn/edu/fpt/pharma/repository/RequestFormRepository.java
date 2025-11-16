@@ -3,9 +3,11 @@ package vn.edu.fpt.pharma.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import vn.edu.fpt.pharma.constant.RequestType;
 import vn.edu.fpt.pharma.entity.RequestForm;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface RequestFormRepository extends JpaRepository<RequestForm, Long>, JpaSpecificationExecutor<RequestForm> {
@@ -26,6 +28,21 @@ public interface RequestFormRepository extends JpaRepository<RequestForm, Long>,
         """, nativeQuery = true)
     List<RequestForm> findRequestFormsByBranch(Long branchId);
 
-     List<RequestForm> findByRequestType(RequestType requestType);
+
+    @Query(value = """
+        SELECT * FROM request_forms 
+        WHERE branch_id = :branchId
+          AND (:id IS NULL OR id = :id)
+          AND (:createdAt IS NULL OR DATE(created_at) = :createdAt)
+        ORDER BY created_at DESC
+    """, nativeQuery = true)
+        List<RequestForm> searchRequestForms(@Param("branchId") Long branchId,
+                                             @Param("id") Long id,
+                                             @Param("createdAt") LocalDate createdAt);
+
+
+    List<RequestForm> findAllByBranchId(Long branchId);
+
+    List<RequestForm> findByRequestType(RequestType requestType);
     // IMPORT / RETURN
 }

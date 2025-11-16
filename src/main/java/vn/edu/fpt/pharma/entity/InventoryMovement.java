@@ -31,7 +31,5 @@ public class InventoryMovement extends BaseEntity<Long> {
     private RequestForm requestForm;
     @Enumerated(EnumType.STRING)
     private MovementStatus movementStatus;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "approved_by_id")
-    private User approvedBy;
+    private Double totalMoney;
 }

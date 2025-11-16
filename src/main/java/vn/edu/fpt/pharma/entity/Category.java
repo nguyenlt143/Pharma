@@ -22,11 +22,4 @@ public class Category extends BaseEntity<Long> {
     @Column(unique = true, nullable = false)
     private String name;
     private String description;
-    @ManyToOne
-    @JoinColumn(name = "parent_id")
-    private Category parent;
-
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<Category> children = new ArrayList<>();
 }
