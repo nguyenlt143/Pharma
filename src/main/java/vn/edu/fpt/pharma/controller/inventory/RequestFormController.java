@@ -1,4 +1,4 @@
-package vn.edu.fpt.pharma.controller.branchInventory;
+package vn.edu.fpt.pharma.controller.inventory;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
