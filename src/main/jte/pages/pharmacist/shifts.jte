@@ -39,20 +39,33 @@
                     dataSrc: 'data'
                 },
                 columns: [
-                    {data: 'period', title: 'Thời gian'},
-                     {data: 'totalRevenue', title: 'Tổng số đơn'}
-                    {data: 'totalRevenue', title: 'Tiền mặt'}
-                    {data: 'totalInvoice', title: 'Chuyển khoản'},
-                    {data: 'totalRevenue', title: 'Doanh thu'}
+                    { data: 'shiftName', title: 'Ca làm việc' },
+                    { data: 'orderCount', title: 'Tổng số đơn' },
+                    { data: 'cashTotal', title: 'Tiền mặt', render: $.fn.dataTable.render.number(',', '.', 0, '') },
+                    { data: 'transferTotal', title: 'Chuyển khoản', render: $.fn.dataTable.render.number(',', '.', 0, '') },
+                    { data: 'totalRevenue', title: 'Doanh thu', render: $.fn.dataTable.render.number(',', '.', 0, '') }
                 ],
                 paging: true,
                 searching: true,
                 ordering: true,
-                pageLength: 5,
+                pageLength: 2,
                 scrollCollapse: true,
                 scrollY: '65vh',
-                order: [[0, "asc"]]
+                order: [[0, 'asc']],
+                language: {
+                    search: "Tìm kiếm:",
+                    lengthMenu: "Hiển thị _MENU_ dòng",
+                    info: "Hiển thị _START_ đến _END_ trong tổng _TOTAL_ kết quả",
+                    paginate: {
+                        first: "Đầu",
+                        last: "Cuối",
+                        next: "Sau",
+                        previous: "Trước"
+                    },
+                    processing: "Đang tải dữ liệu..."
+                }
             });
         });
+
     </script>
 `)

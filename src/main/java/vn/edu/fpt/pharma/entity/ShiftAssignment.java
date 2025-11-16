@@ -1,6 +1,8 @@
 package vn.edu.fpt.pharma.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
@@ -8,20 +10,19 @@ import org.hibernate.annotations.SQLRestriction;
 import vn.edu.fpt.pharma.base.BaseEntity;
 
 @Entity
-@Table(name = "stores")
+@Table(name = "shift_assignments")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@SQLDelete(sql = "UPDATE stores SET deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE shift_assignments SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
-public class Store extends BaseEntity<Long> {
-    private String storeCode;
-    private String storeName;
-    private String address;
-    private String addressCode;
-    private String phoneNumber;
-    private Double latitude;
-    private Double longitude;
+public class ShiftAssignment extends BaseEntity<Long> {
+
+    private Long userId;
+    @ManyToOne
+    @JoinColumn(name = "shift_id")
+    private Shift shift;
+
 }

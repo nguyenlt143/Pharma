@@ -49,7 +49,19 @@
                 pageLength: 5,
                 scrollCollapse: true,
                 scrollY: '65vh',
-                order: [[0, "asc"]]
+                order: [[0, "asc"]],
+                language: {
+                    search: "Tìm kiếm:",
+                    lengthMenu: "Hiển thị _MENU_ dòng",
+                    info: "Hiển thị _START_ đến _END_ trong tổng _TOTAL_ kết quả",
+                    paginate: {
+                        first: "Đầu",
+                        last: "Cuối",
+                        next: "Sau",
+                        previous: "Trước"
+                    },
+                    processing: "Đang tải dữ liệu..."
+                }
             });
         });
     </script>

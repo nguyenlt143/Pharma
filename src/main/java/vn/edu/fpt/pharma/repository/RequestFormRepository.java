@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import vn.edu.fpt.pharma.constant.RequestType;
 import vn.edu.fpt.pharma.entity.RequestForm;
 
 import java.time.LocalDate;
@@ -41,4 +42,6 @@ public interface RequestFormRepository extends JpaRepository<RequestForm, Long>,
 
     List<RequestForm> findAllByBranchId(Long branchId);
 
+    List<RequestForm> findByRequestType(RequestType requestType);
+    // IMPORT / RETURN
 }

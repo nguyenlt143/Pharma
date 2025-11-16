@@ -43,7 +43,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/pharmacist/invoice" class="nav-link">
+                    <a href="/pharmacist/invoices" class="nav-link">
                         <span class="nav-icon material-icons">receipt_long</span>
                         <span class="nav-text">Quản lý danh sách đơn thuốc</span>
                     </a>

@@ -1,5 +1,5 @@
 @template.layouts.pharmacist(
-    headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/pos.css">`,
+headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/pos.css">`,
     content = @`
         <section class="search-section">
             <div class="search-container">

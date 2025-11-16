@@ -1,38 +1,13 @@
-/ Warehouse Management System JavaScript
-
+// Warehouse Management System JavaScript
 class WarehouseManager {
     constructor() {
-        this.products = [
-            {
-                id: 1,
-                name: 'Kaceni',
-                unit: 'Viên',
-                dosage: '500mg',
-                batchNumber: '123',
-                manufacturingDate: '10/10/2025',
-                expiryDate: '10/10/2026',
-                quantity: '1,000',
-                price: '100,000'
-            },
-            {
-                id: 2,
-                name: 'Panadol',
-                unit: 'Viên',
-                dosage: '500mg',
-                batchNumber: '69696',
-                manufacturingDate: '10/10/2025',
-                expiryDate: '10/10/2025',
-                quantity: '1,000',
-                price: '100,000'
-            }
-        ];
-
         this.init();
     }
 
     init() {
         this.bindEvents();
         this.setCurrentDateTime();
+        this.renderTableFromBackend();
     }
 
     bindEvents() {
@@ -48,31 +23,19 @@ class WarehouseManager {
             addButton.addEventListener('click', () => this.handleAddProduct());
         }
 
-        // Delete buttons
+        // Delete buttons (event delegation)
         document.addEventListener('click', (e) => {
             if (e.target.closest('.delete-button')) {
                 this.handleDeleteProduct(e.target.closest('tr'));
             }
         });
 
-        // Form inputs
-        const quantityInputs = document.querySelectorAll('.table-input:not(.disabled)');
-        quantityInputs.forEach(input => {
-            input.addEventListener('input', (e) => this.formatNumber(e.target));
-            input.addEventListener('blur', (e) => this.validateInput(e.target));
-        });
-
         // Action buttons
         const saveButton = document.querySelector('.btn-secondary');
         const completeButton = document.querySelector('.btn-primary');
 
-        if (saveButton) {
-            saveButton.addEventListener('click', () => this.handleSaveDraft());
-        }
-
-        if (completeButton) {
-            completeButton.addEventListener('click', () => this.handleComplete());
-        }
+        if (saveButton) saveButton.addEventListener('click', () => this.handleSaveDraft());
+        if (completeButton) completeButton.addEventListener('click', () => this.handleComplete());
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
@@ -87,7 +50,7 @@ class WarehouseManager {
             const day = String(now.getDate()).padStart(2, '0');
             const month = String(now.getMonth() + 1).padStart(2, '0');
             const year = now.getFullYear();
-            dateInput.value = `${day}/${month}/${year}`;
+            dateInput.value = `${year}-${month}-${day}`; // format YYYY-MM-DD
         }
 
         if (timeInput && !timeInput.value) {
@@ -97,29 +60,56 @@ class WarehouseManager {
         }
     }
 
+    renderTableFromBackend() {
+        // Lấy dữ liệu từ JTE serialize sang JSON
+        const inventoryDetails = window.inventoryDetails || [];
+        const tbody = document.getElementById('productTableBody');
+        tbody.innerHTML = '';
+
+        if (inventoryDetails.length > 0) {
+            inventoryDetails.forEach((d, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${d.medicineName || ""}</td>
+                    <td>${d.unit || ""}</td>
+                    <td>${d.strength || ""}</td>
+                    <td><input type="text" class="table-input disabled" value="${d.batchCode || ""}" disabled></td>
+                    <td><input type="text" class="table-input disabled" value="${d.mfgDate || ""}" disabled></td>
+                    <td><input type="text" class="table-input disabled" value="${d.expiryDate || ""}" disabled></td>
+                    <td><input type="number" class="table-input" value="${d.quantity || 0}"></td>
+                    <td><input type="number" class="table-input" value="${d.price || 0}"></td>
+                    <td><button class="delete-button"><span class="material-icons">delete</span></button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            const tr = document.createElement('tr');
+            tr.innerHTML = '<td colspan="10" style="text-align:center; color:#999;">Chưa có thuốc nào trong phiếu nhập</td>';
+            tbody.appendChild(tr);
+        }
+    }
+
     handleSearch(query) {
         console.log('Searching for:', query);
-        // Implement search functionality here
-        // This would typically filter products or make an API call
+        // TODO: filter table rows based on search query
     }
 
     handleAddProduct() {
-        const searchValue = document.querySelector('.search-input').value;
-        if (!searchValue.trim()) {
+        const searchValue = document.querySelector('.search-input').value.trim();
+        if (!searchValue) {
             alert('Vui lòng nhập tên thuốc để tìm kiếm');
             return;
         }
 
         console.log('Adding product:', searchValue);
-        // Implement add product functionality here
-        // This would typically open a modal or add a new row to the table
+        // TODO: add new row dynamically or open modal to select product
     }
 
     handleDeleteProduct(row) {
         if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
             row.remove();
             this.updateRowNumbers();
-            console.log('Product deleted');
         }
     }
 
@@ -127,55 +117,36 @@ class WarehouseManager {
         const rows = document.querySelectorAll('.product-table tbody tr');
         rows.forEach((row, index) => {
             const numberCell = row.querySelector('td:first-child');
-            if (numberCell) {
-                numberCell.textContent = index + 1;
-            }
+            if (numberCell) numberCell.textContent = index + 1;
         });
-    }
-
-    formatNumber(input) {
-        let value = input.value.replace(/[^\d]/g, '');
-        if (value) {
-            value = parseInt(value).toLocaleString('vi-VN');
-            input.value = value;
-        }
-    }
-
-    validateInput(input) {
-        if (!input.value.trim()) {
-            input.style.borderColor = '#EF4444';
-            return false;
-        }
-        input.style.borderColor = '#E5E7EB';
-        return true;
     }
 
     handleSaveDraft() {
         if (this.validateForm()) {
             console.log('Saving draft...');
-            alert('Đã lưu nháp thành công!');
-            // Implement save draft functionality here
+            showNotification('Đã lưu nháp thành công!', 'success');
+            // TODO: call backend API to save draft
         }
     }
 
     handleComplete() {
         if (this.validateForm()) {
             console.log('Completing import...');
-            alert('Hoàn thành nhập kho thành công!');
-            // Implement complete functionality here
+            showNotification('Hoàn thành nhập kho thành công!', 'success');
+            // TODO: call backend API to complete
         }
     }
 
     validateForm() {
         const requiredFields = [
             document.getElementById('supplier'),
-            document.getElementById('import-date'),
-            document.getElementById('import-time')
+            document.getElementById('import-date')
+            // Add time input if exists
         ];
 
         let isValid = true;
         requiredFields.forEach(field => {
-            if (!field.value.trim()) {
+            if (!field || !field.value.trim()) {
                 field.style.borderColor = '#EF4444';
                 isValid = false;
             } else {
@@ -184,52 +155,44 @@ class WarehouseManager {
         });
 
         if (!isValid) {
-            alert('Vui lòng điền đầy đủ thông tin bắt buộc!');
+            showNotification('Vui lòng điền đầy đủ thông tin bắt buộc!', 'error');
         }
 
         return isValid;
     }
 
     handleKeyboardShortcuts(e) {
-        // F4 - Focus supplier input
-        if (e.key === 'F4') {
-            e.preventDefault();
-            document.getElementById('supplier').focus();
-        }
-
-        // F7 - Add product
-        if (e.key === 'F7') {
-            e.preventDefault();
-            this.handleAddProduct();
-        }
-
-        // F8 - Save draft
-        if (e.key === 'F8') {
-            e.preventDefault();
-            this.handleSaveDraft();
-        }
-
-        // F9 - Complete
-        if (e.key === 'F9') {
-            e.preventDefault();
-            this.handleComplete();
+        switch (e.key) {
+            case 'F4':
+                e.preventDefault();
+                document.getElementById('supplier').focus();
+                break;
+            case 'F7':
+                e.preventDefault();
+                this.handleAddProduct();
+                break;
+            case 'F8':
+                e.preventDefault();
+                this.handleSaveDraft();
+                break;
+            case 'F9':
+                e.preventDefault();
+                this.handleComplete();
+                break;
         }
     }
 }
 
-// Initialize the application when DOM is loaded
+// Initialize when DOM loaded
 document.addEventListener('DOMContentLoaded', () => {
     new WarehouseManager();
 });
 
-// Utility functions
+// Utility: notification
 function showNotification(message, type = 'info') {
-    // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.textContent = message;
-
-    // Style the notification
     Object.assign(notification.style, {
         position: 'fixed',
         top: '20px',
@@ -243,7 +206,6 @@ function showNotification(message, type = 'info') {
         transition: 'transform 0.3s ease'
     });
 
-    // Set background color based on type
     const colors = {
         info: '#4361EE',
         success: '#10B981',
@@ -252,22 +214,10 @@ function showNotification(message, type = 'info') {
     };
     notification.style.backgroundColor = colors[type] || colors.info;
 
-    // Add to DOM and animate in
     document.body.appendChild(notification);
-    setTimeout(() => {
-        notification.style.transform = 'translateX(0)';
-    }, 100);
-
-    // Remove after 3 seconds
+    setTimeout(() => notification.style.transform = 'translateX(0)', 100);
     setTimeout(() => {
         notification.style.transform = 'translateX(100%)';
-        setTimeout(() => {
-            document.body.removeChild(notification);
-        }, 300);
+        setTimeout(() => document.body.removeChild(notification), 300);
     }, 3000);
-}
-
-// Export for potential module usage
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = WarehouseManager;
 }
