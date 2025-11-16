@@ -1,4 +1,4 @@
-package vn.edu.fpt.pharma.controller.branchInventory;
+package vn.edu.fpt.pharma.controller.inventory;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
