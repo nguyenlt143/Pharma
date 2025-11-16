@@ -8,9 +8,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import vn.edu.fpt.pharma.config.CustomUserDetails;
+import vn.edu.fpt.pharma.dto.inventorycheck.InventoryCheckHistoryVM;
+import vn.edu.fpt.pharma.dto.inventorycheck.StockAdjustmentDetailVM;
 import vn.edu.fpt.pharma.dto.requestform.RequestFormVM;
 import vn.edu.fpt.pharma.service.DashboardService;
 import vn.edu.fpt.pharma.service.RequestFormService;
+import vn.edu.fpt.pharma.service.StockAdjustmentService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,6 +25,7 @@ public class InventoryController {
 
     private final DashboardService dashboardService;
     private final RequestFormService requestFormService;
+    private final StockAdjustmentService stockAdjustmentService;
 
     // -------------------- DASHBOARD --------------------
     @GetMapping("/dashboard")
@@ -67,8 +71,34 @@ public class InventoryController {
 
     // -------------------- CHECK INVENTORY --------------------
     @GetMapping("/check")
-    public String checkList() {
+    public String checkList(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            Model model
+    ) {
+        Long branchId = userDetails.getUser().getBranchId();
+
+        List<InventoryCheckHistoryVM> inventoryChecks = stockAdjustmentService.getInventoryCheckHistory(branchId);
+
+        model.addAttribute("inventoryChecks", inventoryChecks);
+        model.addAttribute("branchName", "Kho chi nhánh " + branchId);
+
         return "pages/inventory/check_list";
+    }
+
+    @GetMapping("/check/detail")
+    public String checkDetail(
+            @RequestParam String checkDate,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            Model model
+    ) {
+        Long branchId = userDetails.getUser().getBranchId();
+
+        List<StockAdjustmentDetailVM> details = stockAdjustmentService.getInventoryCheckDetails(branchId, checkDate);
+
+        model.addAttribute("checkDate", checkDate);
+        model.addAttribute("details", details);
+
+        return "pages/inventory/check_detail";
     }
 
     // -------------------- CHECK INVENTORY --------------------
