@@ -92,7 +92,7 @@
 
             <div class="bg-white shadow-md rounded-lg p-6 flex items-center justify-between">
                 <div>
-                    <p class="text-gray-500">Thuốc sắp hết hạn</p>
+                    <p class="text-gray-500">Thuốc sắp - đã hết hạn</p>
                     <p class="text-3xl font-bold text-red-600">${nearlyExpiredCount}</p>
                 </div>
                 <span class="material-icons-outlined text-red-500 text-4xl">warning</span>
