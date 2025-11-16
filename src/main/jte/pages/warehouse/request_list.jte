@@ -81,38 +81,44 @@ content = @`
                 <table class="data-table">
                     <thead>
                     <tr class="table-header">
-                        <th class="table-cell header-cell">Chi Nhánh</th>
-                        <th class="table-cell header-cell">Ngày tạo</th>
-                        <th class="table-cell header-cell">Loại Yêu Cầu</th>
-                        <th class="table-cell header-cell">Trạng Thái</th>
-                        <th class="table-cell header-cell"></th>
+                        <th>Chi Nhánh</th>
+                        <th>Ngày tạo</th>
+                        <th>Loại Yêu Cầu</th>
+                        <th>Trạng Thái</th>
+                        <th></th>
                     </tr>
                     </thead>
                     <tbody>
                     @for(RequestList request : requests)
-                        <tr class="table-row">
-                            <td class="table-cell data-cell">${request.branchId()}</td>
-                            <td class="table-cell data-cell date-cell">${request.createdAt()}</td>
-                            <td class="table-cell data-cell type-cell">${request.requestType()}</td>
-                            <td class="table-cell data-cell">
-                                @if(request.requestStatus().equals("REQUESTED"))
-                                    <div class="status-button pending">Đang duyệt</div>
-                                     @elseif(request.requestStatus().equals("CONFIRMED"))
-                                    <div class="status-button approved">Chấp nhận</div>
-                                     @elseif(request.requestStatus().equals("CANCELLED"))
-                                    <div class="status-button rejected">Từ chối</div>
-                                     @else
-                                <div class="status-button">Không xác định</div>
-
+                        <tr>
+                            <td>${request.branchId()}</td>
+                            <td>${request.createdAt()}</td>
+                            <td>
+                                @if(request.requestType().equals("IMPORT"))
+                                    Nhập hàng
+                                @elseif(request.requestType().equals("RETURN"))
+                                    Trả hàng
+                                @else
+                                    Không xác định
                                 @endif
                             </td>
-                            <td class="table-cell data-cell">
+                            <td>
+                                @if(request.requestStatus().equals("REQUESTED"))
+                                    <div class="status-button pending">Đang duyệt</div>
+                                @elseif(request.requestStatus().equals("CONFIRMED"))
+                                    <div class="status-button approved">Chấp nhận</div>
+                                @elseif(request.requestStatus().equals("CANCELLED"))
+                                    <div class="status-button rejected">Từ chối</div>
+                                @else
+                                    <div class="status-button undefined">Không xác định</div>
+                                @endif
+                            </td>
+                            <td>
                                 <a href="/warehouse/request/detail?id=${request.id()}" class="detail-link">Xem Chi Tiết</a>
                             </td>
                         </tr>
                     @endfor
                     </tbody>
-
                 </table>
             </div>
         </section>
