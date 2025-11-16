@@ -12,7 +12,7 @@ public record InventoryMovementVM(
         String destinationBranch,
         Long requestFormCode,
         String movementStatus,
-        String approvedByName,
+        Double totalMoney,
         String createdAt
 ) {
     public InventoryMovementVM(InventoryMovement entity) {
@@ -24,7 +24,7 @@ public record InventoryMovementVM(
                 entity.getDestinationBranchId() != null ? "CN#" + entity.getDestinationBranchId() : "N/A",
                 entity.getRequestForm() != null ? entity.getRequestForm().getId() :null,
                 entity.getMovementStatus() != null ? entity.getMovementStatus().name() : "N/A",
-                entity.getApprovedBy() != null ? entity.getApprovedBy().getFullName() : "Chưa duyệt",
+                entity.getTotalMoney() != null ? entity.getTotalMoney() : 0,
                 entity.getCreatedAt() != null
                         ? entity.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
                         : ""

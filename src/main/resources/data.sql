@@ -106,27 +106,27 @@ VALUES
     (16, 5, NOW(), FALSE), -- pharmacist1dn
     (17, 5, NOW(), FALSE), -- pharmacist2dn
     (18, 6, NOW(), FALSE);
--- pharmacist3dn
 
--- Hà Nội
 INSERT INTO shift_works (assignment_id, work_date, created_at, deleted)
-VALUES (1, '2025-11-16', NOW(), FALSE),
-       (1, '2025-11-17', NOW(), FALSE),
-       (1, '2025-11-18', NOW(), FALSE),
-       (2, '2025-11-16', NOW(), FALSE),
-       (2, '2025-11-17', NOW(), FALSE),
-       (2, '2025-11-18', NOW(), FALSE),
-       (3, '2025-11-16', NOW(), FALSE),
-       (3, '2025-11-17', NOW(), FALSE),
-       (3, '2025-11-18', NOW(), FALSE),
+VALUES
+-- Hà Nội
+(1, DATE_SUB(NOW(), INTERVAL 2 DAY),  NOW(), FALSE),
+(2, DATE_SUB(NOW(), INTERVAL 2 DAY),  NOW(), FALSE),
+(3, DATE_SUB(NOW(), INTERVAL 2 DAY),  NOW(), FALSE),
+(1, DATE_SUB(NOW(), INTERVAL 1 DAY),  NOW(), FALSE),
+(2, DATE_SUB(NOW(), INTERVAL 1 DAY),  NOW(), FALSE),
+(3, DATE_SUB(NOW(), INTERVAL 1 DAY),  NOW(), FALSE),
+(1, NOW(),                            NOW(), FALSE),
+(2, NOW(),                            NOW(), FALSE),
+(3, NOW(),                            NOW(), FALSE),
 -- TP.HCM
-       (4, '2025-11-16', NOW(), FALSE),
-       (5, '2025-11-16', NOW(), FALSE),
-       (6, '2025-11-16', NOW(), FALSE),
--- TP DN
-       (7, '2025-11-16', NOW(), FALSE),
-       (8, '2025-11-16', NOW(), FALSE),
-       (9, '2025-11-16', NOW(), FALSE);
+(4, NOW(),                           NOW(), FALSE),
+(5, NOW(),                           NOW(), FALSE),
+(6, NOW(),                           NOW(), FALSE),
+-- TP. Đà Nẵng
+(7, NOW(),                           NOW(), FALSE),
+(8, NOW(),                           NOW(), FALSE),
+(9, NOW(),                           NOW(), FALSE);
 
 INSERT INTO units (name, description, created_at, deleted)
 VALUES ('Viên', 'Dạng đơn vị thuốc nhỏ nhất, thường dùng cho thuốc viên nén hoặc viên nang', NOW(), FALSE),
@@ -523,220 +523,208 @@ VALUES
 (10, 12, 40, FALSE);
 
 -- =========================================================
--- 3) SUP_TO_WARE (Kho tổng nhập từ Supplier): 10 movements
---    Movement rows may be for HQ (destination NULL means HQ)
--- =========================================================
+-- 1) SUP_TO_WARE (Supplier -> Warehouse)
+-- ==============================
 INSERT INTO inventory_movements
-(movement_type, supplier_id, source_branch_id, destination_branch_id, request_form_id, approved_by_id, movement_status,
- created_at, deleted)
-VALUES ('SUP_TO_WARE', 1, NULL, NULL, NULL, 1, 'RECEIVED', NOW(), FALSE),
-       ('SUP_TO_WARE', 2, NULL, NULL, NULL, 1, 'RECEIVED', NOW(), FALSE),
-       ('SUP_TO_WARE', 1, NULL, NULL, NULL, 2, 'RECEIVED', NOW(), FALSE),
-       ('SUP_TO_WARE', 3, NULL, NULL, NULL, 3, 'RECEIVED', NOW(), FALSE),
-       ('SUP_TO_WARE', 1, NULL, NULL, NULL, 4, 'RECEIVED', NOW(), FALSE),
-       ('SUP_TO_WARE', 2, NULL, NULL, NULL, 5, 'RECEIVED', NOW(), FALSE),
-       ('SUP_TO_WARE', 3, NULL, NULL, NULL, 6, 'RECEIVED', NOW(), FALSE),
-       ('SUP_TO_WARE', 1, NULL, NULL, NULL, 7, 'RECEIVED', NOW(), FALSE),
-       ('SUP_TO_WARE', 2, NULL, NULL, NULL, 8, 'RECEIVED', NOW(), FALSE),
-       ('SUP_TO_WARE', 3, NULL, NULL, NULL, 8, 'RECEIVED', NOW(), FALSE);
+(movement_type, supplier_id, source_branch_id, destination_branch_id, request_form_id, total_money, movement_status, created_at, deleted)
+VALUES
+    ('SUP_TO_WARE', 1, NULL, 1, NULL, 126000000, 'RECEIVED', NOW(), FALSE),
+    ('SUP_TO_WARE', 2, NULL, 1, NULL, 111600000, 'RECEIVED', NOW(), FALSE),
+    ('SUP_TO_WARE', 1, NULL, 1, NULL, 261000000, 'RECEIVED', NOW(), FALSE),
+    ('SUP_TO_WARE', 3, NULL, 1, NULL, 142000000, 'RECEIVED', NOW(), FALSE),
+    ('SUP_TO_WARE', 1, NULL, 1, NULL, 48500000,  'RECEIVED', NOW(), FALSE),
+    ('SUP_TO_WARE', 2, NULL, 1, NULL, 98700000,  'RECEIVED', NOW(), FALSE),
+    ('SUP_TO_WARE', 3, NULL, 1, NULL, 95400000,  'RECEIVED', NOW(), FALSE),
+    ('SUP_TO_WARE', 1, NULL, 1, NULL, 62440000,  'RECEIVED', NOW(), FALSE),
+    ('SUP_TO_WARE', 2, NULL, 1, NULL, 69000000,  'RECEIVED', NOW(), FALSE),
+    ('SUP_TO_WARE', 3, NULL, 1, NULL, 24750000,  'RECEIVED', NOW(), FALSE);
 
--- movement_id 1..10
-
--- movement_details for SUP_TO_WARE: each movement 2-3 variant (batch_id = variant_id)
 INSERT INTO inventory_movement_details
-(movement_id, variant_id, batch_id, quantity, price, received_quantity, return_quantity, cost, created_at, deleted)
+(movement_id, variant_id, batch_id, quantity, price, snap_cost, created_at, deleted)
 VALUES
 -- movement 1
-(1, 1, 1, 2000, 21000, 2000, 0, 42000000, NOW(), FALSE),
-(1, 4, 4, 1000, 84000, 1000, 0, 84000000, NOW(), FALSE),
+(1, 1, 1, 2000, 21000, 21000, NOW(), FALSE),
+(1, 4, 4, 1000, 84000, 84000, NOW(), FALSE),
 -- movement 2
-(2, 2, 2, 1500, 16800, 1500, 0, 25200000, NOW(), FALSE),
-(2, 3, 3, 1200, 72000, 1200, 0, 86400000, NOW(), FALSE),
+(2, 2, 2, 1500, 16800, 16800, NOW(), FALSE),
+(2, 3, 3, 1200, 72000, 72000, NOW(), FALSE),
 -- movement 3
-(3, 5, 5, 1800, 111000, 1800, 0, 199800000, NOW(), FALSE),
-(3, 6, 6, 1200, 51000, 1200, 0, 61200000, NOW(), FALSE),
+(3, 5, 5, 1800, 111000, 111000, NOW(), FALSE),
+(3, 6, 6, 1200, 51000, 51000, NOW(), FALSE),
 -- movement 4
-(4, 7, 7, 1000, 104000, 1000, 0, 104000000, NOW(), FALSE),
-(4, 8, 8, 800, 155000, 800, 0, 124000000, NOW(), FALSE),
+(4, 7, 7, 1000, 70000, 70000, NOW(), FALSE),
+(4, 8, 8, 800, 90000, 90000, NOW(), FALSE),
 -- movement 5
-(5, 9, 9, 600, 60000, 600, 0, 36000000, NOW(), FALSE),
-(5, 10, 10, 500, 30000, 500, 0, 15000000, NOW(), FALSE),
+(5, 9, 9, 600, 60000, 60000, NOW(), FALSE),
+(5, 10, 10, 500, 25000, 25000, NOW(), FALSE),
 -- movement 6
-(6, 1, 1, 1000, 21000, 1000, 0, 21000000, NOW(), FALSE),
-(6, 5, 5, 700, 111000, 700, 0, 77700000, NOW(), FALSE),
+(6, 1, 1, 1000, 21000, 21000, NOW(), FALSE),
+(6, 5, 5, 700, 111000, 111000, NOW(), FALSE),
 -- movement 7
-(7, 3, 3, 900, 72000, 900, 0, 64800000, NOW(), FALSE),
-(7, 6, 6, 600, 51000, 600, 0, 30600000, NOW(), FALSE),
+(7, 3, 3, 900, 72000, 72000, NOW(), FALSE),
+(7, 6, 6, 600, 51000, 51000, NOW(), FALSE),
 -- movement 8
-(8, 2, 2, 800, 16800, 800, 0, 13440000, NOW(), FALSE),
-(8, 7, 7, 700, 104000, 700, 0, 72800000, NOW(), FALSE),
+(8, 2, 2, 800, 16800, 16800, NOW(), FALSE),
+(8, 7, 7, 700, 70000, 70000, NOW(), FALSE),
 -- movement 9
-(9, 4, 4, 500, 84000, 500, 0, 42000000, NOW(), FALSE),
-(9, 8, 8, 300, 155000, 300, 0, 46500000, NOW(), FALSE),
+(9, 4, 4, 500, 84000, 84000, NOW(), FALSE),
+(9, 8, 8, 300, 90000, 90000, NOW(), FALSE),
 -- movement 10
-(10, 9, 9, 400, 60000, 400, 0, 24000000, NOW(), FALSE),
-(10, 10, 10, 350, 30000, 350, 0, 10500000, NOW(), FALSE);
-
+(10, 9, 9, 400, 40000, 40000, NOW(), FALSE),
+(10, 10, 10, 350, 25000, 25000, NOW(), FALSE);
 -- =========================================================
 -- 4) WARE_TO_BR (Kho tổng -> Chi nhánh): 30 movements
 --    Some linked to request_forms (IMPORT), others as direct allocations (request_form_id = NULL)
 -- =========================================================
 -- First, create 8 WARE_TO_BR linked to 8 import requests (request_form_id 1..8)
 INSERT INTO inventory_movements
-(movement_type, supplier_id, source_branch_id, destination_branch_id, request_form_id, approved_by_id, movement_status,
+(movement_type, supplier_id, source_branch_id, destination_branch_id, request_form_id, total_money, movement_status,
  created_at, deleted)
-VALUES ('WARE_TO_BR', NULL, NULL, 3, 1, 5, 'RECEIVED', NOW(), FALSE),
-       ('WARE_TO_BR', NULL, NULL, 3, 2, 5, 'RECEIVED', NOW(), FALSE),
-       ('WARE_TO_BR', NULL, NULL, 3, 3, 5, 'RECEIVED', NOW(), FALSE),
-       ('WARE_TO_BR', NULL, NULL, 3, 4, 5, 'RECEIVED', NOW(), FALSE),
-       ('WARE_TO_BR', NULL, NULL, 3, 5, 5, 'RECEIVED', NOW(), FALSE),
-       ('WARE_TO_BR', NULL, NULL, 3, 6, 5, 'RECEIVED', NOW(), FALSE),
-       ('WARE_TO_BR', NULL, NULL, 3, 7, 5, 'RECEIVED', NOW(), FALSE),
-       ('WARE_TO_BR', NULL, NULL, 3, 8, 5, 'RECEIVED', NOW(), FALSE);
-
--- movement_ids continue from 11..18
--- Then add 22 more WARE_TO_BR as ad-hoc allocations (request_form_id = NULL)
-INSERT INTO inventory_movements (movement_type, supplier_id, source_branch_id, destination_branch_id, request_form_id,
-                                 approved_by_id, movement_status, created_at, deleted)
 VALUES
-('WARE_TO_BR', NULL, NULL, 3, NULL, 1, 'RECEIVED', NOW(), FALSE),
-('WARE_TO_BR',NULL,1,3,NULL,1,'RECEIVED',NOW(),FALSE),
-('WARE_TO_BR',NULL,1,3,NULL,1,'RECEIVED',NOW(),FALSE),
-('WARE_TO_BR',NULL,1,3,NULL,1,'RECEIVED',NOW(),FALSE),
-('WARE_TO_BR',NULL,1,3,NULL,1,'RECEIVED',NOW(),FALSE),
-('WARE_TO_BR',NULL,1,3,NULL,1,'RECEIVED',NOW(),FALSE),
-('WARE_TO_BR',NULL,1,3,NULL,1,'RECEIVED',NOW(),FALSE),
-('WARE_TO_BR',NULL,1,3,NULL,1,'RECEIVED',NOW(),FALSE),
-('WARE_TO_BR',NULL,1,3,NULL,1,'RECEIVED',NOW(),FALSE),
-('WARE_TO_BR',NULL,1,3,NULL,1,'RECEIVED',NOW(),FALSE),
-('WARE_TO_BR',NULL,1,3,NULL,1,'RECEIVED',NOW(),FALSE),
-('WARE_TO_BR',NULL,1,3,NULL,1,'RECEIVED',NOW(),FALSE),
-('WARE_TO_BR',NULL,1,3,NULL,1,'RECEIVED',NOW(),FALSE),
-('WARE_TO_BR',NULL,1,3,NULL,1,'RECEIVED',NOW(),FALSE),
-('WARE_TO_BR',NULL,1,3,NULL,1,'RECEIVED',NOW(),FALSE),
-('WARE_TO_BR',NULL,1,3,NULL,1,'RECEIVED',NOW(),FALSE),
-('WARE_TO_BR',NULL,1,3,NULL,1,'RECEIVED',NOW(),FALSE),
-('WARE_TO_BR',NULL,1,3,NULL,1,'RECEIVED',NOW(),FALSE),
-('WARE_TO_BR',NULL,1,3,NULL,1,'RECEIVED',NOW(),FALSE),
-('WARE_TO_BR',NULL,1,3,NULL,1,'RECEIVED',NOW(),FALSE),
-('WARE_TO_BR',NULL,1,3,NULL,1,'RECEIVED',NOW(),FALSE),
-('WARE_TO_BR',NULL,1,3,NULL,1,'RECEIVED',NOW(),FALSE),
-('WARE_TO_BR',NULL,1,3,NULL,1,'RECEIVED',NOW(),FALSE);
+    ('WARE_TO_BR', NULL, 1, 3, 1, 72300000, 'RECEIVED', NOW(), FALSE),  -- movement 11
+    ('WARE_TO_BR', NULL, 1, 3, 2, 20900000, 'RECEIVED', NOW(), FALSE),  -- movement 12
+    ('WARE_TO_BR', NULL, 1, 3, 3, 84000, 'RECEIVED', NOW(), FALSE),     -- movement 13
+    ('WARE_TO_BR', NULL, 1, 3, 4, 263000, 'RECEIVED', NOW(), FALSE),    -- movement 14
+    ('WARE_TO_BR', NULL, 1, 3, 5, 69000, 'RECEIVED', NOW(), FALSE),     -- movement 15
+    ('WARE_TO_BR', NULL, 1, 3, 6, 249000, 'RECEIVED', NOW(), FALSE),    -- movement 16
+    ('WARE_TO_BR', NULL, 1, 3, 7, 66000, 'RECEIVED', NOW(), FALSE),     -- movement 17
+    ('WARE_TO_BR', NULL, 1, 3, 8, 272000, 'RECEIVED', NOW(), FALSE),
+    -- movement 18
+    ('WARE_TO_BR', NULL, 1, 3, 19, 6800000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 20, 4050000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 21, 20700000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 22, 16200000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 23, 25200000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 24, 13280000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 25, 12870000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 26, 16500000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 27, 5220000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 28, 2900000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 29, 8500000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 30, 5940000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 31, 23000000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 32, 24300000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 33, 28800000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 34, 11620000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 35, 11880000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 36, 16500000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 37, 5800000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 38, 2610000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 39, 7140000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 40, 5130000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 41, 19550000, 'RECEIVED', NOW(), FALSE);
 
--- Now, movement_details for WARE_TO_BR (keep 1-2 variant per movement for brevity)
--- Movements 11..18 correspond to request 1..8 — use those request_details quantities as shipped
--- movement 11 (req 1): ship variant 1,6,4
-INSERT INTO inventory_movement_details (movement_id, variant_id, batch_id, quantity, price, received_quantity,
-                                        return_quantity, cost, created_at, deleted)
-VALUES (11, 1, 1, 600, 21000, 600, 0, 12600000, NOW(), FALSE),
-       (11, 6, 6, 300, 51000, 300, 0, 15300000, NOW(), FALSE),
-       (11, 4, 4, 200, 84000, 200, 0, 16800000, NOW(), FALSE),
+INSERT INTO inventory_movement_details (movement_id, variant_id, batch_id, quantity, price,snap_cost, created_at, deleted)
+VALUES
+-- movement 11
+(11, 1, 1, 600, 34000,  21000, NOW(), FALSE),
+(11, 6, 6, 300, 83000,  51000, NOW(), FALSE),
+(11, 4, 4, 200, 135000,  84000, NOW(), FALSE),
 
--- movement 12 (req2)
-       (12, 1, 1, 400, 21000, 400, 0, 8400000, NOW(), FALSE),
-       (12, 3, 3, 250, 72000, 250, 0, 18000000, NOW(), FALSE),
-       (12, 2, 2, 200, 16800, 200, 0, 3360000, NOW(), FALSE),
+-- movement 12
+(12, 1, 1, 400, 34000,  21000, NOW(), FALSE),
+(12, 3, 3, 250, 115000,  72000, NOW(), FALSE),
+(12, 2, 2, 200, 27000,  16800, NOW(), FALSE),
 
--- movement 13 (req3)
-       (13, 11, 11, 150, 33000, 150, 0, 4950000, NOW(), FALSE),
-       (13, 12, 12, 120, 51000, 120, 0, 6120000, NOW(), FALSE),
+-- movement 13 (variant 11,12 giữ nguyên giá)
+(13, 11, 11, 150, 33000,  33000, NOW(), FALSE),
+(13, 12, 12, 120, 51000,  51000, NOW(), FALSE),
 
--- movement 14 (req4)
-       (14, 5, 5, 500, 111000, 500, 0, 55500000, NOW(), FALSE),
-       (14, 6, 6, 200, 51000, 200, 0, 10200000, NOW(), FALSE),
+-- movement 14
+(14, 5, 5, 500, 180000,  111000, NOW(), FALSE),
+(14, 6, 6, 200, 83000, 51000, NOW(), FALSE),
 
--- movement 15 (req5)
-       (15, 20, 20, 300, 30000, 300, 0, 9000000, NOW(), FALSE),
-       (15, 22, 22, 150, 39000, 150, 0, 5850000, NOW(), FALSE),
+-- movement 15 (variant 20,22 giữ nguyên giá)
+(15, 20, 20, 300, 30000,  30000, NOW(), FALSE),
+(15, 22, 22, 150, 39000,  39000, NOW(), FALSE),
 
--- movement 16 (req6)
-       (16, 7, 7, 250, 104000, 250, 0, 26000000, NOW(), FALSE),
-       (16, 8, 8, 180, 155000, 180, 0, 27900000, NOW(), FALSE),
+-- movement 16
+(16, 7, 7, 250, 99000, 104000, NOW(), FALSE),
+(16, 8, 8, 180, 150000, 155000, NOW(), FALSE),
 
--- movement 17 (req7)
-       (17, 18, 18, 200, 48000, 200, 0, 9600000, NOW(), FALSE),
-       (17, 19, 19, 150, 18000, 150, 0, 2700000, NOW(), FALSE),
+-- movement 17 (variant 18,19 giữ nguyên giá)
+(17, 18, 18, 200, 48000,  48000, NOW(), FALSE),
+(17, 19, 19, 150, 18000,  18000, NOW(), FALSE),
 
--- movement 18 (req8)
-       (18, 1, 1, 800, 21000, 800, 0, 16800000, NOW(), FALSE),
-       (18, 5, 5, 400, 111000, 400, 0, 44400000, NOW(), FALSE),
-       (18, 6, 6, 300, 51000, 300, 0, 15300000, NOW(), FALSE),
+-- movement 18
+(18, 1, 1, 800, 34000,  21000, NOW(), FALSE),
+(18, 5, 5, 400, 180000,  111000, NOW(), FALSE),
+(18, 6, 6, 300, 83000,  51000, NOW(), FALSE),
 
--- Movements 19..41: ad-hoc allocations (one variant each)
-       (19, 1, 1, 200, 21000, 200, 0, 4200000, NOW(), FALSE),
-       (20, 2, 2, 150, 16800, 150, 0, 2520000, NOW(), FALSE),
-       (21, 3, 3, 180, 72000, 180, 0, 12960000, NOW(), FALSE),
-       (22, 4, 4, 120, 84000, 120, 0, 10080000, NOW(), FALSE),
-       (23, 5, 5, 140, 111000, 140, 0, 15540000, NOW(), FALSE),
-       (24, 6, 6, 160, 51000, 160, 0, 8160000, NOW(), FALSE),
-       (25, 7, 7, 130, 104000, 130, 0, 13520000, NOW(), FALSE),
-       (26, 8, 8, 110, 155000, 110, 0, 17050000, NOW(), FALSE),
-       (27, 9, 9, 90, 60000, 90, 0, 5400000, NOW(), FALSE),
-       (28, 10, 10, 100, 30000, 100, 0, 3000000, NOW(), FALSE),
-       (29, 1, 1, 250, 21000, 250, 0, 5250000, NOW(), FALSE),
-       (30, 2, 2, 220, 16800, 220, 0, 3696000, NOW(), FALSE),
-       (31, 3, 3, 200, 72000, 200, 0, 14400000, NOW(), FALSE),
-       (32, 4, 4, 180, 84000, 180, 0, 15120000, NOW(), FALSE),
-       (33, 5, 5, 160, 111000, 160, 0, 17760000, NOW(), FALSE),
-       (34, 6, 6, 140, 51000, 140, 0, 7140000, NOW(), FALSE),
-       (35, 7, 7, 120, 104000, 120, 0, 12480000, NOW(), FALSE),
-       (36, 8, 8, 110, 155000, 110, 0, 17050000, NOW(), FALSE),
-       (37, 9, 9, 100, 60000, 100, 0, 6000000, NOW(), FALSE),
-       (38, 10, 10, 90, 30000, 90, 0, 2700000, NOW(), FALSE),
-       (39, 1, 1, 210, 21000, 210, 0, 4410000, NOW(), FALSE),
-       (40, 2, 2, 190, 16800, 190, 0, 3192000, NOW(), FALSE),
-       (41, 3, 3, 170, 72000, 170, 0, 12240000, NOW(), FALSE);
+-- movements 19..41 (variant 1..10)
+(19, 1, 1, 200, 34000,  21000, NOW(), FALSE),
+(20, 2, 2, 150, 27000,  16800, NOW(), FALSE),
+(21, 3, 3, 180, 115000,  72000, NOW(), FALSE),
+(22, 4, 4, 120, 135000,  84000, NOW(), FALSE),
+(23, 5, 5, 140, 180000,  111000, NOW(), FALSE),
+(24, 6, 6, 160, 83000,  51000, NOW(), FALSE),
+(25, 7, 7, 130, 99000,  104000, NOW(), FALSE),
+(26, 8, 8, 110, 150000,  155000, NOW(), FALSE),
+(27, 9, 9, 90, 58000,  60000, NOW(), FALSE),
+(28, 10, 10, 100, 29000,  30000, NOW(), FALSE),
+(29, 1, 1, 250, 34000,  21000, NOW(), FALSE),
+(30, 2, 2, 220, 27000,  16800, NOW(), FALSE),
+(31, 3, 3, 200, 115000,  72000, NOW(), FALSE),
+(32, 4, 4, 180, 135000,  84000, NOW(), FALSE),
+(33, 5, 5, 160, 180000,  111000, NOW(), FALSE),
+(34, 6, 6, 140, 83000,  51000, NOW(), FALSE),
+(35, 7, 7, 120, 99000,  104000, NOW(), FALSE),
+(36, 8, 8, 110, 150000, 155000, NOW(), FALSE),
+(37, 9, 9, 100, 58000, 60000, NOW(), FALSE),
+(38, 10, 10, 90, 29000,  30000, NOW(), FALSE),
+(39, 1, 1, 210, 34000,  21000, NOW(), FALSE),
+(40, 2, 2, 190, 27000, 16800, NOW(), FALSE),
+(41, 3, 3, 170, 115000, 72000, NOW(), FALSE);
 
 -- =========================================================
--- 5) BR_TO_WARE (Chi nhánh -> Kho tổng): 3 movements (returns)
---    Map some to request_form_id 9..10, plus one ad-hoc
+-- 5) BR_TO_WARE (Chi nhánh -> Kho tổng):
 -- =========================================================
 INSERT INTO inventory_movements (movement_type, supplier_id, source_branch_id, destination_branch_id, request_form_id,
-                                 approved_by_id, movement_status, created_at, deleted)
-VALUES ('BR_TO_WARE', NULL, 3, NULL, 9, 5, 'RECEIVED', NOW(), FALSE),  -- movement 42
-       ('BR_TO_WARE', NULL, 3, NULL, 10, 5, 'RECEIVED', NOW(), FALSE), -- movement 43
-       ('BR_TO_WARE', NULL, 3, NULL, NULL, 5, 'RECEIVED', NOW(), FALSE); -- movement 44 (ad-hoc)
+                                  total_money, movement_status, created_at, deleted)
+VALUES
+    ('BR_TO_WARE', NULL, 3, 1, 9,8100000, 'RECEIVED', NOW(), FALSE),   -- movement 42
+    ('BR_TO_WARE', NULL, 3, 1, 10,2040000, 'RECEIVED', NOW(), FALSE),  -- movement 43
+    ('BR_TO_WARE', NULL, 3, 1, NULL,2490000, 'RECEIVED', NOW(), FALSE);-- movement 44
 
-INSERT INTO inventory_movement_details (movement_id, variant_id, batch_id, quantity, price, received_quantity,
-                                        return_quantity, cost, created_at, deleted)
-VALUES (42, 4, 4, 60, 84000, 0, 60, 0, NOW(), FALSE),
-       (43, 12, 12, 40, 51000, 0, 40, 0, NOW(), FALSE),
-       (44, 6, 6, 30, 51000, 0, 30, 0, NOW(), FALSE);
+INSERT INTO inventory_movement_details (movement_id, variant_id, batch_id, quantity, price,
+                                         snap_cost, created_at, deleted)
+VALUES
+    (42, 4, 4, 60, 135000,  135000, NOW(), FALSE),
+    (43, 12, 12, 40, 51000,  51000, NOW(), FALSE),
+    (44, 6, 6, 30, 83000, 83000,  NOW(), FALSE);
+
 
 -- =========================================================
 -- 6) WARE_TO_SUP (Kho tổng trả Supplier): 2 movements
 -- =========================================================
 INSERT INTO inventory_movements (movement_type, supplier_id, source_branch_id, destination_branch_id, request_form_id,
-                                 approved_by_id, movement_status, created_at, deleted)
-VALUES ('WARE_TO_SUP', 2, NULL, NULL, NULL, 1, 'SHIPPED', NOW(), FALSE),
-('WARE_TO_SUP',3,NULL,NULL,NULL,1,'SHIPPED',NOW(),FALSE);
+                                  total_money, movement_status, created_at, deleted)
+VALUES
+    ('WARE_TO_SUP', 2, 1, NULL, NULL,  7250000, 'SHIPPED', NOW(), FALSE),  -- movement 45
+    ('WARE_TO_SUP', 3, 1, NULL, NULL,13800000, 'SHIPPED', NOW(), FALSE); -- movement 46
 
 
-INSERT INTO inventory_movement_details (movement_id, variant_id, batch_id, quantity, price, received_quantity,
-                                        return_quantity, cost, created_at, deleted)
-VALUES (45, 9, 9, 100, 60000, 0, 100, 0, NOW(), FALSE),
-       (45, 10, 10, 50, 30000, 0, 50, 0, NOW(), FALSE),
-       (46, 3, 3, 120, 72000, 0, 120, 0, NOW(), FALSE);
+INSERT INTO inventory_movement_details (movement_id, variant_id, batch_id, quantity, price,  snap_cost, created_at, deleted)
+VALUES (45, 9, 9, 100, 60000,  60000, NOW(), FALSE),
+       (45, 10, 10, 50, 30000, 30000, NOW(), FALSE),
+       (46, 3, 3, 120, 72000, 72000, NOW(), FALSE);
 
 -- =========================================================
 -- 7) DISPOSAL (2 movements) — chi nhánh hủy hàng
 -- =========================================================
 INSERT INTO inventory_movements (movement_type, supplier_id, source_branch_id, destination_branch_id, request_form_id,
-                                 approved_by_id, movement_status, created_at, deleted)
-VALUES ('DISPOSAL', NULL, 3, NULL, NULL, 5, 'COMPLETED', NOW(), FALSE),
-('DISPOSAL',NULL,3,NULL,NULL,5,'COMPLETED',NOW(),FALSE);
+                                 total_money, movement_status, created_at, deleted)
+VALUES ('DISPOSAL', NULL, 1, NULL, NULL, 735000, 'COMPLETED', NOW(), FALSE),
+('DISPOSAL',NULL,1,NULL,NULL,408000,'COMPLETED',NOW(),FALSE);
 
-INSERT INTO inventory_movement_details (movement_id, variant_id, batch_id, quantity, price, received_quantity,
-                                        return_quantity, cost, created_at, deleted)
-VALUES (47, 1, 1, 15, 21000, 0, 0, 0, NOW(), FALSE),
-       (47, 4, 4, 5, 84000, 0, 0, 0, NOW(), FALSE),
-       (48, 12, 12, 8, 51000, 0, 0, 0, NOW(), FALSE);
+INSERT INTO inventory_movement_details (movement_id, variant_id, batch_id, quantity, price,  snap_cost, created_at, deleted)
+VALUES (47, 1, 1, 15, 21000,  21000, NOW(), FALSE),
+       (47, 4, 4, 5, 84000, 84000, NOW(), FALSE),
+       (48, 12, 12, 8, 51000,  51000, NOW(), FALSE);
 
 -- =========================================================
 -- 8) INVENTORY: cập nhật tồn kho cho Kho tổng (branch_id = NULL) và chi nhánh 3
 --    We'll compute coarse balances: total_received - total_sent (approx)
--- =========================================================
--- Clear any existing inventory rows for those variant/batch combos if necessary (done earlier)
 
 -- Inventory at HQ (NULL branch) after SUP_TO_WARE and WARE_TO_SUP/WARE_TO_BR
 INSERT INTO inventory (branch_id, variant_id, batch_id, quantity, min_stock, last_movement_id, created_at, deleted)
@@ -775,60 +763,58 @@ VALUES (1, 35000, 34000, NOW(), NULL, NOW(), FALSE),
        (8, 155000, 150000, NOW(), NULL, NOW(), FALSE),
        (9, 60000, 58000, NOW(), NULL, NOW(), FALSE),
        (10, 30000, 29000, NOW(), NULL, NOW(), FALSE);
+-- Done
+INSERT INTO invoices (invoice_code, customer_id, shift_work_id, branch_id, total_price,
+                      payment_method, invoice_type, created_at, created_by, deleted, user_id)
+VALUES
+-- user_id 6 → shift_work_id {1,4,7}
+('INV-HN-2001', 1, 1, 3, 98000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 2 DAY), 6, FALSE, 6),
+('INV-HN-2004', 1, 4, 3, 85000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 1 DAY), 6, FALSE, 6),
+('INV-HN-2006', 5, 7, 3, 30000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
+('INV-INT-3001', 1, 1, 1, 350000, 'Transfer', 'DRAFT', DATE_SUB(NOW(), INTERVAL 2 DAY), 6, FALSE, 6),
+('INV-HN-2011', 6, 4, 3, 85000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 1 DAY), 6, FALSE, 6),
+('INV-HN-2012', 1, 7, 3, 120000, 'Card', 'PAID', NOW(), 6, FALSE, 6),
+('INV-HN-2013', 2, 1, 3, 104000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 2 DAY), 6, FALSE, 6),
+('INV-HN-2016', 5, 4, 3, 28000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 1 DAY), 6, FALSE, 6),
+('INV-HN-2018', NULL, 7, 3, 120000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
 
--- =========================================================
--- 10) INVOICES: tạo ~20 hóa đơn bán lẻ cho branch 3 (HN) và nội bộ
--- =========================================================
-INSERT INTO invoices (invoice_code, customer_id, shift_work_id, branch_id, total_price, payment_method, invoice_type,
-                      created_at, created_by, deleted, user_id)
-VALUES ('INV-HN-2001', 1, 1, 3, 70000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
-       ('INV-HN-2002', 2, 2, 3, 120000, 'Card', 'PAID', NOW(), 6, FALSE, 7),
-       ('INV-HN-2003', 3, 3, 3, 185000, 'Cash', 'PAID', NOW(), 7, FALSE, 8),
-       ('INV-HN-2004', 1, 1, 3, 98000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
-       ('INV-HN-2005', 4, 2, 3, 150000, 'Card', 'PAID', NOW(), 7, FALSE, 7),
-       ('INV-HN-2006', 5, 3, 3, 45000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
-       ('INV-HN-2007', 2, 4, 3, 230000, 'Card', 'PAID', NOW(), 7, FALSE, 7),
-       ('INV-HN-2008', 3, 5, 3, 76000, 'Cash', 'PAID', NOW(), 6, FALSE, 8),
-       ('INV-HN-2009', 4, 6, 3, 125000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
-       ('INV-HN-2010', 5, 7, 3, 54000, 'Card', 'PAID', NOW(), 7, FALSE, 7),
-       ('INV-INT-3001',1, 11, 1, 185000, 'Transfer', 'DRAFT', NOW(), 1, FALSE, NULL),
-       ('INV-INT-3002',2, 12, 3, 250000, 'Transfer', 'DRAFT', NOW(), 1, FALSE, NULL),
-       ('INV-HN-2011', 6, 2, 3, 92000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
-       ('INV-HN-2012', 1, 3, 3, 68000, 'Card', 'PAID', NOW(), 7, FALSE, 7),
-       ('INV-HN-2013', 2, 1, 3, 43000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
-       ('INV-HN-2014', 3, 4, 3, 155000, 'Card', 'PAID', NOW(), 7, FALSE, 7),
-       ('INV-HN-2015', 4, 5, 3, 112000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
-       ('INV-HN-2016', 5, 6, 3, 30000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),
-       ('INV-HN-2017', 6, 7, 3, 87000, 'Card', 'PAID', NOW(), 7, FALSE, 7),
-       ('INV-HN-2018', null, 8, 3, 142000, 'Cash', 'PAID', NOW(), 6, FALSE, 6);
+-- user_id 7 → shift_work_id {2,5,8}
+('INV-HN-2002', 2, 2, 3, 120000, 'Card', 'PAID', DATE_SUB(NOW(), INTERVAL 2 DAY), 7, FALSE, 7),
+('INV-HN-2005', 4, 5, 3, 208000, 'Card', 'PAID', DATE_SUB(NOW(), INTERVAL 1 DAY), 7, FALSE, 7),
+('INV-HN-2007', 2, 8, 3, 105000, 'Card', 'PAID', NOW(), 7, FALSE, 7),
+('INV-HN-2010', 5, 2, 3, 56000, 'Card', 'PAID', DATE_SUB(NOW(), INTERVAL 2 DAY), 7, FALSE, 7),
+('INV-INT-3002', 2, 5, 3, 700000, 'Transfer', 'DRAFT', DATE_SUB(NOW(), INTERVAL 1 DAY), 7, FALSE, 7),
+('INV-HN-2014', 3, 8, 3, 30000, 'Card', 'PAID', NOW(), 7, FALSE, 7),
+('INV-HN-2015', 4, 2, 3, 185000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 2 DAY), 7, FALSE, 7),
+('INV-HN-2017', 6, 5, 3, 155000, 'Card', 'PAID', DATE_SUB(NOW(), INTERVAL 1 DAY), 7, FALSE, 7),
 
--- invoice_id will be 1..20 etc.
-
--- =========================================================
--- 11) INVOICE_DETAILS: map some real sold items (use batches as above)
--- =========================================================
+-- user_id 8 → shift_work_id {3,6,9}
+('INV-HN-2003', 3, 3, 3, 185000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 2 DAY), 8, FALSE, 8),
+('INV-HN-2008', 3, 6, 3, 185000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 1 DAY), 8, FALSE, 8),
+('INV-HN-2009', 4, 9, 3, 140000, 'Cash', 'PAID', NOW(), 8, FALSE, 8);
+-- Done
 INSERT INTO invoice_details (invoice_id, batch_id, variant_id, quantity, price, created_at, deleted)
-VALUES (1, 1, 1, 2, 35000, NOW(), FALSE),
-       (1, 2, 2, 1, 28000, NOW(), FALSE),
-       (2, 3, 3, 1, 120000, NOW(), FALSE),
-       (3, 5, 5, 1, 185000, NOW(), FALSE),
-       (4, 6, 6, 1, 85000, NOW(), FALSE),
-       (5, 7, 7, 2, 104000, NOW(), FALSE),
-       (6, 10, 10, 1, 30000, NOW(), FALSE),
-       (7, 1, 1, 3, 35000, NOW(), FALSE),
-       (8, 5, 5, 1, 185000, NOW(), FALSE),
-       (9, 4, 4, 1, 140000, NOW(), FALSE),
-       (10, 2, 2, 2, 28000, NOW(), FALSE),
-       (11, 1, 1, 10, 35000, NOW(), FALSE),
-       (12, 4, 4, 5, 140000, NOW(), FALSE),
-       (13, 6, 6, 1, 85000, NOW(), FALSE),
-       (14, 3, 3, 1, 120000, NOW(), FALSE),
-       (15, 7, 7, 1, 104000, NOW(), FALSE),
-       (16, 10, 10, 1, 30000, NOW(), FALSE),
-       (17, 5, 5, 1, 185000, NOW(), FALSE),
-       (18, 2, 2, 1, 28000, NOW(), FALSE),
-       (19, 8, 8, 1, 155000, NOW(), FALSE),
-       (20, 9, 9, 2, 60000, NOW(), FALSE);
+VALUES (1, 1, 1, 2, 35000, DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
+       (1, 2, 2, 1, 28000, DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
+       (2, 6, 6, 1, 85000, DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),
+       (3, 10, 10, 1, 30000, NOW(), FALSE),
+       (4, 1, 1, 10, 35000, DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
+       (5, 6, 6, 1, 85000, DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),
+       (6, 3, 3, 1, 120000, NOW(), FALSE),
+       (7, 7, 7, 1, 104000, DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
+       (8, 2, 2, 1, 28000, DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),
+       (9, 9, 9, 2, 60000, NOW(), FALSE),
+       (10, 3, 3, 1, 120000, DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
+       (11, 7, 7, 2, 104000, DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),
+       (12, 1, 1, 3, 35000, NOW(), FALSE),
+       (13, 2, 2, 2, 28000, DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
+       (14, 4, 4, 5, 140000, DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),
+       (15, 10, 10, 1, 30000, NOW(), FALSE),
+       (16, 5, 5, 1, 185000, DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
+       (17, 8, 8, 1, 155000, DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),
+       (18, 5, 5, 1, 185000, DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
+       (19, 5, 5, 1, 185000, DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),
+       (20, 4, 4, 1, 140000, NOW(), FALSE);
 
 -- =========================================================
 -- 12) STOCK ADJUSTMENTS: vài dòng để test kiểm kê
