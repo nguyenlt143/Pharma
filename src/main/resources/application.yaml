@@ -3,9 +3,9 @@ spring:
     name: pharma
 
   datasource:
-    url: jdbc:mysql://localhost:3306/medicine?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3308/medicine?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: root
-    password: Vtdhp9x00
+    password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:

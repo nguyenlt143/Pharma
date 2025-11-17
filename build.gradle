@@ -11,8 +11,7 @@ description = 'pharma'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-        vendor = JvmVendorSpec.ADOPTIUM // Use Adoptium (Eclipse Temurin) for auto-download
+        languageVersion = JavaLanguageVersion.of(24)
     }
 }
 

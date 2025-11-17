@@ -1,5 +1,7 @@
 @template.layouts.manager(
-    headContent = @`<link rel="stylesheet" href="/assets/css/manager/revenue.css">`,
+    headContent = @`
+        <link rel="stylesheet" href="/assets/css/manager/revenue.css">
+    `,
     content = @`
         <main class="main">
             <div class="breadcrumb">
@@ -100,8 +102,7 @@
             </div>
         </main>
     `,
-    pageScript = @`<script src="/assets/js/manager/revenue.js" defer></script>`
+    pageScript = @`
+        <script src="/assets/js/manager/revenue.js" defer></script>
+    `
 )
-
-
-
