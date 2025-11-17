@@ -18,6 +18,7 @@ public class PriceResponse {
     private Long variantId;
     private String variantName;
     private String medicineName;
+    private Long branchId;
     private Double salePrice;
     private Double branchPrice;
     private LocalDateTime startDate;
@@ -51,6 +52,7 @@ public class PriceResponse {
                 .variantId(price.getVariantId())
                 .variantName(displayName)
                 .medicineName(medicineName)
+                .branchId(price.getBranchId())
                 .salePrice(price.getSalePrice())
                 .branchPrice(price.getBranchPrice())
                 .startDate(price.getStartDate())
@@ -60,4 +62,3 @@ public class PriceResponse {
                 .build();
     }
 }
-

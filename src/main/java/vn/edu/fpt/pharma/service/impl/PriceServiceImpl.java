@@ -12,10 +12,8 @@ import vn.edu.fpt.pharma.dto.DataTableRequest;
 import vn.edu.fpt.pharma.dto.DataTableResponse;
 import vn.edu.fpt.pharma.dto.price.PriceRequest;
 import vn.edu.fpt.pharma.dto.price.PriceResponse;
-import vn.edu.fpt.pharma.entity.Branch;
 import vn.edu.fpt.pharma.entity.MedicineVariant;
 import vn.edu.fpt.pharma.entity.Price;
-import vn.edu.fpt.pharma.repository.BranchRepository;
 import vn.edu.fpt.pharma.repository.MedicineVariantRepository;
 import vn.edu.fpt.pharma.repository.PriceRepository;
 import vn.edu.fpt.pharma.service.AuditService;
@@ -31,13 +29,11 @@ import java.util.stream.Collectors;
 public class PriceServiceImpl extends BaseServiceImpl<Price, Long, PriceRepository> implements PriceService {
 
     private final MedicineVariantRepository medicineVariantRepository;
-    private final BranchRepository branchRepository;
 
     public PriceServiceImpl(PriceRepository repository, AuditService auditService, 
-                            MedicineVariantRepository medicineVariantRepository, BranchRepository branchRepository) {
+                            MedicineVariantRepository medicineVariantRepository) {
         super(repository, auditService);
         this.medicineVariantRepository = medicineVariantRepository;
-        this.branchRepository = branchRepository;
     }
 
     @Override
@@ -89,7 +85,7 @@ public class PriceServiceImpl extends BaseServiceImpl<Price, Long, PriceReposito
             }
 
             if (branchId != null) {
-                predicates.add(cb.equal(root.get("branch").get("id"), branchId));
+                predicates.add(cb.equal(root.get("branchId"), branchId));
             }
 
             // Search filter (if needed)
@@ -103,17 +99,13 @@ public class PriceServiceImpl extends BaseServiceImpl<Price, Long, PriceReposito
 
     @Override
     public PriceResponse createOrUpdatePrice(PriceRequest request) {
-        // Load branch if branchId is provided
-        Branch branch = request.getBranchId() != null ?
-                branchRepository.findById(request.getBranchId()).orElse(null) : null;
-        
         // Check if price exists for variant and branch combination
         Price existingPrice = repository.findAll().stream()
                 .filter(p -> {
                     boolean variantMatch = p.getVariantId() != null && p.getVariantId().equals(request.getVariantId());
-                    boolean branchMatch = (request.getBranchId() == null && p.getBranch() == null) ||
-                                        (request.getBranchId() != null && p.getBranch() != null && 
-                                         p.getBranch().getId().equals(request.getBranchId()));
+                    boolean branchMatch = (request.getBranchId() == null && p.getBranchId() == null) ||
+                                          (request.getBranchId() != null && p.getBranchId() != null &&
+                                           p.getBranchId().equals(request.getBranchId()));
                     return variantMatch && branchMatch;
                 })
                 .findFirst()
@@ -127,12 +119,12 @@ public class PriceServiceImpl extends BaseServiceImpl<Price, Long, PriceReposito
             if (request.getBranchPrice() != null) price.setBranchPrice(request.getBranchPrice());
             if (request.getStartDate() != null) price.setStartDate(request.getStartDate());
             if (request.getEndDate() != null) price.setEndDate(request.getEndDate());
-            price.setBranch(branch);
+            price.setBranchId(request.getBranchId());
         } else {
             // Create new price
             price = Price.builder()
                     .variantId(request.getVariantId())
-                    .branch(branch)
+                    .branchId(request.getBranchId())
                     .salePrice(request.getSalePrice())
                     .branchPrice(request.getBranchPrice())
                     .startDate(request.getStartDate() != null ? request.getStartDate() : LocalDateTime.now())

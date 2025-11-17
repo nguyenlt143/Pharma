@@ -2,6 +2,7 @@
     headContent = @`
         <link rel="stylesheet" href="/assets/css/manager/revenue.css">
     `,
+    pageScript = @`<script src="/assets/js/manager/revenue.js" defer></script>`,
     content = @`
         <main class="main">
             <div class="breadcrumb">
@@ -101,8 +102,5 @@
                 </div>
             </div>
         </main>
-    `,
-    pageScript = @`
-        <script src="/assets/js/manager/revenue.js" defer></script>
     `
 )

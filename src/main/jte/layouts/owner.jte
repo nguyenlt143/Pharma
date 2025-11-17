@@ -27,6 +27,12 @@
         <nav class="sidebar-nav">
             <ul class="nav-list">
                 <li class="nav-item">
+                    <a href="/owner/dashboard" class="nav-link">
+                        <span class="material-icons nav-icon">dashboard</span>
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="/owner/medicine/list" class="nav-link">
                         <span class="material-icons nav-icon">medication</span>
                         <span class="nav-text">Quản lý thuốc</span>
@@ -48,12 +54,6 @@
                     <a href="/owner/category/list" class="nav-link">
                         <span class="material-icons nav-icon">category</span>
                         <span class="nav-text">Danh mục</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="/owner/dashboard" class="nav-link">
-                        <span class="material-icons nav-icon">dashboard</span>
-                        <span class="nav-text">Dashboard</span>
                     </a>
                 </li>
                 <li class="nav-item">

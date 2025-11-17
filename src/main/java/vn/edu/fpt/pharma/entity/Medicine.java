@@ -24,28 +24,4 @@ public class Medicine extends BaseEntity<Long> {
     private String brandName;
     private String manufacturer;
     private String country;
-    
-    // Additional fields
-    @Column(name = "registration_number")
-    private String registrationNumber;
-    
-    @Column(name = "storage_conditions", columnDefinition = "TEXT")
-    private String storageConditions;
-    
-    @Column(columnDefinition = "TEXT")
-    private String indications;
-    
-    @Column(columnDefinition = "TEXT")
-    private String contraindications;
-    
-    @Column(name = "side_effects", columnDefinition = "TEXT")
-    private String sideEffects;
-    
-    @Column(columnDefinition = "TEXT")
-    private String instructions;
-    
-    @Column(name = "prescription_required")
-    private Boolean prescriptionRequired = false;
-    
-    private Integer status = 1;
 }

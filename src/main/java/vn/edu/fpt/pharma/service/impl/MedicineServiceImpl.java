@@ -99,14 +99,6 @@ public class MedicineServiceImpl extends BaseServiceImpl<Medicine, Long, Medicin
                 .brandName(request.getBrandName())
                 .manufacturer(request.getManufacturer())
                 .country(request.getCountryOfOrigin())
-                .registrationNumber(request.getRegistrationNumber())
-                .storageConditions(request.getStorageConditions())
-                .indications(request.getIndications())
-                .contraindications(request.getContraindications())
-                .sideEffects(request.getSideEffects())
-                .instructions(request.getInstructions())
-                .prescriptionRequired(request.getPrescriptionRequired() != null ? request.getPrescriptionRequired() : false)
-                .status(request.getStatus() != null ? request.getStatus() : 1)
                 .build();
 
         Medicine saved = repository.save(medicine);
@@ -129,14 +121,6 @@ public class MedicineServiceImpl extends BaseServiceImpl<Medicine, Long, Medicin
         if (request.getBrandName() != null) medicine.setBrandName(request.getBrandName());
         if (request.getManufacturer() != null) medicine.setManufacturer(request.getManufacturer());
         if (request.getCountryOfOrigin() != null) medicine.setCountry(request.getCountryOfOrigin());
-        if (request.getRegistrationNumber() != null) medicine.setRegistrationNumber(request.getRegistrationNumber());
-        if (request.getStorageConditions() != null) medicine.setStorageConditions(request.getStorageConditions());
-        if (request.getIndications() != null) medicine.setIndications(request.getIndications());
-        if (request.getContraindications() != null) medicine.setContraindications(request.getContraindications());
-        if (request.getSideEffects() != null) medicine.setSideEffects(request.getSideEffects());
-        if (request.getInstructions() != null) medicine.setInstructions(request.getInstructions());
-        if (request.getPrescriptionRequired() != null) medicine.setPrescriptionRequired(request.getPrescriptionRequired());
-        if (request.getStatus() != null) medicine.setStatus(request.getStatus());
 
         Medicine updated = repository.save(medicine);
         return MedicineResponse.fromEntity(updated);
