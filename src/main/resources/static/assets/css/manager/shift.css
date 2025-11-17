@@ -1,101 +1,225 @@
-/* Standardize action buttons inside shift table */
-.shift-table td .action-group,
-.shift-table td {
-  vertical-align: middle;
+/* =========================================
+   SHIFT MANAGEMENT PAGE (S1 - Standalone)
+   Palette: Manager Base
+   Table: Style B - Bordered
+   Button: A - Solid Primary
+========================================= */
+
+/* ===== Layout ===== */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
 }
 
+/* ===== Buttons ===== */
+.btn-primary {
+    background-color: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color .2s ease;
+}
+.btn-primary:hover {
+    background-color: var(--primary-600);
+}
+
+.btn-secondary {
+    background-color: #f3f4f6;
+    color: #111827;
+    border: 1px solid #d1d5db;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color .2s ease;
+}
+.btn-secondary:hover {
+    background-color: #e5e7eb;
+}
+
+/* ===== Table ===== */
 .shift-table {
-  width: 100%;
-  border-collapse: collapse;
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
-.shift-table th,
-.shift-table td {
-  padding: 10px 12px;
-  text-align: left;
-  border-bottom: 1px solid #eef2f6;
+.shift-table th {
+    background-color: #f9fafb;
+    font-weight: 600;
 }
 
-.shift-table .action-btn {
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: transform 0.08s ease, box-shadow 0.08s ease;
+.shift-table th, .shift-table td {
+    border: 1px solid #d1d5db;
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 14px;
 }
 
-/* color variants */
-.shift-table .action-btn.view {
-  background: #1976d2;
-  color: #fff;
-}
-.shift-table .action-btn.edit {
-  background: #16a34a; /* green */
-  color: #fff;
-}
-.shift-table .action-btn.delete {
-  background: #e53935;
-  color: #fff;
+.shift-table tbody tr:hover {
+    background-color: #f0f7ff;
+
+
+
 }
 
-/* spacing between buttons */
-.shift-table td .action-btn + .action-btn {
-  margin-left: 8px;
+/* ===== Modal ===== */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+
 }
 
-/* hover/focus */
-.shift-table .action-btn:hover,
-.shift-table .action-btn:focus {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-  outline: none;
+.modal.hidden {
+    display: none;
+
+
 }
 
-/* Make modal form buttons visually consistent and rounded */
-.modal .btn-primary {
-  background: #1976d2;
-  color: #fff;
-  border-radius: 10px;
-  padding: 8px 14px;
-  border: none;
-}
-.modal .btn-secondary {
-  background: #f3f4f6;
-  color: #111827;
-  border-radius: 10px;
-  padding: 8px 14px;
-  border: 1px solid #e5e7eb;
+.modal-content {
+    background: #fff;
+    padding: 22px;
+    border-radius: 10px;
+    width: 420px;
+    max-width: 90%;
+    box-shadow: 0 4px 14px rgba(0,0,0,.1);
 }
 
-/* shift title style and employee modal layout */
+#employeeModal .modal-content {
+    width: 640px;
+}
+
+/* ===== Form ===== */
+#shiftForm input,
+#shiftForm textarea {
+    width: 100%;
+    padding: 8px 10px;
+    margin-top: 4px;
+    margin-bottom: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+#shiftForm input:focus,
+#shiftForm textarea:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(16,185,129,.25);
+}
+
+#shiftForm label {
+    font-weight: 500;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 14px;
+
+}
+
+/* ===== Employee Table in Modal ===== */
+.employee-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #d1d5db;
+    margin: 12px 0;
+
+}
+
+.employee-table th {
+    background-color: #f9fafb;
+    font-weight: 600;
+
+
+}
+
+.employee-table th, .employee-table td {
+    border: 1px solid #d1d5db;
+    padding: 8px 10px;
+    font-size: 14px;
+}
+.employee-table tbody tr:hover {
+    background-color: #f0f7ff;
+}
+.employee-modal {
+    width: 900px !important;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
 .shift-title {
-  font-size: 18px;
-  margin: 8px 0 12px;
-}
-
-.employee-table th,
-.employee-table td {
-  padding: 8px 10px;
-  border-bottom: 1px solid #f1f5f9;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 14px;
 }
 
 .assign-section {
-  margin-top: 12px;
+    margin-top: 16px;
 }
 
 .assign-controls {
-  display: flex;
-  gap: 8px;
-  align-items: center;
+    display: flex;
+    gap: 12px;
+    margin-top: 6px;
 }
 
 .select-employee {
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
+    flex: 1;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
 }
 
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.btn-success {
+    background-color: #16a34a;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.btn-success:hover {
+    background-color: #15803d;
+}
+
+/* Badge trạng thái */
+.badge {
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.badge.not-started { background: #fef3c7; color: #92400e; }
+.badge.in-work     { background: #dcfce7; color: #166534; }
+.badge.done        { background: #dbeafe; color: #1e40af; }
+
+.action-delete {
+    color: #dc2626;
+    cursor: pointer;
+    font-weight: 500;
+}
+.action-delete:hover { text-decoration: underline; }
