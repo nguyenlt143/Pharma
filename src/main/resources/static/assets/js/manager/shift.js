@@ -114,38 +114,49 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             employeeModal.classList.remove("hidden");
 
-            const titleEl = document.getElementById("shiftEmployeeTitle");
-            if (titleEl) titleEl.innerText = `Nhân viên trong ca #${shiftId}`;
+            // Fetch shift details to show title as: "<name> (<start> - <end>)"
+            try {
+                const shiftRes = await fetch(`/api/manager/shifts/${shiftId}`);
+                if (shiftRes.ok) {
+                    const s = await shiftRes.json();
+                    const st = s.startTime ? s.startTime : "";
+                    const et = s.endTime ? s.endTime : "";
+                    const titleText = `${s.name || "Ca"} ${st || et ? `(${st} - ${et})` : ""}`.trim();
+                    const titleEl = document.getElementById("shiftEmployeeTitle");
+                    if (titleEl) titleEl.innerText = titleText;
+                } else {
+                    const titleEl = document.getElementById("shiftEmployeeTitle");
+                    if (titleEl) titleEl.innerText = `Nhân viên trong ca #${shiftId}`;
+                }
+            } catch (_) {
+                const titleEl = document.getElementById("shiftEmployeeTitle");
+                if (titleEl) titleEl.innerText = `Nhân viên trong ca #${shiftId}`;
+            }
 
-            const res = await fetch(`/api/manager/shifts/${shiftId}/works`);
+            const res = await fetch(`/api/manager/shifts/${shiftId}/assignments`);
             let emps = await res.json();
             emps = Array.isArray(emps) ? emps : [];
 
+            // Align with table headers: Name | Role | CreatedAt | Delete
             employeeTableBody.innerHTML = emps.length > 0
                 ? emps.map(e => `
                     <tr>
                         <td>${e.userFullName || ""}</td>
                         <td>${e.roleName || ""}</td>
-                        <td>
-                            <span class="badge ${
-                    e.status === 'Not Started' ? 'not-started' :
-                        e.status === 'In Work' ? 'in-work' : 'done'
-                }">${e.status}</span>
-                        </td>
                         <td>${e.createdAt ? new Date(e.createdAt).toLocaleString("vi-VN") : ""}</td>
                         <td>
-                            <span class="action-delete" onclick="removeEmployee(${e.id}, ${shiftId})">Delete</span>
+                            <span class="action-delete" onclick="removeEmployee(${e.userId}, ${shiftId})">Xóa</span>
                         </td>
                     </tr>
                 `).join("")
                 : `<tr>
-                        <td colspan="5" style="text-align:center; padding: 12px; color: #6b7280;">
+                        <td colspan="4" style="text-align:center; padding: 12px; color: #6b7280;">
                             Chưa có nhân viên nào trong ca
                         </td>
                    </tr>`;
 
             // Load employee select options
-            await loadEmployeeOptions();
+            await loadEmployeeOptions(shiftId);
             assignBtn.onclick = () => assignEmployee(shiftId);
 
         } catch (err) {
@@ -153,7 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    async function loadEmployeeOptions() {
+    async function loadEmployeeOptions(shiftId) {
         try {
             const res = await fetch(`/api/manager/shifts/${shiftId}/assign`);
             const employees = await res.json();
@@ -180,11 +191,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    window.removeEmployee = async (empId, shiftId) => {
+    window.removeEmployee = async (userId, shiftId) => {
         if (!confirm("Bạn có chắc muốn gỡ nhân viên này khỏi ca?")) return;
 
         try {
-            await fetch(`/api/manager/shifts/${shiftId}/remove/${empId}`, { method: "DELETE" });
+            await fetch(`/api/manager/shifts/${shiftId}/remove/${userId}`, { method: "DELETE" });
             viewEmployees(shiftId);
         } catch (err) {
             console.error("❌ Lỗi remove employee:", err);
