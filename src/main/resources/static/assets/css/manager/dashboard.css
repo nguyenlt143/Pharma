@@ -1,23 +1,4 @@
-/* :root định nghĩa các biến màu từ PharmaSys để dễ dàng sử dụng lại */
-:root {
-    --green: #10B981;
-    --primary: #EF4444;
-    --background-light: #F8FAFC;
-    --background-dark: #1E293B;
-    --card-light: #FFFFFF;
-    --card-dark: #334155;
-    --text-light: #1E293B;
-    --text-dark: #F8FAFC;
-    --muted-light: #64748B;
-    --muted-dark: #94A3B8;
-    --border-light: #E2E8F0;
-    --border-dark: #475569;
-    --hover-light: #F1F5F9;
-    --hover-dark: #475569;
-    --green-500: #22C55E;
-    --shadow-md: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-}
+/* Remove local :root to use base variables */
 
 * {
     margin: 0;
@@ -27,7 +8,7 @@
 
 /* Áp dụng font và màu nền chung */
 body {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Inter', sans-serif;
     background-color: var(--background-light);
     color: var(--text-light);
 }
@@ -107,7 +88,7 @@ body.dark .filter-btn:hover:not(.active) {
 }
 
 .filter-btn.active {
-    background-color: var(--green);
+    background-color: var(--primary);
     color: #FFFFFF;
     box-shadow: var(--shadow-sm);
 }
@@ -178,7 +159,7 @@ body.dark .stat-value {
 .change-text.positive {
     font-size: 0.875rem; /* 14px */
     font-weight: 500;
-    color: var(--green-500);
+    color: var(--primary);
 }
 
 /* Biểu đồ */
@@ -232,7 +213,10 @@ body.dark .chart-title {
 
 .bar {
     width: 2.5rem; /* 40px */
-    /* Chiều cao được đặt inline */
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: hidden;
 }
 
 .bar-fill {
@@ -286,6 +270,25 @@ body.dark .progress-label {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+/* New: div-based fill for progress bars rendered by JS */
+.progress-fill-div {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--primary-600));
+    border-radius: 9999px;
+    transition: width 0.5s ease;
+}
+
+/* Empty state helpers */
+.empty-chart, .empty-list {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--muted-light);
+    font-size: 0.95rem;
 }
 
 /* Responsive */

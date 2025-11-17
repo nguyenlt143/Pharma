@@ -1,6 +1,6 @@
 /* =========================================
    SHIFT MANAGEMENT PAGE (S1 - Standalone)
-   Palette: Pharma Blue
+   Palette: Manager Base
    Table: Style B - Bordered
    Button: A - Solid Primary
 ========================================= */
@@ -15,7 +15,7 @@
 
 /* ===== Buttons ===== */
 .btn-primary {
-    background-color: #2563eb;
+    background-color: var(--primary);
     color: #fff;
     border: none;
     padding: 8px 16px;
@@ -25,7 +25,7 @@
     transition: background-color .2s ease;
 }
 .btn-primary:hover {
-    background-color: #1e4ed8;
+    background-color: var(--primary-600);
 }
 
 .btn-secondary {
@@ -108,9 +108,9 @@
 }
 #shiftForm input:focus,
 #shiftForm textarea:focus {
-    border-color: #2563eb;
+    border-color: var(--primary);
     outline: none;
-    box-shadow: 0 0 0 2px rgba(37,99,235,.25);
+    box-shadow: 0 0 0 2px rgba(16,185,129,.25);
 }
 
 #shiftForm label {

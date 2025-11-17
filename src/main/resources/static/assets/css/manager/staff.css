@@ -1,6 +1,6 @@
 /* =========================================
    STAFF MANAGEMENT PAGE (S2 - Unified Style)
-   Palette: Pharma Blue
+   Palette: Manager Base
    Components: Card, Table-Bordered, Modal-Panel, Form Grid
 ========================================= */
 
@@ -24,14 +24,14 @@
     border: 1px solid transparent;
     transition: 0.15s ease-in-out;
 }
-.btn:focus { outline: none; box-shadow: 0 0 0 3px rgba(37,99,235,.25); }
+.btn:focus { outline: none; box-shadow: 0 0 0 3px rgba(16,185,129,.25); }
 
 .btn-primary {
-    background-color: #2563eb;
+    background-color: var(--primary);
     color: #fff;
     border: none;
 }
-.btn-primary:hover { background-color: #1e4ed8; }
+.btn-primary:hover { background-color: var(--primary-600); }
 
 .btn-outline {
     background: white;
@@ -80,9 +80,7 @@
     gap: 8px;
 }
 
-.card-body {
-    padding: 0;
-}
+.card-body { padding: 0; }
 
 /* ===== Search Bar ===== */
 .search-wrap {
@@ -109,9 +107,7 @@
     border-collapse: collapse;
 }
 
-.table thead {
-    background-color: #f9fafb;
-}
+.table thead { background-color: #f9fafb; }
 
 .table th, .table td {
     border: 1px solid #e5e7eb;
@@ -119,9 +115,7 @@
     font-size: 14px;
 }
 
-.table tbody tr:hover {
-    background-color: #f0f7ff;
-}
+.table tbody tr:hover { background-color: #f0f7ff; }
 
 .text-center { text-align: center; }
 
@@ -141,9 +135,9 @@
     font-size: 12px;
     font-weight: 600;
 }
-.badge.active { background: #dcfce7; color: #166534; } /* xanh */
-.badge.inactive { background: #fee2e2; color: #991b1b; } /* đỏ */
-.badge.locked { background: #fef3c7; color: #92400e; } /* vàng */
+.badge.active { background: #dcfce7; color: #166534; }
+.badge.inactive { background: #fee2e2; color: #991b1b; }
+.badge.locked { background: #fef3c7; color: #92400e; }
 
 /* ===== Modal ===== */
 .modal {
@@ -174,9 +168,7 @@
     align-items: center;
 }
 
-.modal-form {
-    padding: 16px 20px 20px;
-}
+.modal-form { padding: 16px 20px 20px; }
 
 /* ===== Form Grid ===== */
 .form-grid {
@@ -200,8 +192,8 @@
     font-size: 14px;
 }
 input:focus, select:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 2px rgba(37,99,235,.25);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(16,185,129,.25);
     outline: none;
 }
 
@@ -228,10 +220,7 @@ input:focus, select:focus {
     transform: translateY(10px);
     transition: 0.25s;
 }
-.toast.show {
-    opacity: 1;
-    transform: translateY(0);
-}
+.toast.show { opacity: 1; transform: translateY(0); }
 .toast.success { background: #16a34a; }
 .toast.error { background: #dc2626; }
 
@@ -241,9 +230,5 @@ input:focus, select:focus {
 }
 
 /* ===== Empty State ===== */
-.empty {
-    padding: 14px;
-    text-align: center;
-    color: #6b7280;
-}
+.empty { padding: 14px; text-align: center; color: #6b7280; }
 .hidden { display: none; }
