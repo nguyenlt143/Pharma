@@ -1,139 +1,228 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý thuốc</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body class="font-[Inter] bg-gray-50 text-gray-800">
-<div class="flex min-h-screen">
-    <!-- Sidebar -->
-    <aside class="sidebar bg-gray-800 w-64 text-white">
-        <div class="flex flex-col h-full justify-between">
-            <div>
-                <div class="p-4 border-b border-gray-700">
-                    <h1 class="text-lg font-semibold text-white">PharmacyS</h1>
-                    <p class="text-sm text-gray-300">Quản trị viên</p>
-                </div>
-                <nav class="mt-4 flex flex-col">
-                    <a href="#" class="nav-item active p-2">🏠 Quản lý danh mục</a>
-                    <a href="#" class="nav-item p-2">👥 Bảng giá </a>
-                    <a href="#" class="nav-item p-2">🚚 Nhà cung cấp</a>
-                    <a href="#" class="nav-item p-2">📦 Danh mục</a>
-                    <a href="#" class="nav-item p-2">📊 Báo cáo</a>
-                </nav>
-            </div>
-            <div class="border-t border-gray-700 p-4 flex flex-col gap-2">
-                <a href="#" class="nav-item p-2">⚙️ Cài đặt</a>
-                <a href="#" class="nav-item p-2">↩️ Đăng xuất</a>
-            </div>
-        </div>
-    </aside>
+@template.layouts.owner(
+headContent = @`
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #111827;
+        }
+        .btn-primary {
+            background-color: #2563EB;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .data-table-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 24px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #374151;
+        }
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #D1D5DB;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+        .btn-secondary {
+            background-color: #6B7280;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .btn-link {
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: 14px;
+        }
+        .btn-link:hover {
+            opacity: 0.8;
+        }
+        .btn-link.delete {
+            color: #DC2626;
+        }
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .toast.success {
+            background-color: #10B981;
+        }
+        .toast.error {
+            background-color: #EF4444;
+        }
+        .toast.info {
+            background-color: #3B82F6;
+        }
+        /* Detail Modal */
+        .detail-modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 24px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+        .detail-item {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #6B7280;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .detail-value {
+            color: #111827;
+            font-size: 16px;
+        }
+    </style>
+`,
+content = @`
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">Quản lý nhà cung cấp</h1>
+        <button class="btn-primary" onclick="openCreateModal()">
+            <span class="material-icons" style="font-size: 18px;">add</span>
+            Thêm nhà cung cấp mới
+        </button>
+    </div>
 
-    <!-- Main content -->
-    <main class="flex-1 p-8">
-        <div class="max-w-6xl mx-auto">
-            <div class="mb-6">
-                <h1 class="text-2xl font-bold">Quản lý nhà cung cấp </h1>
-            </div>
-
-            <div class="flex items-center justify-between mb-6">
-                <div class="relative w-1/3">
-                    <input type="text" placeholder="Tìm kiếm theo tên nhà cung cấp ..." class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                </div>
-                <button id="btnAddSupplier" class="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium">
-                    ➕ Thêm Mới nhà cung cấp
-                </button>
-            </div>
-
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-gray-100">
-                    <tr>
-                        <th class="py-3 px-4 font-semibold text-gray-700">Tên nhà cung cấp</th>
-                        <th class="py-3 px-4 font-semibold text-gray-700">Thông tin</th>
-                        <th class="py-3 px-4 font-semibold text-gray-700">Địa chỉ</th>
-                        <th class="py-3 px-4 font-semibold text-gray-700">Hành động</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr class="border-t hover:bg-gray-50">
-                        <td class="py-3 px-4">Công ty dược phẩm FPT</td>
-                        <td class="py-3 px-4">23456789 </td>
-                        <td class="py-3 px-4">123 ABC Đường Hồ Chí Minh </td>
-                        <td class="py-3 px-4 text-right">
-                            <span class="text-blue-600 font-medium cursor-pointer mr-4" onclick="openUpdateModal('Công ty dược phẩm FPT','23456789','123 ABC Đường Hồ Chí Minh')">Cập nhật</span>
-                            <span class="text-blue-600 font-medium cursor-pointer">Xem chi tiết</span>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
+    <div class="data-table-container">
+        <table id="supplierTable" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tên nhà cung cấp</th>
+                    <th>Số điện thoại</th>
+                    <th>Địa chỉ</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
 </div>
 
-<!-- Popup thêm mới nhà cung cấp -->
-<div id="addSupplierModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
-    <div class="bg-white rounded-lg w-1/3 p-6">
-        <h2 class="text-xl font-bold mb-4">Thêm mới nhà cung cấp</h2>
-        <form id="addSupplierForm" class="flex flex-col gap-3">
-            <input type="text" placeholder="Tên nhà cung cấp" class="border border-gray-300 rounded-lg p-2">
-            <input type="text" placeholder="Thông tin" class="border border-gray-300 rounded-lg p-2">
-            <input type="text" placeholder="Địa chỉ" class="border border-gray-300 rounded-lg p-2">
-            <div class="flex justify-end gap-2 mt-4">
-                <button type="button" onclick="closeAddModal()" class="px-4 py-2 rounded-lg border border-gray-300">Hủy</button>
-                <button type="submit" class="px-4 py-2 rounded-lg bg-blue-600 text-white">Lưu</button>
+<!-- Create/Edit Supplier Modal -->
+<div id="supplierModal" class="modal">
+    <div class="modal-content">
+        <h2 style="margin-bottom: 24px; font-size: 20px; font-weight: 700;" id="modalTitle">Thêm nhà cung cấp mới</h2>
+        <form id="supplierForm">
+            <input type="hidden" id="supplierId">
+            
+            <div class="form-group">
+                <label class="form-label">Tên nhà cung cấp <span style="color: red;">*</span></label>
+                <input type="text" id="supplierName" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Số điện thoại</label>
+                <input type="text" id="phone" class="form-input">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Địa chỉ</label>
+                <input type="text" id="address" class="form-input">
+            </div>
+
+            <div class="btn-group">
+                <button type="button" class="btn-secondary" onclick="closeSupplierModal()">Hủy</button>
+                <button type="submit" class="btn-primary">Lưu</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Popup cập nhật nhà cung cấp -->
-<div id="updateSupplierModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
-    <div class="bg-white rounded-lg w-1/3 p-6">
-        <h2 class="text-xl font-bold mb-4">Cập nhật nhà cung cấp</h2>
-        <form id="updateSupplierForm" class="flex flex-col gap-3">
-            <input type="text" id="updateName" placeholder="Tên nhà cung cấp" class="border border-gray-300 rounded-lg p-2">
-            <input type="text" id="updateInfo" placeholder="Thông tin" class="border border-gray-300 rounded-lg p-2">
-            <input type="text" id="updateAddress" placeholder="Địa chỉ" class="border border-gray-300 rounded-lg p-2">
-            <div class="flex justify-end gap-2 mt-4">
-                <button type="button" onclick="closeUpdateModal()" class="px-4 py-2 rounded-lg border border-gray-300">Hủy</button>
-                <button type="submit" class="px-4 py-2 rounded-lg bg-blue-600 text-white">Cập nhật</button>
-            </div>
-        </form>
+<!-- Detail Supplier Modal -->
+<div id="detailModal" class="modal">
+    <div class="detail-modal-content">
+        <h2 style="margin-bottom: 24px; font-size: 20px; font-weight: 700;">Chi tiết nhà cung cấp</h2>
+        <div id="detailContent">
+            <!-- Detail content will be loaded here -->
+        </div>
+        <div class="btn-group" style="margin-top: 24px;">
+            <button type="button" class="btn-secondary" onclick="closeDetailModal()">Đóng</button>
+        </div>
     </div>
 </div>
 
-<script>
-    const addModal = document.getElementById('addSupplierModal');
-    const updateModal = document.getElementById('updateSupplierModal');
-
-    // Mở popup thêm mới
-    document.getElementById('btnAddSupplier').addEventListener('click', () => {
-        addModal.classList.remove('hidden');
-    });
-
-    function closeAddModal() {
-        addModal.classList.add('hidden');
-    }
-
-    function openUpdateModal(name, info, address) {
-        document.getElementById('updateName').value = name;
-        document.getElementById('updateInfo').value = info;
-        document.getElementById('updateAddress').value = address;
-        updateModal.classList.remove('hidden');
-    }
-
-    function closeUpdateModal() {
-        updateModal.classList.add('hidden');
-    }
-
-    // Ngăn form submit reload page (demo)
-    document.getElementById('addSupplierForm').addEventListener('submit', e => e.preventDefault());
-    document.getElementById('updateSupplierForm').addEventListener('submit', e => e.preventDefault());
-</script>
-</body>
-</html>
+<!-- Toast Notification -->
+<div id="toast" class="toast"></div>
+`,
+pageScript = @`<script src="/assets/js/owner/supplier_list.js" defer></script>`
+)
