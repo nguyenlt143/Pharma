@@ -12,10 +12,10 @@ import java.time.format.DateTimeFormatter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class InventoryCheckHistoryVM {
+    private String checkCode;
     private String checkDate;
-    private Integer checkedCount;
     private String checkDateRaw;
-
+    private Integer checkedCount;
 
     public InventoryCheckHistoryVM(Object[] row) {
         this.checkDate = row[0] != null
