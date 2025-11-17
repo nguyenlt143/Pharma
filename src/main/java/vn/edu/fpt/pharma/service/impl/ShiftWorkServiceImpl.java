@@ -52,7 +52,7 @@ public class ShiftWorkServiceImpl implements ShiftWorkService {
 
         // prevent duplicates
         shiftWorkRepo.findByShiftIdAndUserIdAndWorkDate(shiftId, req.getUserId(), date)
-                .ifPresent(_ -> { throw new IllegalArgumentException("User already assigned to this shift on date"); });
+                .ifPresent(existing -> { throw new IllegalArgumentException("User already assigned to this shift on date"); });
 
         // Find or create ShiftAssignment
         ShiftAssignment assignment = assignmentRepo.findByShiftIdAndUserId(shiftId, req.getUserId())

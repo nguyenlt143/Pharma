@@ -26,19 +26,26 @@ public class OwnerController {
         return "pages/owner/category_list";
     }
 
-    @GetMapping("/category/create")
-    public String categoryCreate(Model model) {
-        return "pages/owner/category_create";
+    // --- Quản lý nhà cung cấp ---
+    @GetMapping("/supplier/list")
+    public String supplierList(Model model) {
+        return "pages/owner/supplier_list";
     }
 
+    // --- Dashboard ---
+    @GetMapping("/dashboard")
+    public String dashboard(Model model) {
+        return "pages/owner/dashboard";
+    }
 
+    // --- Báo cáo ---
+    @GetMapping("/report/revenue")
+    public String reportRevenue(Model model) {
+        return "pages/owner/report_revenue";
+    }
 
-        @GetMapping("/owner/dashboard-report")
-        public String dashboardReport() {
-            return "owner/dashboard_report.jte";
-        }
-
-
-
-
+    @GetMapping("/report/profit")
+    public String reportProfit(Model model) {
+        return "pages/owner/report_profit";
+    }
 }

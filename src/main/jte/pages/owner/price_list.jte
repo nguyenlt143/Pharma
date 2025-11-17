@@ -1,82 +1,305 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý thuốc</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/owner/layout.css">
-</head>
+@template.layouts.owner(
+headContent = @`
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #111827;
+        }
+        .btn-primary {
+            background-color: #2563EB;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .data-table-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 24px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #374151;
+        }
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #D1D5DB;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+        .btn-secondary {
+            background-color: #6B7280;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .btn-link {
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: 14px;
+        }
+        .btn-link:hover {
+            opacity: 0.8;
+        }
+        .btn-link.delete {
+            color: #DC2626;
+        }
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .toast.success {
+            background-color: #10B981;
+        }
+        .toast.error {
+            background-color: #EF4444;
+        }
+        .toast.info {
+            background-color: #3B82F6;
+        }
+        /* Detail Modal */
+        .detail-modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 24px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+        .detail-item {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #6B7280;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .detail-value {
+            color: #111827;
+            font-size: 16px;
+        }
+        .filter-section {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            gap: 16px;
+            align-items: end;
+        }
+        .filter-group {
+            flex: 1;
+        }
+        .filter-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #374151;
+            font-size: 14px;
+        }
+        .filter-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #D1D5DB;
+            border-radius: 6px;
+        }
+        .filter-select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #D1D5DB;
+            border-radius: 6px;
+            font-size: 14px;
+            background-color: white;
+        }
+        .filter-select:focus {
+            outline: none;
+            border-color: #2563EB;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+        }
+    </style>
+`,
+content = @`
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">Quản lý giá</h1>
+        <button class="btn-primary" onclick="openCreateModal()">
+            <span class="material-icons" style="font-size: 18px;">add</span>
+            Điều chỉnh giá
+        </button>
+    </div>
 
-<body class="font-[Inter] bg-gray-50 text-gray-800">
-<div class="flex min-h-screen">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="flex flex-col h-full justify-between">
-            <div>
-                <div class="p-4 border-b border-gray-700">
-                    <h1 class="text-lg font-semibold text-white">PharmacyS</h1>
-                    <p class="text-sm text-gray-300">Quản trị viên</p>
-                </div>
-                <nav class="mt-4 flex flex-col">
-                    <a href="#" class="nav-item active">🏠 Quản lý thuốc</a>
-                    <a href="#" class="nav-item">👥 Bảng giá </a>
-                    <a href="#" class="nav-item">🚚 Nhà cung cấp</a>
-                    <a href="#" class="nav-item">📦 Danh mục</a>
-                    <a href="#" class="nav-item">📊 Báo cáo</a>
-                </nav>
-            </div>
-
-            <div class="border-t border-gray-700 p-4 flex flex-col gap-2">
-                <a href="#" class="nav-item">⚙️ Cài đặt</a>
-                <a href="#" class="nav-item">↩️ Đăng xuất</a>
-            </div>
+    <div class="filter-section">
+        <div class="filter-group">
+            <label class="filter-label">Biến thể thuốc</label>
+            <select id="filterVariantId" class="filter-select">
+                <option value="">Tất cả biến thể</option>
+            </select>
         </div>
-    </aside>
-
-    <!-- Main content -->
-    <main class="flex-1 p-8">
-        <div class="max-w-6xl mx-auto">
-            <div class="mb-6">
-                <h1 class="text-2xl font-bold">Bảng giá </h1>
-            </div>
-
-            <div class="flex items-center justify-between mb-6">
-                <div class="relative w-1/3">
-                    <input type="text" placeholder="Tìm kiếm theo giá..." class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    <span class="absolute right-3 top-2.5 text-gray-400"></span>
-                </div>
-                <button class="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium">
-                    ➕ Thêm bảng giá mới
-                </button>
-            </div>
-
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-gray-100">
-                    <tr>
-                        <th class="py-3 px-4 font-semibold text-gray-700">Tên bảng giá </th>
-                        <th class="py-3 px-4 font-semibold text-gray-700">Giá chi nhánh </th>
-                        <th class="py-3 px-4 font-semibold text-gray-700">Giá khuyến mãi </th>
-                        <th class="py-3 px-4 font-semibold text-gray-700">Thời hạn</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr class="border-t hover:bg-gray-50">
-                        <td class="py-3 px-4">ABC</td>
-                        <td class="py-3 px-4">30.000 VNĐ</td>
-                        <td class="py-3 px-4">20.000</td>
-                        <td class="py-3 px-4">20/12/2025</td>
-                        <td class="py-3 px-4 text-right text-blue-600 font-medium cursor-pointer">Cập nhật</td>
-                        <td class="py-3 px-4 text-right text-blue-600 font-medium cursor-pointer">Xem chi tiet</td>
-
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+        <div class="filter-group">
+            <label class="filter-label">Chi nhánh</label>
+            <select id="filterBranchId" class="filter-select">
+                <option value="">Tất cả chi nhánh</option>
+            </select>
         </div>
-    </main>
+        <button class="btn-primary" onclick="applyFilter()" style="height: fit-content;">Lọc</button>
+        <button class="btn-secondary" onclick="clearFilter()" style="height: fit-content;">Xóa lọc</button>
+    </div>
+
+    <div class="data-table-container">
+        <table id="priceTable" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Biến thể thuốc</th>
+                    <th>Giá bán</th>
+                    <th>Giá chi nhánh</th>
+                    <th>Ngày bắt đầu</th>
+                    <th>Ngày kết thúc</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
 </div>
-</body>
-</html>
+
+<!-- Create/Edit Price Modal -->
+<div id="priceModal" class="modal">
+    <div class="modal-content">
+        <h2 style="margin-bottom: 24px; font-size: 20px; font-weight: 700;" id="modalTitle">Điều chỉnh giá</h2>
+        <form id="priceForm">
+            <input type="hidden" id="priceId">
+            
+            <div class="form-group">
+                <label class="form-label">Biến thể thuốc <span style="color: red;">*</span></label>
+                <select id="variantId" class="form-input" required>
+                    <option value="">Chọn biến thể thuốc</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Chi nhánh</label>
+                <select id="branchId" class="form-input">
+                    <option value="">Chọn chi nhánh</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Giá bán <span style="color: red;">*</span></label>
+                <input type="number" id="salePrice" class="form-input" step="0.01" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Giá chi nhánh</label>
+                <input type="number" id="branchPrice" class="form-input" step="0.01">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Ngày bắt đầu</label>
+                <input type="datetime-local" id="startDate" class="form-input">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Ngày kết thúc</label>
+                <input type="datetime-local" id="endDate" class="form-input">
+            </div>
+
+            <div class="btn-group">
+                <button type="button" class="btn-secondary" onclick="closePriceModal()">Hủy</button>
+                <button type="submit" class="btn-primary">Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Detail Price Modal -->
+<div id="detailModal" class="modal">
+    <div class="detail-modal-content">
+        <h2 style="margin-bottom: 24px; font-size: 20px; font-weight: 700;">Chi tiết giá</h2>
+        <div id="detailContent">
+            <!-- Detail content will be loaded here -->
+        </div>
+        <div class="btn-group" style="margin-top: 24px;">
+            <button type="button" class="btn-secondary" onclick="closeDetailModal()">Đóng</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast"></div>
+`,
+pageScript = @`<script src="/assets/js/owner/price_list.js" defer></script>`
+)
