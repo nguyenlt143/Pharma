@@ -24,7 +24,7 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, Lo
             idt.quantity AS quantity
         FROM invoice_details idt
         JOIN medicine_variant mv ON idt.variant_id = mv.id
-        JOIN units u ON mv.package_unit_id = u.id
+        JOIN units u ON mv.base_unit_id = u.id
         JOIN medicines m ON mv.medicine_id = m.id
         WHERE idt.invoice_id = :id
 """, nativeQuery = true)
@@ -44,11 +44,12 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, Lo
     JOIN invoices i ON idt.invoice_id = i.id
     JOIN medicine_variant mv ON idt.variant_id = mv.id
     JOIN medicines m ON mv.medicine_id = m.id
-    JOIN units u ON mv.package_unit_id = u.id
+    JOIN units u ON mv.base_unit_id = u.id
     JOIN shift_works sw ON i.shift_work_id = sw.id
-    JOIN shifts s ON sw.shift_id = s.id
+    JOIN shift_assignments sa ON sw.assignment_id = sa.id
+    JOIN shifts s ON sa.shift_id = s.id
     WHERE 
-        sw.user_id = :userId
+        sa.user_id = :userId
         AND YEAR(i.created_at) = :year
         AND MONTH(i.created_at) = :month
     GROUP BY 
