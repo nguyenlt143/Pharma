@@ -4,6 +4,8 @@ import org.springframework.ui.Model;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import vn.edu.fpt.pharma.dto.warehouse.RequestList;
 import vn.edu.fpt.pharma.service.RequestFormService;
 
 @Controller
@@ -34,9 +36,10 @@ public class RequestListController {
     }
 
     @GetMapping("/detail")
-    public String detail(Long id, Model model) {
-        // bạn có thể load detail ở đây
-        // model.addAttribute("detail", ...);
-        return "pages/warehouse/request_list";
+    public String detail(@RequestParam Long id, Model model) {
+        model.addAttribute("request", requestFormService.getDetailById(id));
+        model.addAttribute("details", requestFormService.getDetailsOfRequest(id));
+
+        return "pages/warehouse/request_detail";
     }
 }

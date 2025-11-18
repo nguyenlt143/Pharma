@@ -1,3 +1,10 @@
+@import vn.edu.fpt.pharma.dto.warehouse.RequestDetailVM
+@import vn.edu.fpt.pharma.dto.warehouse.RequestList
+@import java.util.List
+
+@param RequestList request
+@param List<RequestDetailVM> details
+
 @template.layouts.warehouse(
 headContent = @`
     <title>Chi Tiết Yêu Cầu</title>
@@ -10,6 +17,8 @@ headContent = @`
 content = @`
     <div class="overlay">
         <div class="modal">
+
+            <!-- HEADER -->
             <header class="modal-header">
                 <h1 class="modal-title">Chi Tiết Yêu Cầu</h1>
                 <button class="close-button" onclick="closeModal()">
@@ -17,27 +26,41 @@ content = @`
                 </button>
             </header>
 
+            <!-- GENERAL INFO -->
             <div class="modal-content">
+
                 <div class="info-section">
                     <div class="info-group">
                         <label class="info-label">Tên chi nhánh</label>
-                        <div class="info-value">Hoàng Mai</div>
+                        <div class="info-value">${request.branchId()}</div>
                     </div>
+
                     <div class="info-group">
                         <label class="info-label">Loại yêu cầu</label>
-                        <div class="info-value">Nhập hàng</div>
+                        <div class="info-value">
+                            @if(request.requestType().equals("IMPORT"))
+                                Nhập hàng
+                            @elseif(request.requestType().equals("RETURN"))
+                                Trả hàng
+                            @else
+                                Không xác định
+                            @endif
+                        </div>
                     </div>
                 </div>
 
+                <!-- NOTE -->
                 <div class="content-section">
                     <label class="content-label">Nội dung</label>
                     <div class="content-text">
-                        Yêu cầu nhập thêm một số loại thuốc phổ biến do nhu cầu tăng cao trong mùa dịch.
+                        ${request.note()}
                     </div>
                 </div>
 
+                <!-- DETAILS TABLE -->
                 <div class="medicine-section">
                     <h2 class="section-title">Danh sách thuốc</h2>
+
                     <table class="medicine-table">
                         <thead>
                         <tr>
@@ -48,42 +71,39 @@ content = @`
                             <th>Số lượng</th>
                         </tr>
                         </thead>
+
                         <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Paracetamol</td>
-                            <td>500mg</td>
-                            <td>Hộp</td>
-                            <td>50</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Berberin</td>
-                            <td>50mg</td>
-                            <td>Chai</td>
-                            <td>100</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Oresol</td>
-                            <td>20mg</td>
-                            <td>Gói</td>
-                            <td>200</td>
-                        </tr>
+                        @for(RequestDetailVM detail : details)
+                            <tr>
+                                <td>${details.indexOf(detail) + 1}</td>
+                                <td>${detail.variantId()}</td>
+                                <td>${detail.variantId()}</td>
+                                <td>${detail.variantId()}</td>
+                                <td>${detail.quantity()}</td>
+                            </tr>
+                        @endfor
                         </tbody>
                     </table>
                 </div>
 
-                <div class="notes-section">
-                    <label class="notes-label">Ghi chú</label>
-                    <textarea class="notes-textarea" placeholder="Thêm ghi chú..."></textarea>
-                </div>
             </div>
 
+            <!-- FOOTER -->
             <footer class="modal-footer">
-                <button class="reject-button" onclick="rejectRequest()">Từ Chối</button>
-                <button class="approve-button" onclick="createExportSlip()">Tạo Phiếu Xuất</button>
+
+                @if(request.requestStatus().equals("REQUESTED"))
+                    <button class="reject-button" onclick="rejectRequest(${request.id()})">Từ Chối</button>
+                    <button class="approve-button" onclick="createExportSlip(${request.id()})">Tạo Phiếu Xuất</button>
+                @elseif(request.requestStatus().equals("CONFIRMED"))
+                    <button class="approve-button disabled">Đã duyệt</button>
+                @elseif(request.requestStatus().equals("CANCELLED"))
+                    <button class="reject-button disabled">Đã từ chối</button>
+                @else
+                    <button class="reject-button disabled">Không xác định</button>
+                @endif
+
             </footer>
+
         </div>
     </div>
 `,

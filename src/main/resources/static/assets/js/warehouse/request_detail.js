@@ -1,37 +1,44 @@
+// Hàm đóng modal và quay về trang trước
 function closeModal() {
-    console.log('Đóng modal');
-    // In a real application, this would close the modal
-    // For demo purposes, we'll just hide it
-    document.querySelector('.overlay').style.display = 'none';
+    console.log('Đóng modal, quay về trang trước');
+    history.back(); // trở về URL trước
 }
 
-function rejectRequest() {
-    console.log('Từ chối yêu cầu');
-    // Handle reject request logic here
+// Xử lý từ chối yêu cầu
+function rejectRequest(id) {
+    console.log('Từ chối yêu cầu với ID:', id);
+    // Thêm logic thực sự xử lý từ chối ở đây
     alert('Yêu cầu đã được từ chối');
 }
 
-function createExportSlip() {
-    console.log('Tạo phiếu xuất');
-    // Handle create export slip logic here
+// Xử lý tạo phiếu xuất
+function createExportSlip(id) {
+    console.log('Tạo phiếu xuất cho ID:', id);
+    // Thêm logic thực sự tạo phiếu xuất ở đây
     alert('Đã tạo phiếu xuất thành công');
 }
 
-// Add keyboard event listener for ESC key to close modal
+// ESC key để đóng modal
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
         closeModal();
     }
 });
 
-// Add click outside modal to close
-document.querySelector('.overlay').addEventListener('click', function(event) {
-    if (event.target === this) {
-        closeModal();
-    }
-});
+// Click ra ngoài modal để đóng
+const overlay = document.querySelector('.overlay');
+if (overlay) {
+    overlay.addEventListener('click', function(event) {
+        if (event.target === this) {
+            closeModal();
+        }
+    });
+}
 
-// Prevent modal content clicks from closing the modal
-document.querySelector('.modal').addEventListener('click', function(event) {
-    event.stopPropagation();
-});
+// Ngăn click vào nội dung modal đóng modal
+const modal = document.querySelector('.modal');
+if (modal) {
+    modal.addEventListener('click', function(event) {
+        event.stopPropagation();
+    });
+}

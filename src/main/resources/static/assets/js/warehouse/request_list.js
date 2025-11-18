@@ -39,7 +39,6 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log(`Filter clicked: ${filterText}`);
 
             // Add your filter logic here
-            // For example, you could show a dropdown menu or open a modal
         });
     });
 
@@ -48,28 +47,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
     detailLinks.forEach(link => {
         link.addEventListener('click', function(e) {
-            e.preventDefault();
-
-            // Get the row data
+            // Chỉ log thông tin, không preventDefault
             const row = this.closest('.table-row');
-            const branch = row.querySelector('.data-cell:first-child').textContent;
-            const date = row.querySelector('.date-cell').textContent;
-            const type = row.querySelector('.type-cell').textContent;
-            const status = row.querySelector('.status-button').textContent;
+            if (row) {
+                const branchCell = row.querySelector('.data-cell:first-child');
+                const dateCell = row.querySelector('.date-cell');
+                const typeCell = row.querySelector('.type-cell');
+                const statusCell = row.querySelector('.status-button');
 
-            console.log('Detail view for:', {
-                branch,
-                date,
-                type,
-                status
-            });
+                const branch = branchCell ? branchCell.textContent : '';
+                const date = dateCell ? dateCell.textContent : '';
+                const type = typeCell ? typeCell.textContent : '';
+                const status = statusCell ? statusCell.textContent : '';
 
-            // Add your detail view logic here
-            // For example, you could navigate to a detail page or open a modal
+                console.log('Detail view for:', { branch, date, type, status });
+            }
+            // Không preventDefault → click trái tự điều hướng
         });
     });
 
-    // Search functionality (if needed)
+    // Search functionality
     const searchContainer = document.querySelector('.search-container');
 
     if (searchContainer) {
