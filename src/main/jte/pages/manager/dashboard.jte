@@ -1,5 +1,8 @@
 @template.layouts.manager(
-headContent = @`<link rel="stylesheet" href="/assets/css/manager/dashboard.css">`,
+headContent = @`
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/assets/css/manager/dashboard.css">
+`,
 content = @`
     <main class="main">
         <div class="main-container">
@@ -57,89 +60,23 @@ content = @`
             </div>
 
             <div class="charts-container">
-                <div class="chart-card">
-                    <h3 class="chart-title">Doanh thu 7 ngày gần nhất</h3>
+                <div class="chart-card" id="revenue-chart-card">
+                    <h3 class="chart-title" id="revenue-chart-title">Doanh thu 7 ngày gần nhất</h3>
                     <div class="chart-content">
-                        <div class="bar-chart">
-                            <div class="bar-container">
-                                <div class="bar" style="height: 153.59px;">
-                                    <img src="https://static.codia.ai/image/2025-10-26/so8mVbqdGm.png" alt="Bar" class="bar-fill">
-                                </div>
-                                <span class="bar-label">T2</span>
-                            </div>
-                            <div class="bar-container">
-                                <div class="bar" style="height: 204.8px;">
-                                    <img src="https://static.codia.ai/image/2025-10-26/hoPDraQ5EW.png" alt="Bar" class="bar-fill">
-                                </div>
-                                <span class="bar-label">T3</span>
-                            </div>
-                            <div class="bar-container">
-                                <div class="bar" style="height: 102.39px;">
-                                    <img src="https://static.codia.ai/image/2025-10-26/ab98agZ2ZS.png" alt="Bar" class="bar-fill">
-                                </div>
-                                <span class="bar-label">T4</span>
-                            </div>
-                            <div class="bar-container">
-                                <div class="bar" style="height: 228px;">
-                                    <img src="https://static.codia.ai/image/2025-10-26/ZMNK4L55tE.png" alt="Bar" class="bar-fill">
-                                </div>
-                                <span class="bar-label active">T5</span>
-                            </div>
-                            <div class="bar-container">
-                                <div class="bar" style="height: 192px;">
-                                    <img src="https://static.codia.ai/image/2025-10-26/HM00nbE2fq.png" alt="Bar" class="bar-fill">
-                                </div>
-                                <span class="bar-label">T6</span>
-                            </div>
-                            <div class="bar-container">
-                                <div class="bar" style="height: 128px;">
-                                    <img src="https://static.codia.ai/image/2025-10-26/XDU2hXqeZh.png" alt="Bar" class="bar-fill">
-                                </div>
-                                <span class="bar-label">T7</span>
-                            </div>
-                            <div class="bar-container">
-                                <div class="bar" style="height: 228px;">
-                                    <img src="https://static.codia.ai/image/2025-10-26/rfFEiyPdGq.png" alt="Bar" class="bar-fill">
-                                </div>
-                                <span class="bar-label">CN</span>
-                            </div>
+                        <!-- Dynamic revenue bar chart: populated by JS -->
+                        <div class="bar-chart" id="revenue-chart">
+                            <!-- Bars will be injected here by /assets/js/manager/dashboard.js -->
                         </div>
+                        <!-- Line chart canvas for 30 days view -->
+                        <canvas id="revenue-line-chart" style="display: none;" height="60"></canvas>
                     </div>
                 </div>
 
                 <div class="chart-card">
-                    <h3 class="chart-title">Top 5 nhóm thuốc bán chạy</h3>
-                    <div class="progress-list">
-                        <div class="progress-item">
-                            <span class="progress-label">Thuốc giảm đau</span>
-                            <div class="progress-bar">
-                                <img src="https://static.codia.ai/image/2025-10-26/fNQpXDUou2.png" alt="Progress" class="progress-fill">
-                            </div>
-                        </div>
-                        <div class="progress-item">
-                            <span class="progress-label">Kháng sinh</span>
-                            <div class="progress-bar">
-                                <img src="https://static.codia.ai/image/2025-10-26/N37z1VTQCJ.png" alt="Progress" class="progress-fill">
-                            </div>
-                        </div>
-                        <div class="progress-item">
-                            <span class="progress-label">Vitamin</span>
-                            <div class="progress-bar">
-                                <img src="https://static.codia.ai/image/2025-10-26/VmV7dfcemE.png" alt="Progress" class="progress-fill">
-                            </div>
-                        </div>
-                        <div class="progress-item">
-                            <span class="progress-label">Thuốc cảm cúm</span>
-                            <div class="progress-bar">
-                                <img src="https://static.codia.ai/image/2025-10-26/dmYnVrj22V.png" alt="Progress" class="progress-fill">
-                            </div>
-                        </div>
-                        <div class="progress-item">
-                            <span class="progress-label">Tiêu hoá</span>
-                            <div class="progress-bar">
-                                <img src="https://static.codia.ai/image/2025-10-26/is1A3PSHX9.png" alt="Progress" class="progress-fill">
-                            </div>
-                        </div>
+                    <h3 class="chart-title">Thống kê sản phẩm theo danh mục</h3>
+                    <!-- Dynamic product stats list: populated by JS -->
+                    <div id="productStatsList">
+                        <!-- Items will be injected here by /assets/js/manager/dashboard.js -->
                     </div>
                 </div>
             </div>

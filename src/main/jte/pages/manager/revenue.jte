@@ -55,6 +55,14 @@
                     </div>
             </div>
 
+            <div class="bottom-section">
+                <!-- Product Statistics -->
+                <div class="product-stats">
+                    <h2>Thống kê sản phẩm theo danh mục</h2>
+                    <p class="product-total">Tổng sản phẩm đã bán: <span id="total-products">0</span></p>
+                    <div id="productStatsList"><!-- items injected by JS --></div>
+                </div>
+            </div>
             <!-- Invoice Details Table -->
             <div class="table-section">
                 <h2>Chi tiết hóa đơn </h2>
@@ -76,32 +84,7 @@
                     </table>
                 </div>
             </div>
-
-            <!-- Bottom Section -->
-            <div class="bottom-section">
-                <!-- Product Statistics -->
-                <div class="product-stats">
-                    <h2>Thống kê theo loại sản phẩm</h2>
-                    <div class="chart-container">
-                        <div class="donut-chart">
-                            <svg width="200" height="200" viewBox="0 0 200 200" id="donut-chart">
-                                <circle cx="100" cy="100" r="80" fill="none" stroke="#e0e0e0" stroke-width="20"/>
-                            </svg>
-                            <div class="chart-center">
-                                <div class="chart-number" id="total-products"></div>
-                                <div class="chart-label">sản phẩm đã bán</div>
-                            </div>
-                        </div>
-                        <div class="chart-legend" id="chart-legend">
-                            <!-- legend items append từ JS -->
-                        </div>
-                    </div>
-                </div>
-            </div>
         </main>
     `,
     pageScript = @`<script src="/assets/js/manager/revenue.js" defer></script>`
 )
-
-
-

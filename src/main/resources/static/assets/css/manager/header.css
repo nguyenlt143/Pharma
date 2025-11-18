@@ -1,16 +1,10 @@
 /*
  * =========================================
- * Biến màu chủ đề
+ * Biến màu chủ đề (use base --primary)
  * =========================================
  */
 :root {
-    --primary: #EF4444; /* Màu đỏ chính (vẫn giữ cho các phần khác) */
-
-    /* --- THAY ĐỔI: Thêm màu xanh lục --- */
-    --green-logo: #10B981; /* Màu xanh lục từ thiết kế ban đầu */
-    --green-active-bg: #D1FAE5; /* Tương đương bg-green-100 */
-    /* --- Hết thay đổi --- */
-
+    --primary: #10B981; /* green */
     --background-light: #F8FAFC;
     --card-light: #FFFFFF;
     --text-light: #1E293B;
@@ -19,270 +13,44 @@
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-/*
- * =========================================
- * CSS Cơ bản
- * =========================================
- */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* Base */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; font-size: 14px; line-height: 20px; color: var(--text-light); background-color: var(--background-light); }
+.dashboard { width: 100%; min-height: 100vh; }
 
-body {
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    line-height: 20px;
-    color: var(--text-light);
-    background-color: var(--background-light);
-}
+/* Header */
+.header { background: var(--card-light); box-shadow: var(--shadow-md); height: 64px; display: flex; align-items: center; position: sticky; top: 0; z-index: 20; }
+.header-container { width: 100%; display: flex; align-items: center; justify-content: space-between; max-width: 80rem; margin-left: auto; margin-right: auto; padding-left: 1rem; padding-right: 1rem; }
 
-.dashboard {
-    width: 100%;
-    min-height: 100vh;
-}
+/* Logo */
+.logo-container { display: flex; align-items: center; gap: 12px; }
+.logo-icon { width: 32px; height: 32px; }
+.logo-text { font-weight: 700; font-size: 24px; line-height: 32px; color: var(--primary); }
 
-/*
- * =========================================
- * Header Styles
- * =========================================
- */
-.header {
-    background: var(--card-light);
-    box-shadow: var(--shadow-md);
-    height: 64px;
-    display: flex;
-    align-items: center;
-    position: sticky;
-    top: 0;
-    z-index: 20;
-}
+/* Navigation */
+.nav { display: none; align-items: center; gap: 1rem; }
+@media (min-width: 768px) { .nav { display: flex; } }
 
-.header-container {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    max-width: 80rem;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 1rem;
-    padding-right: 1rem;
-}
+.nav-link { text-decoration: none; font-size: 14px; line-height: 20px; color: var(--muted-light); font-weight: 500; padding: 0.5rem 0.75rem; border-radius: 0.5rem; display: flex; align-items: center; transition: all 0.2s ease; }
+.nav-link:hover { background-color: var(--hover-light); color: var(--text-light); }
+.nav-link.active { background-color: rgba(16,185,129,.15); color: var(--primary); font-weight: 600; }
 
-/*
- * =========================================
- * Logo (Đã chỉnh sửa)
- * =========================================
- */
-.logo-container {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
+/* User Section */
+.user-section { display: flex; align-items: center; gap: 1rem; }
+.notification-icon { width: 24px; height: 24px; cursor: pointer; border-radius: 50%; padding: 8px; box-sizing: content-box; transition: background-color 0.2s ease; }
+.notification-icon:hover { background-color: var(--hover-light); }
+.user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
 
-.logo-icon {
-    width: 32px;
-    height: 32px;
-}
+/* Dropdown menu (Báo cáo) */
+.nav-dropdown { position: relative; }
+.nav-dropdown > .nav-link { display: flex; align-items: center; cursor: pointer; }
+.nav-dropdown .dropdown-content { display: none; position: absolute; top: 100%; left: 0; background-color: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 100; border-radius: 0.5rem; min-width: 180px; padding: 0.5rem 0; flex-direction: column; opacity: 0; transform: translateY(5px); pointer-events: none; transition: all 0.2s ease; }
+.nav-dropdown:hover .dropdown-content, .nav-dropdown .dropdown-content[style*="display: flex"] { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.nav-dropdown .dropdown-content a { text-decoration: none; color: var(--muted-light); font-weight: 500; white-space: nowrap; padding: 0.5rem 1rem; transition: background-color 0.2s ease, color 0.2s ease; }
+.nav-dropdown .dropdown-content a:hover { background-color: var(--hover-light); color: var(--primary); }
+.nav-dropdown .dropdown-content a.active { color: var(--primary); font-weight: 600; background-color: rgba(16,185,129,.15); }
+.nav-dropdown > .nav-link.active { background-color: rgba(16,185,129,.15); color: var(--primary); font-weight: 600; }
 
-.logo-text {
-    font-weight: 700;
-    font-size: 24px;
-    line-height: 32px;
-    color: var(--green-logo); /* THAY ĐỔI: Đã đổi từ var(--primary) sang var(--green-logo) */
-}
-
-/*
- * =========================================
- * Navigation (Đã chỉnh sửa)
- * =========================================
- */
-.nav {
-    display: none;
-    align-items: center;
-    gap: 1rem;
-}
-
-@media (min-width: 768px) {
-    .nav {
-        display: flex;
-    }
-}
-
-.nav-link {
-    text-decoration: none;
-    font-size: 14px;
-    line-height: 20px;
-    color: var(--muted-light);
-    font-weight: 500;
-    padding: 0.5rem 0.75rem;
-    border-radius: 0.5rem;
-    display: flex;
-    align-items: center;
-    transition: all 0.2s ease;
-}
-
-.nav-link:hover {
-    background-color: var(--hover-light);
-    color: var(--text-light);
-}
-
-.nav-link.active {
-    /* --- THAY ĐỔI: Chuyển sang style màu xanh --- */
-    background-color: var(--green-active-bg);
-    color: var(--green-logo);
-    /* --- Hết thay đổi --- */
-
-    font-weight: 600;
-}
-
-/*
- * =========================================
- * User Section
- * =========================================
- */
-.user-section {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.notification-icon {
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-    border-radius: 50%;
-    padding: 8px;
-    box-sizing: content-box;
-    transition: background-color 0.2s ease;
-}
-
-.notification-icon:hover {
-    background-color: var(--hover-light);
-}
-
-.user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-/*
- * =========================================
- * Media Queries
- * =========================================
- */
-@media (min-width: 640px) {
-    .header-container {
-        padding-left: 1.5rem;
-        padding-right: 1.5rem;
-    }
-}
-@media (min-width: 1024px) {
-    .header-container {
-        padding-left: 2rem;
-        padding-right: 2rem;
-    }
-}
-
-/* ==========================
-   Dropdown menu (Báo cáo)
-   ========================== */
-/* ==========================
-   Dropdown menu (Báo cáo)
-   ========================== */
-.nav-dropdown {
-    position: relative;
-}
-
-/* Nút Báo cáo */
-.nav-dropdown > .nav-link {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-}
-
-/* Container dropdown */
-.nav-dropdown .dropdown-content {
-    display: none; /* Ẩn mặc định */
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background-color: #fff;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    z-index: 100;
-    border-radius: 0.5rem;
-    min-width: 180px;
-    padding: 0.5rem 0;
-
-    /* bố cục dọc */
-    display: flex;
-    flex-direction: column;
-
-    /* hiệu ứng mượt */
-    opacity: 0;
-    transform: translateY(5px);
-    pointer-events: none;
-    transition: all 0.2s ease;
-}
-
-/* Hiện khi hover hoặc khi JS bật display:flex */
-.nav-dropdown:hover .dropdown-content,
-.nav-dropdown .dropdown-content[style*="display: flex"] {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-}
-
-/* Item trong dropdown */
-.nav-dropdown .dropdown-content a {
-    text-decoration: none;
-    color: var(--muted-light);
-    font-weight: 500;
-    white-space: nowrap;
-    padding: 0.5rem 1rem;
-    transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-/* Hover item */
-.nav-dropdown .dropdown-content a:hover {
-    background-color: var(--hover-light);
-    color: var(--green-logo);
-}
-
-/* Item active trong dropdown */
-.nav-dropdown .dropdown-content a.active {
-    color: var(--green-logo);
-    font-weight: 600;
-    background-color: var(--green-active-bg);
-}
-
-/* Khi ở trang con -> Báo cáo cũng active */
-.nav-dropdown > .nav-link.active {
-    background-color: var(--green-active-bg);
-    color: var(--green-logo);
-    font-weight: 600;
-}
-
-/* Hover item */
-.nav-dropdown .dropdown-content a:hover {
-    color: var(--green-logo);
-}
-
-/* Item active trong dropdown */
-.nav-dropdown .dropdown-content a.active {
-    color: var(--green-logo);
-    font-weight: 600;
-}
-
-/* Khi ở trang con -> Báo cáo cũng active */
-.nav-dropdown > .nav-link.active {
-    background-color: var(--green-active-bg);
-    color: var(--green-logo);
-    font-weight: 600;
-}
-
-
+/* Media */
+@media (min-width: 640px) { .header-container { padding-left: 1.5rem; padding-right: 1.5rem; } }
+@media (min-width: 1024px) { .header-container { padding-left: 2rem; padding-right: 2rem; } }

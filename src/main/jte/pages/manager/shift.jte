@@ -60,16 +60,15 @@ content = @`
     <!-- Popup xem nhân viên trong ca -->
     <div id="employeeModal" class="modal hidden">
         <div class="modal-content">
-            <h2 class="shift-title">Ca sáng (08:00 - 12:00)</h2>
+            <h2 id="shiftEmployeeTitle" class="shift-title"></h2>
 
             <table class="employee-table">
                 <thead>
                 <tr>
                     <th>Tên nhân viên</th>
                     <th>Chức vụ</th>
-                    <th>Trạng thái</th>
                     <th>Thời gian tạo</th>
-                    <th>Action</th>
+                    <th>Xóa</th>
                 </tr>
                 </thead>
                 <tbody id="employeeTableBody">
@@ -78,18 +77,18 @@ content = @`
             </table>
 
             <div class="assign-section">
-                <h3>Assign Employee</h3>
+                <h3>Phân công nhân viên</h3>
                 <div class="assign-controls">
                     <select id="employeeSelect" class="select-employee">
-                        <option value="">Select an employee to assign...</option>
+                        <option value="">Chọn nhân viên thêm vào ca</option>
                     </select>
-                    <button id="assignBtn" class="btn-primary">+ Assign to Shift</button>
+                    <button id="assignBtn" class="btn-primary">Thêm nhân viên</button>
                 </div>
             </div>
 
             <div class="modal-actions">
-                <button class="btn-secondary" id="closeEmployeeModal">✖ Close</button>
-                <button class="btn-success" id="saveChangesBtn">✔ Save Changes</button>
+                <button class="btn-secondary" id="closeEmployeeModal">Đóng</button>
+<%--                <button class="btn-success" id="saveChangesBtn">✔ Save Changes</button>--%>
             </div>
         </div>
     </div>

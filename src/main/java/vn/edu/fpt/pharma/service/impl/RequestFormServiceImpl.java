@@ -4,8 +4,10 @@ import org.springframework.stereotype.Service;
 import vn.edu.fpt.pharma.base.BaseServiceImpl;
 import vn.edu.fpt.pharma.constant.RequestType;
 import vn.edu.fpt.pharma.dto.requestform.RequestFormVM;
+import vn.edu.fpt.pharma.dto.warehouse.RequestDetailVM;
 import vn.edu.fpt.pharma.dto.warehouse.RequestList;
 import vn.edu.fpt.pharma.entity.RequestForm;
+import vn.edu.fpt.pharma.repository.RequestDetailRepository;
 import vn.edu.fpt.pharma.repository.RequestFormRepository;
 import vn.edu.fpt.pharma.service.AuditService;
 import vn.edu.fpt.pharma.service.RequestFormService;
@@ -20,12 +22,15 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
 
     private final RequestFormRepository repository;
     private final AuditService auditService;
+    private final RequestDetailRepository requestDetailRepository;
+
 
     // Constructor gọi explicit BaseServiceImpl
-    public RequestFormServiceImpl(RequestFormRepository repository, AuditService auditService) {
+    public RequestFormServiceImpl(RequestFormRepository repository, AuditService auditService, RequestDetailRepository requestDetailRepository) {
         super(repository, auditService);
         this.repository = repository;
         this.auditService = auditService;
+        this.requestDetailRepository = requestDetailRepository;
     }
 
     @Override
@@ -88,6 +93,21 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
         return repository.findByRequestType(RequestType.RETURN)
                 .stream()
                 .map(RequestList::new)
+                .toList();
+    }
+
+    @Override
+    public RequestList getDetailById(Long id) {
+        RequestForm entity = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("RequestForm not found"));
+        return new RequestList(entity);
+    }
+
+    @Override
+    public List<RequestDetailVM> getDetailsOfRequest(Long requestId) {
+        return requestDetailRepository.findByRequestFormId(requestId)
+                .stream()
+                .map(RequestDetailVM::new)
                 .toList();
     }
 

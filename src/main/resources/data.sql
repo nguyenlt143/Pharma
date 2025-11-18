@@ -143,12 +143,7 @@ VALUES ('Viên', 'Dạng đơn vị thuốc nhỏ nhất, thường dùng cho th
 
 INSERT INTO CATEGORYS (name, description, deleted)
 VALUES
--- LEVEL 1 (PARENT)
-('Thuốc điều trị', 'Nhóm thuốc điều trị bệnh phổ biến', FALSE),                                 -- ID = 1
-('Thuốc theo bệnh lý', 'Thuốc điều trị theo nhóm bệnh và cơ quan', FALSE),                      -- ID = 2
-('Chăm sóc sức khỏe và bổ trợ', 'Vitamin, khoáng chất và sản phẩm tăng cường sức khỏe', FALSE), -- ID = 3
-('Sản phẩm cho trẻ em', 'Sản phẩm và thuốc dành riêng cho trẻ em', FALSE),
--- LEVEL 2 – CHILD OF: Thuốc điều trị (Parent = 1)
+-- LEVEL 2 – CHILD OF: Thuốc điều trị (Parent = 2)
 ('Thuốc cảm cúm', 'Điều trị cảm lạnh, nghẹt mũi, sổ mũi', FALSE),
 ('Thuốc ho – long đờm', 'Giảm ho và hỗ trợ tiêu đờm', FALSE),
 ('Thuốc hạ sốt – giảm đau ', 'Hạ sốt, giảm đau ', FALSE),
@@ -692,7 +687,6 @@ VALUES
     (42, 4, 4, 60, 135000,  135000, NOW(), FALSE),
     (43, 12, 12, 40, 51000,  51000, NOW(), FALSE),
     (44, 6, 6, 30, 83000, 83000,  NOW(), FALSE);
-
 
 -- =========================================================
 -- 6) WARE_TO_SUP (Kho tổng trả Supplier): 2 movements

@@ -180,6 +180,38 @@ body {
     color: #333;
 }
 
+/* Product stats list (like dashboard) */
+.product-stats {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 24px;
+}
+.product-stats h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+.product-total {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 12px;
+}
+#productStatsList { display: flex; flex-direction: column; gap: 12px; }
+.product-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #E5E7EB;
+}
+.product-item:last-child { border-bottom: none; }
+.product-name { font-weight: 500; color: #374151; }
+.product-percent { font-size: 14px; color: #6B7280; margin-left: 12px; }
+.product-bar { height: 8px; background: #E5E7EB; border-radius: 4px; margin: 8px 0; overflow: hidden; }
+.product-bar-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+
 /* Table Section */
 .table-section {
     margin-bottom: 32px;
@@ -246,185 +278,4 @@ body {
 /* Bottom Section */
 .bottom-section {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-}
-
-.product-stats,
-.revenue-comparison {
-    background-color: white;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 20px;
-}
-
-.product-stats h2,
-.revenue-comparison h2 {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 16px;
-    color: #333;
-}
-
-/* Chart */
-.chart-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-}
-
-.donut-chart {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.chart-center {
-    position: absolute;
-    text-align: center;
-}
-
-.chart-number {
-    font-size: 24px;
-    font-weight: 600;
-    color: #333;
-}
-
-.chart-label {
-    font-size: 12px;
-    color: #666;
-}
-
-.chart-legend {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
-}
-
-.legend-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-}
-
-.legend-color {
-    width: 12px;
-    height: 12px;
-    border-radius: 2px;
-}
-
-.legend-percent {
-    margin-left: auto;
-    font-weight: 500;
-    color: #666;
-}
-
-/* Revenue Comparison */
-.comparison-content {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.comparison-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.comparison-row label {
-    font-size: 14px;
-    color: #666;
-}
-
-.amount-input {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.amount-input input {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-    text-align: right;
-    width: 120px;
-}
-
-.amount-input input:focus {
-    outline: none;
-    border-color: #4CAF50;
-}
-
-.currency {
-    font-size: 14px;
-    color: #666;
-}
-
-.comparison-row.difference {
-    border-top: 1px solid #e0e0e0;
-    padding-top: 16px;
-    margin-top: 8px;
-}
-
-.difference-amount {
-    font-size: 16px;
-    font-weight: 600;
-    color: #f44336;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .header {
-        padding: 12px 16px;
-    }
-
-    .nav {
-        display: none;
-    }
-
-    .main {
-        padding: 16px;
-    }
-
-    .filters {
-        grid-template-columns: 1fr;
-    }
-
-    .kpi-cards {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .bottom-section {
-        grid-template-columns: 1fr;
-    }
-
-    .table-container {
-        font-size: 12px;
-    }
-
-    .invoice-table th,
-    .invoice-table td {
-        padding: 8px;
-    }
-}
-
-@media (max-width: 480px) {
-    .kpi-cards {
-        grid-template-columns: 1fr;
-    }
-
-    .chart-container {
-        align-items: stretch;
-    }
-
-    .donut-chart svg {
-        width: 150px;
-        height: 150px;
-    }
 }

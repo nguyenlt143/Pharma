@@ -38,7 +38,13 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = repository.findByUserNameIgnoreCase(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+        
+        // Validate that user has a role
+        if (user.getRole() == null) {
+            throw new UsernameNotFoundException("User '" + username + "' does not have a role assigned");
+        }
+        
         return new CustomUserDetails(user);
     }
 

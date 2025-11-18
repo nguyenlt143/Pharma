@@ -1,4 +1,4 @@
-    /* staff.js
+/* staff.js
        Client-side renderer + API interaction for /manager/staff
        API base: /api/manager/staff
     */
@@ -33,11 +33,15 @@
         function openModal(mode = 'create', data = null) {
             modal.classList.remove('hidden');
             modal.setAttribute('aria-hidden', 'false');
+            const roleEl = document.getElementById('roleId');
+            const roleWrapper = roleEl ? roleEl.closest('label') : null;
             if (mode === 'create') {
                 modalTitle.textContent = 'Tạo nhân viên';
                 staffIdInput.value = '';
                 staffForm.reset();
+                // show password and role on create
                 passwordWrapper.style.display = '';
+                if (roleWrapper) roleWrapper.style.display = '';
             } else {
                 modalTitle.textContent = 'Chỉnh sửa nhân viên';
                 staffIdInput.value = data.id || '';
@@ -52,6 +56,8 @@
                 if (imageEl) imageEl.value = data.imageUrl || '';
                 // hide password on edit
                 passwordWrapper.style.display = 'none';
+                // hide role on edit (still keep enabled so value is submitted)
+                if (roleWrapper) roleWrapper.style.display = 'none';
             }
         }
 

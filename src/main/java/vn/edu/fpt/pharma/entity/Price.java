@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 @SQLRestriction("deleted = false")
 public class Price extends BaseEntity<Long> {
     private Long variantId;
+    private Long branchId;
     private Double salePrice;
     private Double branchPrice;
     private LocalDateTime startDate;

@@ -4,6 +4,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.pharma.dto.manager.InvoiceListItem;
 import vn.edu.fpt.pharma.dto.manager.KpiData;
+import vn.edu.fpt.pharma.dto.manager.TopProductItem;
 import vn.edu.fpt.pharma.repository.InvoiceRepository;
 import vn.edu.fpt.pharma.service.RevenueReportService;
 
@@ -94,28 +95,26 @@ public class RevenueReportServiceImpl implements RevenueReportService {
     }
 
     private Map<String, Object> getProductStatistics(Long branchId, LocalDateTime fromDate, LocalDateTime toDate, Long shift, Long employeeId) {
-        List<Object[]> rows = invoiceRepository.categoryRevenue(branchId, fromDate, toDate, shift, employeeId, PageRequest.of(0, 6));
-        double totalRevenue = rows.stream().mapToDouble(r -> ((Number) r[1]).doubleValue()).sum();
+        // Use quantity-based top categories like dashboard
+        List<TopProductItem> tops = invoiceRepository.topCategories(branchId, fromDate, toDate, shift, employeeId, PageRequest.of(0, 6));
+        long totalCount = tops.stream().mapToLong(TopProductItem::getValue).sum();
 
         List<Map<String, Object>> productStats = new ArrayList<>();
         String[] colors = new String[]{"#4CAF50", "#2196F3", "#FF9800", "#9C27B0", "#E91E63", "#009688"};
 
-        for (int i = 0; i < rows.size(); i++) {
-            Object[] r = rows.get(i);
-            String name = (String) r[0];
-            double value = ((Number) r[1]).doubleValue();
-            double percent = totalRevenue > 0 ? (value * 100.0 / totalRevenue) : 0.0;
+        for (int i = 0; i < tops.size(); i++) {
+            TopProductItem t = tops.get(i);
+            double percent = totalCount > 0 ? (t.getValue() * 100.0 / totalCount) : 0.0;
             Map<String, Object> item = new HashMap<>();
-            item.put("name", name);
+            item.put("name", t.getName());
             item.put("percent", Math.round(percent));
             item.put("color", colors[i % colors.length]);
-            item.put("value", value); // raw revenue for debugging if needed
             productStats.add(item);
         }
 
         Map<String, Object> result = new HashMap<>();
         result.put("productStats", productStats);
-        result.put("totalProducts", Math.round(totalRevenue)); // adapt naming; frontend expects totalProducts
+        result.put("totalProducts", totalCount);
         return result;
     }
 
