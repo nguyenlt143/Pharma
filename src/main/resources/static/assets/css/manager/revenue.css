@@ -180,6 +180,38 @@ body {
     color: #333;
 }
 
+/* Product stats list (like dashboard) */
+.product-stats {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 24px;
+}
+.product-stats h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+.product-total {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 12px;
+}
+#productStatsList { display: flex; flex-direction: column; gap: 12px; }
+.product-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #E5E7EB;
+}
+.product-item:last-child { border-bottom: none; }
+.product-name { font-weight: 500; color: #374151; }
+.product-percent { font-size: 14px; color: #6B7280; margin-left: 12px; }
+.product-bar { height: 8px; background: #E5E7EB; border-radius: 4px; margin: 8px 0; overflow: hidden; }
+.product-bar-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+
 /* Table Section */
 .table-section {
     margin-bottom: 32px;

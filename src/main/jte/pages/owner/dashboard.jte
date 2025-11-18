@@ -1,4 +1,4 @@
-@template.layouts.owner(
+D@template.layouts.owner(
 headContent = @`
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>

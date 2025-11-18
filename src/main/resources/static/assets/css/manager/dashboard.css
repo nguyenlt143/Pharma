@@ -180,6 +180,10 @@ body.dark .chart-card {
     background-color: var(--card-dark);
 }
 
+.chart-card.hidden {
+    display: none;
+}
+
 .chart-title {
     font-size: 1.125rem; /* 18px */
     font-weight: 600;
@@ -279,6 +283,56 @@ body.dark .progress-label {
     background: linear-gradient(90deg, var(--primary), var(--primary-600));
     border-radius: 9999px;
     transition: width 0.5s ease;
+}
+
+/* Product Stats Styling (similar to owner dashboard) */
+.product-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #E5E7EB;
+}
+body.dark .product-item {
+    border-bottom-color: var(--border-dark);
+}
+
+.product-item:last-child {
+    border-bottom: none;
+}
+
+.product-name {
+    font-weight: 500;
+    color: var(--text-light);
+}
+body.dark .product-name {
+    color: var(--text-dark);
+}
+
+.product-percent {
+    font-size: 14px;
+    color: var(--muted-light);
+    margin-left: 12px;
+}
+body.dark .product-percent {
+    color: var(--muted-dark);
+}
+
+.product-bar {
+    height: 8px;
+    background: #E5E7EB;
+    border-radius: 4px;
+    margin: 8px 0;
+    overflow: hidden;
+}
+body.dark .product-bar {
+    background: var(--border-dark);
+}
+
+.product-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s;
 }
 
 /* Empty state helpers */

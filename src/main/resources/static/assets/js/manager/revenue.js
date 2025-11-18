@@ -108,44 +108,32 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             addTableHoverEffect();
 
-            // Cập nhật biểu đồ sản phẩm
-            const svg = document.getElementById('donut-chart');
-            svg.querySelectorAll('circle.dynamic').forEach(c => c.remove());
-            let offset = 0;
-            data.productStats?.forEach(p => {
-                const circumference = 2 * Math.PI * 80;
-                const dashArray = (p.percent / 100) * circumference;
-                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                circle.setAttribute('cx', 100);
-                circle.setAttribute('cy', 100);
-                circle.setAttribute('r', 80);
-                circle.setAttribute('fill', 'none');
-                circle.setAttribute('stroke', p.color);
-                circle.setAttribute('stroke-width', 20);
-                circle.setAttribute('stroke-dasharray', `${dashArray} ${circumference - dashArray}`);
-                circle.setAttribute('stroke-dashoffset', offset);
-                circle.setAttribute('transform', 'rotate(-90 100 100)');
-                circle.classList.add('dynamic');
-                svg.appendChild(circle);
-                offset -= dashArray;
-            });
+            // Render product stats list (like dashboard)
+            const list = document.getElementById('productStatsList');
+            if (list) {
+                const stats = Array.isArray(data.productStats) ? data.productStats : [];
+                list.innerHTML = '';
+                if (stats.length === 0) {
+                    list.innerHTML = '<p style="color:#6B7280; text-align:center; padding: 16px;">Không có dữ liệu</p>';
+                } else {
+                    const html = stats.map(item => `
+                        <div class="product-item">
+                            <div style="flex:1;">
+                                <div class="product-name">${item.name || ''}</div>
+                                <div class="product-bar">
+                                    <div class="product-bar-fill" style="width:${item.percent || 0}%; background-color:${item.color || '#4CAF50'}"></div>
+                                </div>
+                            </div>
+                            <div class="product-percent">${item.percent || 0}%</div>
+                        </div>
+                    `).join('');
+                    list.innerHTML = html;
+                }
+            }
 
             // Tổng sản phẩm
-            document.getElementById('total-products').textContent = data.totalProducts ?? 0;
-
-            // Legend
-            const legend = document.getElementById('chart-legend');
-            legend.innerHTML = '';
-            data.productStats?.forEach(p => {
-                const div = document.createElement('div');
-                div.className = 'legend-item';
-                div.innerHTML = `
-                    <div class="legend-color" style="background-color:${p.color}"></div>
-                    <span>${p.name}</span>
-                    <span class="legend-percent">${p.percent}%</span>
-                `;
-                legend.appendChild(div);
-            });
+            const totalProductsEl = document.getElementById('total-products');
+            if (totalProductsEl) totalProductsEl.textContent = data.totalProducts ?? 0;
 
         } catch (err) {
             console.error('Lỗi tải dữ liệu:', err);

@@ -1,5 +1,8 @@
 @template.layouts.manager(
-headContent = @`<link rel="stylesheet" href="/assets/css/manager/dashboard.css">`,
+headContent = @`
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/assets/css/manager/dashboard.css">
+`,
 content = @`
     <main class="main">
         <div class="main-container">
@@ -57,20 +60,22 @@ content = @`
             </div>
 
             <div class="charts-container">
-                <div class="chart-card">
-                    <h3 class="chart-title">Doanh thu 7 ngày gần nhất</h3>
+                <div class="chart-card" id="revenue-chart-card">
+                    <h3 class="chart-title" id="revenue-chart-title">Doanh thu 7 ngày gần nhất</h3>
                     <div class="chart-content">
                         <!-- Dynamic revenue bar chart: populated by JS -->
                         <div class="bar-chart" id="revenue-chart">
                             <!-- Bars will be injected here by /assets/js/manager/dashboard.js -->
                         </div>
+                        <!-- Line chart canvas for 30 days view -->
+                        <canvas id="revenue-line-chart" style="display: none;" height="60"></canvas>
                     </div>
                 </div>
 
                 <div class="chart-card">
-                    <h3 class="chart-title">Top 5 nhóm thuốc bán chạy</h3>
-                    <!-- Dynamic progress list: populated by JS -->
-                    <div class="progress-list" id="top-groups">
+                    <h3 class="chart-title">Thống kê sản phẩm theo danh mục</h3>
+                    <!-- Dynamic product stats list: populated by JS -->
+                    <div id="productStatsList">
                         <!-- Items will be injected here by /assets/js/manager/dashboard.js -->
                     </div>
                 </div>
