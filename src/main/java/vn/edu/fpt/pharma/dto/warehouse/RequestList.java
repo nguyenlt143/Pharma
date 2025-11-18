@@ -9,7 +9,8 @@ public record RequestList(
         Long branchId,
         String createdAt,
         String requestType,
-        String requestStatus
+        String requestStatus,
+        String note
 ) {
     public RequestList(RequestForm entity) {
         this(
@@ -20,6 +21,7 @@ public record RequestList(
                         : "",
                 entity.getRequestType() != null ? entity.getRequestType().name() : "N/A",
                 entity.getRequestStatus() != null ? entity.getRequestStatus().name() : "N/A"
+                , entity.getNote() != null ? entity.getNote() : ""
         );
     }
 }
