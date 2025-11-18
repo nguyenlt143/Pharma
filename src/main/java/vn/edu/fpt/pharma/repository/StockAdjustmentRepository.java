@@ -22,7 +22,7 @@ public interface StockAdjustmentRepository extends JpaRepository<StockAdjustment
     @Query(value = """
         SELECT 
             created_at as check_date,
-            SUM(adjustment_quantity) as checked_count
+            COUNT(DISTINCT variant_id) as checked_count
         FROM stock_adjustments 
         WHERE brand_id = :branchId 
         GROUP BY created_at

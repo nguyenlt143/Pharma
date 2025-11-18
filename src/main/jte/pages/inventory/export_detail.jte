@@ -39,58 +39,7 @@
 </head>
 <body class="bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark">
 <div class="flex h-screen">
-    <aside class="w-64 bg-[#0F172A] text-white flex flex-col">
-        <div class="p-4 border-b border-gray-700 flex items-center gap-4">
-            <span class="material-icons-outlined">inventory_2</span>
-            <h1 class="text-xl font-bold">Quản lý kho</h1>
-        </div>
-        <nav class="flex-1 mt-4">
-            <ul>
-                <li class="px-4 py-2 hover:bg-gray-700 rounded-md">
-                    <a class="flex items-center gap-2" href="#">
-                        <span class="material-icons-outlined">dashboard</span>
-                        Tổng quan
-                    </a>
-                </li>
-                <li class="px-4 py-2 hover:bg-gray-700 rounded-md">
-                    <a class="flex items-center gap-2" href="#">
-                        <span class="material-icons-outlined">receipt_long</span>
-                        Phiếu nhập kho
-                    </a>
-                </li>
-                <li class="px-4 py-2 bg-primary rounded-md">
-                    <a class="flex items-center gap-2" href="#">
-                        <span class="material-icons-outlined">outbox</span>
-                        Phiếu xuất / trả / cấp phát
-                    </a>
-                </li>
-                <li class="px-4 py-2 hover:bg-gray-700 rounded-md">
-                    <a class="flex items-center gap-2" href="#">
-                        <span class="material-icons-outlined">inventory</span>
-                        Kiểm kho
-                    </a>
-                </li>
-                <li class="px-4 py-2 hover:bg-gray-700 rounded-md">
-                    <a class="flex items-center gap-2" href="#">
-                        <span class="material-icons-outlined">assessment</span>
-                        Báo cáo
-                    </a>
-                </li>
-                <li class="px-4 py-2 hover:bg-gray-700 rounded-md">
-                    <a class="flex items-center gap-2" href="#">
-                        <span class="material-icons-outlined">settings</span>
-                        Cài đặt
-                    </a>
-                </li>
-            </ul>
-        </nav>
-        <div class="p-4 border-t border-gray-700">
-            <button class="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md flex items-center justify-center gap-2">
-                <span class="material-icons-outlined">arrow_back</span>
-                <span>Quay lại</span>
-            </button>
-        </div>
-    </aside>
+    @template.layouts.inventory(active = "export")
     <main class="flex-1 p-6 overflow-y-auto">
         <header class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-text-light dark:text-text-dark">Tạo phiếu xuất / trả / cấp phát</h2>
