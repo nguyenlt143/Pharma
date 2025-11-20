@@ -4,7 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.annotations.Where;
 import vn.edu.fpt.pharma.base.BaseEntity;
 
 import java.time.LocalTime;
@@ -17,7 +17,7 @@ import java.time.LocalTime;
 @Getter
 @Setter
 @SQLDelete(sql = "UPDATE shifts SET deleted = true WHERE id = ?")
-@SQLRestriction("deleted = false")
+@Where(clause = "deleted = false")
 public class Shift extends BaseEntity<Long> {
     private Long branchId;
     private String name;

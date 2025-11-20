@@ -1,0 +1,98 @@
+/* Manager Inventory CSS - responsive, accessible, colorblind-friendly palette */
+
+/* Basic reset */
+* { box-sizing: border-box; }
+html,body { margin:0; padding:0; font-family: Inter, "Helvetica Neue", Arial, sans-serif; color:#263238; background:#f6f8fa; }
+
+/* Header */
+.mi-header {
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    padding:18px 28px;
+    background:linear-gradient(180deg,#ffffff 0%, #f7fbfd 100%);
+    border-bottom:1px solid #e6eef6;
+}
+.mi-header h1 { margin:0; font-size:20px; font-weight:600; color:#1f2933; }
+.mi-header-meta { display:flex; gap:18px; align-items:center; font-size:13px; color:#6b7280; }
+.mi-header-meta .btn { margin-left:8px; }
+
+/* Container */
+.mi-container { padding:20px 28px 60px; max-width:1200px; margin:0 auto; }
+
+/* KPI cards */
+.mi-kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:18px; }
+.kpi-card {
+    background:#fff; border:1px solid #e6eef6; border-radius:8px;
+    padding:14px; min-height:94px; display:flex; flex-direction:column; justify-content:space-between;
+    box-shadow: 0 1px 0 rgba(20,40,60,0.02);
+}
+.kpi-title { color:#6b7280; font-size:13px; }
+.kpi-value { font-size:22px; font-weight:700; color:#0f172a; margin-top:6px; }
+.kpi-sub { font-size:12px; color:#10b981; margin-top:6px; }
+.kpi-action { align-self:flex-end; margin-top:8px; background:transparent; border:none; color:#2563eb; cursor:pointer; font-size:13px; }
+.kpi-card.warn { border-left:4px solid #f97316; }
+
+/* Buttons */
+.btn { padding:8px 12px; border-radius:6px; border:none; cursor:pointer; font-size:13px; }
+.btn-primary { background:#2563eb; color:#fff; }
+.btn-outline { border:1px solid #c7d2fe; color:#2563eb; background:transparent; }
+.btn-ghost { background:transparent; border:1px solid #e5e7eb; color:#374151; }
+.btn-clear { background:transparent; color:#6b7280; border:1px dashed #e6eef6; }
+.small { font-size:12px; padding:6px 8px; }
+
+/* Filters */
+.mi-filters { background:transparent; margin-bottom:18px; display:flex; align-items:center; gap:12px; }
+.mi-filters label { display:inline-flex; gap:8px; align-items:center; font-size:13px; color:#374151; }
+.mi-filters select { padding:8px 10px; border-radius:6px; border:1px solid #e6eef6; background:#fff; }
+
+/* Charts */
+.mi-charts { display:grid; grid-template-columns:2fr 1fr; gap:16px; margin-bottom:18px; }
+.chart-card { background:#fff; border:1px solid #e6eef6; border-radius:8px; padding:12px; min-height:260px; }
+.chart-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.donut-card canvas { max-height:200px; }
+
+/* Alerts */
+.mi-alerts { margin-bottom:14px; }
+.alert { padding:10px 12px; border-radius:6px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; }
+.alert .alert-action { margin-left:12px; color:#1d4ed8; text-decoration:none; font-weight:600; }
+.alert.warn { background:#fff7ed; border:1px solid #ffedd5; color:#92400e; }
+.alert.danger { background:#fff1f2; border:1px solid #fecaca; color:#9b1c1c; }
+
+/* Activity table */
+.mi-activity { margin-top:10px; }
+.activity-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.activity-table { width:100%; border-collapse:collapse; background:#fff; border:1px solid #e6eef6; border-radius:8px; overflow:hidden; }
+.activity-table thead { background:#f8fafc; }
+.activity-table th, .activity-table td { padding:10px 12px; text-align:left; border-bottom:1px solid #eef2f7; font-size:13px; }
+.activity-table tbody tr:hover { background:#fbfdff; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; color:#111827; }
+.badge { padding:6px 8px; border-radius:999px; font-size:12px; color:#fff; display:inline-block; }
+.badge.nhapkho { background:#4da6ff; }
+.badge.xuatkho { background:#ffb84d; }
+.status { font-weight:600; }
+.status.hoanthanh { color:#059669; }
+.status.pending { color:#f59e0b; }
+
+/* Donut legend */
+.donut-legend { list-style:none; padding:6px 0 0; margin:0; display:flex; flex-direction:column; gap:6px; font-size:13px; }
+.legend-btn { display:flex; align-items:center; gap:8px; background:transparent; border:none; cursor:pointer; padding:6px; text-align:left; }
+.legend-btn .swatch { width:12px; height:12px; display:inline-block; border-radius:2px; }
+
+/* Responsive */
+@media (max-width:1000px) {
+    .mi-kpis { grid-template-columns:repeat(2,1fr); }
+    .mi-charts { grid-template-columns:1fr; }
+    .mi-header { flex-direction:column; align-items:flex-start; gap:8px; }
+}
+
+@media (max-width:600px) {
+    .mi-kpis { grid-template-columns:1fr; }
+    .mi-filters { flex-direction:column; align-items:flex-start; }
+    .activity-table th, .activity-table td { padding:8px; font-size:12px; }
+}
+
+/* Accessibility helpers */
+.muted { color:#6b7280; }
+.inline-form { display:inline; }
+.link { color:#2563eb; text-decoration:none; font-size:13px; }

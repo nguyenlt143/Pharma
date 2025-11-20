@@ -22,6 +22,7 @@ public class Inventory extends BaseEntity<Long> {
     @JoinColumn(name = "batch_id")
     private Batch batch;
     private Long quantity;
+    private int unitPrice; //  = inventory movement detail price  ( branchId= destinationBranchId + movementType = WARE_TO_BR )
     private Long minStock;
     private Long lastMovementId;
 }

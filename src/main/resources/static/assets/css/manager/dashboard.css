@@ -220,7 +220,47 @@ body.dark .chart-title {
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    overflow: hidden;
+    overflow: visible; /* Changed from hidden to visible for tooltip */
+    position: relative;
+    transition: background-color 0.2s ease;
+}
+
+/* Tooltip for bar chart */
+.bar-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 10;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.bar-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.85);
+}
+
+body.dark .bar-tooltip {
+    background-color: rgba(255, 255, 255, 0.95);
+    color: var(--text-light);
+}
+
+body.dark .bar-tooltip::after {
+    border-top-color: rgba(255, 255, 255, 0.95);
 }
 
 .bar-fill {

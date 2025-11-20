@@ -167,10 +167,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 const bar = document.createElement('div');
                 bar.className = 'bar';
                 const maxHeight = 228; // px
-                const height = Math.round(((Number(d.revenue) || 0) / max) * maxHeight);
+                const revenueValue = Number(d.revenue) || 0;
+                const height = Math.round((revenueValue / max) * maxHeight);
                 bar.style.height = `${height}px`;
                 bar.style.backgroundColor = '#2563EB';
                 bar.style.borderRadius = '4px';
+                bar.style.position = 'relative';
+                bar.style.cursor = 'pointer';
+
+                // Tạo tooltip
+                const tooltip = document.createElement('div');
+                tooltip.className = 'bar-tooltip';
+                tooltip.innerText = new Intl.NumberFormat('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND'
+                }).format(revenueValue);
+                tooltip.style.display = 'none';
+                bar.appendChild(tooltip);
+
+                // Thêm sự kiện hover
+                bar.addEventListener('mouseenter', function() {
+                    tooltip.style.display = 'block';
+                    bar.style.backgroundColor = '#1E40AF'; // Darker blue on hover
+                });
+
+                bar.addEventListener('mouseleave', function() {
+                    tooltip.style.display = 'none';
+                    bar.style.backgroundColor = '#2563EB';
+                });
 
                 const label = document.createElement('span');
                 label.className = 'bar-label';
@@ -178,8 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Format date label
                 const date = new Date(d.date);
-                const dayLabel = date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
-                label.innerText = dayLabel;
+                label.innerText = date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
 
                 container.appendChild(bar);
                 container.appendChild(label);

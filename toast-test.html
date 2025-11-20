@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toast Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+        }
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #111827;
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 8px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: 0.25s;
+            z-index: 9999;
+            pointer-events: none;
+        }
+        .toast.show {
+            opacity: 1 !important;
+            transform: translateY(0);
+            display: block !important;
+        }
+        .toast.success { background: #16a34a; }
+        .toast.error { background: #dc2626; }
+        .hidden { display: none; }
+
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .btn-success { background: #16a34a; color: white; border: none; }
+        .btn-error { background: #dc2626; color: white; border: none; }
+    </style>
+</head>
+<body>
+    <h1>Toast Notification Test</h1>
+    <p>Click các button bên dưới để test toast notification:</p>
+
+    <button class="btn-success" onclick="showToast('Thành công!', 3000, 'success')">Show Success Toast</button>
+    <button class="btn-error" onclick="showToast('Nhân viên đang trong một ca làm việc, không thể xóa', 4000, 'error')">Show Error Toast</button>
+    <button onclick="showToast('Info message', 2500, 'info')">Show Info Toast</button>
+
+    <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+    <script>
+        const toastEl = document.getElementById('toast');
+
+        function showToast(msg, timeout = 2500, type = 'info') {
+            console.log('showToast called:', msg, type);
+            if (!toastEl) {
+                console.error('Toast element not found');
+                alert(msg);
+                return;
+            }
+            toastEl.textContent = msg;
+            toastEl.classList.remove('hidden', 'success', 'error');
+            toastEl.style.display = 'block';
+            // Force reflow to ensure animation works
+            void toastEl.offsetWidth;
+            toastEl.classList.add('show');
+            if (type === 'success') {
+                toastEl.classList.add('success');
+            } else if (type === 'error') {
+                toastEl.classList.add('error');
+            }
+            setTimeout(() => {
+                toastEl.classList.remove('show');
+                setTimeout(() => {
+                    toastEl.classList.add('hidden');
+                    toastEl.style.display = 'none';
+                }, 250);
+            }, timeout);
+        }
+    </script>
+</body>
+</html>
+

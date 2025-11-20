@@ -15,6 +15,7 @@ import vn.edu.fpt.pharma.dto.user.UserVM;
 import vn.edu.fpt.pharma.entity.Role;
 import vn.edu.fpt.pharma.entity.User;
 import vn.edu.fpt.pharma.repository.RoleRepository;
+import vn.edu.fpt.pharma.repository.ShiftAssignmentRepository;
 import vn.edu.fpt.pharma.repository.UserRepository;
 import vn.edu.fpt.pharma.service.AuditService;
 import vn.edu.fpt.pharma.service.UserService;
@@ -27,11 +28,14 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    public UserServiceImpl(UserRepository repository, AuditService auditService, UserRepository userRepository, RoleRepository roleRepository, @Lazy PasswordEncoder passwordEncoder) {
+    private final ShiftAssignmentRepository shiftAssignmentRepository;
+
+    public UserServiceImpl(UserRepository repository, AuditService auditService, UserRepository userRepository, RoleRepository roleRepository, @Lazy PasswordEncoder passwordEncoder, ShiftAssignmentRepository shiftAssignmentRepository) {
         super(repository, auditService);
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.shiftAssignmentRepository = shiftAssignmentRepository;
     }
 
 
@@ -134,6 +138,10 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
 
     @Override
     public void delete(Long id) {
+        // Check if user has active shift assignments
+        if (shiftAssignmentRepository.existsByUserIdAndDeletedFalse(id)) {
+            throw new RuntimeException("Nhân viên đang trong một ca làm việc, không thể xóa");
+        }
         userRepository.deleteById(id);
     }
 
