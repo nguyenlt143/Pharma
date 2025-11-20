@@ -1,0 +1,65 @@
+
+Supplier → Warehouse
+•	Tạo movement nhập
+•	Tạo batch
+•	Ghi tồn kho warehouse
+Warehouse → Branch
+•	Tạo movement chuyển kho
+•	Giảm tồn warehouse
+•	Tăng tồn branch
+Branch → Customer
+•	Tạo invoice
+•	Tạo invoice_details
+•	Giảm tồn kho branch theo batch
+
+•  Tổng quan — các “giá” liên quan và vai trò ngắn gọn
+a. supplier price (giá nhà cung cấp) — giá gốc nhà cung cấp gửi, thường lưu ở inventory_movement_details.snap_cost để audit.
+b. movement price (movement_details.price) — giá nhập cho destination branch/warehouse tại thời điểm movement; dùng để gán unit_price khi chuyển/nhập.
+c. inventory.unit_price — giá vốn hiện tại dùng cho định giá tồn kho (quantity × unit_price). Thường được set từ movement_details.price khi nhận hàng.
+d. branch_price (prices.branch_price) = Giá kho tổng (warehouse) bán lại cho chi nhánh
+ sale_price (prices.sale_price) = Giá chi nhánh bán ra cho khách (invoices)
+
+e. snap_cost — chỉ để audit / báo cáo lợi nhuận gốc; không thay đổi logic tồn kho trừ khi hệ thống quyết định reprice.
+•  Giai đoạn 1 — Khi supplier xuất hàng (Supplier → Warehouse)
+a. Supplier gửi invoice → hệ thống tạo inventory_movements (SUP_TO_WARE) và inventory_movement_details.
+b. movement_details.price = giá mà warehouse sẽ nhận  =snap_cost
+c. Tạo batches từ movement; khi ghi vào inventory của warehouse: unit_price := movement_details.price, quantity := received.
+
+•  Giai đoạn 2 — Khi chuyển từ Warehouse → Branch
+a. Tạo inventory_movements (WARE_TO_BRANCH) + movement_details chọn batch_id theo FIFO/FEFO.
+b. movement_details.price := price.branch_price ( giá kho tổng xuất cho chi nhánh)
+movement_details.snap_cost = giá giai đoạn 1 ( sup-to-ware)
+c. Branch nhận: update/insert inventory tại branch với cùng batch_id và unit_price := movement_details.price.
+  d. Như vậy warehouse có thể có lợi nhuận nội bộ (branch_price - price_supplier(giai đoạn 1) )
+
+•  Giai đoạn 3 — Lưu kho & cập nhật giá (inventory lifecycle)
+a. inventory.unit_price là nguồn đúng cho định giá tồn kho (valuation).
+b. Nếu có nhiều lần movement trên cùng batch → dùng weighted average: khi nhận thêm cùng batch vào cùng branch, cập nhật unit_price = (old_qty*old_price + added_qty*price_added) / (old_qty+added_qty).
+•  Giai đoạn 4 — Quy tắc lấy giá bán khi tạo invoice (prices table kết hợp)
+•  Bán theo sale_price
+•  Lợi nhuận chi nhánh = sale_price – branch_price
+
+b. Lưu quy tắc ưu tiên:
+1.	Nếu tồn prices.branch_price (và trong khoảng date) → dùng.
+2.	Else dùng prices.sale_price (global) trong khoảng date.
+3.	Else fallback sang default price trên product/variant.
+c. Nếu có chương trình khuyến mãi / manual override → invoice_details.price có thể khác prices (vì invoice lưu giá thực tế).
+
+•  Xử lý các trường hợp đặc biệt / chính sách cần quyết định
+a. Price change after stock-in: nếu prices thay đổi sau khi nhập, không auto thay inventory.unit_price — tồn kho giữ giá gốc (audit).
+b. Promotion / discount: ghi invoice_details.price = thực tế (không sửa prices). Lợi nhuận tính trên giá bán thực tế.
+c. Returns / refunds: khi trả hàng, có thể tạo negative invoice_details hoặc stock_adjustments; khi return vào inventory, giá unit_price có thể set theo policy (restore original cost hoặc dùng current price).
+
+c. Khi tính lợi nhuận cho 1 bán hàng cũ, dùng inventory.unit_price snapshot tại thời điểm xuất hoặc movement_details.snap_cost gốc để chắc chắn không bị ảnh hưởng bởi reprice sau này.
+•  Recommendation vận hành / thiết kế DB để tránh nhầm lẫn
+a. Khi transfer: không overwrite nguyên batch price; tạo movement_detail copy price và update inventory per-branch.
+b. Giữ prices tách biệt cho sale logic; không dùng prices để retroactively revalue inventory (trừ khi explicit revaluation process).
+c. Nếu dùng weighted-average cost, lưu thêm cost_layer table (layer per movement) thay vì ghi đè batch unit_price — giúp trace FIFO/LIFO/AVG.
+
+Tổng kết
+•	price = giá nhập
+•	snap_cost = giá vốn snapshot
+•	đối với supplier -> warehouse snapcost = price
+•	branch_price = giá warehouse bán cho chi nhánh
+•	sale_price = giá chi nhánh bán cho khách
+
