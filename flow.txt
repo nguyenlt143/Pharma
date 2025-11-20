@@ -37,8 +37,8 @@ a. inventory.unit_price là nguồn đúng cho định giá tồn kho (valuation
 b. Nếu có nhiều lần movement trên cùng batch → dùng weighted average: khi nhận thêm cùng batch vào cùng branch, cập nhật unit_price = (old_qty*old_price + added_qty*price_added) / (old_qty+added_qty).
 •  Giai đoạn 4 — Quy tắc lấy giá bán khi tạo invoice (prices table kết hợp)
 •  Bán theo sale_price
-•  Lợi nhuận chi nhánh = sale_price – branch_price
-
+•  Lợi nhuận chi nhánh = sale_price – giá nhập kho (inventory.unit_price)
+CostPrice = Inventory.unitPrice = inventorymovement.Price (destination = branch_id)
 b. Lưu quy tắc ưu tiên:
 1.	Nếu tồn prices.branch_price (và trong khoảng date) → dùng.
 2.	Else dùng prices.sale_price (global) trong khoảng date.

@@ -24,10 +24,6 @@ content = @`
                         </div>
                         <img src="https://static.codia.ai/image/2025-10-26/RY2aKkT255.png" alt="Revenue Icon" class="stat-icon">
                     </div>
-                    <div class="stat-change">
-                        <img src="https://static.codia.ai/image/2025-10-26/W1PWnLJdXO.png" alt="Up Arrow" class="change-icon">
-                        <span class="change-text positive" id="changeRevenue"></span>
-                    </div>
                 </div>
 
                 <div class="stat-card">
@@ -38,10 +34,6 @@ content = @`
                         </div>
                         <img src="https://static.codia.ai/image/2025-10-26/osQnzvdUjA.png" alt="Profit Icon" class="stat-icon">
                     </div>
-                    <div class="stat-change">
-                        <img src="https://static.codia.ai/image/2025-10-26/edmzoyKK8e.png" alt="Up Arrow" class="change-icon">
-                        <span class="change-text positive" id="changeProfit"></span>
-                    </div>
                 </div>
 
                 <div class="stat-card">
@@ -51,10 +43,6 @@ content = @`
                             <p class="stat-value" id="orders">...</p>
                         </div>
                         <img src="https://static.codia.ai/image/2025-10-26/LCzn3hLH8S.png" alt="Orders Icon" class="stat-icon">
-                    </div>
-                    <div class="stat-change">
-                        <img src="https://static.codia.ai/image/2025-10-26/iDxrcNDhiN.png" alt="Up Arrow" class="change-icon">
-                        <span class="change-text positive" id="changeOrders"></span>
                     </div>
                 </div>
             </div>
