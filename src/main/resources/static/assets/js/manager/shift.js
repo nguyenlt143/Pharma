@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnAddShift = document.getElementById("btnAddShift");
     const shiftModal = document.getElementById("shiftModal");
     const employeeModal = document.getElementById("employeeModal");
+    const modalClose = document.getElementById("modalClose");
     const btnCancel = document.getElementById("btnCancel");
     const closeEmployeeModal = document.getElementById("closeEmployeeModal");
     const shiftForm = document.getElementById("shiftForm");
@@ -9,9 +10,38 @@ document.addEventListener("DOMContentLoaded", () => {
     const employeeTableBody = document.getElementById("employeeTableBody");
     const employeeSelect = document.getElementById("employeeSelect");
     const assignBtn = document.getElementById("assignBtn");
+    const toastEl = document.getElementById("toast");
+
+    // ====================== TOAST UTILITY ======================
+    function showToast(msg, timeout = 2500, type = 'info') {
+        console.log('showToast called:', msg, type);
+        if (!toastEl) {
+            console.error('Toast element not found');
+            alert(msg);
+            return;
+        }
+        toastEl.textContent = msg;
+        toastEl.classList.remove('hidden', 'success', 'error');
+        toastEl.style.display = 'block';
+        void toastEl.offsetWidth; // Force reflow
+        toastEl.classList.add('show');
+        if (type === 'success') {
+            toastEl.classList.add('success');
+        } else if (type === 'error') {
+            toastEl.classList.add('error');
+        }
+        setTimeout(() => {
+            toastEl.classList.remove('show');
+            setTimeout(() => {
+                toastEl.classList.add('hidden');
+                toastEl.style.display = 'none';
+            }, 250);
+        }, timeout);
+    }
 
     // ====================== MODAL OPEN/CLOSE ======================
     btnAddShift.onclick = () => openShiftModal();
+    modalClose.onclick = () => closeModal(shiftModal);
     btnCancel.onclick = () => closeModal(shiftModal);
     closeEmployeeModal.onclick = () => closeModal(employeeModal);
 
@@ -29,31 +59,45 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("startTime").value = s.startTime || "";
         document.getElementById("endTime").value = s.endTime || "";
         document.getElementById("note").value = s.note || "";
-        document.getElementById("modalTitle").textContent = s.id ? "Chỉnh sửa ca" : "Thêm ca mới";
+        document.getElementById("modalTitle").textContent = s.id ? "Chỉnh sửa ca làm việc" : "Thêm ca làm việc mới";
     }
 
     function closeModal(modal) {
         modal.classList.add("hidden");
     }
 
+    let showDeleted = false;
+
     // ====================== LOAD SHIFTS ======================
     async function loadShifts() {
         try {
-            const res = await fetch("/api/manager/shifts");
+            const url = showDeleted ? "/api/manager/shifts?includeDeleted=true" : "/api/manager/shifts";
+            const res = await fetch(url);
             const shifts = await res.json();
-            shiftTableBody.innerHTML = shifts.map(s => `
+            shiftTableBody.innerHTML = shifts.map(s => {
+                const statusBadge = s.deleted
+                    ? '<span class="badge inactive">Đã xóa</span>'
+                    : '<span class="badge active">Hoạt động</span>';
+
+                const actionButtons = s.deleted
+                    ? `<button class="btn btn-success restore-btn" onclick="restoreShift(${s.id})">↩️ Khôi phục</button>`
+                    : `
+                        <button class="btn btn-ghost" onclick="editShift(${s.id})">✏️ Sửa</button>
+                        <button class="btn btn-danger" onclick="deleteShift(${s.id})">🗑️ Xóa</button>
+                        <button class="btn btn-info" onclick="viewEmployees(${s.id})">👥 Xem nhân viên</button>
+                    `;
+
+                return `
                 <tr>
                     <td>${s.name}</td>
                     <td>${s.startTime}</td>
                     <td>${s.endTime}</td>
                     <td>${s.note || ""}</td>
-                    <td>
-                        <button onclick="editShift(${s.id})">Sửa</button>
-                        <button onclick="DeleteShift(${s.id})">Xóa</button>
-                        <button onclick="viewEmployees(${s.id})">Nhân viên</button>
-                    </td>
+                    <td class="text-center">${statusBadge}</td>
+                    <td class="text-center action-buttons">${actionButtons}</td>
                 </tr>
-            `).join("");
+            `;
+            }).join("");
         } catch (err) {
             console.error("❌ Lỗi load shifts:", err);
         }
@@ -62,25 +106,44 @@ document.addEventListener("DOMContentLoaded", () => {
     // ====================== ADD / EDIT SHIFT ======================
     shiftForm.onsubmit = async (e) => {
         e.preventDefault();
+        const idVal = document.getElementById("shiftId").value || null;
+
+        const startTime = document.getElementById("startTime").value;
+        const endTime = document.getElementById("endTime").value;
+
+        // Frontend validation: end time must be after start time
+        if (startTime && endTime && endTime <= startTime) {
+            showToast("Giờ kết thúc phải lớn hơn giờ bắt đầu", 4000, 'error');
+            return;
+        }
+
         const payload = {
-            id: document.getElementById("shiftId").value || null,
+            id: idVal,
             name: document.getElementById("shiftName").value,
-            startTime: document.getElementById("startTime").value,
-            endTime: document.getElementById("endTime").value,
-            note: document.getElementById("note").value,
+            startTime: startTime,
+            endTime: endTime,
+            note: document.getElementById("note").value
         };
 
         try {
             const url = payload.id ? `/api/manager/shifts/${payload.id}` : "/api/manager/shifts";
-            await fetch(url, {
+            const res = await fetch(url, {
                 method: payload.id ? "PUT" : "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify(payload),
             });
-            closeModal(shiftModal);
-            loadShifts();
+
+            if (res.ok) {
+                closeModal(shiftModal);
+                loadShifts();
+                showToast(payload.id ? "Cập nhật ca thành công!" : "Thêm ca mới thành công!", 2500, 'success');
+            } else {
+                const error = await res.text();
+                showToast(error || "Lỗi khi lưu ca làm việc", 4000, 'error');
+            }
         } catch (err) {
             console.error("❌ Lỗi lưu shift:", err);
+            showToast("Có lỗi xảy ra khi lưu ca làm việc!", 3000, 'error');
         }
     };
 
@@ -94,18 +157,37 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    window.DeleteShift = async (id) => {
+    window.deleteShift = async (id) => {
         if (!confirm("Bạn có chắc muốn xóa ca làm việc này?")) return;
         try {
             const res = await fetch(`/api/manager/shifts/${id}`, { method: "DELETE" });
             if (res.ok) {
-                alert("Đã xóa thành công!");
+                showToast("Đã xóa thành công!", 2500, 'success');
                 loadShifts();
             } else {
-                alert("Xóa thất bại!");
+                const error = await res.text();
+                showToast(error || "Xóa thất bại!", 3000, 'error');
             }
         } catch (err) {
             console.error("❌ Lỗi xóa shift:", err);
+            showToast("Có lỗi xảy ra khi xóa!", 3000, 'error');
+        }
+    };
+
+    window.restoreShift = async (id) => {
+        if (!confirm("Bạn có chắc muốn khôi phục ca làm việc này?")) return;
+        try {
+            const res = await fetch(`/api/manager/shifts/${id}/restore`, { method: "PATCH" });
+            if (res.ok) {
+                showToast("Đã khôi phục thành công!", 2500, 'success');
+                loadShifts();
+            } else {
+                const error = await res.text();
+                showToast(error || "Khôi phục thất bại!", 3000, 'error');
+            }
+        } catch (err) {
+            console.error("❌ Lỗi khôi phục shift:", err);
+            showToast("Có lỗi xảy ra khi khôi phục!", 3000, 'error');
         }
     };
 
@@ -144,14 +226,16 @@ document.addEventListener("DOMContentLoaded", () => {
                         <td>${e.userFullName || ""}</td>
                         <td>${e.roleName || ""}</td>
                         <td>${e.createdAt ? new Date(e.createdAt).toLocaleString("vi-VN") : ""}</td>
-                        <td>
-                            <span class="action-delete" onclick="removeEmployee(${e.userId}, ${shiftId})">Xóa</span>
+                        <td class="text-center">
+                            <button class="btn btn-danger btn-icon" onclick="removeEmployee(${e.userId}, ${shiftId})" title="Xóa khỏi ca">
+                                🗑️
+                            </button>
                         </td>
                     </tr>
                 `).join("")
                 : `<tr>
-                        <td colspan="4" style="text-align:center; padding: 12px; color: #6b7280;">
-                            Chưa có nhân viên nào trong ca
+                        <td colspan="4" style="text-align:center; padding: 20px; color: #6b7280; font-style: italic;">
+                            Chưa có nhân viên nào trong ca này
                         </td>
                    </tr>`;
 
@@ -168,7 +252,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const res = await fetch(`/api/manager/shifts/${shiftId}/assign`);
             const employees = await res.json();
-            employeeSelect.innerHTML = `<option value="">Select an employee to assign...</option>` +
+            employeeSelect.innerHTML = `<option value="">-- Chọn nhân viên thêm vào ca --</option>` +
                 employees.map(e => `<option value="${e.id}">${e.fullName} (${e.roleName})</option>`).join("");
         } catch (err) {
             console.error("❌ Lỗi load employee options:", err);
@@ -177,17 +261,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function assignEmployee(shiftId) {
         const empId = employeeSelect.value;
-        if (!empId) return alert("Vui lòng chọn nhân viên");
+        if (!empId) {
+            showToast("Vui lòng chọn nhân viên", 2500, 'error');
+            return;
+        }
 
         try {
-            await fetch(`/api/manager/shifts/${shiftId}/assign`, {
+            const res = await fetch(`/api/manager/shifts/${shiftId}/assign`, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({ userId: empId })
             });
-            viewEmployees(shiftId);
+            if (res.ok) {
+                showToast("Thêm nhân viên vào ca thành công!", 2500, 'success');
+                viewEmployees(shiftId);
+            } else {
+                const error = await res.text();
+                showToast(error || "Thêm nhân viên thất bại!", 3000, 'error');
+            }
         } catch (err) {
             console.error("❌ Lỗi assign employee:", err);
+            showToast("Có lỗi xảy ra!", 3000, 'error');
         }
     }
 
@@ -195,13 +289,31 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!confirm("Bạn có chắc muốn gỡ nhân viên này khỏi ca?")) return;
 
         try {
-            await fetch(`/api/manager/shifts/${shiftId}/remove/${userId}`, { method: "DELETE" });
-            viewEmployees(shiftId);
+            const res = await fetch(`/api/manager/shifts/${shiftId}/remove/${userId}`, { method: "DELETE" });
+            if (res.ok) {
+                showToast("Gỡ nhân viên khỏi ca thành công!", 2500, 'success');
+                viewEmployees(shiftId);
+            } else {
+                const error = await res.text();
+                showToast(error || "Gỡ nhân viên thất bại!", 3000, 'error');
+            }
         } catch (err) {
             console.error("❌ Lỗi remove employee:", err);
+            showToast("Có lỗi xảy ra!", 3000, 'error');
         }
     };
 
     // ====================== INIT ======================
+    loadShifts();
+
+    // Toggle deleted shifts button
+    const btnToggleDeleted = document.getElementById("btnToggleDeleted");
+    btnToggleDeleted.addEventListener("click", () => {
+        showDeleted = !showDeleted;
+        btnToggleDeleted.textContent = showDeleted ? "Ẩn ca đã xóa" : "Hiển thị ca đã xóa";
+        loadShifts();
+    });
+
+    // Load shifts when page loads
     loadShifts();
 });

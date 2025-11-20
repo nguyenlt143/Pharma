@@ -7,7 +7,6 @@
         const tableBody = document.getElementById('staffTableBody');
         const searchInput = document.getElementById('searchInput');
         const btnCreate = document.getElementById('btnCreateStaff');
-        const btnRefresh = document.getElementById('btnRefresh');
         const btnToggleDeleted = document.getElementById('btnToggleDeleted');
         const emptyState = document.getElementById('emptyState');
 
@@ -24,10 +23,31 @@
         let showDeleted = false;
 
         // UTIL
-        function showToast(msg, timeout = 2500) {
+        function showToast(msg, timeout = 2500, type = 'info') {
+            console.log('showToast called:', msg, type);
+            if (!toastEl) {
+                console.error('Toast element not found');
+                alert(msg);
+                return;
+            }
             toastEl.textContent = msg;
-            toastEl.classList.remove('hidden');
-            setTimeout(() => toastEl.classList.add('hidden'), timeout);
+            toastEl.classList.remove('hidden', 'success', 'error');
+            toastEl.style.display = 'block';
+            // Force reflow to ensure animation works
+            void toastEl.offsetWidth;
+            toastEl.classList.add('show');
+            if (type === 'success') {
+                toastEl.classList.add('success');
+            } else if (type === 'error') {
+                toastEl.classList.add('error');
+            }
+            setTimeout(() => {
+                toastEl.classList.remove('show');
+                setTimeout(() => {
+                    toastEl.classList.add('hidden');
+                    toastEl.style.display = 'none';
+                }, 250);
+            }, timeout);
         }
 
         function openModal(mode = 'create', data = null) {
@@ -76,7 +96,7 @@
                 renderTable(staffList);
             } catch (e) {
                 console.error(e);
-                showToast(e.message || 'Lỗi mạng');
+                showToast(e.message || 'Lỗi mạng', 3000, 'error');
             }
         }
 
@@ -108,7 +128,10 @@
 
         async function deleteStaff(id) {
             const res = await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
-            if (!res.ok) throw new Error('Xoá thất bại');
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(errorText || 'Xoá thất bại');
+            }
             return;
         }
 
@@ -162,7 +185,7 @@
                         const data = await fetchById(id);
                         openModal('edit', data);
                     } catch (e) {
-                        showToast(e.message || 'Lỗi');
+                        showToast(e.message || 'Lỗi', 3000, 'error');
                     }
                 });
             });
@@ -173,10 +196,10 @@
                     if (!confirm('Bạn chắc chắn muốn xoá nhân viên này?')) return;
                     try {
                         await deleteStaff(id);
-                        showToast('Xoá thành công');
+                        showToast('Xoá thành công', 2500, 'success');
                         await fetchAll();
                     } catch (e) {
-                        showToast(e.message || 'Lỗi');
+                        showToast(e.message || 'Lỗi', 4000, 'error');
                     }
                 });
             });
@@ -186,10 +209,10 @@
                     const id = ev.currentTarget.dataset.id;
                     try {
                         await restoreStaff(id);
-                        showToast('Khôi phục thành công');
+                        showToast('Khôi phục thành công', 2500, 'success');
                         await fetchAll();
                     } catch (e) {
-                        showToast(e.message || 'Lỗi');
+                        showToast(e.message || 'Lỗi', 3000, 'error');
                     }
                 });
             });
@@ -208,7 +231,6 @@
 
         // events
         btnCreate.addEventListener('click', () => openModal('create'));
-        btnRefresh.addEventListener('click', () => fetchAll());
 
         function updateToggleDeletedBtn() {
             if (!btnToggleDeleted) return;
@@ -261,10 +283,10 @@
             try {
                 if (id) {
                     await updateStaff(id, payload);
-                    showToast('Cập nhật thành công');
+                    showToast('Cập nhật thành công', 2500, 'success');
                 } else {
                     await createStaff(payload);
-                    showToast('Tạo thành công');
+                    showToast('Tạo thành công', 2500, 'success');
                 }
                 // restore buttons and fields
                 Array.from(staffForm.elements).forEach(el => el.disabled = false);
@@ -274,7 +296,7 @@
                 await fetchAll();
             } catch (e) {
                 console.error(e);
-                showToast(e.message || 'Lỗi khi lưu');
+                showToast(e.message || 'Lỗi khi lưu', 3000, 'error');
             }
         });
 
