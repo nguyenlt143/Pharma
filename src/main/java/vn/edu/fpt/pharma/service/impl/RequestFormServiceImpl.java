@@ -12,9 +12,11 @@ import vn.edu.fpt.pharma.repository.RequestFormRepository;
 import vn.edu.fpt.pharma.service.AuditService;
 import vn.edu.fpt.pharma.service.RequestFormService;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, RequestFormRepository>
@@ -35,14 +37,22 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
 
     @Override
     public List<RequestFormVM> getRequestFormsByBranch(Long branchId) {
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        return repository.findAllByBranchId(branchId).stream().map(entity ->
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        List<RequestForm> forms = repository.findAllByBranchId(branchId);
+        List<Long> ids = forms.stream().map(RequestForm::getId).toList();
+        Map<Long, Long> countMap = ids.isEmpty() ? Map.of() : requestDetailRepository.countDistinctMedicineByRequestIds(ids)
+                .stream()
+                .collect(Collectors.toMap(row -> ((Number) row[0]).longValue(), row -> ((Number) row[1]).longValue()));
+
+        return forms.stream().map(entity ->
                 new RequestFormVM(
                         "#RQ" + String.format("%03d", entity.getId()),
                         entity.getRequestType() != null ? entity.getRequestType().name() : "N/A",
                         entity.getRequestStatus() != null ? entity.getRequestStatus().name() : "N/A",
                         entity.getNote() != null ? entity.getNote() : "",
-                        entity.getCreatedAt() != null ? entity.getCreatedAt().format(fmt) : ""
+                        entity.getCreatedAt() != null ? entity.getCreatedAt().format(fmt) : "",
+                        countMap.getOrDefault(entity.getId(), 0L),
+                        BigDecimal.ZERO
                 )
         ).toList();
     }
@@ -56,17 +66,59 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
             } catch (NumberFormatException ignored) {}
         }
 
-        // Gọi repository với id
-        List<RequestForm> entities = repository.searchRequestForms(branchId, id, createdAt);
+        List<RequestForm> entities = repository.searchImportForms(branchId, id, createdAt);
+        return mapToRequestFormVM(entities);
+    }
 
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    @Override
+    public List<RequestFormVM> searchImportForms(Long branchId, String code, java.time.LocalDate createdAt) {
+        Long id = null;
+        if (code != null && code.startsWith("#RQ")) {
+            try {
+                id = Long.parseLong(code.substring(3));
+            } catch (NumberFormatException ignored) {}
+        }
+
+        List<RequestForm> entities = repository.searchImportForms(branchId, id, createdAt);
+        return mapToRequestFormVM(entities);
+    }
+
+    @Override
+    public List<RequestFormVM> searchExportForms(Long branchId, String code, java.time.LocalDate createdAt) {
+        Long id = null;
+        if (code != null && code.startsWith("#RQ")) {
+            try {
+                id = Long.parseLong(code.substring(3));
+            } catch (NumberFormatException ignored) {}
+        }
+
+        List<RequestForm> entities = repository.searchExportForms(branchId, id, createdAt);
+        return mapToRequestFormVM(entities);
+    }
+
+    private List<RequestFormVM> mapToRequestFormVM(List<RequestForm> entities) {
+        List<Long> ids = entities.stream().map(RequestForm::getId).toList();
+        Map<Long, Long> countMap = ids.isEmpty() ? Map.of() : requestDetailRepository.countDistinctMedicineByRequestIds(ids)
+                .stream()
+                .collect(Collectors.toMap(row -> ((Number) row[0]).longValue(), row -> ((Number) row[1]).longValue()));
+
+        Map<Long, BigDecimal> totalMap = ids.isEmpty() ? Map.of() : requestDetailRepository.getTotalPriceByRequestIds(ids)
+                .stream()
+                .collect(Collectors.toMap(
+                        row -> ((Number) row[0]).longValue(),
+                        row -> row[1] != null ? (BigDecimal) row[1] : BigDecimal.ZERO
+                ));
+
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         return entities.stream()
                 .map(entity -> new RequestFormVM(
                         "#RQ" + String.format("%03d", entity.getId()),
                         entity.getRequestType() != null ? entity.getRequestType().name() : "N/A",
                         entity.getRequestStatus() != null ? entity.getRequestStatus().name() : "N/A",
                         entity.getNote() != null ? entity.getNote() : "",
-                        entity.getCreatedAt() != null ? entity.getCreatedAt().format(fmt) : ""
+                        entity.getCreatedAt() != null ? entity.getCreatedAt().format(fmt) : "",
+                        countMap.getOrDefault(entity.getId(), 0L),
+                        totalMap.getOrDefault(entity.getId(), BigDecimal.ZERO)
                 ))
                 .toList();
     }

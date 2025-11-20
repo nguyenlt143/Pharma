@@ -11,9 +11,11 @@ import vn.edu.fpt.pharma.config.CustomUserDetails;
 import vn.edu.fpt.pharma.dto.inventorycheck.InventoryCheckHistoryVM;
 import vn.edu.fpt.pharma.dto.inventorycheck.StockAdjustmentDetailVM;
 import vn.edu.fpt.pharma.dto.requestform.RequestFormVM;
+import vn.edu.fpt.pharma.dto.inventory.InventoryMedicineVM;
 import vn.edu.fpt.pharma.service.DashboardService;
 import vn.edu.fpt.pharma.service.RequestFormService;
 import vn.edu.fpt.pharma.service.StockAdjustmentService;
+import vn.edu.fpt.pharma.service.InventoryService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -26,6 +28,7 @@ public class InventoryController {
     private final DashboardService dashboardService;
     private final RequestFormService requestFormService;
     private final StockAdjustmentService stockAdjustmentService;
+    private final InventoryService inventoryService;
 
     // -------------------- DASHBOARD --------------------
     @GetMapping("/dashboard")
@@ -44,9 +47,9 @@ public class InventoryController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             Model model
     ) {
-        Long branchId = userDetails.getUser().getBranchId(); // ✅ lấy từ user đang đăng nhập
+        Long branchId = userDetails.getUser().getBranchId();
 
-        List<RequestFormVM> imports = requestFormService.searchRequestForms(branchId, code, createdAt);
+        List<RequestFormVM> imports = requestFormService.searchImportForms(branchId, code, createdAt);
         model.addAttribute("imports", imports);
 
         return "pages/inventory/import_list";
@@ -60,7 +63,18 @@ public class InventoryController {
 
     // -------------------- EXPORT --------------------
     @GetMapping("/export/list")
-    public String exportList() {
+    public String exportList(
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate createdAt,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            Model model
+    ) {
+        Long branchId = userDetails.getUser().getBranchId();
+
+        List<RequestFormVM> exports = requestFormService.searchExportForms(branchId, code, createdAt);
+        model.addAttribute("exports", exports);
+
         return "pages/inventory/export_list";
     }
 
@@ -98,7 +112,23 @@ public class InventoryController {
         model.addAttribute("checkDate", checkDate);
         model.addAttribute("details", details);
 
-        return "pages/inventory/check_detail";
+        return "pages/inventory/inventory_check_detail";
+    }
+
+    // -------------------- MEDICINE LIST --------------------
+    @GetMapping("/medicine/list")
+    public String medicineList(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            Model model
+    ) {
+        Long branchId = userDetails.getUser().getBranchId();
+
+        List<InventoryMedicineVM> medicines = inventoryService.getInventoryMedicinesByBranch(branchId);
+
+        model.addAttribute("medicines", medicines);
+        model.addAttribute("branchId", branchId);
+
+        return "pages/inventory/medicine_list";
     }
 
     // -------------------- CHECK INVENTORY --------------------

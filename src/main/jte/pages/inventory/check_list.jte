@@ -107,20 +107,6 @@
                     </tbody>
                 </table>
             </div>
-
-            <div class="flex justify-between items-center mt-4">
-                <span class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
-                    Hiển thị 1-@if(inventoryChecks != null)${inventoryChecks.size()}@else 0@endif trên @if(inventoryChecks != null)${inventoryChecks.size()}@else 0@endif phiếu
-                </span>
-                <div class="flex items-center gap-2">
-                    <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-slate-700 disabled:opacity-50" disabled>
-                        <span class="material-icons-outlined">chevron_left</span>
-                    </button>
-                    <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-slate-700">
-                        <span class="material-icons-outlined">chevron_right</span>
-                    </button>
-                </div>
-            </div>
         </div>
     </main>
 </div>

@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 public interface RequestFormService extends BaseService<RequestForm, Long> {
     List<RequestFormVM> getRequestFormsByBranch(Long branchId);
     List<RequestFormVM> searchRequestForms(Long branchId, String code, LocalDate createdAt);
+    List<RequestFormVM> searchImportForms(Long branchId, String code, LocalDate createdAt);
+    List<RequestFormVM> searchExportForms(Long branchId, String code, LocalDate createdAt);
 
 //    Request List
     List<RequestList> getAllRequestForms();              // all
