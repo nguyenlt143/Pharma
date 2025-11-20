@@ -162,7 +162,7 @@
             <td>${escapeHtml(s.email || '')}</td>
             <td>${escapeHtml(s.phoneNumber || '')}</td>
             <td class="text-center">
-              <span class="badge ${s.deleted ? 'inactive' : 'active'}">${s.deleted ? 'Inactive' : 'Active'}</span>
+              <span class="badge ${s.deleted ? 'inactive' : 'active'}">${s.deleted ? 'Hoạt động' : 'Đã xóa'}</span>
             </td>
             <td class="text-center">
               ${s.deleted ? `

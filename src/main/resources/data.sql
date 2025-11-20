@@ -634,8 +634,8 @@ VALUES
 (15, 22, 22, 150, 39000,  39000, NOW(), FALSE),
 
 -- movement 16
-(16, 7, 7, 250, 99000, 104000, NOW(), FALSE),
-(16, 8, 8, 180, 150000, 155000, NOW(), FALSE),
+(16, 7, 7, 250, 99000, 70000, NOW(), FALSE),
+(16, 8, 8, 180, 150000, 90000, NOW(), FALSE),
 
 -- movement 17 (variant 18,19 giữ nguyên giá)
 (17, 18, 18, 200, 48000,  48000, NOW(), FALSE),
@@ -653,20 +653,20 @@ VALUES
 (22, 4, 4, 120, 135000,  84000, NOW(), FALSE),
 (23, 5, 5, 140, 180000,  111000, NOW(), FALSE),
 (24, 6, 6, 160, 83000,  51000, NOW(), FALSE),
-(25, 7, 7, 130, 99000,  104000, NOW(), FALSE),
-(26, 8, 8, 110, 150000,  155000, NOW(), FALSE),
-(27, 9, 9, 90, 58000,  60000, NOW(), FALSE),
-(28, 10, 10, 100, 29000,  30000, NOW(), FALSE),
+(25, 7, 7, 130, 99000, 70000, NOW(), FALSE),
+(26, 8, 8, 110, 150000, 90000, NOW(), FALSE),
+(27, 9, 9, 90, 58000, 40000, NOW(), FALSE),
+(28, 10, 10, 100, 29000, 25000, NOW(), FALSE),
 (29, 1, 1, 250, 34000,  21000, NOW(), FALSE),
 (30, 2, 2, 220, 27000,  16800, NOW(), FALSE),
 (31, 3, 3, 200, 115000,  72000, NOW(), FALSE),
 (32, 4, 4, 180, 135000,  84000, NOW(), FALSE),
 (33, 5, 5, 160, 180000,  111000, NOW(), FALSE),
 (34, 6, 6, 140, 83000,  51000, NOW(), FALSE),
-(35, 7, 7, 120, 99000,  104000, NOW(), FALSE),
-(36, 8, 8, 110, 150000, 155000, NOW(), FALSE),
-(37, 9, 9, 100, 58000, 60000, NOW(), FALSE),
-(38, 10, 10, 90, 29000,  30000, NOW(), FALSE),
+(35, 7, 7, 120, 99000, 70000, NOW(), FALSE),
+(36, 8, 8, 110, 150000, 90000, NOW(), FALSE),
+(37, 9, 9, 100, 58000, 40000, NOW(), FALSE),
+(38, 10, 10, 90, 29000, 25000, NOW(), FALSE),
 (39, 1, 1, 210, 34000,  21000, NOW(), FALSE),
 (40, 2, 2, 190, 27000, 16800, NOW(), FALSE),
 (41, 3, 3, 170, 115000, 72000, NOW(), FALSE);
@@ -700,7 +700,7 @@ VALUES
 
 INSERT INTO inventory_movement_details (movement_id, variant_id, batch_id, quantity, price,  snap_cost, created_at, deleted)
 VALUES (45, 9, 9, 100, 60000,  60000, NOW(), FALSE),
-       (45, 10, 10, 50, 30000, 30000, NOW(), FALSE),
+       (45, 10, 10, 50, 25000, 25000, NOW(), FALSE),
        (46, 3, 3, 120, 72000, 72000, NOW(), FALSE);
 
 -- =========================================================
@@ -720,26 +720,49 @@ VALUES (47, 1, 1, 15, 21000,  21000, NOW(), FALSE),
 -- 8) INVENTORY: cập nhật tồn kho cho Kho tổng (branch_id = NULL) và chi nhánh 3
 --    We'll compute coarse balances: total_received - total_sent (approx)
 
--- Inventory at HQ (NULL branch) after SUP_TO_WARE and WARE_TO_SUP/WARE_TO_BR
-INSERT INTO inventory (branch_id, variant_id, batch_id, quantity, min_stock, last_movement_id, created_at, deleted)
-VALUES (1, 1, 1, (2000 + 1000 + 600 + 800) - (600 + 800 + 200 + 210), 0, 41, NOW(), FALSE),
-       (1, 2, 2, (1500 + 800 + 220) - (200 + 150 + 190), 0, 40, NOW(), FALSE),
-       (1, 3, 3, (1200 + 900 + 600) - (250 + 170 + 200), 0, 41, NOW(), FALSE),
-       (1, 4, 4, (1000 + 500 + 500) - (200 + 120 + 60 + 5), 0, 41, NOW(), FALSE),
-       (1, 5, 5, (1800 + 700 + 400) - (500 + 140 + 160), 0, 18, NOW(), FALSE);
+-- Inventory at HQ (warehouse, branch_id=1) after SUP_TO_WARE and WARE_TO_SUP/WARE_TO_BR
+INSERT INTO inventory (branch_id, variant_id, batch_id, quantity, unit_price, min_stock, last_movement_id, created_at, deleted)
+VALUES (1, 1, 1, (2000 + 1000 + 600 + 800) - (600 + 800 + 200 + 210), 21000, 0, 41, NOW(), FALSE),
+       (1, 2, 2, (1500 + 800 + 220) - (200 + 150 + 190), 16800, 0, 40, NOW(), FALSE),
+       (1, 3, 3, (1200 + 900 + 600) - (250 + 170 + 200 + 120), 72000, 0, 46, NOW(), FALSE),
+       (1, 4, 4, (1000 + 500 + 500) - (200 + 120 + 60 + 5), 84000, 0, 41, NOW(), FALSE),
+       (1, 5, 5, (1800 + 700 + 400) - (500 + 140 + 160), 111000, 0, 18, NOW(), FALSE),
+       (1, 6, 6, (1200 + 600) - (300 + 200 + 160 + 140 + 30), 51000, 0, 44, NOW(), FALSE),
+       (1, 7, 7, (1000 + 700) - (250 + 130 + 120), 70000, 0, 35, NOW(), FALSE),
+       (1, 8, 8, (800 + 300) - (180 + 110 + 110), 90000, 0, 36, NOW(), FALSE),
+       (1, 9, 9, (600 + 400) - (600 + 90 + 100 + 100), 40000, 0, 45, NOW(), FALSE),
+       (1, 10, 10, (500 + 350) - (500 + 100 + 90 + 50), 25000, 0, 45, NOW(), FALSE),
+       (1, 11, 11, 1050, 33000, 0, 1, NOW(), FALSE),
+       (1, 12, 12, 880, 51000, 0, 48, NOW(), FALSE),
+       (1, 13, 13, 2300, 58000, 0, 1, NOW(), FALSE),
+       (1, 14, 14, 1500, 48000, 0, 1, NOW(), FALSE),
+       (1, 15, 15, 2000, 38000, 0, 1, NOW(), FALSE),
+       (1, 16, 16, 3000, 43000, 0, 1, NOW(), FALSE),
+       (1, 17, 17, 2500, 40000, 0, 1, NOW(), FALSE),
+       (1, 18, 18, 1800, 48000, 0, 17, NOW(), FALSE),
+       (1, 19, 19, 1350, 18000, 0, 17, NOW(), FALSE),
+       (1, 20, 20, 900, 30000, 0, 15, NOW(), FALSE),
+       (1, 21, 21, 1000, 43000, 0, 1, NOW(), FALSE),
+       (1, 22, 22, 1350, 39000, 0, 15, NOW(), FALSE);
 
 -- Inventory at Branch 3 (Hà Nội)
-INSERT INTO inventory (branch_id, variant_id, batch_id, quantity, min_stock, last_movement_id, created_at, deleted)
-VALUES (3, 1, 1, (600 + 400 + 800 + 200 + 250 + 210) - 15, 30, 41, NOW(), FALSE),
-       (3, 2, 2, (200 + 150 + 220 + 190), 20, 40, NOW(), FALSE),
-       (3, 3, 3, (250 + 180 + 170), 20, 41, NOW(), FALSE),
-       (3, 4, 4, (200 + 120 + 180) - (60 + 5), 20, 44, NOW(), FALSE),
-       (3, 5, 5, (500 + 400 + 140 + 160), 30, 18, NOW(), FALSE),
-       (3, 6, 6, (300 + 200 + 160 + 140) - 30, 20, 47, NOW(), FALSE),
-       (3, 7, 7, (250 + 130 + 120), 20, 35, NOW(), FALSE),
-       (3, 8, 8, (180 + 110 + 110), 20, 36, NOW(), FALSE),
-       (3, 9, 9, (600 + 90 + 100), 15, 10, NOW(), FALSE),
-       (3, 10, 10, (500 + 100 + 90), 15, 10, NOW(), FALSE);
+INSERT INTO inventory (branch_id, variant_id, batch_id, quantity, unit_price, min_stock, last_movement_id, created_at, deleted)
+VALUES (3, 1, 1, (600 + 400 + 800 + 200 + 250 + 210) - 15, 34000, 30, 41, NOW(), FALSE),
+       (3, 2, 2, (200 + 150 + 220 + 190), 27000, 20, 40, NOW(), FALSE),
+       (3, 3, 3, (250 + 180 + 170), 115000, 20, 41, NOW(), FALSE),
+       (3, 4, 4, (200 + 120 + 180) - (60 + 5), 135000, 20, 42, NOW(), FALSE),
+       (3, 5, 5, (500 + 400 + 140 + 160), 180000, 30, 18, NOW(), FALSE),
+       (3, 6, 6, (300 + 200 + 160 + 140) - 30, 83000, 20, 44, NOW(), FALSE),
+       (3, 7, 7, (250 + 130 + 120), 99000, 20, 35, NOW(), FALSE),
+       (3, 8, 8, (180 + 110 + 110), 150000, 20, 36, NOW(), FALSE),
+       (3, 9, 9, (600 + 90 + 100), 58000, 15, 37, NOW(), FALSE),
+       (3, 10, 10, (500 + 100 + 90), 29000, 15, 38, NOW(), FALSE),
+       (3, 11, 11, 150, 33000, 10, 13, NOW(), FALSE),
+       (3, 12, 12, (120 - 40 - 8), 51000, 10, 48, NOW(), FALSE),
+       (3, 18, 18, 200, 48000, 10, 17, NOW(), FALSE),
+       (3, 19, 19, 150, 18000, 10, 17, NOW(), FALSE),
+       (3, 20, 20, 300, 30000, 15, 15, NOW(), FALSE),
+       (3, 22, 22, 150, 39000, 10, 15, NOW(), FALSE);
 
 -- Note: quantities above are coarse aggregates built from movement_details; adjust as needed.
 
@@ -756,7 +779,19 @@ VALUES (1, 35000, 34000, NOW(), NULL, NOW(), FALSE),
        (7, 104000, 99000, NOW(), NULL, NOW(), FALSE),
        (8, 155000, 150000, NOW(), NULL, NOW(), FALSE),
        (9, 60000, 58000, NOW(), NULL, NOW(), FALSE),
-       (10, 30000, 29000, NOW(), NULL, NOW(), FALSE);
+       (10, 30000, 29000, NOW(), NULL, NOW(), FALSE),
+       (11, 35000, 33000, NOW(), NULL, NOW(), FALSE),
+       (12, 53000, 51000, NOW(), NULL, NOW(), FALSE),
+       (13, 60000, 58000, NOW(), NULL, NOW(), FALSE),
+       (14, 50000, 48000, NOW(), NULL, NOW(), FALSE),
+       (15, 40000, 38000, NOW(), NULL, NOW(), FALSE),
+       (16, 45000, 43000, NOW(), NULL, NOW(), FALSE),
+       (17, 42000, 40000, NOW(), NULL, NOW(), FALSE),
+       (18, 50000, 48000, NOW(), NULL, NOW(), FALSE),
+       (19, 20000, 18000, NOW(), NULL, NOW(), FALSE),
+       (20, 32000, 30000, NOW(), NULL, NOW(), FALSE),
+       (21, 45000, 43000, NOW(), NULL, NOW(), FALSE),
+       (22, 41000, 39000, NOW(), NULL, NOW(), FALSE);
 -- Done
 INSERT INTO invoices (invoice_code, customer_id, shift_work_id, branch_id, total_price,
                       payment_method, invoice_type, created_at, created_by, deleted, user_id)
