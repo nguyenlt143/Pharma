@@ -26,8 +26,13 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
-    public List<ShiftResponse> listShifts(String q, Long branchId) {
-        List<Shift> list = repo.search(q, branchId);
+    public List<ShiftResponse> listShifts(String q, Long branchId, boolean includeDeleted) {
+        List<Shift> list;
+        if (includeDeleted) {
+            list = repo.searchIncludingDeleted(q, branchId);
+        } else {
+            list = repo.search(q, branchId);
+        }
         return list.stream().map(this::toDto).collect(Collectors.toList());
     }
 
@@ -44,11 +49,18 @@ public class ShiftServiceImpl implements ShiftService {
         } else {
             s = new Shift();
         }
+
+        LocalTime st = parseLocalTime(request.getStartTime());
+        LocalTime et = parseLocalTime(request.getEndTime());
+
+        // Validate end time is after start time
+        if (et.isBefore(st) || et.equals(st)) {
+            throw new IllegalArgumentException("Giờ kết thúc phải lớn hơn giờ bắt đầu");
+        }
+
         s.setBranchId(branchId);
         s.setName(request.getName());
         s.setNote(request.getNote());
-        LocalTime st = parseLocalTime(request.getStartTime());
-        LocalTime et = parseLocalTime(request.getEndTime());
         s.setStartTime(st);
         s.setEndTime(et);
         s = repo.save(s);
@@ -61,6 +73,11 @@ public class ShiftServiceImpl implements ShiftService {
         repo.deleteById(id);
     }
 
+    @Override
+    public void restore(Long id) {
+        repo.restoreById(id);
+    }
+
     private ShiftResponse toDto(Shift s) {
         return ShiftResponse.builder()
                 .id(s.getId())
@@ -68,6 +85,7 @@ public class ShiftServiceImpl implements ShiftService {
                 .startTime(s.getStartTime() != null ? s.getStartTime().toString() : null)
                 .endTime(s.getEndTime() != null ? s.getEndTime().toString() : null)
                 .note(s.getNote())
+                .deleted(s.isDeleted())
                 .build();
     }
 

@@ -25,9 +25,10 @@ public class ShiftApiController {
 
     @GetMapping
     public List<ShiftResponse> list(@RequestParam(required = false) String q,
+                                    @RequestParam(name = "includeDeleted", defaultValue = "false") boolean includeDeleted,
                                     @AuthenticationPrincipal CustomUserDetails userDetails) {
         User u = userDetails.getUser();
-        return shiftService.listShifts(q, u.getBranchId());
+        return shiftService.listShifts(q, u.getBranchId(), includeDeleted);
     }
 
     @GetMapping("/{id}")
@@ -36,26 +37,40 @@ public class ShiftApiController {
     }
 
     @PostMapping
-    public ResponseEntity<ShiftResponse> create(@Valid @RequestBody ShiftRequest req,
+    public ResponseEntity<?> create(@Valid @RequestBody ShiftRequest req,
                                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
-        User u = userDetails.getUser();
-        ShiftResponse s = shiftService.save(req, u.getBranchId());
-        return ResponseEntity.ok(s);
+        try {
+            User u = userDetails.getUser();
+            ShiftResponse s = shiftService.save(req, u.getBranchId());
+            return ResponseEntity.ok(s);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ShiftResponse> update(@PathVariable Long id, @Valid @RequestBody ShiftRequest req,
+    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody ShiftRequest req,
                                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
-        User u = userDetails.getUser();
-        req.setId(id);
-        ShiftResponse s = shiftService.save(req, u.getBranchId());
-        return ResponseEntity.ok(s);
+        try {
+            User u = userDetails.getUser();
+            req.setId(id);
+            ShiftResponse s = shiftService.save(req, u.getBranchId());
+            return ResponseEntity.ok(s);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         // Here we perform soft delete via JPA @SQLDelete configured on entity
         shiftService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/restore")
+    public ResponseEntity<Void> restore(@PathVariable Long id) {
+        shiftService.restore(id);
         return ResponseEntity.noContent().build();
     }
 }
