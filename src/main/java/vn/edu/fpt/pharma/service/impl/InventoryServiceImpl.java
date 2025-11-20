@@ -73,4 +73,31 @@ public class InventoryServiceImpl extends BaseServiceImpl<Inventory, Long, Inven
             return List.of();
         }
     }
+
+    @Override
+    public List<vn.edu.fpt.pharma.dto.inventory.MedicineSearchDTO> searchMedicinesInWarehouse(String query) {
+        try {
+            List<Object[]> results = inventoryRepository.searchMedicinesInWarehouse(query);
+
+            return results.stream().map(row -> {
+                vn.edu.fpt.pharma.dto.inventory.MedicineSearchDTO dto = new vn.edu.fpt.pharma.dto.inventory.MedicineSearchDTO();
+                dto.setVariantId(row[0] != null ? ((Number) row[0]).longValue() : null);
+                dto.setBatchId(row[1] != null ? ((Number) row[1]).longValue() : null);
+                dto.setMedicineName(row[2] != null ? row[2].toString() : "");
+                dto.setActiveIngredient(row[3] != null ? row[3].toString() : "");
+                dto.setStrength(row[4] != null ? row[4].toString() : "");
+                dto.setDosageForm(row[5] != null ? row[5].toString() : "");
+                dto.setBatchCode(row[6] != null ? row[6].toString() : "");
+                dto.setExpiryDate(row[7] != null ? row[7].toString() : "");
+                dto.setCurrentStock(row[8] != null ? ((Number) row[8]).longValue() : 0L);
+                dto.setUnit(row[9] != null ? row[9].toString() : "");
+                dto.setManufacturer(row[10] != null ? row[10].toString() : "");
+                return dto;
+            }).toList();
+        } catch (Exception e) {
+            System.err.println("Error searching medicines: " + e.getMessage());
+            e.printStackTrace();
+            return List.of();
+        }
+    }
 }

@@ -33,6 +33,10 @@
                     </div>
                     <input id="dateFilterInput" type="date" class="py-2 px-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
                 </div>
+                <a href="/inventory/import/create" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center gap-2">
+                    <span class="material-icons-outlined">add_circle</span>
+                    Tạo phiếu nhập mới
+                </a>
             </div>
 
             <div class="overflow-x-auto">

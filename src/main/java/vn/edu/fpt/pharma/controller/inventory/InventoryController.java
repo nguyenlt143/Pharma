@@ -6,12 +6,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 
 import vn.edu.fpt.pharma.config.CustomUserDetails;
 import vn.edu.fpt.pharma.dto.inventorycheck.InventoryCheckHistoryVM;
 import vn.edu.fpt.pharma.dto.inventorycheck.StockAdjustmentDetailVM;
 import vn.edu.fpt.pharma.dto.requestform.RequestFormVM;
 import vn.edu.fpt.pharma.dto.inventory.InventoryMedicineVM;
+import vn.edu.fpt.pharma.dto.inventory.InventoryCheckRequestDTO;
 import vn.edu.fpt.pharma.service.DashboardService;
 import vn.edu.fpt.pharma.service.RequestFormService;
 import vn.edu.fpt.pharma.service.StockAdjustmentService;
@@ -56,9 +58,38 @@ public class InventoryController {
     }
 
 
+    @GetMapping("/import/create")
+    public String importCreate() {
+        return "pages/inventory/import_create";
+    }
+
     @GetMapping("/import/detail/{id}")
     public String importDetail(@PathVariable Long id) {
         return "pages/inventory/import_detail";
+    }
+
+    @GetMapping("/api/medicines/search")
+    @ResponseBody
+    public List<vn.edu.fpt.pharma.dto.inventory.MedicineSearchDTO> searchMedicines(
+            @RequestParam String query
+    ) {
+        return inventoryService.searchMedicinesInWarehouse(query);
+    }
+
+    @PostMapping("/import/submit")
+    @ResponseBody
+    public String submitImportRequest(
+            @RequestBody vn.edu.fpt.pharma.dto.inventory.ImportRequestDTO request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        // TODO: Implement logic to save import request
+        return "success";
+    }
+
+    @GetMapping("/import/success/{code}")
+    public String importSuccess(@PathVariable String code, Model model) {
+        model.addAttribute("code", code);
+        return "pages/inventory/import_success";
     }
 
     // -------------------- EXPORT --------------------
@@ -113,6 +144,25 @@ public class InventoryController {
         model.addAttribute("details", details);
 
         return "pages/inventory/inventory_check_detail";
+    }
+
+    @GetMapping("/check/create")
+    public String checkCreate(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        Long branchId = userDetails.getUser().getBranchId();
+        List<InventoryMedicineVM> medicines = inventoryService.getInventoryMedicinesByBranch(branchId);
+        model.addAttribute("medicines", medicines);
+        model.addAttribute("branchId", branchId);
+        return "pages/inventory/inventory_check_create";
+    }
+
+    @PostMapping("/check/submit")
+    @ResponseBody
+    public ResponseEntity<?> submitInventoryCheck(@RequestBody InventoryCheckRequestDTO request,
+                                                  @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long branchId = userDetails.getUser().getBranchId();
+        Long userId = userDetails.getUser().getId();
+        stockAdjustmentService.performInventoryCheck(branchId, userId, request);
+        return ResponseEntity.ok().build();
     }
 
     // -------------------- MEDICINE LIST --------------------
