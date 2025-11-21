@@ -14,6 +14,13 @@
                 </a>
             </li>
 
+            <li class="px-4 py-2 rounded-md ${active == "medicine" ? "bg-blue-600" : "hover:bg-gray-700"}">
+                <a href="/inventory/medicine/list" class="flex items-center gap-2">
+                    <span class="material-icons-outlined">medication</span>
+                    <span>Danh sách thuốc</span>
+                </a>
+            </li>
+
             <li class="px-4 py-2 rounded-md ${active == "import" ? "bg-blue-600" : "hover:bg-gray-700"}">
                 <a href="/inventory/import/list" class="flex items-center gap-2">
                     <span class="material-icons-outlined">inventory_2</span>
@@ -42,13 +49,6 @@
                 </a>
             </li>
 
-            <li class="px-4 py-2 rounded-md ${active == "expiring" ? "bg-blue-600" : "hover:bg-gray-700"}">
-                <a href="/inventory/expiring_medicine" class="flex items-center gap-2">
-                    <span class="material-icons-outlined">warning</span>
-                    <span>Thuốc sắp hết hạn</span>
-                </a>
-            </li>
-
             <li class="px-4 py-2 rounded-md ${active == "report" ? "bg-blue-600" : "hover:bg-gray-700"}">
                 <a href="/inventory/report" class="flex items-center gap-2">
                     <span class="material-icons-outlined">bar_chart</span>
@@ -57,4 +57,23 @@
             </li>
         </ul>
     </nav>
+
+    <!-- Logout Section -->
+    <div class="p-4 border-t border-gray-700">
+        <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                <span class="material-icons-outlined">person</span>
+            </div>
+            <div class="flex-1">
+                <p class="text-sm font-semibold">Người dùng</p>
+                <p class="text-xs text-gray-400">Inventory</p>
+            </div>
+        </div>
+        <form action="/logout" method="post" class="w-full">
+            <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 transition-colors">
+                <span class="material-icons-outlined">logout</span>
+                <span>Đăng xuất</span>
+            </button>
+        </form>
+    </div>
 </aside>

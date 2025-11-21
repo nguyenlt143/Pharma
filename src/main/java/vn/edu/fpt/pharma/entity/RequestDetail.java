@@ -19,6 +19,7 @@ public class RequestDetail extends BaseEntity<Long> {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "request_form_id")
     private RequestForm requestForm;
-    private Long variant_id;
+    @Column(name = "variant_id")
+    private Long variantId;
     private Long quantity;
 }

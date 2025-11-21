@@ -1,53 +1,26 @@
+@param java.util.List<vn.edu.fpt.pharma.dto.requestform.RequestFormVM> exports
+
 <!DOCTYPE html>
-<html lang="vi"><head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Danh sách phiếu xuất trả</title>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách phiếu xuất</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        primary: "#2563EB",
-                        "background-light": "#F8FAFC",
-                        "background-dark": "#1E293B",
-                        "card-light": "#FFFFFF",
-                        "card-dark": "#334155",
-                        "text-light": "#1E293B",
-                        "text-dark": "#E2E8F0",
-                        "text-secondary-light": "#64748B",
-                        "text-secondary-dark": "#94A3B8",
-                        "border-light": "#E2E8F0",
-                        "border-dark": "#475569",
-                        "success": "#22C55E",
-                        "warning": "#F59E0B",
-                        "danger": "#EF4444",
-                        "info": "#3B82F6"
-                    },
-                    fontFamily: {
-                        display: ["Roboto", "sans-serif"],
-                    },
-                    borderRadius: {
-                        DEFAULT: "0.5rem",
-                    },
-                },
-            },
-        };
-    </script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 </head>
-<body class="bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark">
+<body class="bg-gray-100 font-sans text-gray-900">
 <div class="flex h-screen">
+
+    <!-- Sidebar -->
     @template.layouts.inventory(active = "export")
+
+    <!-- Main -->
     <main class="flex-1 p-6 overflow-y-auto">
         <header class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-text-light dark:text-text-dark">DANH SÁCH PHIẾU XUẤT/TRẢ/CẤP PHÁT</h2>
-            <div class="flex items-center gap-4">
-                <span class="text-sm">Kho chi nhánh A</span>
-                <span class="material-icons-outlined">person_outline</span>
+            <h2 class="text-2xl font-bold">LỊCH SỬ PHIẾU XUẤT</h2>
+            <div class="flex items-center gap-2 text-sm text-gray-600">
+                <span class="material-icons-outlined text-base">local_shipping</span>
+                <span>Tổng: @if(exports != null)${exports.size()}@endif phiếu</span>
             </div>
         </header>
         <div class="bg-card-light dark:bg-card-dark p-6 rounded-lg shadow-md">

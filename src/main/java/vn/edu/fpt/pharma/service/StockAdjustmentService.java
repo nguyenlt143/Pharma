@@ -12,4 +12,6 @@ public interface StockAdjustmentService extends BaseService<StockAdjustment, Lon
     List<InventoryCheckHistoryVM> getInventoryCheckHistory(Long branchId);
 
     List<StockAdjustmentDetailVM> getInventoryCheckDetails(Long branchId, String checkDate);
+
+    void performInventoryCheck(Long branchId, Long userId, vn.edu.fpt.pharma.dto.inventory.InventoryCheckRequestDTO request);
 }

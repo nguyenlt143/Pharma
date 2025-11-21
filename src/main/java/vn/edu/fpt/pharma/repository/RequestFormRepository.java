@@ -33,13 +33,26 @@ public interface RequestFormRepository extends JpaRepository<RequestForm, Long>,
     @Query(value = """
         SELECT * FROM request_forms 
         WHERE branch_id = :branchId
+          AND request_type = 'IMPORT'
           AND (:id IS NULL OR id = :id)
           AND (:createdAt IS NULL OR DATE(created_at) = :createdAt)
         ORDER BY created_at DESC
     """, nativeQuery = true)
-        List<RequestForm> searchRequestForms(@Param("branchId") Long branchId,
+        List<RequestForm> searchImportForms(@Param("branchId") Long branchId,
                                              @Param("id") Long id,
                                              @Param("createdAt") LocalDate createdAt);
+
+    @Query(value = """
+        SELECT * FROM request_forms 
+        WHERE branch_id = :branchId
+          AND request_type = 'EXPORT'
+          AND (:id IS NULL OR id = :id)
+          AND (:createdAt IS NULL OR DATE(created_at) = :createdAt)
+        ORDER BY created_at DESC
+    """, nativeQuery = true)
+        List<RequestForm> searchExportForms(@Param("branchId") Long branchId,
+                                            @Param("id") Long id,
+                                            @Param("createdAt") LocalDate createdAt);
 
 
     List<RequestForm> findAllByBranchId(Long branchId);

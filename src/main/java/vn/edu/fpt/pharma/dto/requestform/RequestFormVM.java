@@ -2,6 +2,7 @@ package vn.edu.fpt.pharma.dto.requestform;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor
@@ -11,4 +12,6 @@ public class RequestFormVM {
     public String status;
     public String note;
     public String createdAt;
+    public Long medicineCount;
+    public BigDecimal totalAmount;
 }

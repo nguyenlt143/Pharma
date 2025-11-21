@@ -21,19 +21,19 @@ public interface StockAdjustmentRepository extends JpaRepository<StockAdjustment
 
     @Query(value = """
         SELECT 
-            created_at as check_date,
+            DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') as check_date,
             COUNT(DISTINCT variant_id) as checked_count
         FROM stock_adjustments 
         WHERE brand_id = :branchId 
-        GROUP BY created_at
-        ORDER BY created_at DESC
+        GROUP BY DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s')
+        ORDER BY check_date DESC
         """, nativeQuery = true)
     List<Object[]> findInventoryCheckHistoryByBranch(@Param("branchId") Long branchId);
 
     @Query(value = """
         SELECT * FROM stock_adjustments 
         WHERE brand_id = :branchId 
-        AND DATE(created_at) = :checkDate
+        AND DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') = :checkDate
         ORDER BY created_at DESC
         """, nativeQuery = true)
     List<StockAdjustment> findByBranchIdAndCheckDate(@Param("branchId") Long branchId,
