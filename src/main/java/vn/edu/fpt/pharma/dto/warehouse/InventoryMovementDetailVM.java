@@ -7,9 +7,12 @@ import java.time.format.DateTimeFormatter;
 public record InventoryMovementDetailVM(
         Long id,
         Long variantId,
+        String medicineName,
+        String unit,
+        String concentration,
         Long quantity,
-        String price,
-        String mfgDate,
+        Double price,
+        String manufactureDate,
         String expiryDate,
         String batchCode
 ) {
@@ -18,13 +21,19 @@ public record InventoryMovementDetailVM(
         this(
                 entity.getId(),
                 entity.getVariant() != null ? entity.getVariant().getId() : null,
+                entity.getVariant() != null && entity.getVariant().getMedicine() != null
+                        ? entity.getVariant().getMedicine().getName() : "N/A",
+                entity.getVariant() != null && entity.getVariant().getBaseUnitId() != null
+                        ? entity.getVariant().getBaseUnitId().getName() : "",
+                entity.getVariant() != null && entity.getVariant().getStrength() != null
+                        ? entity.getVariant().getStrength() : "",
                 entity.getQuantity(),
-                entity.getPrice() != null ? String.format("%,.0f", entity.getPrice()) : "0",
+                entity.getPrice(),
                 entity.getBatch() != null && entity.getBatch().getMfgDate() != null
-                        ? entity.getBatch().getMfgDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                        ? entity.getBatch().getMfgDate().toString()
                         : "",
                 entity.getBatch() != null && entity.getBatch().getExpiryDate() != null
-                        ? entity.getBatch().getExpiryDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                        ? entity.getBatch().getExpiryDate().toString()
                         : "",
                 entity.getBatch() != null ? entity.getBatch().getBatchCode() : ""
         );

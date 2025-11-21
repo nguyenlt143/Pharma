@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import vn.edu.fpt.pharma.dto.warehouse.InventoryMovementDetailVM;
 import vn.edu.fpt.pharma.dto.warehouse.InventoryMovementVM;
-import vn.edu.fpt.pharma.entity.InventoryMovement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,11 +15,13 @@ import java.util.List;
 public class WarehouseController {
     @GetMapping("/receipt/create")
     public String receiptCreate(Model model) {
-        // Lấy phiếu nhập rỗng hoặc từ DB
-//        InventoryMovementVM inventoryMovementVM = new InventoryMovementVM(new InventoryMovement());
-        List<InventoryMovementDetailVM> inventoryMovementDetails = List.of(); // hoặc từ DB
+        // Tạo ViewModel rỗng cho form mới
+        InventoryMovementVM inventoryMovementVM = new InventoryMovementVM(
+                null, null, null, null, null, null, null, null, 0.0, null
+        );
+        List<InventoryMovementDetailVM> inventoryMovementDetails = new ArrayList<>();
 
-//        model.addAttribute("inventoryMovementVM", inventoryMovementVM);
+        model.addAttribute("inventoryMovementVM", inventoryMovementVM);
         model.addAttribute("inventoryMovementDetails", inventoryMovementDetails);
 
         return "pages/warehouse/receipt_create";
