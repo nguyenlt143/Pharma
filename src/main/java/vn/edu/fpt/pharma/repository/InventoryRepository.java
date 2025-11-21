@@ -9,6 +9,11 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 
+import java.util.Optional;
+import vn.edu.fpt.pharma.entity.Branch;
+import vn.edu.fpt.pharma.entity.MedicineVariant;
+import vn.edu.fpt.pharma.entity.Batch;
+
 public interface InventoryRepository extends JpaRepository<Inventory, Long>, JpaSpecificationExecutor<Inventory> {
     @Query(value = """
         SELECT COUNT(*) FROM inventory 
@@ -74,4 +79,5 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>, Jpa
         LIMIT 20
         """, nativeQuery = true)
     List<Object[]> searchMedicinesInWarehouse(@Param("query") String query);
+    Optional<Inventory> findByBranchAndVariantAndBatch(Branch branch, MedicineVariant variant, Batch batch);
 }

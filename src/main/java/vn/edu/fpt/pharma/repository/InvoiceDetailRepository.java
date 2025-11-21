@@ -42,7 +42,8 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, Lo
         SUM(idt.quantity * idt.price) AS total_amount
     FROM invoice_details idt
     JOIN invoices i ON idt.invoice_id = i.id
-    JOIN medicine_variant mv ON idt.variant_id = mv.id
+    JOIN inventory inv ON idt.inventory_id = inv.id
+    JOIN medicine_variant mv ON inv.variant_id = mv.id
     JOIN medicines m ON mv.medicine_id = m.id
     JOIN units u ON mv.base_unit_id = u.id
     JOIN shift_works sw ON i.shift_work_id = sw.id

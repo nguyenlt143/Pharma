@@ -51,8 +51,8 @@ content = @`
                         <td class="col-medicine">${medicines.get(i).medicineName()}</td>
                         <td class="col-unit">${medicines.get(i).unit()}</td>
                         <td class="col-quantity">${medicines.get(i).quantity()}</td>
-                        <td class="col-price">${String.format("%,.0f", medicines.get(i).unitPrice())}</td>
-                        <td class="col-total">${String.format("%,.0f", medicines.get(i).unitPrice() * medicines.get(i).quantity())}</td>
+                        <td class="col-price">${String.format("%,.0f", medicines.get(i).costPrice())}</td>
+                        <td class="col-total">${String.format("%,.0f", medicines.get(i).costPrice() * medicines.get(i).quantity())}</td>
                     </tr>
                 @endfor
                 </tbody>

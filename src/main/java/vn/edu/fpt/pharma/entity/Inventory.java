@@ -16,13 +16,16 @@ import vn.edu.fpt.pharma.base.BaseEntity;
 @SQLDelete(sql = "UPDATE inventory SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
 public class Inventory extends BaseEntity<Long> {
-    private Long branchId;
-    private Long variantId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "branch_id")
+    private Branch branch;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "variant_id")
+    private MedicineVariant variant;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "batch_id")
     private Batch batch;
     private Long quantity;
-    private int unitPrice; //  = inventory movement detail price  ( branchId= destinationBranchId + movementType = WARE_TO_BR )
+    private Double costPrice;
     private Long minStock;
-    private Long lastMovementId;
 }

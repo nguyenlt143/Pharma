@@ -109,7 +109,8 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     )
     FROM Invoice i
     JOIN i.details id
-    JOIN id.variant mv
+    JOIN id.inventory inv
+    JOIN inv.variant mv
     JOIN mv.medicine m
     JOIN m.category c
     WHERE i.createdAt >= :fromDate
@@ -135,7 +136,8 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
         SUM(COALESCE(id.price, 0) * COALESCE(id.quantity, 0)) AS revenue
     FROM Invoice i
     JOIN i.details id
-    JOIN id.variant mv
+    JOIN id.inventory inv
+    JOIN inv.variant mv
     JOIN mv.medicine m
     JOIN m.category c
     WHERE i.createdAt >= :fromDate

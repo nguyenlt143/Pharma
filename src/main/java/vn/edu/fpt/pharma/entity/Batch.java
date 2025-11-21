@@ -18,7 +18,9 @@ import java.time.LocalDate;
 @SQLDelete(sql = "UPDATE batches SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
 public class Batch extends BaseEntity<Long> {
-    private Long variantId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "variant_id")
+    private MedicineVariant variant;
     @Column(unique = true, nullable = false)
     private String batchCode;
     private LocalDate mfgDate;
