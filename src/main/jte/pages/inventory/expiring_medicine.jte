@@ -38,59 +38,7 @@
 </head>
 <body class="bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark">
 <div class="flex h-screen">
-    <!-- Sidebar -->
-    <aside class="w-64 bg-[#0F172A] text-white flex flex-col">
-        <div class="p-4 border-b border-gray-700">
-            <h1 class="text-xl font-bold">QUẢN LÝ KHO</h1>
-        </div>
-        <nav class="flex-1 mt-4">
-            <ul>
-                <li class="px-4 py-2 hover:bg-gray-700 rounded-md">
-                    <a href="#" class="flex items-center gap-2">
-                        <span class="material-icons-outlined">dashboard</span>Tổng quan
-                    </a>
-                </li>
-                <li class="px-4 py-2 hover:bg-gray-700 rounded-md">
-                    <a href="import/list" class="flex items-center gap-2">
-                        <span class="material-icons-outlined">archive</span>Quản lý nhập kho
-                    </a>
-                </li>
-                <li class="px-4 py-2 hover:bg-gray-700 rounded-md">
-                    <a href="#" class="flex items-center gap-2">
-                        <span class="material-icons-outlined">unarchive</span>Quản lý xuất kho
-                    </a>
-                </li>
-                <li class="px-4 py-2 hover:bg-gray-700 rounded-md">
-                    <a href="#" class="flex items-center gap-2">
-                        <span class="material-icons-outlined">inventory</span>Quản lý tồn kho
-                    </a>
-                </li>
-                <li class="px-4 py-2 bg-primary rounded-md">
-                    <a href="#" class="flex items-center gap-2">
-                        <span class="material-icons-outlined">warning</span>Cảnh báo
-                    </a>
-                </li>
-                <li class="px-4 py-2 hover:bg-gray-700 rounded-md">
-                    <a href="#" class="flex items-center gap-2">
-                        <span class="material-icons-outlined">assessment</span>Báo cáo
-                    </a>
-                </li>
-                <li class="px-4 py-2 hover:bg-gray-700 rounded-md">
-                    <a href="#" class="flex items-center gap-2">
-                        <span class="material-icons-outlined">medication</span>Danh mục thuốc
-                    </a>
-                </li>
-            </ul>
-        </nav>
-        <div class="p-4 border-t border-gray-700">
-            <a href="#" class="flex items-center gap-2 py-2 px-4 hover:bg-gray-700 rounded-md">
-                <span class="material-icons-outlined">account_circle</span><span>Admin</span>
-            </a>
-            <a href="#" class="flex items-center gap-2 py-2 px-4 hover:bg-gray-700 rounded-md mt-2">
-                <span class="material-icons-outlined">logout</span><span>Đăng xuất</span>
-            </a>
-        </div>
-    </aside>
+    @template.layouts.inventory(active = "expiring")
 
     <!-- Main content -->
     <main class="flex-1 p-6 overflow-y-auto">
