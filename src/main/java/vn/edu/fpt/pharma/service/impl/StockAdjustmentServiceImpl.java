@@ -53,7 +53,7 @@ public class StockAdjustmentServiceImpl extends BaseServiceImpl<StockAdjustment,
         for (var item : request.getItems()) {
             Inventory inv = inventoryRepository.findById(item.getInventoryId())
                     .orElseThrow(() -> new IllegalArgumentException("Inventory không tồn tại: " + item.getInventoryId()));
-            if (!inv.getBranchId().equals(branchId)) {
+            if (inv.getBranch() == null || !inv.getBranch().getId().equals(branchId)) {
                 throw new IllegalStateException("Inventory không thuộc chi nhánh");
             }
             Long before = inv.getQuantity() != null ? inv.getQuantity() : 0L;
