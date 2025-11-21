@@ -6,6 +6,11 @@ import vn.edu.fpt.pharma.entity.Inventory;
 import org.springframework.data.jpa.repository.Query;
 
 
+import java.util.Optional;
+import vn.edu.fpt.pharma.entity.Branch;
+import vn.edu.fpt.pharma.entity.MedicineVariant;
+import vn.edu.fpt.pharma.entity.Batch;
+
 public interface InventoryRepository extends JpaRepository<Inventory, Long>, JpaSpecificationExecutor<Inventory> {
     @Query(value = """
         SELECT COUNT(*) FROM inventory 
@@ -13,4 +18,6 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>, Jpa
           AND quantity <= min_stock
         """, nativeQuery = true)
     int countLowStock();
+
+    Optional<Inventory> findByBranchAndVariantAndBatch(Branch branch, MedicineVariant variant, Batch batch);
 }

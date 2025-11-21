@@ -19,13 +19,12 @@ public class InvoiceDetail extends BaseEntity<Long> {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "invoice_id")
     private Invoice invoice;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "batch_id")
-    private Batch batch;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "variant_id", nullable = false)
-    private MedicineVariant variant;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "inventory_id", nullable = false)
+    private Inventory inventory;
+
     private Long quantity;
+
     private Double price;
-    private Double costPrice;
 }

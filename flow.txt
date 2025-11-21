@@ -38,7 +38,7 @@ b. Nếu có nhiều lần movement trên cùng batch → dùng weighted average
 •  Giai đoạn 4 — Quy tắc lấy giá bán khi tạo invoice (prices table kết hợp)
 •  Bán theo sale_price
 •  Lợi nhuận chi nhánh = sale_price – giá nhập kho (inventory.unit_price)
-CostPrice = Inventory.unitPrice = inventorymovement.Price (destination = branch_id)
+Inventory.unitPrice = inventorymovement.Price (destination = branch_id)
 b. Lưu quy tắc ưu tiên:
 1.	Nếu tồn prices.branch_price (và trong khoảng date) → dùng.
 2.	Else dùng prices.sale_price (global) trong khoảng date.
@@ -54,7 +54,7 @@ c. Khi tính lợi nhuận cho 1 bán hàng cũ, dùng inventory.unit_price snap
 •  Recommendation vận hành / thiết kế DB để tránh nhầm lẫn
 a. Khi transfer: không overwrite nguyên batch price; tạo movement_detail copy price và update inventory per-branch.
 b. Giữ prices tách biệt cho sale logic; không dùng prices để retroactively revalue inventory (trừ khi explicit revaluation process).
-c. Nếu dùng weighted-average cost, lưu thêm cost_layer table (layer per movement) thay vì ghi đè batch unit_price — giúp trace FIFO/LIFO/AVG.
+c. Luôn tạo một bản ghi inventory (cost layer) mới cho mỗi lần nhập hàng có giá khác nhau, thay vì ghi đè lên giá của lô hàng. Điều này là cốt lõi của FIFO/FEFO.
 
 Tổng kết
 •	price = giá nhập
