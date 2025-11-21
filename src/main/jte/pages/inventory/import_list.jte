@@ -61,7 +61,7 @@
                                 <td class="px-4 py-3 font-medium text-blue-600">${item.code}</td>
                                 <td class="px-4 py-3">${item.createdAt}</td>
                                 <td class="px-4 py-3 text-center">${item.medicineCount}</td>
-                                <td class="px-4 py-3 text-right font-medium">${String.format("%,.0f", item.totalAmount)} ₫</td>
+                                <td class="px-4 py-3 text-right font-medium">@if(item.totalAmount != null)${String.format("%,.0f", item.totalAmount)}@else0@endif ₫</td>
                                 <td class="px-4 py-3">
                                     @if(item.status.equals("REQUESTED"))
                                         <span class="text-yellow-600 font-medium">ĐANG DUYỆT</span>

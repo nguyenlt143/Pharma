@@ -17,6 +17,8 @@ public interface RequestFormService extends BaseService<RequestForm, Long> {
     List<RequestFormVM> searchImportForms(Long branchId, String code, LocalDate createdAt);
     List<RequestFormVM> searchExportForms(Long branchId, String code, LocalDate createdAt);
 
+    String createImportRequest(Long branchId, vn.edu.fpt.pharma.dto.inventory.ImportRequestDTO request);
+
 //    Request List
     List<RequestList> getAllRequestForms();              // all
     List<RequestList> getImportRequests();               // import

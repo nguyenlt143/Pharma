@@ -78,12 +78,17 @@ public class InventoryController {
 
     @PostMapping("/import/submit")
     @ResponseBody
-    public String submitImportRequest(
+    public ResponseEntity<?> submitImportRequest(
             @RequestBody vn.edu.fpt.pharma.dto.inventory.ImportRequestDTO request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        // TODO: Implement logic to save import request
-        return "success";
+        try {
+            Long branchId = userDetails.getUser().getBranchId();
+            String requestCode = requestFormService.createImportRequest(branchId, request);
+            return ResponseEntity.ok(java.util.Map.of("success", true, "code", requestCode));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("success", false, "message", e.getMessage()));
+        }
     }
 
     @GetMapping("/import/success/{code}")

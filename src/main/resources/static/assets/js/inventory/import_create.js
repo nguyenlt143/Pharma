@@ -254,12 +254,18 @@ function submitImportRequest() {
         contentType: 'application/json',
         data: JSON.stringify(requestData),
         success: function(response) {
-            alert('Tạo phiếu yêu cầu nhập kho thành công!\nPhiếu sẽ được gửi đến kho tổng để xác nhận.');
-            window.location.href = '/inventory/import/list';
+            if (response.success) {
+                alert('Tạo phiếu yêu cầu nhập kho thành công!\nMã phiếu: ' + response.code + '\nPhiếu sẽ được gửi đến kho tổng để xác nhận.');
+                window.location.href = '/inventory/import/list';
+            } else {
+                alert('Có lỗi: ' + (response.message || 'Unknown error'));
+                $submitBtn.prop('disabled', false).html('<span class="material-icons-outlined">check_circle</span> Hoàn tất và gửi yêu cầu');
+            }
         },
         error: function(xhr) {
             console.error('Error submitting import:', xhr);
-            alert('Có lỗi xảy ra khi tạo phiếu nhập. Vui lòng thử lại!');
+            const errorMsg = xhr.responseJSON?.message || 'Có lỗi xảy ra khi tạo phiếu nhập. Vui lòng thử lại!';
+            alert(errorMsg);
             $submitBtn.prop('disabled', false).html('<span class="material-icons-outlined">check_circle</span> Hoàn tất và gửi yêu cầu');
         }
     });

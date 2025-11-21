@@ -40,10 +40,19 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         List<RequestForm> forms = repository.findAllByBranchId(branchId);
         List<Long> ids = forms.stream().map(RequestForm::getId).toList();
-        Map<Long, Long> countMap = ids.isEmpty() ? Map.of() : requestDetailRepository.countDistinctMedicineByRequestIds(ids)
-                .stream()
-                .collect(Collectors.toMap(row -> ((Number) row[0]).longValue(), row -> ((Number) row[1]).longValue()));
-
+        final Map<Long, Long> countMap;
+        final Map<Long, BigDecimal> totalMap;
+        if (ids.isEmpty()) {
+            countMap = Map.of();
+            totalMap = Map.of();
+        } else {
+            List<Object[]> agg = requestDetailRepository.getAggregatedStatsByRequestIds(ids);
+            countMap = agg.stream().collect(Collectors.toMap(r -> ((Number) r[0]).longValue(), r -> ((Number) r[1]).longValue()));
+            totalMap = agg.stream().collect(Collectors.toMap(r -> ((Number) r[0]).longValue(), r -> {
+                Object raw = r[3];
+                return raw != null ? new BigDecimal(raw.toString()) : BigDecimal.ZERO;
+            }));
+        }
         return forms.stream().map(entity ->
                 new RequestFormVM(
                         "#RQ" + String.format("%03d", entity.getId()),
@@ -52,7 +61,7 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
                         entity.getNote() != null ? entity.getNote() : "",
                         entity.getCreatedAt() != null ? entity.getCreatedAt().format(fmt) : "",
                         countMap.getOrDefault(entity.getId(), 0L),
-                        BigDecimal.ZERO
+                        totalMap.getOrDefault(entity.getId(), BigDecimal.ZERO)
                 )
         ).toList();
     }
@@ -98,17 +107,30 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
 
     private List<RequestFormVM> mapToRequestFormVM(List<RequestForm> entities) {
         List<Long> ids = entities.stream().map(RequestForm::getId).toList();
-        Map<Long, Long> countMap = ids.isEmpty() ? Map.of() : requestDetailRepository.countDistinctMedicineByRequestIds(ids)
-                .stream()
-                .collect(Collectors.toMap(row -> ((Number) row[0]).longValue(), row -> ((Number) row[1]).longValue()));
+        System.out.println("DEBUG: Request IDs to aggregate: " + ids);
 
-        Map<Long, BigDecimal> totalMap = ids.isEmpty() ? Map.of() : requestDetailRepository.getTotalPriceByRequestIds(ids)
-                .stream()
-                .collect(Collectors.toMap(
-                        row -> ((Number) row[0]).longValue(),
-                        row -> row[1] != null ? (BigDecimal) row[1] : BigDecimal.ZERO
-                ));
+        final Map<Long, Long> countMap;
+        final Map<Long, BigDecimal> totalMap;
+        if (ids.isEmpty()) {
+            countMap = Map.of();
+            totalMap = Map.of();
+        } else {
+            List<Object[]> agg = requestDetailRepository.getAggregatedStatsByRequestIds(ids);
+            System.out.println("DEBUG: Aggregate results count: " + agg.size());
 
+            for (Object[] row : agg) {
+                System.out.println("DEBUG: Row - request_id=" + row[0] + ", medicine_types=" + row[1] + ", total_units=" + row[2] + ", total_cost=" + row[3]);
+            }
+
+            countMap = agg.stream().collect(Collectors.toMap(row -> ((Number) row[0]).longValue(), row -> ((Number) row[1]).longValue()));
+            totalMap = agg.stream().collect(Collectors.toMap(row -> ((Number) row[0]).longValue(), row -> {
+                Object totalCostRaw = row[3];
+                return totalCostRaw != null ? new BigDecimal(totalCostRaw.toString()) : BigDecimal.ZERO;
+            }));
+
+            System.out.println("DEBUG: countMap = " + countMap);
+            System.out.println("DEBUG: totalMap = " + totalMap);
+        }
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         return entities.stream()
                 .map(entity -> new RequestFormVM(
@@ -161,6 +183,31 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
                 .stream()
                 .map(RequestDetailVM::new)
                 .toList();
+    }
+
+    @Override
+    public String createImportRequest(Long branchId, vn.edu.fpt.pharma.dto.inventory.ImportRequestDTO request) {
+        // Create RequestForm
+        RequestForm requestForm = RequestForm.builder()
+                .branchId(branchId)
+                .requestType(vn.edu.fpt.pharma.constant.RequestType.IMPORT)
+                .requestStatus(vn.edu.fpt.pharma.constant.RequestStatus.REQUESTED)
+                .note(request.getNote())
+                .build();
+
+        RequestForm savedForm = repository.save(requestForm);
+
+        // Create RequestDetails
+        for (vn.edu.fpt.pharma.dto.inventory.ImportRequestDTO.ImportItemDTO item : request.getItems()) {
+            vn.edu.fpt.pharma.entity.RequestDetail detail = vn.edu.fpt.pharma.entity.RequestDetail.builder()
+                    .requestForm(savedForm)
+                    .variantId(item.getVariantId())
+                    .quantity(item.getQuantity().longValue())
+                    .build();
+            requestDetailRepository.save(detail);
+        }
+
+        return "#RQ" + String.format("%03d", savedForm.getId());
     }
 
 }
