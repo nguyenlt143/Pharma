@@ -19,5 +19,5 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>, Jpa
         """, nativeQuery = true)
     int countLowStock();
 
-    Optional<Inventory> findByBranchAndVariantAndBatch(Branch branch, MedicineVariant variant, Batch batch);
+    Optional<Inventory> findByBranchAndBatch(Branch branch, Batch batch);
 }

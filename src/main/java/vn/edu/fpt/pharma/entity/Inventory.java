@@ -25,7 +25,28 @@ public class Inventory extends BaseEntity<Long> {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "batch_id")
     private Batch batch;
+    @Column(name = "quantity")
     private Long quantity;
+    @Column(name = "cost_price")
     private Double costPrice;
+    @Column(name = "min_stock")
     private Long minStock;
+
+    /**
+     * Business invariant: inventory.variant must match batch.variant when batch is set.
+     * We enforce this at persist/update time to avoid inconsistent seed data or programmer errors.
+     */
+    @PrePersist
+    @PreUpdate
+    private void ensureVariantMatchesBatch() {
+        if (this.batch != null) {
+            MedicineVariant batchVariant = this.batch.getVariant();
+            if (batchVariant != null) {
+                // If inventory.variant is null or different, align it to the batch's variant
+                if (this.variant == null || !this.variant.getId().equals(batchVariant.getId())) {
+                    this.variant = batchVariant;
+                }
+            }
+        }
+    }
 }

@@ -3,6 +3,7 @@ package vn.edu.fpt.pharma.service.impl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.pharma.dto.manager.InvoiceListItem;
+import vn.edu.fpt.pharma.dto.manager.InvoiceWithProfitListItem;
 import vn.edu.fpt.pharma.dto.manager.KpiData;
 import vn.edu.fpt.pharma.dto.manager.TopProductItem;
 import vn.edu.fpt.pharma.repository.InvoiceRepository;
@@ -44,10 +45,10 @@ public class RevenueReportServiceImpl implements RevenueReportService {
         Map<String, Object> productStatsData = getProductStatistics(branchId, fromDate, toDate, shift, employeeId);
 
         // Use projection that matches listing needs
-        List<InvoiceListItem> items = invoiceRepository.findInvoiceItems(branchId, fromDate, toDate, shift, employeeId);
+        List<InvoiceWithProfitListItem> items = invoiceRepository.findInvoicesWithProfit(branchId, fromDate, toDate, shift, employeeId);
         List<Map<String, Object>> invoices = new ArrayList<>();
         DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-        for (InvoiceListItem it : items) {
+        for (InvoiceWithProfitListItem it : items) {
             Map<String, Object> row = new HashMap<>();
             row.put("time", it.getCreatedAt() != null ? it.getCreatedAt().format(timeFmt) : "");
             row.put("code", it.getInvoiceCode());
