@@ -10,16 +10,77 @@ const paymentAmountInput = document.querySelector('.payment-details .form-input'
 const paymentMethodSelect = document.querySelector('.form-select');
 const notesTextarea = document.querySelector('.form-textarea');
 
-// Search functionality
-if (searchButton && searchInput) {
-  searchButton.addEventListener('click', () => {
+//// Search functionality
+//if (searchButton && searchInput) {
+//
+//  searchButton.addEventListener('click', () => {
+//    const searchTerm = searchInput.value.trim();
+//    if (searchTerm) {
+//      window.location.href = '/pharmacist/pos/search?keyword=' + encodeURIComponent(searchTerm);
+//    }
+//  });
+//
+//  searchInput.addEventListener('keypress', (e) => {
+//    if (e.key === 'Enter') {
+//      searchButton.click();
+//    }
+//  });
+//}
+
+const resultContainer = document.querySelector('#medicine-list');
+
+let debounceTimer;
+
+searchInput.addEventListener('input', () => {
+  clearTimeout(debounceTimer);
+
+  debounceTimer = setTimeout(() => {
     const searchTerm = searchInput.value.trim();
-    if (searchTerm) searchMedication(searchTerm);
+
+    if (searchTerm.length === 0) {
+      resultContainer.innerHTML = "";
+      return;
+    }
+
+    fetch(`/pharmacist/pos/api/search?keyword=${encodeURIComponent(searchTerm)}`)
+      .then(res => res.json())
+      .then(data => {
+        renderResults(data);
+      });
+  }, 300); // delay 300ms
+});
+
+function renderResults(list) {
+  let html = "";
+
+  list.forEach(item => {
+    html += `
+      <div class="medicine-card">
+                 <h3 class="medicine-name">${item.name} ${item.strength} - ${item.packageUnitName}</h3>
+                 <p class="medicine-batch">Số lô: <span class="batch-number">230521</span> Hạn dùng: <span class="expiry-date">24/05/2023</span></p>
+                 <p class="medicine-stock">Tồn kho: <span class="stock-info">24 </span></p>
+                 <p class="medicine-ingredient">
+                 Hoạt chất chính:
+                    <span class="ingredient-info">${item.activeIngredient}</span>
+                    </p>
+
+                   <p class="medicine-manufacturer">
+                          Nước sản xuất:
+                    <span class="manufacturer-info">${item.manufacturer}</span>
+                   </p>
+                <p class="medicine-packaging">
+                   Quy cách đóng gói:
+                <span class="packaging-info">${item.quantity} ${item.baseUnitName}</span>
+                </p>
+                <p class="medicine-origin">Nước sản xuất: ${item.country}</p>
+                <p class="medicine-usage">Cách dùng: ${item.uses}</p>
+                <p class="medicine-contraindication">Chống chỉ định: ${item.contraindications}</p>
+                <p class="medicine-storage">Tác dụng phụ: ${item.sideEffect}</p>
+      </div>
+    `;
   });
 
-  searchInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') searchButton.click();
-  });
+  document.querySelector("#medicine-list").innerHTML = html;
 }
 
 // Clear buttons

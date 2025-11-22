@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import vn.edu.fpt.pharma.base.BaseServiceImpl;
 import vn.edu.fpt.pharma.dto.medicine.MedicineVariantRequest;
 import vn.edu.fpt.pharma.dto.medicine.MedicineVariantResponse;
+import vn.edu.fpt.pharma.dto.medicine.SearchMedicineVM;
 import vn.edu.fpt.pharma.entity.Medicine;
 import vn.edu.fpt.pharma.entity.MedicineVariant;
 import vn.edu.fpt.pharma.entity.Unit;
@@ -22,12 +23,14 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
 
     private final MedicineRepository medicineRepository;
     private final UnitRepository unitRepository;
+    private final MedicineVariantRepository medicineVariantRepository;
 
     public MedicineVariantServiceImpl(MedicineVariantRepository repository, AuditService auditService,
-                                      MedicineRepository medicineRepository, UnitRepository unitRepository) {
+                                      MedicineRepository medicineRepository, UnitRepository unitRepository, MedicineVariantRepository medicineVariantRepository) {
         super(repository, auditService);
         this.medicineRepository = medicineRepository;
         this.unitRepository = unitRepository;
+        this.medicineVariantRepository = medicineVariantRepository;
     }
 
     @Override
@@ -90,6 +93,28 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
         MedicineVariant variant = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Medicine variant not found"));
         return MedicineVariantResponse.fromEntity(variant);
+    }
+
+    @Override
+    public List<SearchMedicineVM> findByKeyword(String keyword) {
+        List<Object[]> rows = medicineVariantRepository.findByNameActiveIngredient(keyword);
+
+        return rows.stream()
+                .map(r -> new SearchMedicineVM(
+                        ((Number) r[0]).longValue(),
+                        (String) r[1],
+                        (String) r[2],
+                        (String) r[3],
+                        (String) r[4],
+                        (String) r[5],
+                        (String) r[6],
+                        (long) ((Number) r[7]).doubleValue(),
+                        (String) r[8],
+                        (String) r[9],
+                        (String) r[10],
+                        (String) r[11]
+                ))
+                .collect(Collectors.toList());
     }
 }
 

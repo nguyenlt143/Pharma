@@ -11,7 +11,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: false                  # tắt log SQL mặc định, dùng logging bên dưới
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -32,7 +32,7 @@ spring:
 
 gg:
   jte:
-    development-mode: true           # bật chế độ dev để reload template trực tiếp
+    development-mode: true
     use-spring-web: true
     template-location: src/main/jte
 
@@ -47,6 +47,6 @@ logging:
     gg.jte: TRACE
     org.hibernate.type.descriptor.sql:
 
-    org.hibernate.SQL: debug               # log câu SQL
+    org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
 

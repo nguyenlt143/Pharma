@@ -1,3 +1,5 @@
+@param java.util.List<vn.edu.fpt.pharma.dto.medicine.SearchMedicineVM> searchMedicineVM
+@param String keyword 
 @template.layouts.pharmacist(
 headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/pos.css">`,
     content = @`
@@ -6,37 +8,39 @@ headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/pos.css">`,
 
                 <div class="search-input-wrapper">
                     <span class="material-icons search-icon">search</span>
-                    <input type="text" class="search-input" placeholder="Search for medication...">
-                    <button class="search-button">Search</button>
+                    <label>
+                        <input type="text" class="search-input" name="keyword" placeholder="Search for medication..." value="${keyword}">
+                    </label>
+                    <button id="search-button" class="search-button">Search</button>
                 </div>
 
-                <div class="medicine-list">
-                    <div class="medicine-card">
-                        <h3 class="medicine-name">Hapacol 250 - Gói</h3>
-                        <p class="medicine-batch">Số lô: <span class="batch-number">230521</span> Hạn dùng: <span class="expiry-date">24/05/2023</span></p>
-                        <p class="medicine-stock">Tồn kho: <span class="stock-info">Hộp 24 gói x 1.5g thuốc bột</span></p>
-                        <p class="medicine-ingredient">Hoạt chất chính: <span class="ingredient-info">paracetamol 250 mg</span></p>
-                        <p class="medicine-manufacturer">Nhà sản xuất: <span class="manufacturer-info">Công ty cổ phần dược phẩm DHG</span></p>
-                        <p class="medicine-packaging">Quy cách đóng gói: <span class="packaging-info">Hộp 24 gói x 1.5g thuốc bột</span></p>
-                        <p class="medicine-origin">Nước sản xuất:</p>
-                        <p class="medicine-usage">Cách dùng:</p>
-                        <p class="medicine-contraindication">Chống chỉ định:</p>
-                        <p class="medicine-storage">Bảo quản:</p>
-                    </div>
+<%--                <div class="medicine-list">--%>
+<%--                        @for(int i = 0; i < searchMedicineVM.size(); i++)--%>
+<%--                            <div class="medicine-card">--%>
+<%--                                <h3 class="medicine-name">${searchMedicineVM.get(i).name()} ${searchMedicineVM.get(i).strength()} - ${searchMedicineVM.get(i).packageUnitName()}</h3>--%>
+<%--                                <p class="medicine-batch">Số lô: <span class="batch-number">230521</span> Hạn dùng: <span class="expiry-date">24/05/2023</span></p>--%>
+<%--                                <p class="medicine-stock">Tồn kho: <span class="stock-info">24 </span></p>--%>
+<%--                                <p class="medicine-ingredient">--%>
+<%--                                    Hoạt chất chính:--%>
+<%--                                    <span class="ingredient-info">${searchMedicineVM.get(i).activeIngredient()}</span>--%>
+<%--                                </p>--%>
 
-                    <div class="medicine-card">
-                        <h3 class="medicine-name">Coldacmin Flu - Hộp</h3>
-                        <p class="medicine-batch">Số lô: <span class="batch-number">623458</span> Hạn dùng: <span class="expiry-date">01/06/2023</span></p>
-                        <p class="medicine-stock">Tồn kho: <span class="stock-info">Hộp 10 vỉ x 10 viên</span></p>
-                        <p class="medicine-ingredient">Hoạt chất chính: <span class="ingredient-info">paracetamol, chlorpheniramin maleat - 325mg, 2mg</span></p>
-                        <p class="medicine-manufacturer">Nhà sản xuất: <span class="manufacturer-info">Công ty TNHH một thành viên dược phẩm và sinh học y tế</span></p>
-                        <p class="medicine-packaging">Quy cách đóng gói: <span class="packaging-info">Hộp 24 gói x 1.5g thuốc bột</span></p>
-                        <p class="medicine-origin">Nước sản xuất:</p>
-                        <p class="medicine-usage">Cách dùng:</p>
-                        <p class="medicine-contraindication">Chống chỉ định:</p>
-                        <p class="medicine-storage">Bảo quản:</p>
-                    </div>
-                </div>
+<%--                                <p class="medicine-manufacturer">--%>
+<%--                                    Nước sản xuất:--%>
+<%--                                    <span class="manufacturer-info">${searchMedicineVM.get(i).manufacturer()}</span>--%>
+<%--                                </p>--%>
+<%--                                <p class="medicine-packaging">--%>
+<%--                                    Quy cách đóng gói:--%>
+<%--                                    <span class="packaging-info">${searchMedicineVM.get(i).quantity()} ${searchMedicineVM.get(i).baseUnitName()}</span>--%>
+<%--                                </p>--%>
+<%--                                <p class="medicine-origin">Nước sản xuất: ${searchMedicineVM.get(i).country()}</p>--%>
+<%--                                <p class="medicine-usage">Cách dùng: ${searchMedicineVM.get(i).uses()}</p>--%>
+<%--                                <p class="medicine-contraindication">Chống chỉ định: ${searchMedicineVM.get(i).contraindications()}</p>--%>
+<%--                                <p class="medicine-storage">Tác dụng phụ: ${searchMedicineVM.get(i).sideEffect()}</p>--%>
+<%--                            </div>--%>
+<%--                        @endfor--%>
+<%--                </div>--%>
+                <div id="medicine-list" class="medicine-list"></div>
 
             </div>
         </section>
