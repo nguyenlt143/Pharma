@@ -37,6 +37,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>, Jpa
             i.quantity as quantity,
             COALESCE(u.name, '') as unit,
             COALESCE(c.name, '') as categoryName,
+            c.id as categoryId,
             i.branch_id as branchId
         FROM inventory i
         LEFT JOIN batches b ON i.batch_id = b.id
@@ -46,7 +47,6 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>, Jpa
         LEFT JOIN units u ON mv.base_unit_id = u.id
         WHERE i.branch_id = :branchId 
           AND i.deleted = false
-          AND i.quantity > 0
         ORDER BY m.name, b.expiry_date
         """, nativeQuery = true)
     List<Object[]> findMedicinesByBranch(@Param("branchId") Long branchId);
@@ -71,7 +71,6 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>, Jpa
         LEFT JOIN units u ON mv.base_unit_id = u.id
         WHERE i.branch_id = 1
           AND i.deleted = false
-          AND i.quantity > 0
           AND (m.name LIKE CONCAT('%', :query, '%') 
                OR m.active_ingredient LIKE CONCAT('%', :query, '%')
                OR b.batch_code LIKE CONCAT('%', :query, '%'))
@@ -80,4 +79,98 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>, Jpa
         """, nativeQuery = true)
     List<Object[]> searchMedicinesInWarehouse(@Param("query") String query);
     Optional<Inventory> findByBranchAndVariantAndBatch(Branch branch, MedicineVariant variant, Batch batch);
+
+    // Inventory Report Queries
+    @Query(value = """
+        SELECT COUNT(DISTINCT i.variant_id) 
+        FROM inventory i 
+        WHERE i.branch_id = :branchId 
+          AND i.deleted = false 
+          AND i.quantity > 0
+        """, nativeQuery = true)
+    int countTotalItems(@Param("branchId") Long branchId);
+
+    @Query(value = """
+        SELECT COUNT(*) 
+        FROM inventory i 
+        WHERE i.branch_id = :branchId 
+          AND i.deleted = false 
+          AND i.quantity <= COALESCE(i.min_stock, 10)
+          AND i.quantity > 0
+        """, nativeQuery = true)
+    int countLowStockItems(@Param("branchId") Long branchId);
+
+    @Query(value = """
+        SELECT COUNT(*) 
+        FROM inventory i 
+        WHERE i.branch_id = :branchId 
+          AND i.deleted = false 
+          AND i.quantity <= 0
+        """, nativeQuery = true)
+    int countOutOfStockItems(@Param("branchId") Long branchId);
+
+    @Query(value = """
+        SELECT COALESCE(SUM(i.quantity * i.cost_price), 0) 
+        FROM inventory i 
+        WHERE i.branch_id = :branchId 
+          AND i.deleted = false 
+          AND i.quantity > 0
+        """, nativeQuery = true)
+    Double calculateTotalValue(@Param("branchId") Long branchId);
+
+    @Query(value = """
+        SELECT COUNT(*) 
+        FROM inventory i 
+        JOIN batches b ON i.batch_id = b.id 
+        WHERE i.branch_id = :branchId 
+          AND i.deleted = false 
+          AND b.expiry_date <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY)
+          AND b.expiry_date >= CURRENT_DATE
+          AND i.quantity > 0
+        """, nativeQuery = true)
+    int countNearExpiryItems(@Param("branchId") Long branchId);
+
+    @Query(value = """
+        SELECT COUNT(*) 
+        FROM inventory i 
+        JOIN batches b ON i.batch_id = b.id 
+        WHERE i.branch_id = :branchId 
+          AND i.deleted = false 
+          AND b.expiry_date < CURRENT_DATE
+          AND i.quantity > 0
+        """, nativeQuery = true)
+    int countExpiredItems(@Param("branchId") Long branchId);
+
+    Optional<Inventory> findByBranchAndBatch(Branch branch, Batch batch);
+
+    // Category Statistics
+    @Query(value = """
+        SELECT 
+            c.name as categoryName,
+            COUNT(DISTINCT i.variant_id) as itemCount,
+            COALESCE(SUM(i.quantity), 0) as totalQuantity,
+            COALESCE(SUM(i.quantity * i.cost_price), 0) as totalValue
+        FROM inventory i
+        JOIN medicine_variant mv ON i.variant_id = mv.id
+        JOIN medicines m ON mv.medicine_id = m.id
+        JOIN categorys c ON m.category_id = c.id
+        WHERE i.branch_id = :branchId 
+          AND i.deleted = false 
+        GROUP BY c.id, c.name
+        ORDER BY totalValue DESC
+        """, nativeQuery = true)
+    List<Object[]> getCategoryStatistics(@Param("branchId") Long branchId);
+
+    // Get all categories
+    @Query(value = """
+        SELECT DISTINCT c.id, c.name
+        FROM categorys c
+        JOIN medicines m ON m.category_id = c.id
+        JOIN medicine_variant mv ON mv.medicine_id = m.id
+        JOIN inventory i ON i.variant_id = mv.id
+        WHERE i.branch_id = :branchId 
+          AND i.deleted = false
+        ORDER BY c.name
+        """, nativeQuery = true)
+    List<Object[]> getAllCategories(@Param("branchId") Long branchId);
 }

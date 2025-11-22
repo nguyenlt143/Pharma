@@ -9,87 +9,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PharmaSys - Bảng điều khiển</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700@display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/manager/base.css">
-    <link rel="stylesheet" href="/assets/css/manager/header.css">
+    <title>Manager - PharmaSys</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/owner/layout.css">
+    <link rel="stylesheet" href="/assets/css/manager/common.css">
+    <style>
+        .main-content {
+            padding: 24px;
+            background-color: #f9fafb;
+        }
+        .page-header {
+            margin-bottom: 24px;
+        }
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #111827;
+        }
+    </style>
     ${headContent}
 </head>
 <body>
+<div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <header class="sidebar-header">
+            <h1 class="sidebar-title">PharmaSys</h1>
+            <p class="sidebar-subtitle">Quản lý chi nhánh</p>
+        </header>
 
-<div class="dashboard">
-    <header class="header">
-        <div class="header-container">
-            <div class="logo-container">
-                <img src="https://static.codia.ai/image/2025-10-26/z6is336KkE.png" alt="PharmaSys Logo" class="logo-icon">
-                <h1 class="logo-text">PharmaSys</h1>
-            </div>
+        <nav class="sidebar-nav">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="/manager/dashboard" class="nav-link">
+                        <span class="material-icons nav-icon">dashboard</span>
+                        <span class="nav-text">Tổng quan</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/manager/report/revenue" class="nav-link">
+                        <span class="material-icons nav-icon">assessment</span>
+                        <span class="nav-text">Báo cáo doanh thu</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/manager/report/inventory" class="nav-link">
+                        <span class="material-icons nav-icon">inventory</span>
+                        <span class="nav-text">Báo cáo kho</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/manager/shift" class="nav-link">
+                        <span class="material-icons nav-icon">schedule</span>
+                        <span class="nav-text">Ca làm việc</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/manager/staff" class="nav-link">
+                        <span class="material-icons nav-icon">people</span>
+                        <span class="nav-text">Nhân viên</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
 
-            <nav class="nav">
-                <a href="/manager/dashboard" class="nav-link">Tổng quan</a>
-                <!-- Dropdown menu cho Báo cáo -->
-                <div class="nav-dropdown">
-                    <a href="#" class="nav-link">Báo cáo ▾</a>
-                    <div class="dropdown-content">
-                        <a href="/manager/report/revenue">Doanh thu</a>
-                        <a href="/manager/report/inventory">Báo cáo kho</a>
-                    </div>
-                </div>
-                <a href="/manager/shift" class="nav-link">Ca làm việc</a>
-                <a href="/manager/staff" class="nav-link">Nhân viên</a>
-            </nav>
-
-            <div class="user-section">
-                <img src="https://static.codia.ai/image/2025-10-26/XV9PGtTDvv.png" alt="Notifications" class="notification-icon">
-                <img src="https://static.codia.ai/image/2025-10-26/QXRwDp0GJT.png" alt="User Avatar" class="user-avatar">
-            </div>
+        <div class="sidebar-footer">
+            <a href="/logout" class="logout-link">
+                <span class="material-icons">logout</span>
+                <span>Đăng xuất</span>
+            </a>
         </div>
-    </header>
+    </aside>
 
-    ${content}
-
+    <!-- Main Content -->
+    <main class="main-content">
+        ${content}
+    </main>
 </div>
 
 ${pageScript}
 
 <script>
+    // Active nav link highlighting
     document.addEventListener('DOMContentLoaded', function() {
-        const navLinks = document.querySelectorAll('.nav-link');
         const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.nav-link');
 
-        // --- RESET mọi trạng thái active ---
-        navLinks.forEach(link => link.classList.remove('active'));
-
-        // --- Kích hoạt link trùng URL ---
+        let bestMatch = null;
         navLinks.forEach(link => {
+            link.classList.remove('active');
             const href = link.getAttribute('href');
-            if (href && href !== '#' && currentPath === new URL(link.href).pathname) {
-                link.classList.add('active');
+            if (href && currentPath.startsWith(href)) {
+                if (!bestMatch || href.length > bestMatch.getAttribute('href').length) {
+                    bestMatch = link;
+                }
             }
         });
 
-        // --- Kích hoạt riêng menu Báo cáo khi đang ở trang con ---
-        if (currentPath.startsWith('/manager/report')) {
-            const reportMenu = document.querySelector('.nav-dropdown > .nav-link');
-            if (reportMenu) reportMenu.classList.add('active');
-        }
-
-        // --- Dropdown hover behavior ---
-        const dropdown = document.querySelector('.nav-dropdown');
-        if (dropdown) {
-            const dropdownContent = dropdown.querySelector('.dropdown-content');
-
-            // Hiện khi hover vào
-            dropdown.addEventListener('mouseenter', () => {
-                dropdownContent.style.display = 'flex';
-            });
-
-            // Ẩn khi rời chuột
-            dropdown.addEventListener('mouseleave', () => {
-                dropdownContent.style.display = 'none';
-            });
+        if (bestMatch) {
+            bestMatch.classList.add('active');
         }
     });
 </script>
