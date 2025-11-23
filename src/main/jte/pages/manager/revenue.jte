@@ -2,58 +2,55 @@
     headContent = @`<link rel="stylesheet" href="/assets/css/manager/revenue.css">`,
     content = @`
         <main class="main">
-            <div class="breadcrumb">
-                <span>Báo Cáo</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2"/>
-                </svg>
-                <span>Doanh Thu Hàng Ngày</span>
-            </div>
+        <div class="d-flex justify-content-between">
+            <h2 class="mb-4">Báo cáo doanh thu</h2>
+        </div>
 
-            <!-- Filters -->
-            <div class="filters">
-                <div class="filter-group">
-                    <label>Loại thời gian</label>
-                    <select class="select-input" id="time-mode">
-                        <option value="day">Ngày</option>
-                        <option value="week">Tuần</option>
-                        <option value="month">Tháng</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>Thời gian</label>
-                    <input type="date" class="date-input">
-                </div>
-                <div class="filter-group">
-                    <label>Ca làm việc</label>
-                    <select class="select-input" id="shift-select">
-                        <!-- options sẽ load từ API -->
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>Nhân viên</label>
-                    <select class="select-input" id="employee-select">
-                        <!-- options sẽ load từ API -->
-                    </select>
-                </div>
+        <!-- Filters -->
+        <div class="filters">
+            <div class="filter-group">
+                <label>Loại thời gian</label>
+                <select class="select-input" id="time-mode">
+                    <option value="day" selected>Ngày</option>
+                    <option value="week">Tuần</option>
+                    <option value="month">Tháng</option>
+                </select>
             </div>
+            <div class="filter-group">
+                <label>Thời gian</label>
+                <input type="date" class="date-input" id="date-picker">
+                <input type="week" class="week-input" id="week-picker" style="display: none;">
+                <input type="month" class="month-input" id="month-picker" style="display: none;">
+            </div>
+            <div class="filter-group">
+                <label>Ca làm việc</label>
+                <select class="select-input" id="shift-select">
+                    <option value="">Tất cả</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Nhân viên</label>
+                <select class="select-input" id="employee-select">
+                    <option value="">Tất cả</option>
+                </select>
+            </div>
+        </div>
 
-            <!-- KPI Cards -->
-            <div class="kpi-section">
-                <h2>Thông tin chung </h2>
-                    <div class="kpi-card">
-                        <div class="kpi-label">Tổng số đơn</div>
-                        <div class="kpi-value" id="kpi-totalInvoices"></div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-label">Doanh thu</div>
-                        <div class="kpi-value" id="kpi-totalRevenue"></div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-label">Lợi nhuận</div>
-                        <div class="kpi-value" id="kpi-totalProfit"></div>
-                    </div>
+        <!-- KPI Cards -->
+        <div class="kpi-section">
+            <div class="kpi-card">
+                <div class="kpi-label">Tổng số đơn</div>
+                <div class="kpi-value" id="kpi-totalInvoices">0</div>
             </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Doanh thu</div>
+                <div class="kpi-value" id="kpi-totalRevenue">0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Lợi nhuận</div>
+                <div class="kpi-value" id="kpi-totalProfit">0</div>
+            </div>
+        </div>
 
             <div class="bottom-section">
                 <!-- Product Statistics -->
@@ -79,9 +76,14 @@
                         </tr>
                         </thead>
                         <tbody id="invoice-tbody">
-                        <!-- rows sẽ được JS append -->
+                        <!-- rows will be appended by JS -->
                         </tbody>
                     </table>
+                </div>
+                <div class="pagination-container">
+                    <button id="prev-page" disabled>&laquo; Trước</button>
+                    <span id="page-info">Trang 1 / 1</span>
+                    <button id="next-page" disabled>Sau &raquo;</button>
                 </div>
             </div>
         </main>

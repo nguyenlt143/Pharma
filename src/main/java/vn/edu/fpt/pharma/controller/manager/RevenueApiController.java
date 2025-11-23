@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.edu.fpt.pharma.config.CustomUserDetails;
+import vn.edu.fpt.pharma.dto.PagingRequest;
 import vn.edu.fpt.pharma.service.RevenueReportService;
 
 import java.util.Map;
@@ -28,11 +29,13 @@ public class RevenueApiController {
             @RequestParam(required = false) String period,
             @RequestParam(required = false) Long shift,
             @RequestParam(required = false, name = "employeeId") Long employeeId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long branchId = userDetails != null && userDetails.getUser() != null ? userDetails.getUser().getBranchId() : null;
-
-        Map<String, Object> body = revenueReportService.getRevenueReport(branchId, date, mode, period, shift, employeeId);
+        PagingRequest pagingRequest = new PagingRequest(page, size);
+        Map<String, Object> body = revenueReportService.getRevenueReport(branchId, date, mode, period, shift, employeeId, pagingRequest);
         return ResponseEntity.ok(body);
     }
 }

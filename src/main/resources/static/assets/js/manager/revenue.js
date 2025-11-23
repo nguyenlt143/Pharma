@@ -199,11 +199,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('shift-select').addEventListener('change', loadData);
     document.getElementById('employee-select').addEventListener('change', loadData);
 
-    // -------------------
-    // Initial load
-    // -------------------
-    (async () => {
-        await initFilters();
-        await loadData();
-    })();
+
+    // Init
+    initFilters();
+    loadData();
 });
