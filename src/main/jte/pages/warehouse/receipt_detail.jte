@@ -1,13 +1,13 @@
-@import vn.edu.fpt.pharma.dto.warehouse.RequestDetailVM
-@import vn.edu.fpt.pharma.dto.warehouse.RequestList
+@import vn.edu.fpt.pharma.dto.warehouse.ReceiptDetailVM
+@import vn.edu.fpt.pharma.dto.warehouse.ReceiptInfo
 @import java.util.List
 
-@param RequestList request
-@param List<RequestDetailVM> details
+@param ReceiptInfo receipt
+@param List<ReceiptDetailVM> details
 
 @template.layouts.warehouse(
 headContent = @`
-    <title>Chi Tiết Yêu Cầu</title>
+    <title>Chi Tiết Phiếu</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -20,10 +20,10 @@ content = @`
 
             <!-- HEADER -->
             <header class="modal-header">
-                <h1 class="modal-title">Chi Tiết Yêu Cầu</h1>
-                <button class="close-button" onclick="closeModal()">
+                <h1 class="modal-title">Chi Tiết Phiếu</h1>
+                <a href="/warehouse/receipt-list" class="close-button">
                     <span class="material-icons">close</span>
-                </button>
+                </a>
             </header>
 
             <!-- GENERAL INFO -->
@@ -32,28 +32,20 @@ content = @`
                 <div class="info-section">
                     <div class="info-group">
                         <label class="info-label">Tên chi nhánh</label>
-                        <div class="info-value">${request.branchId()}</div>
+                        <div class="info-value">${receipt.getBranchName()}</div>
                     </div>
 
                     <div class="info-group">
-                        <label class="info-label">Loại yêu cầu</label>
+                        <label class="info-label">Loại Phiếu</label>
                         <div class="info-value">
-                            @if(request.requestType().equals("IMPORT"))
-                                Nhập hàng
-                            @elseif(request.requestType().equals("RETURN"))
-                                Trả hàng
+                            @if(receipt.getType().equals("SUP_TO_WARE"))
+                                Phiếu Nhập
+                            @elseif(receipt.getType().equals("WARE_TO_BR"))
+                                Phiếu Xuất
                             @else
                                 Không xác định
                             @endif
                         </div>
-                    </div>
-                </div>
-
-                <!-- NOTE -->
-                <div class="content-section">
-                    <label class="content-label">Nội dung</label>
-                    <div class="content-text">
-                        ${request.note()}
                     </div>
                 </div>
 
@@ -73,13 +65,13 @@ content = @`
                         </thead>
 
                         <tbody>
-                        @for(RequestDetailVM detail : details)
+                        @for(ReceiptDetailVM detail : details)
                             <tr>
                                 <td>${details.indexOf(detail) + 1}</td>
-                                <td>${detail.variantId()}</td>
-                                <td>${detail.variantId()}</td>
-                                <td>${detail.variantId()}</td>
-                                <td>${detail.quantity()}</td>
+                                <td>${detail.getMedicineName()}</td>
+                                <td>${detail.getConcentration()}</td>
+                                <td>${detail.getUnit()}</td>
+                                <td>${detail.getQuantity()}</td>
                             </tr>
                         @endfor
                         </tbody>
@@ -90,25 +82,36 @@ content = @`
 
             <!-- FOOTER -->
             <footer class="modal-footer">
-
-                @if(request.requestStatus().equals("REQUESTED"))
-                    <button class="reject-button" onclick="rejectRequest(${request.id()})">Từ Chối</button>
-                    <button class="approve-button" onclick="createExportSlip(${request.id()})">Đồng Ý</button>
-                @elseif(request.requestStatus().equals("CONFIRMED"))
-                    <button class="approve-button" onclick="createExportSlip(${request.id()})">Tạo Phiếu Xuất</button>
-                    <button class="approve-button disabled">Đã duyệt</button>
-                @elseif(request.requestStatus().equals("CANCELLED"))
-                    <button class="reject-button disabled">Đã từ chối</button>
-                @else
-                    <button class="reject-button disabled">Không xác định</button>
+                @if(receipt.getStatus().equals("APPROVED"))
+                    <button class="approve-button" onclick="receiveReceipt(${receipt.getId()})">Đã nhận</button>
+                @elseif(receipt.getStatus().equals("RECEIVED"))
+                    <button class="approve-button disabled">Đã nhận</button>
                 @endif
-
             </footer>
 
         </div>
     </div>
 `,
 pageScript = @`
-    <script src="/assets/js/warehouse/request_detail.js" defer></script>
+    <script>
+        function receiveReceipt(id) {
+            if (confirm('Xác nhận đã nhận phiếu này?')) {
+                fetch('/warehouse/receipts/' + id + '/receive', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        alert('Xác nhận thành công!');
+                        window.location.href = '/warehouse/receipt-list';
+                    } else {
+                        alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                    }
+                });
+            }
+        }
+    </script>
 `
 )
+

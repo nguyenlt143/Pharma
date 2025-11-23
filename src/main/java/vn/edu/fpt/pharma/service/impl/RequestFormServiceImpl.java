@@ -1,23 +1,26 @@
 package vn.edu.fpt.pharma.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.pharma.base.BaseServiceImpl;
+import vn.edu.fpt.pharma.constant.BranchType;
 import vn.edu.fpt.pharma.constant.RequestType;
 import vn.edu.fpt.pharma.dto.requestform.RequestFormVM;
+import vn.edu.fpt.pharma.dto.warehouse.ExportCreateDTO;
 import vn.edu.fpt.pharma.dto.warehouse.RequestDetailVM;
 import vn.edu.fpt.pharma.dto.warehouse.RequestList;
-import vn.edu.fpt.pharma.entity.RequestForm;
-import vn.edu.fpt.pharma.repository.RequestDetailRepository;
-import vn.edu.fpt.pharma.repository.RequestFormRepository;
+import vn.edu.fpt.pharma.entity.*;
+import vn.edu.fpt.pharma.repository.*;
 import vn.edu.fpt.pharma.service.AuditService;
 import vn.edu.fpt.pharma.service.RequestFormService;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, RequestFormRepository>
         implements RequestFormService {
@@ -25,14 +28,27 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     private final RequestFormRepository repository;
     private final AuditService auditService;
     private final RequestDetailRepository requestDetailRepository;
+    private final BranchRepository branchRepository;
+    private final InventoryRepository inventoryRepository;
+    private final MedicineVariantRepository medicineVariantRepository;
+    private final PriceRepository priceRepository;
 
 
     // Constructor gọi explicit BaseServiceImpl
-    public RequestFormServiceImpl(RequestFormRepository repository, AuditService auditService, RequestDetailRepository requestDetailRepository) {
+    public RequestFormServiceImpl(RequestFormRepository repository, AuditService auditService,
+                                   RequestDetailRepository requestDetailRepository,
+                                   BranchRepository branchRepository,
+                                   InventoryRepository inventoryRepository,
+                                   MedicineVariantRepository medicineVariantRepository,
+                                   PriceRepository priceRepository) {
         super(repository, auditService);
         this.repository = repository;
         this.auditService = auditService;
         this.requestDetailRepository = requestDetailRepository;
+        this.branchRepository = branchRepository;
+        this.inventoryRepository = inventoryRepository;
+        this.medicineVariantRepository = medicineVariantRepository;
+        this.priceRepository = priceRepository;
     }
 
     @Override
@@ -208,6 +224,118 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
         }
 
         return "#RQ" + String.format("%03d", savedForm.getId());
+    }
+
+    @Override
+    public ExportCreateDTO prepareExportCreation(Long requestId) {
+        // Get request form
+        RequestForm requestForm = repository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Request not found with ID: " + requestId));
+
+        // Get branch info
+        Branch branch = branchRepository.findById(requestForm.getBranchId())
+                .orElseThrow(() -> new RuntimeException("Branch not found with ID: " + requestForm.getBranchId()));
+
+        // Get request details
+        List<vn.edu.fpt.pharma.entity.RequestDetail> requestDetails =
+                requestDetailRepository.findByRequestFormId(requestId);
+
+        // Get warehouse branch (HEAD_QUARTER acts as warehouse)
+        Long warehouseBranchId = branchRepository.findAll().stream()
+                .filter(b -> b.getBranchType() == BranchType.HEAD_QUARTER)
+                .findFirst()
+                .map(Branch::getId)
+                .orElse(1L);
+
+        // Build medicine list with batches
+        List<ExportCreateDTO.MedicineWithBatches> medicines = new ArrayList<>();
+
+        for (vn.edu.fpt.pharma.entity.RequestDetail detail : requestDetails) {
+            // Get variant info
+            MedicineVariant variant = medicineVariantRepository.findById(detail.getVariantId())
+                    .orElseThrow(() -> new RuntimeException("Variant not found: " + detail.getVariantId()));
+
+            // Get available inventory in warehouse for this variant
+            List<Inventory> inventoryList = inventoryRepository.findAll().stream()
+                    .filter(inv -> inv.getVariant() != null &&
+                                   inv.getVariant().getId().equals(detail.getVariantId()) &&
+                                   inv.getBranch() != null &&
+                                   inv.getBranch().getId().equals(warehouseBranchId) &&
+                                   inv.getQuantity() > 0)
+                    .sorted(Comparator.comparing(inv -> inv.getBatch().getExpiryDate()))
+                    .toList();
+
+            // Build batch info list
+            List<ExportCreateDTO.BatchInfo> batches = new ArrayList<>();
+            for (Inventory inventory : inventoryList) {
+                Batch batch = inventory.getBatch();
+
+                // Get branch price for this variant
+                Double branchPrice = getBranchPriceForVariant(detail.getVariantId(), branch.getId());
+
+                ExportCreateDTO.BatchInfo batchInfo = ExportCreateDTO.BatchInfo.builder()
+                        .inventoryId(inventory.getId())
+                        .batchId(batch.getId())
+                        .batchCode(batch.getBatchCode())
+                        .availableQuantity(inventory.getQuantity())
+                        .branchPrice(branchPrice)
+                        .quantityToSend(0L)
+                        .build();
+
+                batches.add(batchInfo);
+            }
+
+            // Build medicine with batches
+            ExportCreateDTO.MedicineWithBatches medicine = ExportCreateDTO.MedicineWithBatches.builder()
+                    .variantId(variant.getId())
+                    .medicineName(variant.getMedicine() != null ? variant.getMedicine().getName() : "N/A")
+                    .unit(variant.getPackageUnitId() != null ? variant.getPackageUnitId().getName() : "")
+                    .concentration(variant.getStrength() != null ? variant.getStrength() : "")
+                    .requestedQuantity(detail.getQuantity())
+                    .batches(batches)
+                    .build();
+
+            medicines.add(medicine);
+        }
+
+        return ExportCreateDTO.builder()
+                .requestId(requestId)
+                .branchId(branch.getId())
+                .branchName(branch.getName())
+                .createdDate(LocalDate.now())
+                .note(requestForm.getNote())
+                .medicines(medicines)
+                .build();
+    }
+
+    private Double getBranchPriceForVariant(Long variantId, Long branchId) {
+        // Try to find price for specific branch first
+        Optional<Price> branchSpecificPrice = priceRepository.findAll().stream()
+                .filter(p -> p.getVariantId().equals(variantId) &&
+                           p.getBranchId() != null &&
+                           p.getBranchId().equals(branchId) &&
+                           (p.getStartDate() == null || p.getStartDate().isBefore(java.time.LocalDateTime.now())) &&
+                           (p.getEndDate() == null || p.getEndDate().isAfter(java.time.LocalDateTime.now())))
+                .findFirst();
+
+        if (branchSpecificPrice.isPresent() && branchSpecificPrice.get().getBranchPrice() != null) {
+            return branchSpecificPrice.get().getBranchPrice();
+        }
+
+        // Try global price
+        Optional<Price> globalPrice = priceRepository.findAll().stream()
+                .filter(p -> p.getVariantId().equals(variantId) &&
+                           p.getBranchId() == null &&
+                           (p.getStartDate() == null || p.getStartDate().isBefore(java.time.LocalDateTime.now())) &&
+                           (p.getEndDate() == null || p.getEndDate().isAfter(java.time.LocalDateTime.now())))
+                .findFirst();
+
+        if (globalPrice.isPresent() && globalPrice.get().getBranchPrice() != null) {
+            return globalPrice.get().getBranchPrice();
+        }
+
+        // Default to 0.0 if no price found
+        return 0.0;
     }
 
 }
