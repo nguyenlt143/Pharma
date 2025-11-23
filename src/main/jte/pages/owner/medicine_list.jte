@@ -213,7 +213,6 @@ content = @`
                     <th>Thương hiệu</th>
                     <th>Nhà sản xuất</th>
                     <th>Hoạt chất</th>
-                    <th>Trạng thái</th>
                     <th>Hành động</th>
                 </tr>
             </thead>
@@ -262,53 +261,6 @@ content = @`
             <div class="form-group">
                 <label class="form-label">Hoạt chất</label>
                 <input type="text" id="activeIngredient" class="form-input">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Số đăng ký</label>
-                <input type="text" id="registrationNumber" class="form-input">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Điều kiện bảo quản</label>
-                <textarea id="storageConditions" class="form-textarea"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Chỉ định</label>
-                <textarea id="indications" class="form-textarea"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Chống chỉ định</label>
-                <textarea id="contraindications" class="form-textarea"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Tác dụng phụ</label>
-                <textarea id="sideEffects" class="form-textarea"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Hướng dẫn sử dụng</label>
-                <textarea id="instructions" class="form-textarea"></textarea>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Cần kê đơn</label>
-                    <select id="prescriptionRequired" class="form-select">
-                        <option value="false">Không</option>
-                        <option value="true">Có</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Trạng thái</label>
-                    <select id="status" class="form-select">
-                        <option value="1">Hoạt động</option>
-                        <option value="0">Ngừng hoạt động</option>
-                    </select>
-                </div>
             </div>
 
             <div class="btn-group">
@@ -387,9 +339,67 @@ content = @`
                     </div>
                 </div>
 
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Đơn vị đóng gói</label>
+                        <select id="packageUnitId" class="form-select">
+                            <option value="">Chọn đơn vị</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Số lượng mỗi gói</label>
+                        <input type="number" id="quantityPerPackage" class="form-input" placeholder="VD: 10" step="0.01">
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label class="form-label">Mã vạch</label>
                     <input type="text" id="barcode" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Số đăng ký</label>
+                    <input type="text" id="registrationNumber" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Điều kiện bảo quản</label>
+                    <textarea id="storageConditions" class="form-textarea"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Chỉ định</label>
+                    <textarea id="indications" class="form-textarea"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Chống chỉ định</label>
+                    <textarea id="contraindications" class="form-textarea"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Tác dụng phụ</label>
+                    <textarea id="sideEffects" class="form-textarea"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Hướng dẫn sử dụng</label>
+                    <textarea id="instructions" class="form-textarea"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Công dụng</label>
+                    <textarea id="uses" class="form-textarea"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Cần kê đơn</label>
+                        <select id="prescriptionRequired" class="form-select">
+                            <option value="false">Không</option>
+                            <option value="true">Có</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="btn-group">

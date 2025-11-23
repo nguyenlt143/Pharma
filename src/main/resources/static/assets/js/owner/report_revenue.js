@@ -4,8 +4,7 @@ let invoiceTable;
 // Wait for jQuery and DOM to be ready
 if (typeof $ !== 'undefined') {
     $(document).ready(function() {
-        loadShifts();
-        loadEmployees();
+        loadBranches();
         initDataTable();
         // Don't auto-load report, wait for user to click button or after filters are loaded
         setTimeout(() => {
@@ -19,8 +18,7 @@ if (typeof $ !== 'undefined') {
         const checkJQuery = setInterval(function() {
             if (typeof $ !== 'undefined') {
                 clearInterval(checkJQuery);
-                loadShifts();
-                loadEmployees();
+                loadBranches();
                 initDataTable();
                 setTimeout(() => {
                     loadReport();
@@ -30,33 +28,18 @@ if (typeof $ !== 'undefined') {
     });
 }
 
-function loadShifts() {
-    fetch('/api/owner/shifts')
+function loadBranches() {
+    fetch('/api/owner/branches')
         .then(res => res.json())
         .then(data => {
-            const select = document.getElementById('shiftSelect');
+            const select = document.getElementById('branchSelect');
             if (select && Array.isArray(data)) {
-                select.innerHTML = '<option value="">Tất cả</option>' +
-                    data.map(s => `<option value="${s.id}">${s.name || 'Ca #' + s.id}</option>`).join('');
+                select.innerHTML = '<option value="">Tất cả chi nhánh</option>' +
+                    data.map(b => `<option value="${b.id}">${b.name || 'Chi nhánh #' + b.id}</option>`).join('');
             }
         })
         .catch(err => {
-            console.warn('Không thể tải danh sách ca làm việc:', err);
-        });
-}
-
-function loadEmployees() {
-    fetch('/api/owner/employees')
-        .then(res => res.json())
-        .then(data => {
-            const select = document.getElementById('employeeSelect');
-            if (select && Array.isArray(data)) {
-                select.innerHTML = '<option value="">Tất cả</option>' +
-                    data.map(e => `<option value="${e.id}">${e.fullName || e.userName || 'User #' + e.id}</option>`).join('');
-            }
-        })
-        .catch(err => {
-            console.warn('Không thể tải danh sách nhân viên:', err);
+            console.warn('Không thể tải danh sách chi nhánh:', err);
         });
 }
 
@@ -103,17 +86,13 @@ function loadReport() {
         initDataTable();
     }
 
-    const fromDate = document.getElementById('fromDate').value;
-    const toDate = document.getElementById('toDate').value;
-    const shift = document.getElementById('shiftSelect').value;
-    const employeeId = document.getElementById('employeeSelect').value;
+    const period = document.getElementById('periodInput').value;
+    const branchId = document.getElementById('branchSelect').value;
 
     const params = new URLSearchParams({
-        fromDate: fromDate,
-        toDate: toDate
+        period: period
     });
-    if (shift) params.append('shift', shift);
-    if (employeeId) params.append('employeeId', employeeId);
+    if (branchId) params.append('branchId', branchId);
 
     fetch(`/api/owner/report/revenue?${params}`)
         .then(res => res.json())

@@ -30,51 +30,31 @@ public class DashboardApiController {
 
     /**
      * View revenue – Dashboard
-     * GET /api/owner/dashboard/revenue?mode=day&period=2024-01-15
+     * GET /api/owner/dashboard/revenue?period=2024-01&branchId=1
+     * Only supports monthly revenue by branch
      */
     @GetMapping("/revenue")
     public ResponseEntity<DashboardRevenueResponse> getRevenue(
-            @RequestParam(required = false) String mode,
             @RequestParam(required = false) String period,
-            @RequestParam(required = false) Long shift,
-            @RequestParam(required = false) Long employeeId,
+            @RequestParam(required = false) Long branchId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         
         // Verify owner role
         if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        
-        // Owner can view all branches, so branchId is null
-        Long branchId = null;
 
-        LocalDateTime fromDate;
-        LocalDateTime toDate;
-        
-        if (mode == null || mode.isBlank() || "day".equalsIgnoreCase(mode)) {
-            LocalDate localDate = parseDateOrToday(period);
-            fromDate = localDate.atStartOfDay();
-            toDate = localDate.plusDays(1).atStartOfDay();
-        } else if ("week".equalsIgnoreCase(mode)) {
-            LocalDate startOfWeek = parseWeekStart(period);
-            fromDate = startOfWeek.atStartOfDay();
-            toDate = startOfWeek.plusWeeks(1).atStartOfDay();
-        } else if ("month".equalsIgnoreCase(mode)) {
-            LocalDate firstOfMonth = parseMonthStart(period);
-            fromDate = firstOfMonth.atStartOfDay();
-            toDate = firstOfMonth.plusMonths(1).atStartOfDay();
-        } else {
-            LocalDate localDate = parseDateOrToday(period);
-            fromDate = localDate.atStartOfDay();
-            toDate = localDate.plusDays(1).atStartOfDay();
-        }
+        // Only calculate monthly revenue
+        LocalDate firstOfMonth = parseMonthStart(period);
+        LocalDateTime fromDate = firstOfMonth.atStartOfDay();
+        LocalDateTime toDate = firstOfMonth.plusMonths(1).atStartOfDay();
 
-        KpiData kpi = invoiceRepository.sumRevenue(branchId, fromDate, toDate, shift, employeeId);
-        List<TopProductItem> tops = invoiceRepository.topCategories(branchId, fromDate, toDate, shift, employeeId, 
+        KpiData kpi = invoiceRepository.sumRevenue(branchId, fromDate, toDate, null, null);
+        List<TopProductItem> tops = invoiceRepository.topCategories(branchId, fromDate, toDate, null, null, 
                 org.springframework.data.domain.PageRequest.of(0, 6));
         
-        // Get daily revenue data for chart
-        List<DailyRevenue> dailyRevenues = invoiceRepository.getDailyRevenueByDate(branchId, fromDate, toDate, shift, employeeId);
+        // Get daily revenue data for chart (monthly breakdown)
+        List<DailyRevenue> dailyRevenues = invoiceRepository.getDailyRevenueByDate(branchId, fromDate, toDate, null, null);
         List<DailyRevenueItem> dailyRevenueItems = new ArrayList<>();
         for (DailyRevenue dr : dailyRevenues) {
             DailyRevenueItem item = DailyRevenueItem.builder()
@@ -112,46 +92,26 @@ public class DashboardApiController {
 
     /**
      * View profit – Dashboard
-     * GET /api/owner/dashboard/profit?mode=day&period=2024-01-15
+     * GET /api/owner/dashboard/profit?period=2024-01&branchId=1
+     * Only supports monthly profit by branch
      */
     @GetMapping("/profit")
     public ResponseEntity<Map<String, Object>> getProfit(
-            @RequestParam(required = false) String mode,
             @RequestParam(required = false) String period,
-            @RequestParam(required = false) Long shift,
-            @RequestParam(required = false) Long employeeId,
+            @RequestParam(required = false) Long branchId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         
         // Verify owner role
         if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        
-        // Owner can view all branches, so branchId is null
-        Long branchId = null;
 
-        LocalDateTime fromDate;
-        LocalDateTime toDate;
-        
-        if (mode == null || mode.isBlank() || "day".equalsIgnoreCase(mode)) {
-            LocalDate localDate = parseDateOrToday(period);
-            fromDate = localDate.atStartOfDay();
-            toDate = localDate.plusDays(1).atStartOfDay();
-        } else if ("week".equalsIgnoreCase(mode)) {
-            LocalDate startOfWeek = parseWeekStart(period);
-            fromDate = startOfWeek.atStartOfDay();
-            toDate = startOfWeek.plusWeeks(1).atStartOfDay();
-        } else if ("month".equalsIgnoreCase(mode)) {
-            LocalDate firstOfMonth = parseMonthStart(period);
-            fromDate = firstOfMonth.atStartOfDay();
-            toDate = firstOfMonth.plusMonths(1).atStartOfDay();
-        } else {
-            LocalDate localDate = parseDateOrToday(period);
-            fromDate = localDate.atStartOfDay();
-            toDate = localDate.plusDays(1).atStartOfDay();
-        }
+        // Only calculate monthly profit
+        LocalDate firstOfMonth = parseMonthStart(period);
+        LocalDateTime fromDate = firstOfMonth.atStartOfDay();
+        LocalDateTime toDate = firstOfMonth.plusMonths(1).atStartOfDay();
 
-        KpiData kpi = invoiceRepository.sumRevenue(branchId, fromDate, toDate, shift, employeeId);
+        KpiData kpi = invoiceRepository.sumRevenue(branchId, fromDate, toDate, null, null);
 
         Map<String, Object> response = new HashMap<>();
         response.put("totalProfit", kpi.getProfit());
@@ -161,41 +121,20 @@ public class DashboardApiController {
         return ResponseEntity.ok(response);
     }
 
-    private LocalDate parseDateOrToday(String dateStr) {
-        try {
-            if (dateStr == null || dateStr.isBlank()) return LocalDate.now();
-            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            return LocalDate.parse(dateStr, fmt);
-        } catch (Exception e) {
-            return LocalDate.now();
-        }
-    }
-
     private LocalDate parseMonthStart(String ym) {
         try {
             if (ym == null || ym.isBlank()) return LocalDate.now().withDayOfMonth(1);
-            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM");
-            return LocalDate.parse(ym + "-01", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            // Support both yyyy-MM and yyyy-MM-dd formats
+            if (ym.length() == 7) {
+                // yyyy-MM format
+                return LocalDate.parse(ym + "-01", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            } else {
+                // yyyy-MM-dd format, extract month
+                LocalDate date = LocalDate.parse(ym, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                return date.withDayOfMonth(1);
+            }
         } catch (Exception e) {
             return LocalDate.now().withDayOfMonth(1);
-        }
-    }
-
-    private LocalDate parseWeekStart(String yw) {
-        try {
-            if (yw == null || yw.isBlank()) {
-                return LocalDate.now().with(java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
-            }
-            String[] parts = yw.split("-W");
-            int year = Integer.parseInt(parts[0]);
-            int week = Integer.parseInt(parts[1]);
-            LocalDate base = LocalDate.of(year, 1, 4);
-            LocalDate weekDate = base
-                    .with(java.time.temporal.WeekFields.ISO.weekOfWeekBasedYear(), week)
-                    .with(java.time.temporal.WeekFields.ISO.weekBasedYear(), year);
-            return weekDate.with(java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
-        } catch (Exception e) {
-            return LocalDate.now().with(java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
         }
     }
 }

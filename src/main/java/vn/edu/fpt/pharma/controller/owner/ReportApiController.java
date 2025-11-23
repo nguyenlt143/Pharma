@@ -27,29 +27,27 @@ public class ReportApiController {
 
     /**
      * View detail revenue – Report
-     * GET /api/owner/report/revenue?fromDate=2024-01-01&toDate=2024-01-31&shift=1&employeeId=1
+     * GET /api/owner/report/revenue?period=2024-01&branchId=1
+     * Only supports monthly revenue by branch
      */
     @GetMapping("/revenue")
     public ResponseEntity<Map<String, Object>> getDetailRevenue(
-            @RequestParam(required = false) String fromDate,
-            @RequestParam(required = false) String toDate,
-            @RequestParam(required = false) Long shift,
-            @RequestParam(required = false) Long employeeId,
+            @RequestParam(required = false) String period,
+            @RequestParam(required = false) Long branchId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         
         // Verify owner role
         if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        
-        // Owner can view all branches, so branchId is null
-        Long branchId = null;
 
-        LocalDateTime from = parseDateOrToday(fromDate).atStartOfDay();
-        LocalDateTime to = parseDateOrToday(toDate != null ? toDate : fromDate).plusDays(1).atStartOfDay();
+        // Only calculate monthly revenue
+        LocalDate firstOfMonth = parseMonthStart(period);
+        LocalDateTime from = firstOfMonth.atStartOfDay();
+        LocalDateTime to = firstOfMonth.plusMonths(1).atStartOfDay();
 
-        KpiData kpi = invoiceRepository.sumRevenue(branchId, from, to, shift, employeeId);
-        List<InvoiceSummary> invoices = invoiceRepository.findInvoicesForReport(branchId, from, to, shift, employeeId);
+        KpiData kpi = invoiceRepository.sumRevenue(branchId, from, to, null, null);
+        List<InvoiceSummary> invoices = invoiceRepository.findInvoicesForReport(branchId, from, to, null, null);
 
         Map<String, Object> response = new HashMap<>();
         response.put("totalRevenue", kpi.getRevenue());
@@ -62,29 +60,27 @@ public class ReportApiController {
 
     /**
      * View detail profit – Report
-     * GET /api/owner/report/profit?fromDate=2024-01-01&toDate=2024-01-31&shift=1&employeeId=1
+     * GET /api/owner/report/profit?period=2024-01&branchId=1
+     * Only supports monthly profit by branch
      */
     @GetMapping("/profit")
     public ResponseEntity<Map<String, Object>> getDetailProfit(
-            @RequestParam(required = false) String fromDate,
-            @RequestParam(required = false) String toDate,
-            @RequestParam(required = false) Long shift,
-            @RequestParam(required = false) Long employeeId,
+            @RequestParam(required = false) String period,
+            @RequestParam(required = false) Long branchId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         
         // Verify owner role
         if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        
-        // Owner can view all branches, so branchId is null
-        Long branchId = null;
 
-        LocalDateTime from = parseDateOrToday(fromDate).atStartOfDay();
-        LocalDateTime to = parseDateOrToday(toDate != null ? toDate : fromDate).plusDays(1).atStartOfDay();
+        // Only calculate monthly profit
+        LocalDate firstOfMonth = parseMonthStart(period);
+        LocalDateTime from = firstOfMonth.atStartOfDay();
+        LocalDateTime to = firstOfMonth.plusMonths(1).atStartOfDay();
 
-        KpiData kpi = invoiceRepository.sumRevenue(branchId, from, to, shift, employeeId);
-        List<InvoiceSummary> invoices = invoiceRepository.findInvoicesForReport(branchId, from, to, shift, employeeId);
+        KpiData kpi = invoiceRepository.sumRevenue(branchId, from, to, null, null);
+        List<InvoiceSummary> invoices = invoiceRepository.findInvoicesForReport(branchId, from, to, null, null);
 
         Map<String, Object> response = new HashMap<>();
         response.put("totalProfit", kpi.getProfit());
@@ -108,13 +104,20 @@ public class ReportApiController {
         return ResponseEntity.ok(response);
     }
 
-    private LocalDate parseDateOrToday(String dateStr) {
+    private LocalDate parseMonthStart(String ym) {
         try {
-            if (dateStr == null || dateStr.isBlank()) return LocalDate.now();
-            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            return LocalDate.parse(dateStr, fmt);
+            if (ym == null || ym.isBlank()) return LocalDate.now().withDayOfMonth(1);
+            // Support both yyyy-MM and yyyy-MM-dd formats
+            if (ym.length() == 7) {
+                // yyyy-MM format
+                return LocalDate.parse(ym + "-01", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            } else {
+                // yyyy-MM-dd format, extract month
+                LocalDate date = LocalDate.parse(ym, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                return date.withDayOfMonth(1);
+            }
         } catch (Exception e) {
-            return LocalDate.now();
+            return LocalDate.now().withDayOfMonth(1);
         }
     }
 }

@@ -49,20 +49,17 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     default List<DailyRevenue> getDailyRevenueByDate(Long branchId, LocalDateTime fromDate, LocalDateTime toDate) {
         return getDailyRevenueByDate(branchId, fromDate, toDate, null, null);
     }
-    // KPI total - using cost price from invoice_details.cost_price or inventory.unit_price as fallback
+    // KPI total - using cost price from inventory.cost_price
     @Query(value = """
         SELECT 
             COALESCE(SUM(i.total_price), 0) AS revenue,
             COALESCE(COUNT(DISTINCT i.id), 0) AS order_count,
             COALESCE(SUM(
-                (COALESCE(id.price, 0) - COALESCE(COALESCE(id.cost_price, inv.unit_price), 0)) * COALESCE(id.quantity, 0)
+                (COALESCE(id.price, 0) - COALESCE(inv.cost_price, 0)) * COALESCE(id.quantity, 0)
             ), 0) AS profit
         FROM invoices i
         LEFT JOIN invoice_details id ON i.id = id.invoice_id AND id.deleted = false
-        LEFT JOIN inventory inv ON inv.variant_id = id.variant_id 
-                                AND inv.batch_id = id.batch_id 
-                                AND inv.branch_id = i.branch_id
-                                AND inv.deleted = false
+        LEFT JOIN inventory inv ON inv.id = id.inventory_id AND inv.deleted = false
         WHERE i.created_at >= :fromDate
           AND i.created_at < :toDate
           AND i.deleted = false
@@ -164,14 +161,11 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
       COALESCE(c.name, '') AS customerName,
       i.payment_method AS paymentMethod,
       COALESCE(i.total_price, 0) AS totalPrice,
-      COALESCE(SUM((COALESCE(d.price, 0) - COALESCE(COALESCE(d.cost_price, inv.unit_price), 0)) * COALESCE(d.quantity, 0)), 0) AS profit
+      COALESCE(SUM((COALESCE(d.price, 0) - COALESCE(inv.cost_price, 0)) * COALESCE(d.quantity, 0)), 0) AS profit
     FROM invoices i
     LEFT JOIN customers c ON i.customer_id = c.id
     LEFT JOIN invoice_details d ON i.id = d.invoice_id AND d.deleted = false
-    LEFT JOIN inventory inv ON inv.variant_id = d.variant_id 
-                            AND inv.batch_id = d.batch_id 
-                            AND inv.branch_id = i.branch_id
-                            AND inv.deleted = false
+    LEFT JOIN inventory inv ON inv.id = d.inventory_id AND inv.deleted = false
     WHERE i.created_at >= :fromDate
       AND i.created_at < :toDate
       AND i.branch_id = :branchId
@@ -259,14 +253,11 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
             i.created_at,
             i.total_price,
             COALESCE(SUM(
-                (COALESCE(id.price, 0) - COALESCE(COALESCE(id.cost_price, inv.unit_price), 0)) * COALESCE(id.quantity, 0)
+                (COALESCE(id.price, 0) - COALESCE(inv.cost_price, 0)) * COALESCE(id.quantity, 0)
             ), 0) AS profit
         FROM invoices i
         LEFT JOIN invoice_details id ON i.id = id.invoice_id AND id.deleted = false
-        LEFT JOIN inventory inv ON inv.variant_id = id.variant_id 
-                                AND inv.batch_id = id.batch_id 
-                                AND inv.branch_id = i.branch_id
-                                AND inv.deleted = false
+        LEFT JOIN inventory inv ON inv.id = id.inventory_id AND inv.deleted = false
         LEFT JOIN shift_works sw ON i.shift_work_id = sw.id
         LEFT JOIN shift_assignments sa ON sw.assignment_id = sa.id
         LEFT JOIN shifts s ON sa.shift_id = s.id
