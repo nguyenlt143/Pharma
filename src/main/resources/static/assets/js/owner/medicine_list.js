@@ -43,7 +43,7 @@ function initDataTable() {
                     params['order[0][dir]'] = orderDir;
                     
                     // Map column index to field name for sorting
-                    const columnMap = ['id', 'medicineName', 'category.name', 'brandName', 'manufacturer', 'activeIngredient', 'status'];
+                    const columnMap = ['id', 'name', 'category.name', 'brandName', 'manufacturer', 'activeIngredient'];
                     if (columnMap[orderCol]) {
                         params['columns[' + orderCol + '][data]'] = columnMap[orderCol];
                     }
@@ -64,7 +64,10 @@ function initDataTable() {
             },
             { 
                 data: 'medicineName',
-                name: 'medicineName'
+                name: 'name',
+                render: function(data, type, row) {
+                    return data || row.name || '-';
+                }
             },
             { 
                 data: 'categoryName',
@@ -86,20 +89,11 @@ function initDataTable() {
                 name: 'activeIngredient',
                 defaultContent: '-'
             },
-            { 
-                data: 'status',
-                name: 'status',
-                render: function(data) {
-                    return data === 1 
-                        ? '<span class="status-badge status-active">Hoạt động</span>'
-                        : '<span class="status-badge status-inactive">Ngừng</span>';
-                }
-            },
             {
                 data: null,
                 orderable: false,
                 render: function(data, type, row) {
-                    const medicineName = (row.medicineName || '').replace(/'/g, "\\'");
+                    const medicineName = ((row.medicineName || row.name || '')).replace(/'/g, "\\'");
                     return `
                         <div class="action-buttons">
                             <button onclick="openEditModal(${row.id})" class="btn-link" style="color: #2563EB;">Sửa</button>
@@ -139,25 +133,43 @@ function loadUnits() {
     fetch('/api/owner/units')
         .then(res => res.json())
         .then(data => {
-            // Load into variant modal dropdown
-            const variantSelect = document.getElementById('baseUnitId');
-            if (variantSelect) {
-                variantSelect.innerHTML = '<option value="">Chọn đơn vị</option>';
+            // Load into variant modal dropdowns
+            const baseUnitSelect = document.getElementById('baseUnitId');
+            const packageUnitSelect = document.getElementById('packageUnitId');
+            
+            if (baseUnitSelect) {
+                baseUnitSelect.innerHTML = '<option value="">Chọn đơn vị</option>';
                 if (Array.isArray(data)) {
                     data.forEach(unit => {
                         const option = document.createElement('option');
                         option.value = unit.id;
                         option.textContent = unit.name || '';
-                        variantSelect.appendChild(option);
+                        baseUnitSelect.appendChild(option);
+                    });
+                }
+            }
+            
+            if (packageUnitSelect) {
+                packageUnitSelect.innerHTML = '<option value="">Chọn đơn vị</option>';
+                if (Array.isArray(data)) {
+                    data.forEach(unit => {
+                        const option = document.createElement('option');
+                        option.value = unit.id;
+                        option.textContent = unit.name || '';
+                        packageUnitSelect.appendChild(option);
                     });
                 }
             }
         })
         .catch(err => {
             console.error('Error loading units:', err);
-            const variantSelect = document.getElementById('baseUnitId');
-            if (variantSelect) {
-                variantSelect.innerHTML = '<option value="">Chọn đơn vị</option>';
+            const baseUnitSelect = document.getElementById('baseUnitId');
+            const packageUnitSelect = document.getElementById('packageUnitId');
+            if (baseUnitSelect) {
+                baseUnitSelect.innerHTML = '<option value="">Chọn đơn vị</option>';
+            }
+            if (packageUnitSelect) {
+                packageUnitSelect.innerHTML = '<option value="">Chọn đơn vị</option>';
             }
         });
 }
@@ -174,22 +186,44 @@ function openEditModal(id) {
         .then(res => res.json())
         .then(data => {
             document.getElementById('modalTitle').textContent = 'Cập nhật thuốc';
-            document.getElementById('medicineId').value = data.id;
-            document.getElementById('medicineName').value = data.medicineName || '';
-            document.getElementById('categoryId').value = data.categoryId || '';
-            document.getElementById('brandName').value = data.brandName || '';
-            document.getElementById('manufacturer').value = data.manufacturer || '';
-            document.getElementById('countryOfOrigin').value = data.countryOfOrigin || '';
-            document.getElementById('activeIngredient').value = data.activeIngredient || '';
-            document.getElementById('registrationNumber').value = data.registrationNumber || '';
-            document.getElementById('storageConditions').value = data.storageConditions || '';
-            document.getElementById('indications').value = data.indications || '';
-            document.getElementById('contraindications').value = data.contraindications || '';
-            document.getElementById('sideEffects').value = data.sideEffects || '';
-            document.getElementById('instructions').value = data.instructions || '';
-            document.getElementById('prescriptionRequired').value = data.prescriptionRequired ? 'true' : 'false';
-            document.getElementById('status').value = data.status || 1;
+            document.getElementById('medicineId').value = data.id || '';
+            
+            // Only set fields that exist in Medicine entity: name, category, activeIngredient, brandName, manufacturer, country
+            const medicineNameEl = document.getElementById('medicineName');
+            if (medicineNameEl) {
+                medicineNameEl.value = data.name || data.medicineName || '';
+            }
+            
+            const categoryIdEl = document.getElementById('categoryId');
+            if (categoryIdEl) {
+                categoryIdEl.value = data.categoryId || (data.category ? data.category.id : '') || '';
+            }
+            
+            const brandNameEl = document.getElementById('brandName');
+            if (brandNameEl) {
+                brandNameEl.value = data.brandName || '';
+            }
+            
+            const manufacturerEl = document.getElementById('manufacturer');
+            if (manufacturerEl) {
+                manufacturerEl.value = data.manufacturer || '';
+            }
+            
+            const countryEl = document.getElementById('countryOfOrigin');
+            if (countryEl) {
+                countryEl.value = data.country || data.countryOfOrigin || '';
+            }
+            
+            const activeIngredientEl = document.getElementById('activeIngredient');
+            if (activeIngredientEl) {
+                activeIngredientEl.value = data.activeIngredient || '';
+            }
+            
             document.getElementById('medicineModal').style.display = 'block';
+        })
+        .catch(err => {
+            console.error('Error loading medicine:', err);
+            showToast('Không thể tải thông tin thuốc', 'error');
         });
 }
 
@@ -224,11 +258,11 @@ function loadVariants(medicineId) {
             
             tbody.innerHTML = data.map(variant => `
                 <tr style="border-bottom: 1px solid #E5E7EB;">
-                    <td style="padding: 12px;">${variant.dosageForm || '-'}</td>
+                    <td style="padding: 12px;">${variant.dosageForm || variant.dosage_form || '-'}</td>
                     <td style="padding: 12px;">${variant.dosage || '-'}</td>
                     <td style="padding: 12px;">${variant.strength || '-'}</td>
-                    <td style="padding: 12px;">${variant.baseUnitName || '-'}</td>
-                    <td style="padding: 12px;">${variant.barcode || '-'}</td>
+                    <td style="padding: 12px;">${variant.baseUnitName || (variant.baseUnitId && variant.baseUnitId.name) || '-'}</td>
+                    <td style="padding: 12px;">${variant.barcode || variant.Barcode || '-'}</td>
                     <td style="padding: 12px; text-align: center;">
                         <button onclick="openEditVariantForm(${variant.id})" class="btn-link" style="color: #2563EB; margin: 0 4px;">Sửa</button>
                         <button onclick="confirmDeleteVariant(${variant.id})" class="btn-link delete" style="margin: 0 4px;">Xóa</button>
@@ -244,8 +278,37 @@ function loadVariants(medicineId) {
 
 function openCreateVariantForm() {
     document.getElementById('variantModalTitle').textContent = 'Thêm biến thể thuốc';
-    document.getElementById('variantForm').reset();
-    document.getElementById('variantId').value = '';
+    const form = document.getElementById('variantForm');
+    if (form) {
+        form.reset();
+    }
+    
+    // Reset all variant form fields safely
+    const fields = [
+        'variantId', 'dosageForm', 'dosage', 'strength', 
+        'packageUnitId', 'baseUnitId', 'quantityPerPackage', 
+        'barcode', 'registrationNumber', 'storageConditions', 
+        'indications', 'contraindications', 'sideEffects', 
+        'instructions', 'prescriptionRequired', 'uses'
+    ];
+    
+    fields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            if (field.type === 'select-one') {
+                field.value = '';
+            } else {
+                field.value = '';
+            }
+        }
+    });
+    
+    // Set default for prescriptionRequired
+    const prescriptionField = document.getElementById('prescriptionRequired');
+    if (prescriptionField) {
+        prescriptionField.value = 'false';
+    }
+    
     document.getElementById('variantFormContainer').style.display = 'block';
     document.getElementById('variantFormContainer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
@@ -255,12 +318,34 @@ function openEditVariantForm(variantId) {
         .then(res => res.json())
         .then(data => {
             document.getElementById('variantModalTitle').textContent = 'Cập nhật biến thể thuốc';
-            document.getElementById('variantId').value = data.id;
-            document.getElementById('dosageForm').value = data.dosageForm || '';
-            document.getElementById('dosage').value = data.dosage || '';
-            document.getElementById('strength').value = data.strength || '';
-            document.getElementById('baseUnitId').value = data.baseUnitId || '';
-            document.getElementById('barcode').value = data.barcode || '';
+            
+            // Set values safely with null checks
+            const setValue = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.value = value || '';
+            };
+            
+            setValue('variantId', data.id);
+            setValue('dosageForm', data.dosageForm || data.dosage_form);
+            setValue('dosage', data.dosage);
+            setValue('strength', data.strength);
+            setValue('packageUnitId', data.packageUnitId ? (typeof data.packageUnitId === 'object' ? data.packageUnitId.id : data.packageUnitId) : '');
+            setValue('baseUnitId', data.baseUnitId ? (typeof data.baseUnitId === 'object' ? data.baseUnitId.id : data.baseUnitId) : '');
+            setValue('quantityPerPackage', data.quantityPerPackage);
+            setValue('barcode', data.barcode || data.Barcode);
+            setValue('registrationNumber', data.registrationNumber);
+            setValue('storageConditions', data.storageConditions);
+            setValue('indications', data.indications);
+            setValue('contraindications', data.contraindications);
+            setValue('sideEffects', data.sideEffects);
+            setValue('instructions', data.instructions);
+            setValue('uses', data.uses);
+            
+            const prescriptionField = document.getElementById('prescriptionRequired');
+            if (prescriptionField) {
+                prescriptionField.value = (data.prescription_require !== undefined ? data.prescription_require : data.prescriptionRequired) ? 'true' : 'false';
+            }
+            
             document.getElementById('variantFormContainer').style.display = 'block';
             document.getElementById('variantFormContainer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         })
@@ -315,11 +400,11 @@ function viewDetails(id) {
                 </div>
                 <div class="detail-item">
                     <div class="detail-label">Tên thuốc</div>
-                    <div class="detail-value">${data.medicineName || '-'}</div>
+                    <div class="detail-value">${data.name || data.medicineName || '-'}</div>
                 </div>
                 <div class="detail-item">
                     <div class="detail-label">Danh mục</div>
-                    <div class="detail-value">${data.categoryName || '-'}</div>
+                    <div class="detail-value">${data.categoryName || (data.category ? data.category.categoryName : '-') || '-'}</div>
                 </div>
                 <div class="detail-item">
                     <div class="detail-label">Thương hiệu</div>
@@ -331,43 +416,11 @@ function viewDetails(id) {
                 </div>
                 <div class="detail-item">
                     <div class="detail-label">Xuất xứ</div>
-                    <div class="detail-value">${data.countryOfOrigin || '-'}</div>
+                    <div class="detail-value">${data.country || data.countryOfOrigin || '-'}</div>
                 </div>
                 <div class="detail-item">
                     <div class="detail-label">Hoạt chất</div>
                     <div class="detail-value">${data.activeIngredient || '-'}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Số đăng ký</div>
-                    <div class="detail-value">${data.registrationNumber || '-'}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Điều kiện bảo quản</div>
-                    <div class="detail-value">${data.storageConditions || '-'}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Chỉ định</div>
-                    <div class="detail-value">${data.indications || '-'}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Chống chỉ định</div>
-                    <div class="detail-value">${data.contraindications || '-'}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Tác dụng phụ</div>
-                    <div class="detail-value">${data.sideEffects || '-'}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Hướng dẫn sử dụng</div>
-                    <div class="detail-value">${data.instructions || '-'}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Cần kê đơn</div>
-                    <div class="detail-value">${data.prescriptionRequired ? 'Có' : 'Không'}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Trạng thái</div>
-                    <div class="detail-value">${data.status === 1 ? 'Hoạt động' : 'Ngừng'}</div>
                 </div>
             `;
             document.getElementById('detailModal').style.display = 'block';
@@ -418,22 +471,24 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             
             const id = document.getElementById('medicineId').value;
+            const categoryIdValue = document.getElementById('categoryId').value;
+            
+            // Only send fields that exist in Medicine entity
             const data = {
-                medicineName: document.getElementById('medicineName').value,
-                categoryId: parseInt(document.getElementById('categoryId').value),
-                brandName: document.getElementById('brandName').value,
-                manufacturer: document.getElementById('manufacturer').value,
-                countryOfOrigin: document.getElementById('countryOfOrigin').value,
-                activeIngredient: document.getElementById('activeIngredient').value,
-                registrationNumber: document.getElementById('registrationNumber').value,
-                storageConditions: document.getElementById('storageConditions').value,
-                indications: document.getElementById('indications').value,
-                contraindications: document.getElementById('contraindications').value,
-                sideEffects: document.getElementById('sideEffects').value,
-                instructions: document.getElementById('instructions').value,
-                prescriptionRequired: document.getElementById('prescriptionRequired').value === 'true',
-                status: parseInt(document.getElementById('status').value)
+                medicineName: document.getElementById('medicineName').value, // DTO expects medicineName, entity has name
+                categoryId: categoryIdValue ? parseInt(categoryIdValue) : null,
+                brandName: document.getElementById('brandName').value || null,
+                manufacturer: document.getElementById('manufacturer').value || null,
+                countryOfOrigin: document.getElementById('countryOfOrigin').value || null, // DTO expects countryOfOrigin, entity has country
+                activeIngredient: document.getElementById('activeIngredient').value || null
             };
+            
+            // Remove null/empty values to match entity structure
+            Object.keys(data).forEach(key => {
+                if (data[key] === null || data[key] === '') {
+                    delete data[key];
+                }
+            });
 
             const url = id ? `/api/owner/medicine/${id}` : '/api/owner/medicine';
             const method = id ? 'PUT' : 'POST';
@@ -472,8 +527,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 dosageForm: document.getElementById('dosageForm').value,
                 dosage: document.getElementById('dosage').value,
                 strength: document.getElementById('strength').value,
+                packageUnitId: document.getElementById('packageUnitId').value ? parseInt(document.getElementById('packageUnitId').value) : null,
                 baseUnitId: document.getElementById('baseUnitId').value ? parseInt(document.getElementById('baseUnitId').value) : null,
-                barcode: document.getElementById('barcode').value
+                quantityPerPackage: document.getElementById('quantityPerPackage').value ? parseFloat(document.getElementById('quantityPerPackage').value) : null,
+                barcode: document.getElementById('barcode').value,
+                registrationNumber: document.getElementById('registrationNumber').value,
+                storageConditions: document.getElementById('storageConditions').value,
+                indications: document.getElementById('indications').value,
+                contraindications: document.getElementById('contraindications').value,
+                sideEffects: document.getElementById('sideEffects').value,
+                instructions: document.getElementById('instructions').value,
+                prescription_require: document.getElementById('prescriptionRequired').value === 'true',
+                uses: document.getElementById('uses').value
             };
 
             const url = variantId ? `/api/owner/medicine/variant/${variantId}` : '/api/owner/medicine/variant';
