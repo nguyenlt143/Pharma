@@ -92,23 +92,13 @@ content = @`
 
     <div class="filter-section">
         <div class="filter-group">
-            <label class="filter-label">Từ ngày</label>
-            <input type="date" id="fromDate" class="filter-input" value="${java.time.LocalDate.now().minusDays(30).toString()}">
+            <label class="filter-label">Tháng</label>
+            <input type="month" id="periodInput" class="filter-input" value="${java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM"))}">
         </div>
         <div class="filter-group">
-            <label class="filter-label">Đến ngày</label>
-            <input type="date" id="toDate" class="filter-input" value="${java.time.LocalDate.now().toString()}">
-        </div>
-        <div class="filter-group">
-            <label class="filter-label">Ca làm việc</label>
-            <select id="shiftSelect" class="filter-select">
-                <option value="">Tất cả</option>
-            </select>
-        </div>
-        <div class="filter-group">
-            <label class="filter-label">Nhân viên</label>
-            <select id="employeeSelect" class="filter-select">
-                <option value="">Tất cả</option>
+            <label class="filter-label">Chi nhánh</label>
+            <select id="branchSelect" class="filter-select">
+                <option value="">Tất cả chi nhánh</option>
             </select>
         </div>
         <button class="btn-primary" onclick="loadReport()">Tải báo cáo</button>

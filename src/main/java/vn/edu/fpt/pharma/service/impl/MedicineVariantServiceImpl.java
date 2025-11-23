@@ -40,15 +40,29 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
 
         Unit baseUnit = request.getBaseUnitId() != null ?
                 unitRepository.findById(request.getBaseUnitId())
-                        .orElseThrow(() -> new RuntimeException("Unit not found")) : null;
+                        .orElseThrow(() -> new RuntimeException("Base unit not found")) : null;
+
+        Unit packageUnit = request.getPackageUnitId() != null ?
+                unitRepository.findById(request.getPackageUnitId())
+                        .orElseThrow(() -> new RuntimeException("Package unit not found")) : null;
 
         MedicineVariant variant = MedicineVariant.builder()
                 .medicine(medicine)
                 .dosage_form(request.getDosageForm())
                 .dosage(request.getDosage())
                 .strength(request.getStrength())
+                .packageUnitId(packageUnit)
                 .baseUnitId(baseUnit)
+                .quantityPerPackage(request.getQuantityPerPackage())
                 .Barcode(request.getBarcode())
+                .registrationNumber(request.getRegistrationNumber())
+                .storageConditions(request.getStorageConditions())
+                .indications(request.getIndications())
+                .contraindications(request.getContraindications())
+                .sideEffects(request.getSideEffects())
+                .instructions(request.getInstructions())
+                .prescription_require(request.getPrescription_require() != null ? request.getPrescription_require() : false)
+                .uses(request.getUses())
                 .build();
 
         MedicineVariant saved = repository.save(variant);
@@ -74,15 +88,29 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
 
         Unit baseUnit = request.getBaseUnitId() != null ?
                 unitRepository.findById(request.getBaseUnitId())
-                        .orElseThrow(() -> new RuntimeException("Unit not found")) : variant.getBaseUnitId();
+                        .orElseThrow(() -> new RuntimeException("Base unit not found")) : variant.getBaseUnitId();
+
+        Unit packageUnit = request.getPackageUnitId() != null ?
+                unitRepository.findById(request.getPackageUnitId())
+                        .orElseThrow(() -> new RuntimeException("Package unit not found")) : variant.getPackageUnitId();
 
         if (request.getDosageForm() != null) variant.setDosage_form(request.getDosageForm());
         if (request.getDosage() != null) variant.setDosage(request.getDosage());
         if (request.getStrength() != null) variant.setStrength(request.getStrength());
         if (request.getBarcode() != null) variant.setBarcode(request.getBarcode());
+        if (request.getQuantityPerPackage() != null) variant.setQuantityPerPackage(request.getQuantityPerPackage());
+        if (request.getRegistrationNumber() != null) variant.setRegistrationNumber(request.getRegistrationNumber());
+        if (request.getStorageConditions() != null) variant.setStorageConditions(request.getStorageConditions());
+        if (request.getIndications() != null) variant.setIndications(request.getIndications());
+        if (request.getContraindications() != null) variant.setContraindications(request.getContraindications());
+        if (request.getSideEffects() != null) variant.setSideEffects(request.getSideEffects());
+        if (request.getInstructions() != null) variant.setInstructions(request.getInstructions());
+        if (request.getUses() != null) variant.setUses(request.getUses());
+        if (request.getPrescription_require() != null) variant.setPrescription_require(request.getPrescription_require());
         
         variant.setMedicine(medicine);
         variant.setBaseUnitId(baseUnit);
+        variant.setPackageUnitId(packageUnit);
 
         MedicineVariant updated = repository.save(variant);
         return MedicineVariantResponse.fromEntity(updated);
