@@ -32,7 +32,7 @@ content = @`
                 <div class="info-section">
                     <div class="info-group">
                         <label class="info-label">Tên chi nhánh</label>
-                        <div class="info-value">${request.branchId()}</div>
+                        <div class="info-value">${request.branchName()}</div>
                     </div>
 
                     <div class="info-group">
@@ -76,9 +76,9 @@ content = @`
                         @for(RequestDetailVM detail : details)
                             <tr>
                                 <td>${details.indexOf(detail) + 1}</td>
-                                <td>${detail.variantId()}</td>
-                                <td>${detail.variantId()}</td>
-                                <td>${detail.variantId()}</td>
+                                <td>${detail.medicineName()}</td>
+                                <td>${detail.strength()}</td>
+                                <td>${detail.unit()}</td>
                                 <td>${detail.quantity()}</td>
                             </tr>
                         @endfor

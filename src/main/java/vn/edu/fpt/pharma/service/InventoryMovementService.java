@@ -17,6 +17,10 @@ public interface InventoryMovementService extends BaseService<InventoryMovement,
     List<ReceiptListItem> getReceiptList(MovementType movementType, Long branchId, String status);
     ReceiptInfo getReceiptInfo(Long id);
     List<ReceiptDetailVM> getReceiptDetails(Long id);
+    void approveReceipt(Long id);
+    void shipReceipt(Long id);
     void receiveReceipt(Long id);
+    void closeReceipt(Long id);
+    void cancelReceipt(Long id);
     Long createExportMovement(ExportSubmitDTO dto);
 }

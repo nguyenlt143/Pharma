@@ -100,8 +100,14 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
             }
         }
 
-        // Map to ReceiptListItem with branch name
+        // Map to ReceiptListItem with branch name and sort by newest first
         return movements.stream()
+                .sorted((m1, m2) -> {
+                    if (m1.getCreatedAt() == null && m2.getCreatedAt() == null) return 0;
+                    if (m1.getCreatedAt() == null) return 1;
+                    if (m2.getCreatedAt() == null) return -1;
+                    return m2.getCreatedAt().compareTo(m1.getCreatedAt()); // Descending order (newest first)
+                })
                 .map(movement -> {
                     String branchName = getBranchName(movement);
                     return new ReceiptListItem(movement, branchName);
@@ -173,15 +179,115 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
     }
 
     @Override
-    public void receiveReceipt(Long id) {
+    public void approveReceipt(Long id) {
+        InventoryMovement movement = movementRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Receipt not found"));
+
+        if (movement.getMovementStatus() == MovementStatus.DRAFT) {
+            movement.setMovementStatus(MovementStatus.APPROVED);
+            movementRepository.save(movement);
+        } else {
+            throw new IllegalStateException("Receipt cannot be approved in its current state: " + movement.getMovementStatus());
+        }
+    }
+
+    @Override
+    public void shipReceipt(Long id) {
         InventoryMovement movement = movementRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Receipt not found"));
 
         if (movement.getMovementStatus() == MovementStatus.APPROVED) {
-            movement.setMovementStatus(MovementStatus.RECEIVED);
+            movement.setMovementStatus(MovementStatus.SHIPPED);
             movementRepository.save(movement);
         } else {
+            throw new IllegalStateException("Receipt cannot be shipped in its current state: " + movement.getMovementStatus());
+        }
+    }
+
+    @Override
+    @Transactional
+    public void receiveReceipt(Long id) {
+        InventoryMovement movement = movementRepository.findByIdWithDetails(id)
+                .orElseThrow(() -> new RuntimeException("Receipt not found"));
+
+        if (movement.getMovementStatus() != MovementStatus.SHIPPED) {
             throw new IllegalStateException("Receipt cannot be received in its current state: " + movement.getMovementStatus());
+        }
+
+        // 1. Update status to RECEIVED
+        movement.setMovementStatus(MovementStatus.RECEIVED);
+        movementRepository.save(movement);
+        log.info("Updated movement {} status to RECEIVED", id);
+
+        // 2. Add inventory to destination branch (only for WARE_TO_BR type)
+        if (movement.getMovementType() == MovementType.WARE_TO_BR && movement.getDestinationBranchId() != null) {
+            Branch destinationBranch = branchRepository.findById(movement.getDestinationBranchId())
+                    .orElseThrow(() -> new RuntimeException("Destination branch not found"));
+
+            for (InventoryMovementDetail detail : movement.getInventoryMovementDetails()) {
+                // Find or create inventory at destination branch
+                Inventory branchInventory = inventoryRepository
+                        .findByBranchIdAndVariantIdAndBatchId(
+                                movement.getDestinationBranchId(),
+                                detail.getVariant().getId(),
+                                detail.getBatch().getId()
+                        )
+                        .orElseGet(() -> {
+                            // Create new inventory if not exists
+                            Inventory newInventory = Inventory.builder()
+                                    .branch(destinationBranch)
+                                    .variant(detail.getVariant())
+                                    .batch(detail.getBatch())
+                                    .quantity(0L)
+                                    .costPrice(detail.getSnapCost()) // Use original cost from warehouse
+                                    .build();
+                            log.info("Created new inventory for branch {} variant {} batch {}",
+                                    destinationBranch.getName(),
+                                    detail.getVariant().getId(),
+                                    detail.getBatch().getBatchCode());
+                            return newInventory;
+                        });
+
+                // Add quantity to branch inventory
+                branchInventory.setQuantity(branchInventory.getQuantity() + detail.getQuantity());
+                inventoryRepository.save(branchInventory);
+
+                log.info("Added {} units of variant {} batch {} to branch {} inventory (new total: {})",
+                        detail.getQuantity(),
+                        detail.getVariant().getId(),
+                        detail.getBatch().getBatchCode(),
+                        destinationBranch.getName(),
+                        branchInventory.getQuantity());
+            }
+
+            log.info("Completed inventory addition for movement {} to branch {}",
+                    id, destinationBranch.getName());
+        }
+    }
+
+    @Override
+    public void closeReceipt(Long id) {
+        InventoryMovement movement = movementRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Receipt not found"));
+
+        if (movement.getMovementStatus() == MovementStatus.RECEIVED) {
+            movement.setMovementStatus(MovementStatus.CLOSED);
+            movementRepository.save(movement);
+        } else {
+            throw new IllegalStateException("Receipt cannot be closed in its current state: " + movement.getMovementStatus());
+        }
+    }
+
+    @Override
+    public void cancelReceipt(Long id) {
+        InventoryMovement movement = movementRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Receipt not found"));
+
+        if (movement.getMovementStatus() == MovementStatus.DRAFT) {
+            movement.setMovementStatus(MovementStatus.CANCELLED);
+            movementRepository.save(movement);
+        } else {
+            throw new IllegalStateException("Receipt cannot be cancelled in its current state: " + movement.getMovementStatus());
         }
     }
 

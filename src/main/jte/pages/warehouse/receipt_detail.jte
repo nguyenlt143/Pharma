@@ -42,11 +42,38 @@ content = @`
                                 Phiếu Nhập
                             @elseif(receipt.getType().equals("WARE_TO_BR"))
                                 Phiếu Xuất
+                            @elseif(receipt.getType().equals("BR_TO_WARE"))
+                                Chuyển Về Kho Tổng
+                            @elseif(receipt.getType().equals("WARE_TO_SUP"))
+                                Trả Hàng
+                            @elseif(receipt.getType().equals("DISPOSAL"))
+                                Xuất Hủy
                             @else
                                 Không xác định
                             @endif
                         </div>
                     </div>
+
+<%--                    <div class="info-group">--%>
+<%--                        <label class="info-label">Trạng Thái</label>--%>
+<%--                        <div class="info-value">--%>
+<%--                            @if(receipt.getStatus().equals("DRAFT"))--%>
+<%--                                Đang duyệt--%>
+<%--                            @elseif(receipt.getStatus().equals("APPROVED"))--%>
+<%--                                Chấp nhận--%>
+<%--                            @elseif(receipt.getStatus().equals("SHIPPED"))--%>
+<%--                                Đang vận chuyển--%>
+<%--                            @elseif(receipt.getStatus().equals("RECEIVED"))--%>
+<%--                                Đã nhận--%>
+<%--                            @elseif(receipt.getStatus().equals("CANCELLED"))--%>
+<%--                                Từ chối--%>
+<%--                            @elseif(receipt.getStatus().equals("CLOSED"))--%>
+<%--                                Hoàn tất--%>
+<%--                            @else--%>
+<%--                                Không xác định--%>
+<%--                            @endif--%>
+<%--                        </div>--%>
+<%--                    </div>--%>
                 </div>
 
                 <!-- DETAILS TABLE -->
@@ -82,11 +109,42 @@ content = @`
 
             <!-- FOOTER -->
             <footer class="modal-footer">
-                @if(receipt.getStatus().equals("APPROVED"))
-                    <button class="approve-button" onclick="receiveReceipt(${receipt.getId()})">Đã nhận</button>
-                @elseif(receipt.getStatus().equals("RECEIVED"))
-                    <button class="approve-button disabled">Đã nhận</button>
-                @endif
+                <div class="footer-status">
+                    <span class="status-label">Trạng thái: </span>
+                    <span class="status-value">
+                        @if(receipt.getStatus().equals("DRAFT"))
+                            Đang duyệt
+                        @elseif(receipt.getStatus().equals("APPROVED"))
+                            Chấp nhận
+                        @elseif(receipt.getStatus().equals("SHIPPED"))
+                            Đang vận chuyển
+                        @elseif(receipt.getStatus().equals("RECEIVED"))
+                            Đã nhận
+                        @elseif(receipt.getStatus().equals("CANCELLED"))
+                            Từ chối
+                        @elseif(receipt.getStatus().equals("CLOSED"))
+                            Hoàn tất
+                        @else
+                            Không xác định
+                        @endif
+                    </span>
+                </div>
+                <div class="footer-actions">
+                    @if(receipt.getStatus().equals("DRAFT"))
+                        <button class="approve-button" onclick="approveReceipt(${receipt.getId()})">Chấp nhận</button>
+                        <button class="cancel-button" onclick="cancelReceipt(${receipt.getId()})">Từ chối</button>
+                    @elseif(receipt.getStatus().equals("APPROVED"))
+                        <button class="ship-button" onclick="shipReceipt(${receipt.getId()})">Gửi hàng</button>
+                    @elseif(receipt.getStatus().equals("SHIPPED"))
+                        <button class="receive-button" onclick="receiveReceipt(${receipt.getId()})">Đã nhận</button>
+                    @elseif(receipt.getStatus().equals("RECEIVED"))
+                        <button class="approve-button disabled" disabled>Đã nhận</button>
+                    @elseif(receipt.getStatus().equals("CANCELLED"))
+                        <button class="approve-button disabled" disabled>Đã từ chối</button>
+                    @elseif(receipt.getStatus().equals("CLOSED"))
+                        <button class="approve-button disabled" disabled>Đã hoàn tất</button>
+                    @endif
+                </div>
             </footer>
 
         </div>
@@ -94,6 +152,42 @@ content = @`
 `,
 pageScript = @`
     <script>
+        function approveReceipt(id) {
+            if (confirm('Xác nhận chấp nhận phiếu này?')) {
+                fetch('/warehouse/receipts/' + id + '/approve', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        alert('Chấp nhận thành công!');
+                        window.location.reload();
+                    } else {
+                        alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                    }
+                });
+            }
+        }
+
+        function shipReceipt(id) {
+            if (confirm('Xác nhận gửi hàng?')) {
+                fetch('/warehouse/receipts/' + id + '/ship', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        alert('Gửi hàng thành công!');
+                        window.location.reload();
+                    } else {
+                        alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                    }
+                });
+            }
+        }
+
         function receiveReceipt(id) {
             if (confirm('Xác nhận đã nhận phiếu này?')) {
                 fetch('/warehouse/receipts/' + id + '/receive', {
@@ -104,7 +198,25 @@ pageScript = @`
                 }).then(response => {
                     if (response.ok) {
                         alert('Xác nhận thành công!');
-                        window.location.href = '/warehouse/receipt-list';
+                        window.location.reload();
+                    } else {
+                        alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                    }
+                });
+            }
+        }
+
+        function cancelReceipt(id) {
+            if (confirm('Xác nhận từ chối phiếu này?')) {
+                fetch('/warehouse/receipts/' + id + '/cancel', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        alert('Từ chối thành công!');
+                        window.location.reload();
                     } else {
                         alert('Có lỗi xảy ra. Vui lòng thử lại.');
                     }

@@ -91,7 +91,7 @@ content = @`
                     <tbody>
                     @for(RequestList request : requests)
                         <tr>
-                            <td>${request.branchId()}</td>
+                            <td>${request.branchName()}</td>
                             <td>${request.createdAt()}</td>
                             <td>
                                 @if(request.requestType().equals("IMPORT"))

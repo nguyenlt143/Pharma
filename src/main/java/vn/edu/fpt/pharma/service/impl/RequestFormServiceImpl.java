@@ -166,7 +166,16 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     public List<RequestList> getAllRequestForms() {
         return repository.findAll()
                 .stream()
-                .map(RequestList::new)
+                .sorted((r1, r2) -> {
+                    if (r1.getCreatedAt() == null && r2.getCreatedAt() == null) return 0;
+                    if (r1.getCreatedAt() == null) return 1;
+                    if (r2.getCreatedAt() == null) return -1;
+                    return r2.getCreatedAt().compareTo(r1.getCreatedAt()); // Descending order (newest first)
+                })
+                .map(entity -> {
+                    String branchName = getBranchNameById(entity.getBranchId());
+                    return new RequestList(entity, branchName);
+                })
                 .toList();
     }
 
@@ -174,7 +183,16 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     public List<RequestList> getImportRequests() {
         return repository.findByRequestType(RequestType.IMPORT)
                 .stream()
-                .map(RequestList::new)
+                .sorted((r1, r2) -> {
+                    if (r1.getCreatedAt() == null && r2.getCreatedAt() == null) return 0;
+                    if (r1.getCreatedAt() == null) return 1;
+                    if (r2.getCreatedAt() == null) return -1;
+                    return r2.getCreatedAt().compareTo(r1.getCreatedAt());
+                })
+                .map(entity -> {
+                    String branchName = getBranchNameById(entity.getBranchId());
+                    return new RequestList(entity, branchName);
+                })
                 .toList();
     }
 
@@ -182,7 +200,16 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     public List<RequestList> getReturnRequests() {
         return repository.findByRequestType(RequestType.RETURN)
                 .stream()
-                .map(RequestList::new)
+                .sorted((r1, r2) -> {
+                    if (r1.getCreatedAt() == null && r2.getCreatedAt() == null) return 0;
+                    if (r1.getCreatedAt() == null) return 1;
+                    if (r2.getCreatedAt() == null) return -1;
+                    return r2.getCreatedAt().compareTo(r1.getCreatedAt());
+                })
+                .map(entity -> {
+                    String branchName = getBranchNameById(entity.getBranchId());
+                    return new RequestList(entity, branchName);
+                })
                 .toList();
     }
 
@@ -190,14 +217,50 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     public RequestList getDetailById(Long id) {
         RequestForm entity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("RequestForm not found"));
-        return new RequestList(entity);
+        String branchName = getBranchNameById(entity.getBranchId());
+        return new RequestList(entity, branchName);
+    }
+
+    private String getBranchNameById(Long branchId) {
+        if (branchId == null) {
+            return "N/A";
+        }
+        return branchRepository.findById(branchId)
+                .map(Branch::getName)
+                .orElse("N/A");
     }
 
     @Override
     public List<RequestDetailVM> getDetailsOfRequest(Long requestId) {
         return requestDetailRepository.findByRequestFormId(requestId)
                 .stream()
-                .map(RequestDetailVM::new)
+                .map(detail -> {
+                    String medicineName = "N/A";
+                    String strength = "N/A";
+                    String dosageForm = "N/A";
+                    String unit = "N/A";
+
+                    if (detail.getVariantId() != null) {
+                        Optional<MedicineVariant> variantOpt = medicineVariantRepository.findById(detail.getVariantId());
+                        if (variantOpt.isPresent()) {
+                            MedicineVariant variant = variantOpt.get();
+                            Medicine medicine = variant.getMedicine();
+
+                            if (medicine != null) {
+                                medicineName = medicine.getName() != null ? medicine.getName() : "N/A";
+                            }
+
+                            strength = variant.getStrength() != null ? variant.getStrength() : "N/A";
+                            dosageForm = variant.getDosage_form() != null ? variant.getDosage_form() : "N/A";
+
+                            if (variant.getBaseUnitId() != null) {
+                                unit = variant.getBaseUnitId().getName() != null ? variant.getBaseUnitId().getName() : "N/A";
+                            }
+                        }
+                    }
+
+                    return new RequestDetailVM(detail, medicineName, strength, dosageForm, unit);
+                })
                 .toList();
     }
 

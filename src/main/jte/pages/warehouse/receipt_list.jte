@@ -51,6 +51,15 @@ content = @`
                 <div class="tab" data-type="WARE_TO_BR">
                     <span class="tab-text">Phiếu Xuất</span>
                 </div>
+                <div class="tab" data-type="BR_TO_WARE">
+                    <span class="tab-text">Chuyển Về Kho Tổng</span>
+                </div>
+                <div class="tab" data-type="WARE_TO_SUP">
+                    <span class="tab-text">Trả Hàng</span>
+                </div>
+                <div class="tab" data-type="DISPOSAL">
+                    <span class="tab-text">Xuất Hủy</span>
+                </div>
             </div>
         </section>
 

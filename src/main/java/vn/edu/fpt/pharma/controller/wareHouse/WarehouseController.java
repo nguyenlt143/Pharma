@@ -75,10 +75,34 @@ public class WarehouseController {
         return "pages/warehouse/receipt_detail";
     }
 
+    @PostMapping("/receipts/{id}/approve")
+    @ResponseBody
+    public void approveReceipt(@PathVariable Long id) {
+        inventoryMovementService.approveReceipt(id);
+    }
+
+    @PostMapping("/receipts/{id}/ship")
+    @ResponseBody
+    public void shipReceipt(@PathVariable Long id) {
+        inventoryMovementService.shipReceipt(id);
+    }
+
     @PostMapping("/receipts/{id}/receive")
     @ResponseBody
     public void receiveReceipt(@PathVariable Long id) {
         inventoryMovementService.receiveReceipt(id);
+    }
+
+    @PostMapping("/receipts/{id}/close")
+    @ResponseBody
+    public void closeReceipt(@PathVariable Long id) {
+        inventoryMovementService.closeReceipt(id);
+    }
+
+    @PostMapping("/receipts/{id}/cancel")
+    @ResponseBody
+    public void cancelReceipt(@PathVariable Long id) {
+        inventoryMovementService.cancelReceipt(id);
     }
 
     @GetMapping("/inventory")
