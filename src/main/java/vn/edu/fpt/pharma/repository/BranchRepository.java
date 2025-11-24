@@ -8,5 +8,5 @@ import java.util.Optional;
 
 
 public interface BranchRepository extends JpaRepository<Branch, Long>, JpaSpecificationExecutor<Branch> {
-    Optional<Branch> findByUserId(Long userId);
+
 }
