@@ -32,7 +32,7 @@ content = @`
                 <div class="info-section">
                     <div class="info-group">
                         <label class="info-label">Tên chi nhánh</label>
-                        <div class="info-value">${request.branchName()}</div>
+                        <div class="info-value">${request.branchId()}</div>
                     </div>
 
                     <div class="info-group">
@@ -76,9 +76,9 @@ content = @`
                         @for(RequestDetailVM detail : details)
                             <tr>
                                 <td>${details.indexOf(detail) + 1}</td>
-                                <td>${detail.medicineName()}</td>
-                                <td>${detail.strength()}</td>
-                                <td>${detail.unit()}</td>
+                                <td>${detail.variantId()}</td>
+                                <td>${detail.variantId()}</td>
+                                <td>${detail.variantId()}</td>
                                 <td>${detail.quantity()}</td>
                             </tr>
                         @endfor
@@ -93,9 +93,8 @@ content = @`
 
                 @if(request.requestStatus().equals("REQUESTED"))
                     <button class="reject-button" onclick="rejectRequest(${request.id()})">Từ Chối</button>
-                    <button class="approve-button" onclick="createExportSlip(${request.id()})">Đồng Ý</button>
-                @elseif(request.requestStatus().equals("CONFIRMED"))
                     <button class="approve-button" onclick="createExportSlip(${request.id()})">Tạo Phiếu Xuất</button>
+                @elseif(request.requestStatus().equals("CONFIRMED"))
                     <button class="approve-button disabled">Đã duyệt</button>
                 @elseif(request.requestStatus().equals("CANCELLED"))
                     <button class="reject-button disabled">Đã từ chối</button>

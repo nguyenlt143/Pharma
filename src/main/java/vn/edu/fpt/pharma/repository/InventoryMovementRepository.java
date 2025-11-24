@@ -8,18 +8,9 @@ import vn.edu.fpt.pharma.entity.InventoryMovement;
 import vn.edu.fpt.pharma.constant.MovementStatus;
 import vn.edu.fpt.pharma.constant.MovementType;
 
-import java.util.Optional;
-
 public interface InventoryMovementRepository extends JpaRepository<InventoryMovement, Long>, JpaSpecificationExecutor<InventoryMovement> {
 
     @Query("SELECT COUNT(im) FROM InventoryMovement im WHERE im.destinationBranchId = :branchId AND im.movementType = :type AND im.movementStatus = :status")
     long countByBranchAndTypeAndStatus(@Param("branchId") Long branchId, @Param("type") MovementType type, @Param("status") MovementStatus status);
 
-    @Query("SELECT im FROM InventoryMovement im " +
-           "LEFT JOIN FETCH im.inventoryMovementDetails imd " +
-           "LEFT JOIN FETCH imd.variant v " +
-           "LEFT JOIN FETCH v.medicine m " +
-           "LEFT JOIN FETCH v.packageUnitId " +
-           "WHERE im.id = :id")
-    Optional<InventoryMovement> findByIdWithDetails(@Param("id") Long id);
 }

@@ -2,7 +2,6 @@ package vn.edu.fpt.pharma.service;
 
 import vn.edu.fpt.pharma.base.BaseService;
 import vn.edu.fpt.pharma.dto.requestform.RequestFormVM;
-import vn.edu.fpt.pharma.dto.warehouse.ExportCreateDTO;
 import vn.edu.fpt.pharma.dto.warehouse.RequestDetailVM;
 import vn.edu.fpt.pharma.dto.warehouse.RequestList;
 import vn.edu.fpt.pharma.entity.RequestForm;
@@ -26,7 +25,4 @@ public interface RequestFormService extends BaseService<RequestForm, Long> {
     List<RequestList> getReturnRequests();               // return
     RequestList getDetailById(Long id);                 // Detail
     List<RequestDetailVM> getDetailsOfRequest(Long requestId);
-
-//    Export Creation
-    ExportCreateDTO prepareExportCreation(Long requestId);
 }

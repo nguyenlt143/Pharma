@@ -1,10 +1,7 @@
-@import vn.edu.fpt.pharma.dto.warehouse.ExportCreateDTO
-
-@param ExportCreateDTO exportData
 
 @template.layouts.warehouse(
 headContent = @`
-    <title>Tạo Phiếu Xuất Kho</title>
+    <title>Phiếu xuất kho</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,6 +9,7 @@ headContent = @`
     <link rel="stylesheet" href="/assets/css/warehouse/export_create.css">
 `,
 content = @`
+
     <div class="container">
         <div class="frame">
             <main class="main-content">
@@ -21,106 +19,117 @@ content = @`
                 <div class="form-section">
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">Chi nhánh nhận</label>
-                            <input type="text" class="form-input" id="branchName"
-                                   value="${exportData != null ? exportData.getBranchName() : ""}" readonly>
-                            <input type="hidden" id="branchId"
-                                   value="${exportData != null ? String.valueOf(exportData.getBranchId()) : ""}">
-                            <input type="hidden" id="requestId"
-                                   value="${exportData != null && exportData.getRequestId() != null ? String.valueOf(exportData.getRequestId()) : ""}">
+                            <label class="form-label">Mã phiếu</label>
+                            <input type="text" class="form-input" value="PXK20240521001" readonly>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Ngày tạo phiếu</label>
                             <div class="date-input">
-                                <input type="date" class="form-input date-field" id="createdDate"
-                                       value="${exportData != null && exportData.getCreatedDate() != null ? exportData.getCreatedDate().toString() : java.time.LocalDate.now().toString()}">
+                                <input type="text" class="form-input date-field" value="05/21/2024" readonly>
+                                <span class="calendar-icon">
+                  <img src="https://static.codia.ai/image/2025-11-05/Pq9eykSDb6.png" alt="Calendar" width="20" height="20">
+                </span>
                             </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Chi nhánh nhận</label>
+                            <select class="form-select">
+                                <option value="hoang-mai">Hoàng Mai</option>
+                            </select>
                         </div>
                     </div>
 
                     <div class="form-group full-width">
                         <label class="form-label">Ghi chú</label>
-                        <textarea class="form-textarea" id="note" placeholder="Thêm ghi chú nếu cần">${exportData != null && exportData.getNote() != null ? exportData.getNote() : ""}</textarea>
+                        <textarea class="form-textarea" placeholder="Thêm ghi chú nếu cần"></textarea>
                     </div>
                 </div>
 
                 <div class="table-section">
-                    <h2 class="table-title">Danh sách thuốc & Lô hàng</h2>
-
-                    <table class="medicine-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 60px;">STT</th>
-                                <th>Tên thuốc</th>
-                                <th style="width: 100px;">ĐVT</th>
-                                <th style="width: 120px;">Hàm lượng</th>
-                                <th style="width: 120px;">SL yêu cầu</th>
-                                <th style="width: 120px;">Số lô</th>
-                                <th style="width: 100px;">SL tồn kho</th>
-                                <th style="width: 120px;">Giá bán</th>
-                                <th style="width: 120px;">SL gửi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if(exportData != null && exportData.getMedicines() != null)
-                                @for(var medicine : exportData.getMedicines())
-                                    @for(var i = 0; i < medicine.getBatches().size(); i++)
-                                        !{var batch = medicine.getBatches().get(i);}
-                                        <tr class="@if(i == 0)medicine-row@else batch-row@endif"
-                                            data-variant-id="${medicine.getVariantId()}">
-                                            @if(i == 0)
-                                                <td rowspan="${medicine.getBatches().size()}" class="center-text">
-                                                    ${exportData.getMedicines().indexOf(medicine) + 1}
-                                                </td>
-                                                <td rowspan="${medicine.getBatches().size()}" class="medicine-name">
-                                                    ${medicine.getMedicineName()}
-                                                </td>
-                                                <td rowspan="${medicine.getBatches().size()}" class="center-text">
-                                                    ${medicine.getUnit()}
-                                                </td>
-                                                <td rowspan="${medicine.getBatches().size()}" class="center-text">
-                                                    ${medicine.getConcentration()}
-                                                </td>
-                                                <td rowspan="${medicine.getBatches().size()}" class="center-text requested-qty">
-                                                    ${medicine.getRequestedQuantity()}
-                                                </td>
-                                            @endif
-                                            <td class="batch-code">${batch.getBatchCode()}</td>
-                                            <td class="center-text available-qty">${batch.getAvailableQuantity()}</td>
-                                            <td class="right-text">
-                                                ${String.format("%,.0f", batch.getBranchPrice())}
-                                            </td>
-                                            <td>
-                                                <input type="number"
-                                                       class="qty-input"
-                                                       min="0"
-                                                       max="${batch.getAvailableQuantity()}"
-                                                       value="0"
-                                                       data-inventory-id="${batch.getInventoryId()}"
-                                                       data-batch-id="${batch.getBatchId()}"
-                                                       data-price="${batch.getBranchPrice()}"
-                                                       data-variant-id="${medicine.getVariantId()}">
-                                            </td>
-                                        </tr>
-                                    @endfor
-                                @endfor
-                            @else
-                                <tr>
-                                    <td colspan="9" class="center-text">Không có dữ liệu</td>
-                                </tr>
-                            @endif
-                        </tbody>
-                    </table>
-
-                    <div class="total-section">
-                        <span class="total-label">TỔNG SỐ TIỀN:</span>
-                        <span class="total-amount" id="totalAmount">0</span>
+                    <div class="search-container">
+                        <div class="search-input">
+                            <span class="material-icons search-icon">search</span>
+                            <input type="text" placeholder="Tìm kiếm thuốc">
+                        </div>
                     </div>
-                </div>
 
-                <div class="button-section">
-                    <button class="btn-secondary" onclick="saveDraft()">Lưu nháp</button>
-                    <button class="btn-primary" onclick="createExport()">Tạo phiếu xuất</button>
+                    <div class="table-container">
+                        <table class="medicine-table">
+                            <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Tên thuốc</th>
+                                <th>ĐVT</th>
+                                <th>Hàm lượng</th>
+                                <th>S. Lg yêu cầu</th>
+                                <th>Số lượng gửi</th>
+                                <th>Giá Bán</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="row-number">1</td>
+                                <td class="medicine-name">Amoxicillin</td>
+                                <td class="unit">Hộp</td>
+                                <td class="dosage">250mg</td>
+                                <td class="requested-qty">1000</td>
+                                <td class="sent-qty">
+                                    <input type="number" class="qty-input" value="1000">
+                                </td>
+                                <td class="price"></td>
+                            </tr>
+                            <tr>
+                                <td class="row-number">2</td>
+                                <td class="medicine-name">Paracetamol</td>
+                                <td class="unit">Viên</td>
+                                <td class="dosage">500mg</td>
+                                <td class="requested-qty">2000</td>
+                                <td class="sent-qty">
+                                    <input type="number" class="qty-input" value="500">
+                                </td>
+                                <td class="price"></td>
+                            </tr>
+                            <tr>
+                                <td class="row-number">3</td>
+                                <td class="medicine-name">Ibuprofen</td>
+                                <td class="unit">Gói</td>
+                                <td class="dosage">200mg</td>
+                                <td class="requested-qty">1500</td>
+                                <td class="sent-qty">
+                                    <input type="number" class="qty-input" value="200">
+                                </td>
+                                <td class="price"></td>
+                            </tr>
+                            <tr>
+                                <td class="row-number">4</td>
+                                <td class="medicine-name">Ciprofloxacin</td>
+                                <td class="unit">Hộp</td>
+                                <td class="dosage">500mg</td>
+                                <td class="requested-qty">500</td>
+                                <td class="sent-qty">
+                                    <input type="number" class="qty-input" value="50">
+                                </td>
+                                <td class="price"></td>
+                            </tr>
+                            <tr>
+                                <td class="row-number">5</td>
+                                <td class="medicine-name">Omeprazole</td>
+                                <td class="unit">Hộp</td>
+                                <td class="dosage">20mg</td>
+                                <td class="requested-qty">1200</td>
+                                <td class="sent-qty">
+                                    <input type="number" class="qty-input" value="20">
+                                </td>
+                                <td class="price"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary">Lưu nháp</button>
+                        <button class="btn btn-primary">Tạo phiếu xuất</button>
+                    </div>
                 </div>
             </main>
         </div>
