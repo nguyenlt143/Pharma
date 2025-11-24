@@ -41,6 +41,15 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // =========================
+    // Pagination State
+    // =========================
+    let allInventoryData = [];
+    let filteredInventoryData = [];
+    let currentPage = 1;
+    let recordsPerPage = 25;
+
+
+    // =========================
     // API Calls
     // =========================
     const fetchSummary = async () => {
@@ -105,6 +114,72 @@ document.addEventListener('DOMContentLoaded', () => {
             return [];
         }
     };
+
+    // =========================
+    // Pagination & Table Rendering
+    // =========================
+    const updatePaginationControls = () => {
+        const pageInfo = document.getElementById('page-info');
+        const prevPageBtn = document.getElementById('prev-page');
+        const nextPageBtn = document.getElementById('next-page');
+        const recordsPerPageSelect = document.getElementById('records-per-page');
+
+        recordsPerPage = parseInt(recordsPerPageSelect.value, 10);
+        const totalRecords = filteredInventoryData.length;
+        const totalPages = Math.ceil(totalRecords / recordsPerPage) || 1;
+
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+
+        if (pageInfo) {
+            pageInfo.textContent = `Trang ${currentPage} / ${totalPages}`;
+        }
+
+        if (prevPageBtn) {
+            prevPageBtn.disabled = currentPage === 1;
+        }
+
+        if (nextPageBtn) {
+            nextPageBtn.disabled = currentPage === totalPages;
+        }
+    };
+
+    const renderTablePage = () => {
+        const tbody = document.getElementById('inventoryTableBody');
+        if (!tbody) return;
+
+        updatePaginationControls();
+
+        if (filteredInventoryData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 20px; color: #6B7280;">Không có dữ liệu tồn kho</td></tr>';
+            return;
+        }
+
+        const startIndex = (currentPage - 1) * recordsPerPage;
+        const endIndex = startIndex + recordsPerPage;
+        const pageData = filteredInventoryData.slice(startIndex, endIndex);
+
+        tbody.innerHTML = pageData.map(item => {
+            const status = determineStatus(item);
+            const statusClass = getStatusClass(status);
+
+            return `
+                <tr>
+                    <td>${item.medicineName || '-'}</td>
+                    <td>${item.activeIngredient || '-'}</td>
+                    <td>${item.strength || '-'}</td>
+                    <td>${item.dosageForm || '-'}</td>
+                    <td class="mono">${item.batchCode || '-'}</td>
+                    <td>${formatNumber(item.quantity || 0)}</td>
+                    <td>${item.unit || '-'}</td>
+                    <td>${formatDate(item.expiryDate)}</td>
+                    <td><span class="badge ${statusClass}">${status}</span></td>
+                </tr>
+            `;
+        }).join('');
+    };
+
 
     // =========================
     // Update UI
@@ -324,39 +399,35 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const updateInventoryTable = (data) => {
-        const tbody = document.getElementById('inventoryTableBody');
-        if (!tbody) {
-            console.error('Table body not found');
-            return;
-        }
+        allInventoryData = data;
+        applyFiltersAndRender();
+    };
 
-        console.log('Updating table with data:', data);
+    const applyFiltersAndRender = () => {
+        const query = (document.getElementById('searchInventory')?.value || '').toLowerCase();
+        const categoryId = document.getElementById('categoryFilter')?.value || '';
+        const statusFilter = document.getElementById('statusFilter')?.value || '';
 
-        if (!data || data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 20px; color: #6B7280;">Không có dữ liệu tồn kho</td></tr>';
-            return;
-        }
+        filteredInventoryData = allInventoryData.filter(item => {
+            const matchesQuery = !query ||
+                (item.medicineName && item.medicineName.toLowerCase().includes(query)) ||
+                (item.activeIngredient && item.activeIngredient.toLowerCase().includes(query)) ||
+                (item.strength && item.strength.toLowerCase().includes(query));
 
-        tbody.innerHTML = data.map(item => {
-            const status = determineStatus(item);
-            const statusClass = getStatusClass(status);
+            const matchesCategory = !categoryId || (item.categoryId && item.categoryId.toString() === categoryId);
 
-            return `
-                <tr>
-                    <td>${item.medicineName || '-'}</td>
-                    <td>${item.activeIngredient || '-'}</td>
-                    <td>${item.strength || '-'}</td>
-                    <td>${item.dosageForm || '-'}</td>
-                    <td class="mono">${item.batchCode || '-'}</td>
-                    <td>${formatNumber(item.quantity || 0)}</td>
-                    <td>${item.unit || '-'}</td>
-                    <td>${formatDate(item.expiryDate)}</td>
-                    <td><span class="badge ${statusClass}">${status}</span></td>
-                </tr>
-            `;
-        }).join('');
+            const itemStatus = determineStatus(item);
+            const matchesStatus = !statusFilter ||
+                (statusFilter === 'active' && itemStatus === 'Hoạt động') ||
+                (statusFilter === 'near-expiry' && itemStatus === 'Sắp hết hạn') ||
+                (statusFilter === 'expired' && itemStatus === 'Đã hết hạn') ||
+                (statusFilter === 'out-of-stock' && itemStatus === 'Hết hàng');
 
-        console.log('Table updated with', data.length, 'rows');
+            return matchesQuery && matchesCategory && matchesStatus;
+        });
+
+        currentPage = 1;
+        renderTablePage();
     };
 
     const determineStatus = (item) => {
@@ -462,125 +533,92 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const handleSearch = async () => {
-        const query = document.getElementById('searchInventory')?.value || '';
-        const categoryId = document.getElementById('categoryFilter')?.value || '';
-        const status = document.getElementById('statusFilter')?.value || '';
-
-        const tbody = document.getElementById('inventoryTableBody');
-        if (tbody) {
-            tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 20px;"><div class="spinner"></div></td></tr>';
-        }
-
-        try {
-            const results = await searchInventory(query, categoryId, status);
-            updateInventoryTable(results);
-        } catch (error) {
-            console.error('Error searching:', error);
-            if (tbody) {
-                tbody.innerHTML = '<tr><td colspan="9" class="text-center" style="color: #EF4444;">Có lỗi xảy ra khi tìm kiếm</td></tr>';
-            }
-        }
+    const handleSearch = () => {
+        applyFiltersAndRender();
     };
 
     // =========================
     // Event Handlers
     // =========================
-    const handleRefresh = () => {
-        // Show loading
-        ['totalItems', 'lowStock', 'outOfStock', 'totalValue', 'nearExpiry', 'expired'].forEach(id => {
-            showLoading(id);
-        });
+    const setupEventListeners = () => {
+        const searchBtn = document.getElementById('searchBtn');
+        if (searchBtn) {
+            searchBtn.addEventListener('click', handleSearch);
+        }
 
-        // Reload data
-        loadData();
-    };
-
-    const handleExport = async () => {
-        try {
-            const exportBtn = document.getElementById('exportBtn');
-            if (exportBtn) {
-                exportBtn.disabled = true;
-                exportBtn.innerHTML = '<span class="material-icons" style="font-size: 18px;">hourglass_empty</span> Đang xuất...';
-            }
-
-            // Trigger download
-            window.location.href = `${API_BASE}/export`;
-
-            // Reset button after delay
-            setTimeout(() => {
-                if (exportBtn) {
-                    exportBtn.disabled = false;
-                    exportBtn.innerHTML = '<span class="material-icons" style="font-size: 18px;">download</span> Xuất CSV';
+        const searchInput = document.getElementById('searchInventory');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleSearch();
                 }
-            }, 2000);
+            });
+        }
 
-        } catch (error) {
-            console.error('Error exporting:', error);
-            alert('Có lỗi xảy ra khi xuất file. Vui lòng thử lại.');
+        const categoryFilter = document.getElementById('categoryFilter');
+        if (categoryFilter) {
+            categoryFilter.addEventListener('change', handleSearch);
+        }
+
+        const statusFilter = document.getElementById('statusFilter');
+        if (statusFilter) {
+            statusFilter.addEventListener('change', handleSearch);
+        }
+
+        // Pagination controls
+        const prevPageBtn = document.getElementById('prev-page');
+        if (prevPageBtn) {
+            prevPageBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTablePage();
+                }
+            });
+        }
+
+        const nextPageBtn = document.getElementById('next-page');
+        if (nextPageBtn) {
+            nextPageBtn.addEventListener('click', () => {
+                const totalRecords = filteredInventoryData.length;
+                const totalPages = Math.ceil(totalRecords / recordsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTablePage();
+                }
+            });
+        }
+
+        const recordsPerPageSelect = document.getElementById('records-per-page');
+        if (recordsPerPageSelect) {
+            recordsPerPageSelect.addEventListener('change', () => {
+                currentPage = 1;
+                renderTablePage();
+            });
         }
     };
 
-    // =========================
-    // Event Listeners
-    // =========================
-    const refreshBtn = document.getElementById('refreshBtn');
-    if (refreshBtn) {
-        refreshBtn.addEventListener('click', handleRefresh);
-    }
-
-    const exportBtn = document.getElementById('exportBtn');
-    if (exportBtn) {
-        exportBtn.addEventListener('click', handleExport);
-    }
-
-    const searchBtn = document.getElementById('searchBtn');
-    if (searchBtn) {
-        searchBtn.addEventListener('click', handleSearch);
-    }
-
-    const searchInput = document.getElementById('searchInventory');
-    if (searchInput) {
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                handleSearch();
-            }
-        });
-    }
-
-    const categoryFilter = document.getElementById('categoryFilter');
-    if (categoryFilter) {
-        categoryFilter.addEventListener('change', handleSearch);
-    }
-
-    const statusFilter = document.getElementById('statusFilter');
-    if (statusFilter) {
-        statusFilter.addEventListener('change', handleSearch);
-    }
 
     // =========================
-    // Initialize
+    // Initialization
     // =========================
+    const init = () => {
+        // Show initial loading state for table
+        const tbody = document.getElementById('inventoryTableBody');
+        if (tbody) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="9" style="text-align: center; padding: 40px;">
+                        <div class="spinner"></div>
+                        <p style="margin-top: 12px; color: #6B7280;">Đang tải dữ liệu...</p>
+                    </td>
+                </tr>
+            `;
+        }
 
-    console.log('Initializing inventory page...');
-    console.log('Chart.js available:', typeof Chart !== 'undefined');
-    console.log('API Base:', API_BASE);
+        initCharts();
+        loadData();
+        setupEventListeners();
+    };
 
-    // Initialize charts if Chart.js is available
-    const chartsInitialized = initCharts();
-
-    if (!chartsInitialized) {
-        console.warn('Charts not initialized. Chart.js may not be loaded.');
-        // Don't hide chart sections, just show empty state
-    } else {
-        console.log('Charts initialized successfully');
-    }
-
-    // Load data
-    console.log('Starting data load...');
-    loadData().then(() => {
-        console.log('Initial data load completed');
-    }).catch(err => {
-        console.error('Failed to load initial data:', err);
-    });
+    init();
 });

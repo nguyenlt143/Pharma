@@ -19,7 +19,10 @@
         const passwordWrapper = document.getElementById('passwordWrapper');
         const toastEl = document.getElementById('toast');
 
-        let staffList = [];
+        let allStaff = [];
+        let filteredStaff = [];
+        let currentPage = 1;
+        let recordsPerPage = 25;
         let showDeleted = false;
 
         // UTIL
@@ -92,8 +95,8 @@
                 const url = showDeleted ? `${API_BASE}?showDeleted=true` : API_BASE;
                 const res = await fetch(url);
                 if (!res.ok) throw new Error('Lỗi khi lấy danh sách');
-                staffList = await res.json();
-                renderTable(staffList);
+                allStaff = await res.json();
+                applySearchAndRender();
             } catch (e) {
                 console.error(e);
                 showToast(e.message || 'Lỗi mạng', 3000, 'error');
@@ -141,42 +144,90 @@
             return;
         }
 
-        // Render
-        function renderTable(list) {
+        // Render & Pagination
+        function updatePaginationControls() {
+            const pageInfo = document.getElementById('page-info');
+            const prevPageBtn = document.getElementById('prev-page');
+            const nextPageBtn = document.getElementById('next-page');
+            const recordsPerPageSelect = document.getElementById('records-per-page');
+
+            recordsPerPage = parseInt(recordsPerPageSelect.value, 10);
+            const totalRecords = filteredStaff.length;
+            const totalPages = Math.ceil(totalRecords / recordsPerPage) || 1;
+
+            if (currentPage > totalPages) {
+                currentPage = totalPages;
+            }
+
+            if (pageInfo) pageInfo.textContent = `Trang ${currentPage} / ${totalPages}`;
+            if (prevPageBtn) prevPageBtn.disabled = currentPage === 1;
+            if (nextPageBtn) nextPageBtn.disabled = currentPage === totalPages;
+        }
+
+        function renderTablePage() {
+            updatePaginationControls();
             tableBody.innerHTML = '';
-            if (!list || list.length === 0) {
+
+            if (!filteredStaff || filteredStaff.length === 0) {
                 emptyState.classList.remove('hidden');
                 return;
             }
             emptyState.classList.add('hidden');
 
-            list.forEach((s, idx) => {
+            const startIndex = (currentPage - 1) * recordsPerPage;
+            const endIndex = startIndex + recordsPerPage;
+            const pageData = filteredStaff.slice(startIndex, endIndex);
+
+
+            pageData.forEach((s, idx) => {
                 const tr = document.createElement('tr');
                 tr.setAttribute('data-id', s.id);
 
                 tr.innerHTML = `
-            <td class="text-center">${idx + 1}</td>
-            <td class="font-medium">${escapeHtml(s.userName || '')}</td>
-            <td>${escapeHtml(s.fullName || '')}</td>
-            <td>${escapeHtml(s.roleName || '')}</td>
-            <td>${escapeHtml(s.email || '')}</td>
-            <td>${escapeHtml(s.phoneNumber || '')}</td>
-            <td class="text-center">
-              <span class="badge ${s.deleted ? 'inactive' : 'active'}">${s.deleted ? 'Hoạt động' : 'Đã xóa'}</span>
-            </td>
-            <td class="text-center">
-              ${s.deleted ? `
-                <button class="btn btn-success restore-btn" data-id="${s.id}" title="Khôi phục">↩ Khôi phục</button>
-              ` : `
-                <button class="btn btn-ghost edit-btn" data-id="${s.id}" title="Sửa">✏️</button>
-                <button class="btn btn-danger del-btn" data-id="${s.id}" title="Xoá">🗑️</button>
-              `}
-            </td>
-          `;
+                    <td class="text-center">${startIndex + idx + 1}</td>
+                    <td class="font-medium">${escapeHtml(s.userName || '')}</td>
+                    <td>${escapeHtml(s.fullName || '')}</td>
+                    <td>${escapeHtml(s.roleName || '')}</td>
+                    <td>${escapeHtml(s.email || '')}</td>
+                    <td>${escapeHtml(s.phoneNumber || '')}</td>
+                    <td class="text-center">
+                      <span class="badge ${s.deleted ? 'inactive' : 'active'}">${s.deleted ? 'Đã xóa' : 'Hoạt động'}</span>
+                    </td>
+                    <td class="text-center">
+                      ${s.deleted ? `
+                        <button class="btn btn-success restore-btn" data-id="${s.id}" title="Khôi phục">↩ Khôi phục</button>
+                      ` : `
+                        <button class="btn btn-ghost edit-btn" data-id="${s.id}" title="Sửa">✏️</button>
+                        <button class="btn btn-danger del-btn" data-id="${s.id}" title="Xoá">🗑️</button>
+                      `}
+                    </td>
+                  `;
 
                 tableBody.appendChild(tr);
             });
 
+            attachActionHandlers();
+        }
+
+        function applySearchAndRender() {
+            const q = searchInput.value.trim().toLowerCase();
+            if (!q) {
+                filteredStaff = [...allStaff];
+            } else {
+                filteredStaff = allStaff.filter(s =>
+                    (s.userName || '').toLowerCase().includes(q) ||
+                    (s.fullName || '').toLowerCase().includes(q) ||
+                    (s.email || '').toLowerCase().includes(q) ||
+                    (s.roleName || '').toLowerCase().includes(q)
+                );
+            }
+            currentPage = 1;
+            renderTablePage();
+        }
+
+
+        // Render
+        function attachActionHandlers() {
             // attach handlers
             document.querySelectorAll('.edit-btn').forEach(b => {
                 b.addEventListener('click', async (ev) => {
@@ -229,97 +280,109 @@
                 .replaceAll("'", '&#39;');
         }
 
-        // events
-        btnCreate.addEventListener('click', () => openModal('create'));
+        function setupEventListeners() {
+            // events
+            btnCreate.addEventListener('click', () => openModal('create'));
 
-        function updateToggleDeletedBtn() {
-            if (!btnToggleDeleted) return;
-            if (showDeleted) {
-                btnToggleDeleted.textContent = 'Ẩn nhân viên đã xóa';
-                btnToggleDeleted.classList.remove('btn-outline');
-                btnToggleDeleted.classList.add('btn-primary');
-            } else {
-                btnToggleDeleted.textContent = 'Hiển thị nhân viên đã xóa';
-                btnToggleDeleted.classList.remove('btn-primary');
-                btnToggleDeleted.classList.add('btn-outline');
-            }
-        }
-        if (btnToggleDeleted) {
-            btnToggleDeleted.addEventListener('click', async () => {
-                showDeleted = !showDeleted;
-                updateToggleDeletedBtn();
-                await fetchAll();
-            });
-            updateToggleDeletedBtn();
-        }
-
-        modalClose.addEventListener('click', () => {
-            // re-enable form if was readonly
-            Array.from(staffForm.elements).forEach(el => el.disabled = false);
-            document.getElementById('btnSave').style.display = '';
-            document.getElementById('btnCancel').textContent = 'Hủy';
-            closeModal();
-        });
-        document.getElementById('btnCancel').addEventListener('click', () => {
-            modalClose.click();
-        });
-
-        // submit
-        staffForm.addEventListener('submit', async (ev) => {
-            ev.preventDefault();
-            const form = new FormData(staffForm);
-            const payload = {
-                userName: form.get('userName'),
-                fullName: form.get('fullName'),
-                roleId: Number(form.get('roleId') || null),
-                email: form.get('email'),
-                phoneNumber: form.get('phoneNumber'),
-                branchId: form.get('branchId') ? Number(form.get('branchId')) : null,
-                imageUrl: form.get('imageUrl'),
-                password: form.get('password') || undefined
-            };
-
-            const id = staffIdInput.value;
-            try {
-                if (id) {
-                    await updateStaff(id, payload);
-                    showToast('Cập nhật thành công', 2500, 'success');
+            function updateToggleDeletedBtn() {
+                if (!btnToggleDeleted) return;
+                if (showDeleted) {
+                    btnToggleDeleted.textContent = 'Ẩn nhân viên đã xóa';
+                    btnToggleDeleted.classList.remove('btn-outline');
+                    btnToggleDeleted.classList.add('btn-primary');
                 } else {
-                    await createStaff(payload);
-                    showToast('Tạo thành công', 2500, 'success');
+                    btnToggleDeleted.textContent = 'Hiển thị nhân viên đã xóa';
+                    btnToggleDeleted.classList.remove('btn-primary');
+                    btnToggleDeleted.classList.add('btn-outline');
                 }
-                // restore buttons and fields
+            }
+            if (btnToggleDeleted) {
+                btnToggleDeleted.addEventListener('click', async () => {
+                    showDeleted = !showDeleted;
+                    updateToggleDeletedBtn();
+                    await fetchAll();
+                });
+                updateToggleDeletedBtn();
+            }
+
+            modalClose.addEventListener('click', () => {
+                // re-enable form if was readonly
                 Array.from(staffForm.elements).forEach(el => el.disabled = false);
                 document.getElementById('btnSave').style.display = '';
                 document.getElementById('btnCancel').textContent = 'Hủy';
                 closeModal();
-                await fetchAll();
-            } catch (e) {
-                console.error(e);
-                showToast(e.message || 'Lỗi khi lưu', 3000, 'error');
-            }
-        });
+            });
+            document.getElementById('btnCancel').addEventListener('click', () => {
+                modalClose.click();
+            });
 
-        // search
-        let searchTimeout = null;
-        searchInput.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            const q = e.target.value.trim().toLowerCase();
-            searchTimeout = setTimeout(() => {
-                if (!q) {
-                    renderTable(staffList);
-                    return;
+            // submit
+            staffForm.addEventListener('submit', async (ev) => {
+                ev.preventDefault();
+                const form = new FormData(staffForm);
+                const payload = {
+                    userName: form.get('userName'),
+                    fullName: form.get('fullName'),
+                    roleId: Number(form.get('roleId') || null),
+                    email: form.get('email'),
+                    phoneNumber: form.get('phoneNumber'),
+                    branchId: form.get('branchId') ? Number(form.get('branchId')) : null,
+                    imageUrl: form.get('imageUrl'),
+                    password: form.get('password') || undefined
+                };
+
+                const id = staffIdInput.value;
+                try {
+                    if (id) {
+                        await updateStaff(id, payload);
+                        showToast('Cập nhật thành công', 2500, 'success');
+                    } else {
+                        await createStaff(payload);
+                        showToast('Tạo thành công', 2500, 'success');
+                    }
+                    // restore buttons and fields
+                    Array.from(staffForm.elements).forEach(el => el.disabled = false);
+                    document.getElementById('btnSave').style.display = '';
+                    document.getElementById('btnCancel').textContent = 'Hủy';
+                    closeModal();
+                    await fetchAll();
+                } catch (e) {
+                    console.error(e);
+                    showToast(e.message || 'Lỗi khi lưu', 3000, 'error');
                 }
-                const filtered = staffList.filter(s =>
-                    (s.userName || '').toLowerCase().includes(q) ||
-                    (s.fullName || '').toLowerCase().includes(q) ||
-                    (s.email || '').toLowerCase().includes(q) ||
-                    (s.roleName || '').toLowerCase().includes(q)
-                );
-                renderTable(filtered);
-            }, 200);
-        });
+            });
+
+            // search
+            let searchTimeout = null;
+            searchInput.addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(applySearchAndRender, 200);
+            });
+
+            // Pagination controls
+            document.getElementById('prev-page').addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTablePage();
+                }
+            });
+
+            document.getElementById('next-page').addEventListener('click', () => {
+                const totalPages = Math.ceil(filteredStaff.length / recordsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTablePage();
+                }
+            });
+
+            document.getElementById('records-per-page').addEventListener('change', () => {
+                currentPage = 1;
+                renderTablePage();
+            });
+        }
+
 
         // initial load
+        setupEventListeners();
         fetchAll();
     })();

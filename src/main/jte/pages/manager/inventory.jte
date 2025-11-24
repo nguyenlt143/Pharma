@@ -12,16 +12,7 @@
 
             <div class="page-header">
                 <h2 class="page-title">Quản lý kho - Báo cáo</h2>
-                <div class="page-actions">
-                    <button id="refreshBtn" class="btn btn-outline" aria-label="Làm mới dữ liệu">
-                        <span class="material-icons" style="font-size: 18px;">refresh</span>
-                        Làm mới
-                    </button>
-                    <button id="exportBtn" class="btn btn-primary" aria-label="Xuất báo cáo">
-                        <span class="material-icons" style="font-size: 18px;">download</span>
-                        Xuất CSV
-                    </button>
-                </div>
+
             </div>
 
             <section class="kpi-row mi-kpis">
@@ -150,6 +141,21 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+                <div class="pagination-container">
+                    <div class="pagination-controls">
+                        <button id="prev-page" disabled>&laquo; Trước</button>
+                        <span id="page-info">Trang 1 / 1</span>
+                        <button id="next-page" disabled>Sau &raquo;</button>
+                    </div>
+                    <div class="records-per-page">
+                        <label for="records-per-page">Số bản ghi:</label>
+                        <select id="records-per-page" class="form-select">
+                            <option value="10">10</option>
+                            <option value="25" selected>25</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
                 </div>
             </section>
         </main>

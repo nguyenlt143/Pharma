@@ -12,6 +12,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const assignBtn = document.getElementById("assignBtn");
     const toastEl = document.getElementById("toast");
 
+    // ====================== PAGINATION STATE ======================
+    let allShifts = [];
+    let currentPage = 1;
+    let recordsPerPage = 25;
+
     // ====================== TOAST UTILITY ======================
     function showToast(msg, timeout = 2500, type = 'info') {
         console.log('showToast called:', msg, type);
@@ -68,36 +73,68 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let showDeleted = false;
 
+    // ====================== PAGINATION & RENDERING ======================
+    function updatePaginationControls() {
+        const pageInfo = document.getElementById('page-info');
+        const prevPageBtn = document.getElementById('prev-page');
+        const nextPageBtn = document.getElementById('next-page');
+        const recordsPerPageSelect = document.getElementById('records-per-page');
+
+        recordsPerPage = parseInt(recordsPerPageSelect.value, 10);
+        const totalRecords = allShifts.length;
+        const totalPages = Math.ceil(totalRecords / recordsPerPage) || 1;
+
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+
+        pageInfo.textContent = `Trang ${currentPage} / ${totalPages}`;
+        prevPageBtn.disabled = currentPage === 1;
+        nextPageBtn.disabled = currentPage === totalPages;
+    }
+
+    function renderTablePage() {
+        updatePaginationControls();
+
+        const startIndex = (currentPage - 1) * recordsPerPage;
+        const endIndex = startIndex + recordsPerPage;
+        const pageData = allShifts.slice(startIndex, endIndex);
+
+        shiftTableBody.innerHTML = pageData.map(s => {
+            const statusBadge = s.deleted
+                ? '<span class="badge inactive">Đã xóa</span>'
+                : '<span class="badge active">Hoạt động</span>';
+
+            const actionButtons = s.deleted
+                ? `<button class="btn btn-success restore-btn" onclick="restoreShift(${s.id})">↩️ Khôi phục</button>`
+                : `
+                    <button class="btn btn-ghost" onclick="editShift(${s.id})">✏️ Sửa</button>
+                    <button class="btn btn-danger" onclick="deleteShift(${s.id})">🗑️ Xóa</button>
+                    <button class="btn btn-info" onclick="viewEmployees(${s.id})">👥 Xem nhân viên</button>
+                `;
+
+            return `
+            <tr>
+                <td>${s.name}</td>
+                <td>${s.startTime}</td>
+                <td>${s.endTime}</td>
+                <td>${s.note || ""}</td>
+                <td class="text-center">${statusBadge}</td>
+                <td class="text-center action-buttons">${actionButtons}</td>
+            </tr>
+        `;
+        }).join("");
+    }
+
+
     // ====================== LOAD SHIFTS ======================
     async function loadShifts() {
         try {
             const url = showDeleted ? "/api/manager/shifts?includeDeleted=true" : "/api/manager/shifts";
             const res = await fetch(url);
-            const shifts = await res.json();
-            shiftTableBody.innerHTML = shifts.map(s => {
-                const statusBadge = s.deleted
-                    ? '<span class="badge inactive">Đã xóa</span>'
-                    : '<span class="badge active">Hoạt động</span>';
-
-                const actionButtons = s.deleted
-                    ? `<button class="btn btn-success restore-btn" onclick="restoreShift(${s.id})">↩️ Khôi phục</button>`
-                    : `
-                        <button class="btn btn-ghost" onclick="editShift(${s.id})">✏️ Sửa</button>
-                        <button class="btn btn-danger" onclick="deleteShift(${s.id})">🗑️ Xóa</button>
-                        <button class="btn btn-info" onclick="viewEmployees(${s.id})">👥 Xem nhân viên</button>
-                    `;
-
-                return `
-                <tr>
-                    <td>${s.name}</td>
-                    <td>${s.startTime}</td>
-                    <td>${s.endTime}</td>
-                    <td>${s.note || ""}</td>
-                    <td class="text-center">${statusBadge}</td>
-                    <td class="text-center action-buttons">${actionButtons}</td>
-                </tr>
-            `;
-            }).join("");
+            allShifts = await res.json();
+            currentPage = 1;
+            renderTablePage();
         } catch (err) {
             console.error("❌ Lỗi load shifts:", err);
         }
@@ -313,6 +350,28 @@ document.addEventListener("DOMContentLoaded", () => {
         btnToggleDeleted.textContent = showDeleted ? "Ẩn ca đã xóa" : "Hiển thị ca đã xóa";
         loadShifts();
     });
+
+    // Pagination controls
+    document.getElementById('prev-page').addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            renderTablePage();
+        }
+    });
+
+    document.getElementById('next-page').addEventListener('click', () => {
+        const totalPages = Math.ceil(allShifts.length / recordsPerPage);
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderTablePage();
+        }
+    });
+
+    document.getElementById('records-per-page').addEventListener('change', () => {
+        currentPage = 1;
+        renderTablePage();
+    });
+
 
     // Load shifts when page loads
     loadShifts();
