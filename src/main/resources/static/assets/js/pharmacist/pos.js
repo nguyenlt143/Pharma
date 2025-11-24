@@ -9,23 +9,6 @@ const paymentAmountInput = document.querySelector('.payment-details .form-input'
 const paymentMethodSelect = document.querySelector('.form-select');
 const notesTextarea = document.querySelector('.form-textarea');
 
-//// Search functionality
-//if (searchButton && searchInput) {
-//
-//  searchButton.addEventListener('click', () => {
-//    const searchTerm = searchInput.value.trim();
-//    if (searchTerm) {
-//      window.location.href = '/pharmacist/pos/search?keyword=' + encodeURIComponent(searchTerm);
-//    }
-//  });
-//
-//  searchInput.addEventListener('keypress', (e) => {
-//    if (e.key === 'Enter') {
-//      searchButton.click();
-//    }
-//  });
-//}
-
 const resultContainer = document.querySelector('#medicine-list');
 
 let debounceTimer;
