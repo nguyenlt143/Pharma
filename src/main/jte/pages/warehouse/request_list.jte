@@ -25,16 +25,16 @@ content = @`
         </header>
 
 
-        <section class="search-section">
-            <div class="search-container">
-                <div class="search-icon">
-                    <img src="https://static.codia.ai/image/2025-11-05/wS6ZqNm37v.png" alt="Search">
-                </div>
-                <div class="search-input">
-                    <img src="https://static.codia.ai/image/2025-11-05/KB8ok8AS1S.png" alt="Search Input">
-                </div>
-            </div>
-        </section>
+<%--        <section class="search-section">--%>
+<%--            <div class="search-container">--%>
+<%--                <div class="search-icon">--%>
+<%--                    <img src="https://static.codia.ai/image/2025-11-05/wS6ZqNm37v.png" alt="Search">--%>
+<%--                </div>--%>
+<%--                <div class="search-input">--%>
+<%--                    <img src="https://static.codia.ai/image/2025-11-05/KB8ok8AS1S.png" alt="Search Input">--%>
+<%--                </div>--%>
+<%--            </div>--%>
+<%--        </section>--%>
 
 
         <section class="tab-section">
@@ -91,7 +91,7 @@ content = @`
                     <tbody>
                     @for(RequestList request : requests)
                         <tr>
-                            <td>${request.branchId()}</td>
+                            <td>${request.branchName()}</td>
                             <td>${request.createdAt()}</td>
                             <td>
                                 @if(request.requestType().equals("IMPORT"))
