@@ -9,9 +9,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.pharma.config.CustomUserDetails;
-import vn.edu.fpt.pharma.dto.medicine.SearchMedicineVM;
+import vn.edu.fpt.pharma.dto.medicine.MedicineSearchDTO;
+import vn.edu.fpt.pharma.dto.medicine.VariantInventoryDTO;
 import vn.edu.fpt.pharma.dto.user.ProfileVM;
 import vn.edu.fpt.pharma.entity.User;
+import vn.edu.fpt.pharma.service.MedicineService;
 import vn.edu.fpt.pharma.service.MedicineVariantService;
 import vn.edu.fpt.pharma.service.UserService;
 
@@ -24,30 +26,26 @@ public class PharmacistController {
 
     private final UserService userService;
     private final MedicineVariantService medicineVariantService;
+    private final MedicineService medicineService;
 
 
 
     @GetMapping("/pos")
     public String pos(Model model) {
-        model.addAttribute("searchMedicineVM", List.of());
+        model.addAttribute("keyword", "");
         return "pages/pharmacist/pos";
     }
 
-
-//    @GetMapping("/pos/search")
-//    public String search(@RequestParam String keyword, Model model) {
-//        List<SearchMedicineVM> searchMedicineVM = medicineVariantService.findByKeyword(keyword);
-//        model.addAttribute("searchMedicineVM", searchMedicineVM);
-//        model.addAttribute("keyword", keyword);
-//        return "pages/pharmacist/pos";
-//    }
     @GetMapping("/pos/api/search")
     @ResponseBody
-    public List<SearchMedicineVM> search(@RequestParam(required = false, defaultValue = "") String keyword) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
-        Long userId = userDetails.getId();
-        return medicineVariantService.findByKeyword(keyword);
+    public List<MedicineSearchDTO> search(@RequestParam(required = false, defaultValue = "") String keyword) {
+        return medicineService.searchMedicinesByKeyword(keyword);
+    }
+
+    @GetMapping("/pos/api/medicine/{medicineId}/variants")
+    @ResponseBody
+    public List<VariantInventoryDTO> getVariantsWithInventory(@PathVariable Long medicineId) {
+        return medicineVariantService.getVariantsWithInventoryByMedicineId(medicineId);
     }
 
 

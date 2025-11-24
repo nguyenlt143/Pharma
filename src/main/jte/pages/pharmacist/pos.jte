@@ -1,7 +1,6 @@
-@param java.util.List<vn.edu.fpt.pharma.dto.medicine.SearchMedicineVM> searchMedicineVM
-@param String keyword 
+@param String keyword
 @template.layouts.pharmacist(
-headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/pos.css">`,
+    headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/pos.css">`,
     content = @`
         <section class="search-section">
             <div class="search-container">
@@ -14,32 +13,6 @@ headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/pos.css">`,
                     <button id="search-button" class="search-button">Search</button>
                 </div>
 
-<%--                <div class="medicine-list">--%>
-<%--                        @for(int i = 0; i < searchMedicineVM.size(); i++)--%>
-<%--                            <div class="medicine-card">--%>
-<%--                                <h3 class="medicine-name">${searchMedicineVM.get(i).name()} ${searchMedicineVM.get(i).strength()} - ${searchMedicineVM.get(i).packageUnitName()}</h3>--%>
-<%--                                <p class="medicine-batch">Số lô: <span class="batch-number">230521</span> Hạn dùng: <span class="expiry-date">24/05/2023</span></p>--%>
-<%--                                <p class="medicine-stock">Tồn kho: <span class="stock-info">24 </span></p>--%>
-<%--                                <p class="medicine-ingredient">--%>
-<%--                                    Hoạt chất chính:--%>
-<%--                                    <span class="ingredient-info">${searchMedicineVM.get(i).activeIngredient()}</span>--%>
-<%--                                </p>--%>
-
-<%--                                <p class="medicine-manufacturer">--%>
-<%--                                    Nước sản xuất:--%>
-<%--                                    <span class="manufacturer-info">${searchMedicineVM.get(i).manufacturer()}</span>--%>
-<%--                                </p>--%>
-<%--                                <p class="medicine-packaging">--%>
-<%--                                    Quy cách đóng gói:--%>
-<%--                                    <span class="packaging-info">${searchMedicineVM.get(i).quantity()} ${searchMedicineVM.get(i).baseUnitName()}</span>--%>
-<%--                                </p>--%>
-<%--                                <p class="medicine-origin">Nước sản xuất: ${searchMedicineVM.get(i).country()}</p>--%>
-<%--                                <p class="medicine-usage">Cách dùng: ${searchMedicineVM.get(i).uses()}</p>--%>
-<%--                                <p class="medicine-contraindication">Chống chỉ định: ${searchMedicineVM.get(i).contraindications()}</p>--%>
-<%--                                <p class="medicine-storage">Tác dụng phụ: ${searchMedicineVM.get(i).sideEffect()}</p>--%>
-<%--                            </div>--%>
-<%--                        @endfor--%>
-<%--                </div>--%>
                 <div id="medicine-list" class="medicine-list"></div>
 
             </div>
@@ -60,115 +33,18 @@ headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/pos.css">`,
                             <th class="table-cell">Tên thuốc</th>
                             <th class="table-cell">Kiểu đóng gói</th>
                             <th class="table-cell">Số lượng</th>
-                            <th class="table-cell text-right">Giá bán</th>
                             <th class="table-cell text-right">Thành tiền</th>
                         </tr>
                         </thead>
 
-                        <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>
-                                <div class="medicine-info">
-                                    <div class="medicine-title">Hapacol 250 Hạn dùng: 24/05/2023</div>
-                                    <div class="medicine-detail">Quy cách đóng gói: Hộp 24 gói x 1.5g thuốc bột</div>
-                                    <div class="medicine-detail">Hoạt chất: paracetamol - 250 mg</div>
-                                </div>
-                            </td>
-                            <td>Gói</td>
-                            <td>2</td>
-                            <td>1,000.00</td>
-                            <td>
-                                <div class="price-info">
-                                    <div class="total-price">2,000.00</div>
-                                    <div class="vat-info">VAT: 0 (0%)</div>
-                                </div>
-                            </td>
-                            <td>
-                                <button class="delete-button">
-                                    <span class="material-icons">delete_outline</span>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>
-                                <div class="medicine-info">
-                                    <div class="medicine-title">Allergan Hạn dùng: 24/05/2023</div>
-                                    <div class="medicine-detail">Quy cách đóng gói: Hộp 10 vỉ x 10 viên nang cứng</div>
-                                    <div class="medicine-detail">Hoạt chất: paracetamol - 500mg</div>
-                                </div>
-                            </td>
-                            <td>Viên</td>
-                            <td>3</td>
-                            <td>1,000.00</td>
-                            <td>
-                                <div class="price-info">
-                                    <div class="total-price">3,000.00</div>
-                                    <div class="vat-info">VAT: 0 (0%)</div>
-                                </div>
-                            </td>
-                            <td>
-                                <button class="delete-button">
-                                    <span class="material-icons">delete_outline</span>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>
-                                <div class="medicine-info">
-                                    <div class="medicine-title">Another Med Hạn dùng: 24/05/2023</div>
-                                    <div class="medicine-detail">Quy cách đóng gói: Hộp 10 vỉ x 10 viên nang cứng</div>
-                                    <div class="medicine-detail">Hoạt chất: paracetamol - 500mg</div>
-                                </div>
-                            </td>
-                            <td>Viên</td>
-                            <td>1</td>
-                            <td>2,500.00</td>
-                            <td>
-                                <div class="price-info">
-                                    <div class="total-price">2,500.00</div>
-                                    <div class="vat-info">VAT: 0 (0%)</div>
-                                </div>
-                            </td>
-                            <td>
-                                <button class="delete-button">
-                                    <span class="material-icons">delete_outline</span>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>4</td>
-                            <td>
-                                <div class="medicine-info">
-                                    <div class="medicine-title">Yet Another Med Hạn dùng: 24/05/2023</div>
-                                    <div class="medicine-detail">Quy cách đóng gói: Hộp 10 vỉ x 10 viên nang cứng</div>
-                                    <div class="medicine-detail">Hoạt chất: paracetamol - 500mg</div>
-                                </div>
-                            </td>
-                            <td>Viên</td>
-                            <td>5</td>
-                            <td>500.00</td>
-                            <td>
-                                <div class="price-info">
-                                    <div class="total-price">2,500.00</div>
-                                    <div class="vat-info">VAT: 0 (0%)</div>
-                                </div>
-                            </td>
-                            <td>
-                                <button class="delete-button">
-                                    <span class="material-icons">delete_outline</span>
-                                </button>
-                            </td>
-                        </tr>
+                        <tbody id="prescription-items">
                         </tbody>
 
                         <tfoot>
                         <tr class="table-footer">
-                            <td colspan="5" class="table-cell text-right">Tổng tiền</td>
+                            <td colspan="4" class="table-cell text-right">Tổng tiền</td>
                             <td class="table-cell text-right">
-                                <div class="total-amount"></div>
+                                <div class="total-amount">0.00</div>
                                 <div class="vat-info">VAT: 0 (0%)</div>
                             </td>
                         </tr>

@@ -2,6 +2,7 @@ package vn.edu.fpt.pharma.controller.owner;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,7 +20,6 @@ import java.util.Map;
 @RequestMapping("/api/owner/price")
 @RequiredArgsConstructor
 public class PriceApiController {
-
     private final PriceService priceService;
 
     /**

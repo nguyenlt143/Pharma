@@ -101,6 +101,24 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>, Jpa
     int countLowStockItems(@Param("branchId") Long branchId);
 
     @Query(value = """
+        SELECT 
+            i.id,
+            b.batch_code,
+            b.expiry_date,
+            i.quantity,
+            i.cost_price,
+            s.name as supplierName
+        FROM inventory i
+        LEFT JOIN batches b ON i.batch_id = b.id
+        LEFT JOIN suppliers s ON b.supplier_id = s.id
+        WHERE i.variant_id = :variantId
+          AND i.deleted = false
+          AND i.quantity > 0
+        ORDER BY b.expiry_date
+        """, nativeQuery = true)
+    List<Object[]> findInventoryByVariantId(@Param("variantId") Long variantId);
+
+    @Query(value = """
         SELECT COUNT(*) 
         FROM inventory i 
         WHERE i.branch_id = :branchId 

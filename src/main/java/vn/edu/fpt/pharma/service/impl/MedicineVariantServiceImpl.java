@@ -8,6 +8,7 @@ import vn.edu.fpt.pharma.dto.medicine.SearchMedicineVM;
 import vn.edu.fpt.pharma.entity.Medicine;
 import vn.edu.fpt.pharma.entity.MedicineVariant;
 import vn.edu.fpt.pharma.entity.Unit;
+import vn.edu.fpt.pharma.repository.InventoryRepository;
 import vn.edu.fpt.pharma.repository.MedicineRepository;
 import vn.edu.fpt.pharma.repository.MedicineVariantRepository;
 import vn.edu.fpt.pharma.repository.UnitRepository;
@@ -24,13 +25,20 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
     private final MedicineRepository medicineRepository;
     private final UnitRepository unitRepository;
     private final MedicineVariantRepository medicineVariantRepository;
+    private final InventoryRepository inventoryRepository;
+    private final vn.edu.fpt.pharma.repository.PriceRepository priceRepository;
 
     public MedicineVariantServiceImpl(MedicineVariantRepository repository, AuditService auditService,
-                                      MedicineRepository medicineRepository, UnitRepository unitRepository, MedicineVariantRepository medicineVariantRepository) {
+                                      MedicineRepository medicineRepository, UnitRepository unitRepository,
+                                      MedicineVariantRepository medicineVariantRepository,
+                                      InventoryRepository inventoryRepository,
+                                      vn.edu.fpt.pharma.repository.PriceRepository priceRepository) {
         super(repository, auditService);
         this.medicineRepository = medicineRepository;
         this.unitRepository = unitRepository;
         this.medicineVariantRepository = medicineVariantRepository;
+        this.inventoryRepository = inventoryRepository;
+        this.priceRepository = priceRepository;
     }
 
     @Override
@@ -142,6 +150,67 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                         (String) r[10],
                         (String) r[11]
                 ))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<vn.edu.fpt.pharma.dto.medicine.VariantInventoryDTO> getVariantsWithInventoryByMedicineId(Long medicineId) {
+        List<Object[]> variantRows = medicineVariantRepository.findVariantsByMedicineIdWithDetails(medicineId);
+
+        return variantRows.stream()
+                .map(r -> {
+                    Long variantId = ((Number) r[0]).longValue();
+
+                    // Get inventory for this variant
+                    List<vn.edu.fpt.pharma.dto.medicine.InventoryDetailDTO> inventories =
+                        getInventoryByVariantId(variantId);
+
+                    return new vn.edu.fpt.pharma.dto.medicine.VariantInventoryDTO(
+                            variantId,
+                            (String) r[1],  // dosageForm
+                            (String) r[2],  // dosage
+                            (String) r[3],  // strength
+                            (String) r[4],  // packageUnitName
+                            (String) r[5],  // baseUnitName
+                            r[6] != null ? ((Number) r[6]).doubleValue() : null,  // quantityPerPackage
+                            (String) r[7],  // barcode
+                            (String) r[8],  // registrationNumber
+                            (String) r[9],  // storageConditions
+                            (String) r[10], // indications
+                            (String) r[11], // contraindications
+                            (String) r[12], // sideEffects
+                            (String) r[13], // instructions
+                            r[14] != null && (r[14] instanceof Boolean ? (Boolean) r[14] : ((Number) r[14]).intValue() == 1), // prescriptionRequire
+                            (String) r[15], // uses
+                            (String) r[16], // country
+                            (String) r[17], // manufacturer
+                            inventories
+                    );
+                })
+                .collect(Collectors.toList());
+    }
+
+    private List<vn.edu.fpt.pharma.dto.medicine.InventoryDetailDTO> getInventoryByVariantId(Long variantId) {
+        List<Object[]> inventoryRows = inventoryRepository.findInventoryByVariantId(variantId);
+        // Assuming branchId is 1 for now, you need to get the current user's branch
+        Long branchId = 1L;
+
+        return inventoryRows.stream()
+                .map(inv -> {
+                    Double salePrice = priceRepository.findCurrentPriceForVariantAndBranch(variantId, branchId, java.time.LocalDateTime.now())
+                            .map(vn.edu.fpt.pharma.entity.Price::getSalePrice)
+                            .orElse(null);
+
+                    return new vn.edu.fpt.pharma.dto.medicine.InventoryDetailDTO(
+                            ((Number) inv[0]).longValue(),  // id
+                            (String) inv[1],  // batchNumber
+                            inv[2] != null ? ((java.sql.Date) inv[2]).toLocalDate() : null,  // expiryDate
+                            inv[3] != null ? ((Number) inv[3]).longValue() : 0L,  // quantity
+                            inv[4] != null ? ((Number) inv[4]).doubleValue() : 0.0,  // costPrice
+                            (String) inv[5],  // supplierName
+                            salePrice
+                    );
+                })
                 .collect(Collectors.toList());
     }
 }
