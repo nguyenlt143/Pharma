@@ -14,8 +14,8 @@ function rejectRequest(id) {
 // Xử lý tạo phiếu xuất
 function createExportSlip(id) {
     console.log('Tạo phiếu xuất cho ID:', id);
-    // Thêm logic thực sự tạo phiếu xuất ở đây
-    alert('Đã tạo phiếu xuất thành công');
+    // Chuyển sang trang tạo phiếu xuất với request ID
+    window.location.href = `/warehouse/export/create?requestId=${id}`;
 }
 
 // ESC key để đóng modal
