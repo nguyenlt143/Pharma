@@ -2,32 +2,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize form functionality
     initializeForm();
     initializeTable();
-    initializeSearch();
 });
 
 function initializeForm() {
-    // Auto-generate form ID if needed
-    const formIdInput = document.querySelector('input[value="PXK20240521001"]');
-
-    // Set current date
+    // Set current date if not set
     const dateInput = document.querySelector('.date-field');
     if (dateInput && !dateInput.value) {
         const today = new Date();
-        const formattedDate = `${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}/${today.getFullYear()}`;
+        const formattedDate = today.toISOString().split('T')[0];
         dateInput.value = formattedDate;
     }
-
-    // Handle form submission
-    const saveButton = document.querySelector('.btn-secondary');
-    const createButton = document.querySelector('.btn-primary');
-
-    saveButton.addEventListener('click', function() {
-        handleSaveDraft();
-    });
-
-    createButton.addEventListener('click', function() {
-        handleCreateExport();
-    });
 }
 
 function initializeTable() {
@@ -44,30 +28,34 @@ function initializeTable() {
             formatQuantity(this);
         });
     });
-}
 
-function initializeSearch() {
-    const searchInput = document.querySelector('.search-input input');
-
-    searchInput.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
-        filterMedicines(searchTerm);
-    });
+    // Initial calculation
+    calculateTotals();
 }
 
 function validateQuantity(input) {
-    const value = parseInt(input.value);
+    const value = parseInt(input.value) || 0;
+    const max = parseInt(input.getAttribute('max'));
     const row = input.closest('tr');
-    const requestedQty = parseInt(row.querySelector('.requested-qty').textContent);
 
-    if (isNaN(value) || value < 0) {
+    // Find the medicine row to get requested quantity
+    let medicineRow = row;
+    if (row.classList.contains('batch-row')) {
+        // Find the parent medicine row
+        const variantId = row.getAttribute('data-variant-id');
+        medicineRow = document.querySelector(`.medicine-row[data-variant-id="${variantId}"]`);
+    }
+
+    if (value < 0) {
+        input.value = 0;
         input.style.borderColor = '#EF4444';
         return false;
     }
 
-    if (value > requestedQty) {
+    if (value > max) {
+        input.value = max;
         input.style.borderColor = '#F59E0B';
-        showWarning(`Số lượng gửi không được vượt quá số lượng yêu cầu (${requestedQty})`);
+        showToast(`Số lượng không được vượt quá số lượng tồn kho (${max})`, 'warning');
     } else {
         input.style.borderColor = '#E5E7EB';
     }
@@ -77,178 +65,188 @@ function validateQuantity(input) {
 
 function formatQuantity(input) {
     const value = parseInt(input.value);
-    if (!isNaN(value)) {
+    if (isNaN(value) || value < 0) {
+        input.value = 0;
+    } else {
         input.value = value.toString();
     }
 }
 
 function calculateTotals() {
     const qtyInputs = document.querySelectorAll('.qty-input');
-    let totalSent = 0;
+    let totalAmount = 0;
 
     qtyInputs.forEach(input => {
-        const value = parseInt(input.value) || 0;
-        totalSent += value;
+        const quantity = parseInt(input.value) || 0;
+        const price = parseFloat(input.getAttribute('data-price')) || 0;
+        totalAmount += quantity * price;
     });
 
-    // Update totals display if needed
-    console.log('Total medicines to be sent:', totalSent);
-}
-
-function filterMedicines(searchTerm) {
-    const tableRows = document.querySelectorAll('.medicine-table tbody tr');
-
-    tableRows.forEach(row => {
-        const medicineName = row.querySelector('.medicine-name').textContent.toLowerCase();
-        const unit = row.querySelector('.unit').textContent.toLowerCase();
-        const dosage = row.querySelector('.dosage').textContent.toLowerCase();
-
-        const matches = medicineName.includes(searchTerm) ||
-            unit.includes(searchTerm) ||
-            dosage.includes(searchTerm);
-
-        row.style.display = matches ? '' : 'none';
-    });
-}
-
-function handleSaveDraft() {
-    const formData = collectFormData();
-
-    // Simulate saving draft
-    showNotification('Đã lưu nháp thành công', 'success');
-
-    // In a real application, you would send this data to the server
-    console.log('Saving draft:', formData);
-}
-
-function handleCreateExport() {
-    const formData = collectFormData();
-
-    // Validate form
-    if (!validateForm(formData)) {
-        return;
+    // Update total display
+    const totalAmountElement = document.getElementById('totalAmount');
+    if (totalAmountElement) {
+        totalAmountElement.textContent = formatCurrency(totalAmount);
     }
-
-    // Simulate creating export
-    showNotification('Đã tạo phiếu xuất thành công', 'success');
-
-    // In a real application, you would send this data to the server
-    console.log('Creating export:', formData);
 }
 
-function collectFormData() {
-    const formCode = document.querySelector('input[value="PXK20240521001"]').value;
-    const createDate = document.querySelector('.date-field').value;
-    const branch = document.querySelector('.form-select').value;
-    const notes = document.querySelector('.form-textarea').value;
-
-    const medicines = [];
-    const tableRows = document.querySelectorAll('.medicine-table tbody tr');
-
-    tableRows.forEach((row, index) => {
-        const medicine = {
-            stt: index + 1,
-            name: row.querySelector('.medicine-name').textContent,
-            unit: row.querySelector('.unit').textContent,
-            dosage: row.querySelector('.dosage').textContent,
-            requestedQty: parseInt(row.querySelector('.requested-qty').textContent),
-            sentQty: parseInt(row.querySelector('.qty-input').value) || 0
-        };
-        medicines.push(medicine);
-    });
-
-    return {
-        formCode,
-        createDate,
-        branch,
-        notes,
-        medicines
-    };
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'decimal',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(amount);
 }
 
-function validateForm(formData) {
-    // Check if any medicines have quantities to send
-    const hasQuantities = formData.medicines.some(medicine => medicine.sentQty > 0);
+function showToast(message, type = 'info') {
+    // Simple toast notification
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        background: ${type === 'error' ? '#EF4444' : type === 'warning' ? '#F59E0B' : '#10B981'};
+        color: white;
+        border-radius: 8px;
+        z-index: 10000;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    `;
+    document.body.appendChild(toast);
 
-    if (!hasQuantities) {
-        showNotification('Vui lòng nhập số lượng thuốc cần xuất', 'error');
-        return false;
-    }
-
-    // Check if branch is selected
-    if (!formData.branch) {
-        showNotification('Vui lòng chọn chi nhánh nhận', 'error');
-        return false;
-    }
-
-    return true;
-}
-
-function showNotification(message, type = 'info') {
-    // Create notification element
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-
-    // Style the notification
-    Object.assign(notification.style, {
-        position: 'fixed',
-        top: '20px',
-        right: '20px',
-        padding: '12px 24px',
-        borderRadius: '8px',
-        color: 'white',
-        fontWeight: '500',
-        zIndex: '1000',
-        opacity: '0',
-        transform: 'translateY(-20px)',
-        transition: 'all 0.3s ease'
-    });
-
-    // Set background color based on type
-    const colors = {
-        success: '#17CF17',
-        error: '#EF4444',
-        warning: '#F59E0B',
-        info: '#3B82F6'
-    };
-    notification.style.backgroundColor = colors[type] || colors.info;
-
-    // Add to page
-    document.body.appendChild(notification);
-
-    // Animate in
     setTimeout(() => {
-        notification.style.opacity = '1';
-        notification.style.transform = 'translateY(0)';
-    }, 100);
-
-    // Remove after 3 seconds
-    setTimeout(() => {
-        notification.style.opacity = '0';
-        notification.style.transform = 'translateY(-20px)';
-        setTimeout(() => {
-            document.body.removeChild(notification);
-        }, 300);
+        toast.remove();
     }, 3000);
 }
 
-function showWarning(message) {
-    showNotification(message, 'warning');
+function saveDraft() {
+    showToast('Chức năng lưu nháp đang được phát triển', 'info');
 }
 
-// Utility functions for number formatting
-function formatNumber(num) {
-    return new Intl.NumberFormat('vi-VN').format(num);
+function createExport() {
+    // Collect form data
+    const branchId = document.getElementById('branchId').value;
+    const requestId = document.getElementById('requestId').value;
+    const createdDate = document.getElementById('createdDate').value;
+    const note = document.getElementById('note').value;
+
+    if (!branchId) {
+        showToast('Vui lòng chọn chi nhánh nhận', 'error');
+        return;
+    }
+
+    // Collect batch data
+    const qtyInputs = document.querySelectorAll('.qty-input');
+    const details = [];
+    let hasQuantity = false;
+
+    qtyInputs.forEach(input => {
+        const quantity = parseInt(input.value) || 0;
+        if (quantity > 0) {
+            hasQuantity = true;
+            details.push({
+                inventoryId: parseInt(input.getAttribute('data-inventory-id')),
+                batchId: parseInt(input.getAttribute('data-batch-id')),
+                variantId: parseInt(input.getAttribute('data-variant-id')),
+                quantity: quantity,
+                price: parseFloat(input.getAttribute('data-price'))
+            });
+        }
+    });
+
+    if (!hasQuantity) {
+        showToast('Vui lòng nhập số lượng xuất cho ít nhất một lô hàng', 'error');
+        return;
+    }
+
+    // Validate requested quantities
+    const validationResult = validateRequestedQuantities();
+    if (!validationResult.valid) {
+        showToast(validationResult.message, 'error');
+        return;
+    }
+
+    const exportData = {
+        requestId: requestId ? parseInt(requestId) : null,
+        branchId: parseInt(branchId),
+        createdDate: createdDate,
+        note: note,
+        details: details
+    };
+
+    console.log('Export data:', exportData);
+
+    // Disable button to prevent double submission
+    const createButton = document.querySelector('.btn-primary');
+    const originalText = createButton.textContent;
+    createButton.disabled = true;
+    createButton.textContent = 'Đang tạo...';
+
+    // Send to backend
+    fetch('/warehouse/export/create', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(exportData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Tạo phiếu xuất thành công! Trạng thái: Đang giao', 'success');
+            console.log('Movement ID:', data.movementId);
+
+            // Redirect to receipt list after 1.5 seconds
+            setTimeout(() => {
+                window.location.href = '/warehouse/receipt-list';
+            }, 1500);
+        } else {
+            showToast('Lỗi: ' + data.message, 'error');
+            createButton.disabled = false;
+            createButton.textContent = originalText;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Có lỗi xảy ra khi tạo phiếu xuất', 'error');
+        createButton.disabled = false;
+        createButton.textContent = originalText;
+    });
 }
 
-function parseNumber(str) {
-    return parseInt(str.replace(/[^\d]/g, '')) || 0;
+function validateRequestedQuantities() {
+    // Group quantities by variant
+    const qtyInputs = document.querySelectorAll('.qty-input');
+    const variantQuantities = {};
+
+    qtyInputs.forEach(input => {
+        const variantId = input.getAttribute('data-variant-id');
+        const quantity = parseInt(input.value) || 0;
+
+        if (!variantQuantities[variantId]) {
+            variantQuantities[variantId] = 0;
+        }
+        variantQuantities[variantId] += quantity;
+    });
+
+    // Check against requested quantities
+    for (const variantId in variantQuantities) {
+        const medicineRow = document.querySelector(`.medicine-row[data-variant-id="${variantId}"]`);
+        if (medicineRow) {
+            const requestedQty = parseInt(medicineRow.querySelector('.requested-qty').textContent);
+            const totalQty = variantQuantities[variantId];
+
+            if (totalQty > requestedQty) {
+                const medicineName = medicineRow.querySelector('.medicine-name').textContent;
+                return {
+                    valid: false,
+                    message: `Tổng số lượng xuất của "${medicineName}" (${totalQty}) vượt quá số lượng yêu cầu (${requestedQty})`
+                };
+            }
+        }
+    }
+
+    return { valid: true };
 }
 
-// Export functions for potential external use
-window.PharmacyExportForm = {
-    collectFormData,
-    validateForm,
-    showNotification
-};
