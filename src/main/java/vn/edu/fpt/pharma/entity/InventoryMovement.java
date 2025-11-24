@@ -9,8 +9,6 @@ import vn.edu.fpt.pharma.constant.BatchStatus;
 import vn.edu.fpt.pharma.constant.MovementStatus;
 import vn.edu.fpt.pharma.constant.MovementType;
 
-import java.util.List;
-
 @Entity
 @Table(name = "inventory_movements")
 @Builder
@@ -34,7 +32,4 @@ public class InventoryMovement extends BaseEntity<Long> {
     @Enumerated(EnumType.STRING)
     private MovementStatus movementStatus;
     private Double totalMoney;
-
-    @OneToMany(mappedBy = "movement", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<InventoryMovementDetail> inventoryMovementDetails;
 }

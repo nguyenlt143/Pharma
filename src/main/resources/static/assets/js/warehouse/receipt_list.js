@@ -1,178 +1,84 @@
-// Receipt List JavaScript
 document.addEventListener('DOMContentLoaded', function() {
-    let currentFilters = {
-        type: '',
-        branchId: '',
-        status: ''
-    };
-
-    // Tab switching functionality
+    // Tab functionality
     const tabs = document.querySelectorAll('.tab');
+
     tabs.forEach(tab => {
         tab.addEventListener('click', function() {
             // Remove active class from all tabs
             tabs.forEach(t => t.classList.remove('active'));
+
             // Add active class to clicked tab
             this.classList.add('active');
 
-            // Update filter and fetch data
-            currentFilters.type = this.getAttribute('data-type');
-            fetchReceipts();
+            // Update tab styles based on active state
+            updateTabStyles();
         });
     });
 
-    // Branch filter dropdown
-    const branchFilter = document.getElementById('branch-filter');
-    const branchMenu = document.getElementById('branch-menu');
-
-    if (branchFilter && branchMenu) {
-        branchFilter.addEventListener('click', function(e) {
-            e.stopPropagation();
-            branchMenu.classList.toggle('show');
-            closeOtherDropdowns(branchMenu);
-        });
-
-        const branchItems = branchMenu.querySelectorAll('.dropdown-item');
-        branchItems.forEach(item => {
-            item.addEventListener('click', function() {
-                const value = this.getAttribute('data-value');
-                const text = this.textContent;
-                branchFilter.querySelector('.filter-text').textContent = text;
-                currentFilters.branchId = value;
-                branchMenu.classList.remove('show');
-                fetchReceipts();
-            });
-        });
-    }
-
-    // Status filter dropdown
-    const statusFilter = document.getElementById('status-filter');
-    const statusMenu = document.getElementById('status-menu');
-
-    if (statusFilter && statusMenu) {
-        statusFilter.addEventListener('click', function(e) {
-            e.stopPropagation();
-            statusMenu.classList.toggle('show');
-            closeOtherDropdowns(statusMenu);
-        });
-
-        const statusItems = statusMenu.querySelectorAll('.dropdown-item');
-        statusItems.forEach(item => {
-            item.addEventListener('click', function() {
-                const value = this.getAttribute('data-value');
-                const text = this.textContent;
-                statusFilter.querySelector('.filter-text').textContent = text;
-                currentFilters.status = value;
-                statusMenu.classList.remove('show');
-                fetchReceipts();
-            });
-        });
-    }
-
-    // Date filter
-    const dateFilter = document.getElementById('date-filter');
-    const dateInput = document.getElementById('date-input');
-
-    if (dateFilter && dateInput) {
-        dateFilter.addEventListener('click', function(e) {
-            e.stopPropagation();
-            dateInput.style.display = 'block';
-            dateInput.focus();
-            dateInput.click();
-        });
-
-        dateInput.addEventListener('change', function() {
-            const selectedDate = this.value;
-            if (selectedDate) {
-                dateFilter.querySelector('.filter-text').textContent = selectedDate;
-                filterByDate(selectedDate);
+    function updateTabStyles() {
+        tabs.forEach(tab => {
+            const tabText = tab.querySelector('.tab-text');
+            if (tab.classList.contains('active')) {
+                tab.style.backgroundColor = '#F8F9FC';
+                tab.style.boxShadow = '0px 0px 4px rgba(0, 0, 0, 0.1)';
+                tabText.style.color = '#0D131C';
+            } else {
+                tab.style.backgroundColor = 'transparent';
+                tab.style.boxShadow = 'none';
+                tabText.style.color = '#49699C';
             }
-            this.style.display = 'none';
         });
     }
 
-    // Close dropdowns when clicking outside
-    document.addEventListener('click', function() {
-        document.querySelectorAll('.dropdown-menu').forEach(menu => {
-            menu.classList.remove('show');
+    // Filter button functionality
+    const filterButtons = document.querySelectorAll('.filter-button');
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const filterText = this.querySelector('.filter-text').textContent;
+            console.log(`Filter clicked: ${filterText}`);
+
+            // Add your filter logic here
+            // For example, you could show a dropdown menu or open a modal
         });
     });
 
-    // Function to close other dropdowns
-    function closeOtherDropdowns(exceptMenu) {
-        document.querySelectorAll('.dropdown-menu').forEach(menu => {
-            if (menu !== exceptMenu) {
-                menu.classList.remove('show');
-            }
-        });
-    }
+    // Detail link functionality
+    const detailLinks = document.querySelectorAll('.detail-link');
 
-    // Fetch receipts from server
-    function fetchReceipts() {
-        const params = new URLSearchParams();
+    detailLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
 
-        if (currentFilters.type) {
-            params.append('type', currentFilters.type);
-        }
-        if (currentFilters.branchId) {
-            params.append('branchId', currentFilters.branchId);
-        }
-        if (currentFilters.status) {
-            params.append('status', currentFilters.status);
-        }
+            // Get the row data
+            const row = this.closest('.table-row');
+            const branch = row.querySelector('.data-cell:first-child').textContent;
+            const date = row.querySelector('.date-cell').textContent;
+            const type = row.querySelector('.type-cell').textContent;
+            const status = row.querySelector('.status-button').textContent;
 
-        fetch(`/warehouse/receipt-list/filter?${params.toString()}`)
-            .then(response => response.json())
-            .then(data => {
-                updateTable(data);
-            })
-            .catch(error => {
-                console.error('Error fetching receipts:', error);
+            console.log('Detail view for:', {
+                branch,
+                date,
+                type,
+                status
             });
-    }
 
-    // Update table with new data
-    function updateTable(receipts) {
-        const tbody = document.getElementById('receipt-tbody');
+            // Add your detail view logic here
+            // For example, you could navigate to a detail page or open a modal
+        });
+    });
 
-        if (receipts.length === 0) {
-            tbody.innerHTML = `
-                <tr class="table-row">
-                    <td class="table-cell data-cell" colspan="5" style="text-align: center;">Không có dữ liệu</td>
-                </tr>
-            `;
-            return;
-        }
+    // Search functionality (if needed)
+    const searchContainer = document.querySelector('.search-container');
 
-        tbody.innerHTML = receipts.map(receipt => `
-            <tr class="table-row">
-                <td class="table-cell data-cell">${receipt.branchName}</td>
-                <td class="table-cell data-cell date-cell">${receipt.createdDate}</td>
-                <td class="table-cell data-cell type-cell">${receipt.requestType}</td>
-                <td class="table-cell data-cell">
-                    <div class="status-button ${receipt.statusClass}">${receipt.status}</div>
-                </td>
-                <td class="table-cell data-cell">
-                    <a href="/warehouse/receipt-detail/${receipt.id}" class="detail-link">Xem Chi Tiết</a>
-                </td>
-            </tr>
-        `).join('');
-    }
-
-    // Filter by date (client-side for now)
-    function filterByDate(selectedDate) {
-        const rows = document.querySelectorAll('#receipt-tbody .table-row');
-        rows.forEach(row => {
-            const dateCell = row.querySelector('.date-cell');
-            if (dateCell) {
-                const rowDate = dateCell.textContent.trim();
-                if (rowDate === selectedDate || selectedDate === '') {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            }
+    if (searchContainer) {
+        searchContainer.addEventListener('click', function() {
+            console.log('Search clicked');
+            // Add your search logic here
         });
     }
+
+    // Initialize tab styles
+    updateTabStyles();
 });
-

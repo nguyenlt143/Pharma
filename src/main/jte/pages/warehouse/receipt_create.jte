@@ -31,14 +31,14 @@ content = @`
                                    required>
                         </div>
                     </div>
-<%--                    <div class="form-group">--%>
-<%--                        <label for="receipt-code" class="form-label">Mã phiếu nhập</label>--%>
-<%--                        <input type="text"--%>
-<%--                               id="receipt-code"--%>
-<%--                               class="form-input disabled"--%>
-<%--                               value="Tự động tạo"--%>
-<%--                               disabled>--%>
-<%--                    </div>--%>
+                    <div class="form-group">
+                        <label for="receipt-code" class="form-label">Mã phiếu nhập</label>
+                        <input type="text"
+                               id="receipt-code"
+                               class="form-input disabled"
+                               value="Tự động tạo"
+                               disabled>
+                    </div>
                     <div class="form-group">
                         <label for="import-date" class="form-label">Ngày nhập *</label>
                         <input type="date"
