@@ -199,7 +199,7 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                 .map(inv -> {
                     Double salePrice = priceRepository.findCurrentPriceForVariantAndBranch(variantId, branchId, java.time.LocalDateTime.now())
                             .map(vn.edu.fpt.pharma.entity.Price::getSalePrice)
-                            .orElse(null);
+                            .orElse(100.0);
 
                     return new vn.edu.fpt.pharma.dto.medicine.InventoryDetailDTO(
                             ((Number) inv[0]).longValue(),  // id

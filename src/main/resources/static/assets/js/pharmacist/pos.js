@@ -98,7 +98,7 @@ function addEventListenersToMedicineCards() {
                                                 <strong>Số lô: ${inv.batchNumber || 'N/A'}</strong><br>
                                                 HSD: ${expiryDate}<br>
                                                 Tồn kho: <strong>${inv.quantity}</strong> ${variant.baseUnitName || ''}<br>
-                                                Giá bán: <strong style="color: #c0392b;">${salePrice}</strong><br>
+                                                Giá bán: <strong style="color: #c0392b;">${inv.salePrice}</strong><br>
                                                 NCC: ${inv.supplierName || 'N/A'}
                                             </div>
                                         `;
