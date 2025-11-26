@@ -103,6 +103,7 @@
                             <label class="form-label">Phương thức thanh toán</label>
                             <select class="form-select">
                                 <option>Tiền mặt</option>
+                                <option>Chuyển khoản</option>
                             </select>
                         </div>
 

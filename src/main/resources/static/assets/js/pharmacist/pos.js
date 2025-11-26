@@ -74,8 +74,6 @@ function addEventListenersToMedicineCards() {
                                     <strong>Nồng độ: ${variant.strength || 'N/A'}</strong><br>
                                     Liều lượng: ${variant.dosage || 'N/A'}<br>
                                     Đóng gói: ${variant.quantityPerPackage || 'N/A'} ${variant.baseUnitName || ''} / ${variant.packageUnitName || ''}<br>
-                                    Mã vạch: ${variant.barcode || 'N/A'}<br>
-                                    Số đăng ký: ${variant.registrationNumber || 'N/A'}<br>
                                     Điều kiện bảo quản: ${variant.storageConditions || 'N/A'}<br>
                                     Chỉ định: ${variant.indications || 'N/A'}<br>
                                     Chống chỉ định: ${variant.contraindications || 'N/A'}<br>
@@ -84,7 +82,6 @@ function addEventListenersToMedicineCards() {
                                     Cần đơn thuốc: ${variant.prescriptionRequire ? 'Có' : 'Không'}<br>
                                     Công dụng: ${variant.uses || 'N/A'}<br>
                                     Quốc gia: ${variant.country || 'N/A'}<br>
-                                    Nhà sản xuất: ${variant.manufacturer || 'N/A'}
                                 </td>`;
 
                                 // Inventory details column
@@ -99,7 +96,6 @@ function addEventListenersToMedicineCards() {
                                                 HSD: ${expiryDate}<br>
                                                 Tồn kho: <strong>${inv.quantity}</strong> ${variant.baseUnitName || ''}<br>
                                                 Giá bán: <strong style="color: #c0392b;">${inv.salePrice}</strong><br>
-                                                NCC: ${inv.supplierName || 'N/A'}
                                             </div>
                                         `;
                                     });

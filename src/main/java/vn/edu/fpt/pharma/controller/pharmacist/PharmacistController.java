@@ -14,7 +14,6 @@ import vn.edu.fpt.pharma.dto.medicine.MedicineSearchDTO;
 import vn.edu.fpt.pharma.dto.medicine.VariantInventoryDTO;
 import vn.edu.fpt.pharma.dto.shifts.ShiftSummaryVM;
 import vn.edu.fpt.pharma.dto.user.ProfileVM;
-import vn.edu.fpt.pharma.entity.Branch;
 import vn.edu.fpt.pharma.entity.User;
 import vn.edu.fpt.pharma.repository.BranchRepository;
 import vn.edu.fpt.pharma.service.MedicineService;

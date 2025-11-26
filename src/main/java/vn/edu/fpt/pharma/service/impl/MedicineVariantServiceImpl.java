@@ -192,14 +192,11 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
 
     private List<vn.edu.fpt.pharma.dto.medicine.InventoryDetailDTO> getInventoryByVariantId(Long variantId) {
         List<Object[]> inventoryRows = inventoryRepository.findInventoryByVariantId(variantId);
-        // Assuming branchId is 1 for now, you need to get the current user's branch
-        Long branchId = 1L;
-
         return inventoryRows.stream()
                 .map(inv -> {
-                    Double salePrice = priceRepository.findCurrentPriceForVariantAndBranch(variantId, branchId, java.time.LocalDateTime.now())
+                    Double salePrice = priceRepository.findCurrentPriceForVariantAndBranch(variantId, java.time.LocalDateTime.now())
                             .map(vn.edu.fpt.pharma.entity.Price::getSalePrice)
-                            .orElse(100.0);
+                            .orElse(null);
 
                     return new vn.edu.fpt.pharma.dto.medicine.InventoryDetailDTO(
                             ((Number) inv[0]).longValue(),  // id
