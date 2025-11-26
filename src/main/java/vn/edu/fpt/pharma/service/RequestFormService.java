@@ -25,4 +25,9 @@ public interface RequestFormService extends BaseService<RequestForm, Long> {
     List<RequestList> getReturnRequests();               // return
     RequestList getDetailById(Long id);                 // Detail
     List<RequestDetailVM> getDetailsOfRequest(Long requestId);
+
+    // Return request management for inventory role
+    List<vn.edu.fpt.pharma.dto.inventory.ReturnRequestVM> getReturnRequestsForBranch(Long branchId);
+    vn.edu.fpt.pharma.dto.inventory.ReturnRequestVM getReturnRequestDetail(Long id);
+    void confirmReturnRequest(Long requestId, Long branchId);
 }

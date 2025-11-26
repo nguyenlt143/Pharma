@@ -23,7 +23,7 @@ public interface RequestDetailRepository extends JpaRepository<RequestDetail, Lo
                        FROM prices p
                        JOIN request_forms rf2 ON rf2.id = rd.request_form_id
                        WHERE p.variant_id = rd.variant_id
-                         AND p.branch_id = rf2.branch_id
+                         AND (p.branch_id IS NULL OR p.branch_id = rf2.branch_id)
                          AND (p.start_date IS NULL OR p.start_date <= NOW())
                          AND (p.end_date IS NULL OR p.end_date >= NOW())
                          AND p.deleted = false
@@ -46,7 +46,7 @@ public interface RequestDetailRepository extends JpaRepository<RequestDetail, Lo
                    SELECT p.branch_price
                    FROM prices p
                    WHERE p.variant_id = rd.variant_id
-                     AND p.branch_id = rf.branch_id
+                     AND (p.branch_id IS NULL OR p.branch_id = rf.branch_id)
                      AND p.deleted = false
                      AND (p.start_date IS NULL OR p.start_date <= NOW())
                      AND (p.end_date IS NULL OR p.end_date >= NOW())

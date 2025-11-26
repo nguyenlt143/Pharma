@@ -1,3 +1,5 @@
+@param java.util.List<vn.edu.fpt.pharma.dto.inventory.InventoryMedicineVM> medicines
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -17,58 +19,103 @@
         <div class="mb-6">
             <div class="flex justify-between items-center">
                 <h2 class="text-2xl font-bold">TẠO PHIẾU NHẬP KHO</h2>
-                <a href="/inventory/import/list" class="text-blue-600 hover:text-blue-800">
-                    <span class="material-icons-outlined align-middle">arrow_back</span>
+                <a href="/inventory/import/list" class="text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                    <span class="material-icons-outlined">arrow_back</span>
                     Quay lại
                 </a>
             </div>
-            <p class="text-gray-600 mt-2">Tìm kiếm và chọn thuốc từ kho tổng để tạo phiếu yêu cầu nhập</p>
+            <p class="text-gray-600 mt-2">Chọn thuốc từ kho tổng để tạo phiếu yêu cầu nhập về chi nhánh</p>
         </div>
 
-        <!-- Search Box -->
+        <!-- Medicines from Warehouse -->
         <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-            <div class="relative">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Tìm kiếm thuốc từ kho tổng</label>
-                <div class="relative">
+            <h3 class="text-lg font-semibold mb-4">Danh sách thuốc trong kho tổng</h3>
+            <div class="mb-4 flex gap-4">
+                <div class="relative w-80">
                     <span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
-                    <input
-                        type="text"
-                        id="medicineSearch"
-                        class="pl-10 pr-4 py-3 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Nhập tên thuốc, hoạt chất hoặc mã lô..."
-                        autocomplete="off">
+                    <input id="warehouseMedicineSearch" type="text" placeholder="Tìm theo tên / hoạt chất / mã lô" class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
                 </div>
-
-                <!-- Search Results Dropdown -->
-                <div id="searchResults" class="hidden absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-96 overflow-y-auto">
-                    <!-- Results will be inserted here -->
-                </div>
+            </div>
+            <div class="overflow-x-auto max-h-96 border rounded">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50 text-gray-600 uppercase text-xs sticky top-0">
+                        <tr>
+                            <th class="px-3 py-2 text-left">Tên thuốc</th>
+                            <th class="px-3 py-2 text-left">Hoạt chất</th>
+                            <th class="px-3 py-2 text-left">Hàm lượng</th>
+                            <th class="px-3 py-2">Lô / HSD</th>
+                            <th class="px-3 py-2 text-center">Tồn kho tổng</th>
+                            <th class="px-3 py-2 text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="warehouseMedicineSource" class="divide-y">
+                        @if(medicines != null && !medicines.isEmpty())
+                            @for(var m : medicines)
+                                <tr class="hover:bg-gray-50"
+                                    data-variant-id="${m.getVariantId()}"
+                                    data-batch-id="${m.getBatchId()}"
+                                    data-medicine-name="${m.getMedicineName()}"
+                                    data-active-ingredient="@if(m.getActiveIngredient() != null)${m.getActiveIngredient()}@endif"
+                                    data-strength="@if(m.getStrength() != null)${m.getStrength()}@endif"
+                                    data-dosage-form="@if(m.getDosageForm() != null)${m.getDosageForm()}@endif"
+                                    data-manufacturer="@if(m.getManufacturer() != null)${m.getManufacturer()}@endif"
+                                    data-batch-code="@if(m.getBatchCode() != null)${m.getBatchCode()}@endif"
+                                    data-expiry-date="@if(m.getExpiryDate() != null)${m.getExpiryDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}@endif"
+                                    data-stock="${m.getQuantity()}"
+                                    data-unit="@if(m.getUnit() != null)${m.getUnit()}@endif">
+                                    <td class="px-3 py-2">
+                                        <div class="font-medium text-gray-900">${m.getMedicineName()}</div>
+                                        <div class="text-xs text-gray-500">@if(m.getDosageForm() != null)${m.getDosageForm()}@endif</div>
+                                    </td>
+                                    <td class="px-3 py-2 text-xs">@if(m.getActiveIngredient() != null)${m.getActiveIngredient()}@else-@endif</td>
+                                    <td class="px-3 py-2 text-xs">@if(m.getStrength() != null)${m.getStrength()}@else-@endif</td>
+                                    <td class="px-3 py-2 text-xs">
+                                        @if(m.getBatchCode() != null)
+                                            <span class="font-mono bg-gray-100 px-1 py-0.5 rounded">${m.getBatchCode()}</span>
+                                        @endif
+                                        @if(m.getExpiryDate() != null)
+                                            <span class="ml-1 ${m.getExpiryDate().isBefore(java.time.LocalDate.now().plusMonths(6)) ? "text-red-600 font-semibold" : "text-gray-600"}">${m.getExpiryDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-3 py-2 text-center font-semibold text-blue-600">${m.getQuantity()} @if(m.getUnit() != null)${m.getUnit()}@endif</td>
+                                    <td class="px-3 py-2 text-center">
+                                        <button class="add-medicine-btn text-sm text-blue-600 hover:text-blue-800 font-medium" type="button">
+                                            <span class="material-icons-outlined text-base align-middle">add_circle</span>
+                                            Thêm
+                                        </button>
+                                    </td>
+                                </tr>
+                            @endfor
+                        @else
+                            <tr><td colspan="6" class="px-3 py-6 text-center text-gray-500">Không có thuốc trong kho tổng</td></tr>
+                        @endif
+                    </tbody>
+                </table>
             </div>
         </div>
 
         <!-- Selected Medicines Table -->
         <div class="bg-white p-6 rounded-lg shadow-md">
-            <h3 class="text-lg font-semibold mb-4">Danh sách thuốc đã chọn</h3>
+            <h3 class="text-lg font-semibold mb-4">Thuốc đã chọn để nhập</h3>
 
             <div class="overflow-x-auto">
-                <table class="w-full table-auto">
-                    <thead class="bg-gray-50 text-left text-sm text-gray-600 uppercase">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
                         <tr>
-                            <th class="px-4 py-3 font-medium">STT</th>
-                            <th class="px-4 py-3 font-medium">Tên thuốc</th>
-                            <th class="px-4 py-3 font-medium">Hoạt chất</th>
-                            <th class="px-4 py-3 font-medium">Hàm lượng</th>
-                            <th class="px-4 py-3 font-medium">Mã lô</th>
-                            <th class="px-4 py-3 font-medium">HSD</th>
-                            <th class="px-4 py-3 font-medium">Tồn kho tổng</th>
-                            <th class="px-4 py-3 font-medium">Số lượng yêu cầu</th>
-                            <th class="px-4 py-3 font-medium text-center">Hành động</th>
+                            <th class="px-3 py-2 text-left">STT</th>
+                            <th class="px-3 py-2 text-left">Tên thuốc</th>
+                            <th class="px-3 py-2 text-left">Hoạt chất</th>
+                            <th class="px-3 py-2 text-left">Hàm lượng</th>
+                            <th class="px-3 py-2">Lô / HSD</th>
+                            <th class="px-3 py-2 text-center">Tồn kho tổng</th>
+                            <th class="px-3 py-2 text-center">Số lượng yêu cầu</th>
+                            <th class="px-3 py-2 text-center">Xóa</th>
                         </tr>
                     </thead>
-                    <tbody id="selectedMedicinesList" class="divide-y divide-gray-200">
+                    <tbody id="selectedMedicinesList" class="divide-y">
                         <tr id="emptyRow">
-                            <td colspan="9" class="px-4 py-8 text-center text-gray-500">
-                                Chưa có thuốc nào được chọn. Vui lòng tìm kiếm và chọn thuốc từ kho tổng.
+                            <td colspan="8" class="px-3 py-6 text-center text-gray-500">
+                                Chưa có thuốc nào được chọn. Vui lòng chọn thuốc từ danh sách bên trên.
                             </td>
                         </tr>
                     </tbody>

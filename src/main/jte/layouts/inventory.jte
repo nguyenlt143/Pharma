@@ -42,10 +42,10 @@
                 </a>
             </li>
 
-            <li class="px-4 py-2 rounded-md ${active == "confirm" ? "bg-blue-600" : "hover:bg-gray-700"}">
-                <a href="/inventory/confirm" class="flex items-center gap-2">
-                    <span class="material-icons-outlined">task_alt</span>
-                    <span>Xác nhận nhập</span>
+            <li class="px-4 py-2 rounded-md ${active == "return" ? "bg-blue-600" : "hover:bg-gray-700"}">
+                <a href="/inventory/return/list" class="flex items-center gap-2">
+                    <span class="material-icons-outlined">assignment_return</span>
+                    <span>Xác nhận trả hàng</span>
                 </a>
             </li>
 

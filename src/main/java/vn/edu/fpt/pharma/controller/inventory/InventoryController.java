@@ -59,7 +59,10 @@ public class InventoryController {
 
 
     @GetMapping("/import/create")
-    public String importCreate() {
+    public String importCreate(Model model) {
+        // Load medicines from warehouse (branch_id = 1)
+        List<InventoryMedicineVM> medicines = inventoryService.getInventoryMedicinesByBranch(1L);
+        model.addAttribute("medicines", medicines);
         return "pages/inventory/import_create";
     }
 
@@ -117,6 +120,43 @@ public class InventoryController {
     @GetMapping("/export/detail/{id}")
     public String exportDetail(@PathVariable Long id) {
         return "pages/inventory/export_detail";
+    }
+
+    // -------------------- RETURN REQUEST CONFIRMATION --------------------
+    @GetMapping("/return/list")
+    public String returnRequestList(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            Model model
+    ) {
+        Long branchId = userDetails.getUser().getBranchId();
+        List<vn.edu.fpt.pharma.dto.inventory.ReturnRequestVM> returnRequests =
+            requestFormService.getReturnRequestsForBranch(branchId);
+        model.addAttribute("returnRequests", returnRequests);
+        return "pages/inventory/return_request_list";
+    }
+
+    @GetMapping("/return/detail/{id}")
+    public String returnRequestDetail(@PathVariable Long id, Model model) {
+        var request = requestFormService.getReturnRequestDetail(id);
+        var details = requestFormService.getDetailsOfRequest(id);
+        model.addAttribute("request", request);
+        model.addAttribute("details", details);
+        return "pages/inventory/return_request_detail";
+    }
+
+    @PostMapping("/return/confirm/{id}")
+    @ResponseBody
+    public ResponseEntity<?> confirmReturnRequest(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        try {
+            Long branchId = userDetails.getUser().getBranchId();
+            requestFormService.confirmReturnRequest(id, branchId);
+            return ResponseEntity.ok(java.util.Map.of("success", true, "message", "Đã xác nhận đơn trả hàng thành công"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("success", false, "message", e.getMessage()));
+        }
     }
 
     // -------------------- CHECK INVENTORY --------------------
