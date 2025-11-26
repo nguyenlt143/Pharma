@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.pharma.dto.manager.ShiftWorkAssignRequest;
 import vn.edu.fpt.pharma.dto.manager.ShiftWorkResponse;
+import vn.edu.fpt.pharma.dto.shifts.ShiftSummaryVM;
 import vn.edu.fpt.pharma.entity.Shift;
 import vn.edu.fpt.pharma.entity.ShiftAssignment;
 import vn.edu.fpt.pharma.entity.ShiftWork;
@@ -15,7 +16,11 @@ import vn.edu.fpt.pharma.repository.UserRepository;
 import vn.edu.fpt.pharma.service.ShiftWorkService;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -78,6 +83,7 @@ public class ShiftWorkServiceImpl implements ShiftWorkService {
         shiftWorkRepo.deleteById(id);
     }
 
+
     private ShiftWorkResponse toDto(ShiftWork sw) {
         ShiftAssignment assignment = sw.getAssignment();
         User u = assignment != null ? userRepo.findById(assignment.getUserId()).orElse(null) : null;
@@ -90,5 +96,41 @@ public class ShiftWorkServiceImpl implements ShiftWorkService {
                 .workType(null) // workType is no longer in ShiftWork entity
                 .createdAt(sw.getCreatedAt() != null ? sw.getCreatedAt().toString() : null)
                 .build();
+    }
+
+    @Override
+    public List<ShiftSummaryVM> getSummary(Long branchId, Long userId, LocalDate start, LocalDate end) {
+
+        List<Object[]> rows = shiftWorkRepo.getShiftSummary(branchId, userId, start, end);
+
+        Map<Long, ShiftSummaryVM> result = new LinkedHashMap<>();
+
+        rows.forEach(r -> {
+            Long shiftId = ((Number) r[0]).longValue();
+            String name = (String) r[1];
+            LocalTime startTime = ((java.sql.Time) r[2]).toLocalTime();
+            LocalTime endTime = ((java.sql.Time) r[3]).toLocalTime();
+            LocalDate workDate = r[4] != null ? ((java.sql.Date) r[4]).toLocalDate() : null;
+
+            result.putIfAbsent(shiftId,
+                    new ShiftSummaryVM(
+                            name + " (" + startTime + "-" + endTime + ")",
+                            new LinkedHashMap<>()
+                    )
+            );
+
+            if (workDate != null) {
+                result.get(shiftId).days().put(workDate, true);
+            }
+        });
+
+        // fill missing days = false
+        for (ShiftSummaryVM dto : result.values()) {
+            for (LocalDate d = start; !d.isAfter(end); d = d.plusDays(1)) {
+                dto.days().putIfAbsent(d, false);
+            }
+        }
+
+        return new ArrayList<>(result.values());
     }
 }

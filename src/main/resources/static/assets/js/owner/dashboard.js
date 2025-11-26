@@ -3,75 +3,47 @@ let revenueChart;
 let currentView = 'revenue';
 
 document.addEventListener('DOMContentLoaded', function() {
-    loadShifts();
-    loadEmployees();
+    loadBranches();
     loadDashboard('revenue');
     
     // Auto-load on filter change
-    const modeSelect = document.getElementById('modeSelect');
     const periodInput = document.getElementById('periodInput');
-    const shiftSelect = document.getElementById('shiftSelect');
-    const employeeSelect = document.getElementById('employeeSelect');
+    const branchSelect = document.getElementById('branchSelect');
     
-    if (modeSelect) {
-        modeSelect.addEventListener('change', () => loadDashboard(currentView));
-    }
     if (periodInput) {
         periodInput.addEventListener('change', () => loadDashboard(currentView));
     }
-    if (shiftSelect) {
-        shiftSelect.addEventListener('change', () => loadDashboard(currentView));
-    }
-    if (employeeSelect) {
-        employeeSelect.addEventListener('change', () => loadDashboard(currentView));
+    if (branchSelect) {
+        branchSelect.addEventListener('change', () => loadDashboard(currentView));
     }
 });
 
-function loadShifts() {
-    fetch('/api/owner/shifts')
+function loadBranches() {
+    fetch('/api/owner/branches')
         .then(res => res.json())
         .then(data => {
-            const select = document.getElementById('shiftSelect');
+            const select = document.getElementById('branchSelect');
             if (select && Array.isArray(data)) {
-                select.innerHTML = '<option value="">Tất cả</option>' +
-                    data.map(s => `<option value="${s.id}">${s.name || 'Ca #' + s.id}</option>`).join('');
+                select.innerHTML = '<option value="">Tất cả chi nhánh</option>' +
+                    data.map(b => `<option value="${b.id}">${b.name || 'Chi nhánh #' + b.id}</option>`).join('');
             }
         })
         .catch(err => {
-            console.warn('Không thể tải danh sách ca làm việc:', err);
-        });
-}
-
-function loadEmployees() {
-    fetch('/api/owner/employees')
-        .then(res => res.json())
-        .then(data => {
-            const select = document.getElementById('employeeSelect');
-            if (select && Array.isArray(data)) {
-                select.innerHTML = '<option value="">Tất cả</option>' +
-                    data.map(e => `<option value="${e.id}">${e.fullName || e.userName || 'User #' + e.id}</option>`).join('');
-            }
-        })
-        .catch(err => {
-            console.warn('Không thể tải danh sách nhân viên:', err);
+            console.warn('Không thể tải danh sách chi nhánh:', err);
         });
 }
 
 function loadDashboard(view) {
     currentView = view;
-    const mode = document.getElementById('modeSelect').value;
     const period = document.getElementById('periodInput').value;
-    const shift = document.getElementById('shiftSelect').value;
-    const employeeId = document.getElementById('employeeSelect').value;
+    const branchId = document.getElementById('branchSelect').value;
 
     const url = view === 'revenue' ? '/api/owner/dashboard/revenue' : '/api/owner/dashboard/profit';
     
     const params = new URLSearchParams({
-        mode: mode,
         period: period
     });
-    if (shift) params.append('shift', shift);
-    if (employeeId) params.append('employeeId', employeeId);
+    if (branchId) params.append('branchId', branchId);
 
     fetch(`${url}?${params}`)
         .then(res => res.json())

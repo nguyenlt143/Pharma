@@ -1,16 +1,7 @@
-@param Boolean userCanExport
-@param String totalValue
-@param String valueDeltaLabel
-@param Integer lowStockCount
-@param Integer pendingInbound
-@param Integer pendingOutbound
-@param java.util.List<java.util.Map<String, Object>> warehouses
-@param String range
-@param java.util.List<java.util.Map<String, Object>> categories
-@param java.util.List<java.util.Map<String, Object>> recentActivities
-
 @template.layouts.manager(
-    headContent = @`<link rel="stylesheet" href="/assets/css/manager/inventory.css">`,
+    headContent = @`
+        <link rel="stylesheet" href="/assets/css/manager/inventory.css">
+    `,
     content = @`
         <main class="main">
             <div class="breadcrumb">
@@ -21,163 +12,156 @@
 
             <div class="page-header">
                 <h2 class="page-title">Quản lý kho - Báo cáo</h2>
-                <div class="page-actions">
-                    <a class="btn btn-outline" href="/manager/inventory/create-po">Tạo phiếu đặt hàng</a>
-                    @if(userCanExport != null && userCanExport)
-                        <button id="exportBtn" class="btn btn-primary" aria-label="Xuất báo cáo">Xuất (CSV)</button>
-                    @endif
-                </div>
+
             </div>
 
-            <section class="kpi-row">
-                <div class="kpi-card">
-                    <div class="kpi-title">Tổng giá trị tồn kho</div>
-                    <div class="kpi-value" id="totalValue">${totalValue != null ? totalValue : ""}</div>
-                    <div class="kpi-sub">${valueDeltaLabel != null ? valueDeltaLabel : ""}</div>
-                    <button class="btn btn-link" onclick="location.href='/manager/inventory/valuation'">Xem chi tiết</button>
+            <section class="kpi-row mi-kpis">
+                <div class="kpi-card card">
+                    <div class="kpi-title">Tổng số mặt hàng</div>
+                    <div class="kpi-value" id="totalItems">
+                        <div class="spinner"></div>
+                    </div>
+                    <div class="kpi-sub">Đang tồn kho</div>
                 </div>
 
-                <div class="kpi-card warn">
+                <div class="kpi-card card warn">
                     <div class="kpi-title">Sắp hết hàng</div>
-                    <div class="kpi-value" id="lowStockCount">${lowStockCount != null ? lowStockCount : 0}</div>
-                    <div class="kpi-sub">Sản phẩm cần nhập</div>
-                    <div class="kpi-cta"><a href="/manager/inventory/low-stock" class="link">Xem danh sách</a></div>
-                </div>
-
-                <div class="kpi-card">
-                    <div class="kpi-title">Đơn nhập chờ xử lý</div>
-                    <div class="kpi-value" id="pendingInbound">${pendingInbound != null ? pendingInbound : 0}</div>
-                    <div class="kpi-sub">Phiếu yêu cầu</div>
-                    <button class="btn btn-link" onclick="location.href='/manager/inbound?status=pending'">Xử lý</button>
-                </div>
-
-                <div class="kpi-card">
-                    <div class="kpi-title">Đơn xuất chờ đi</div>
-                    <div class="kpi-value" id="pendingOutbound">${pendingOutbound != null ? pendingOutbound : 0}</div>
-                    <div class="kpi-sub">Đơn hàng</div>
-                    <button class="btn btn-link" onclick="location.href='/manager/outbound?status=pending'">Xử lý</button>
-                </div>
-            </section>
-
-            <section class="filters">
-                <form id="filterForm" method="get" action="/manager/inventory">
-                    <label>Kho:
-                        <select name="warehouse" aria-label="Chọn kho">
-                            <option value="">Tất cả</option>
-                            @for(var wh : warehouses)
-                                @if(wh.get("selected") != null && Boolean.TRUE.equals(wh.get("selected")))
-                                    <option value="${wh.get("id") != null ? wh.get("id").toString() : ""}" selected>${wh.get("name") != null ? wh.get("name").toString() : ""}</option>
-                                @else
-                                    <option value="${wh.get("id") != null ? wh.get("id").toString() : ""}">${wh.get("name") != null ? wh.get("name").toString() : ""}</option>
-                                @endif
-                            @endfor
-                        </select>
-                    </label>
-                    <label>Thời gian:
-                        <select name="range" aria-label="Chọn khoảng thời gian">
-                            @if("week".equals(range))
-                                <option value="week" selected>Tuần</option>
-                            @else
-                                <option value="week">Tuần</option>
-                            @endif
-                            @if("month".equals(range))
-                                <option value="month" selected>Tháng</option>
-                            @else
-                                <option value="month">Tháng</option>
-                            @endif
-                            @if("quarter".equals(range))
-                                <option value="quarter" selected>Quý</option>
-                            @else
-                                <option value="quarter">Quý</option>
-                            @endif
-                        </select>
-                    </label>
-                    <label>Danh mục:
-                        <select name="category" aria-label="Chọn danh mục">
-                            <option value="">Tất cả</option>
-                            @for(var cat : categories)
-                                @if(cat.get("selected") != null && Boolean.TRUE.equals(cat.get("selected")))
-                                    <option value="${cat.get("id") != null ? cat.get("id").toString() : ""}" selected>${cat.get("name") != null ? cat.get("name").toString() : ""}</option>
-                                @else
-                                    <option value="${cat.get("id") != null ? cat.get("id").toString() : ""}">${cat.get("name") != null ? cat.get("name").toString() : ""}</option>
-                                @endif
-                            @endfor
-                        </select>
-                    </label>
-
-                    <div class="filter-actions">
-                        <button type="submit" class="btn">Áp dụng</button>
-                        <button type="button" class="btn btn-ghost" onclick="resetFilters()">Đặt lại</button>
+                    <div class="kpi-value" id="lowStock">
+                        <div class="spinner"></div>
                     </div>
-                </form>
+                    <div class="kpi-sub">Cần bổ sung</div>
+                </div>
+
+                <div class="kpi-card card">
+                    <div class="kpi-title">Hết hàng</div>
+                    <div class="kpi-value" id="outOfStock">
+                        <div class="spinner"></div>
+                    </div>
+                    <div class="kpi-sub">Không có trong kho</div>
+                </div>
+
+                <div class="kpi-card card">
+                    <div class="kpi-title">Tổng giá trị</div>
+                    <div class="kpi-value" id="totalValue">
+                        <div class="spinner"></div>
+                    </div>
+                    <div class="kpi-sub">Giá trị tồn kho</div>
+                </div>
+
+                <div class="kpi-card card">
+                    <div class="kpi-title">Sắp hết hạn</div>
+                    <div class="kpi-value" id="nearExpiry">
+                        <div class="spinner"></div>
+                    </div>
+                    <div class="kpi-sub">Trong 30 ngày</div>
+                </div>
+
+                <div class="kpi-card card">
+                    <div class="kpi-title">Đã hết hạn</div>
+                    <div class="kpi-value" id="expired">
+                        <div class="spinner"></div>
+                    </div>
+                    <div class="kpi-sub">Cần xử lý</div>
+                </div>
             </section>
 
-            <section class="charts">
-                <div class="chart-card">
+            <section class="mi-filters">
+                <label>
+                    <span>Danh mục:</span>
+                    <select id="categoryFilter" class="form-select">
+                        <option value="">Tất cả</option>
+                    </select>
+                </label>
+                <label>
+                    <span>Trạng thái:</span>
+                    <select id="statusFilter" class="form-select">
+                        <option value="">Tất cả</option>
+                        <option value="active">Hoạt động</option>
+                        <option value="near-expiry">Sắp hết hạn</option>
+                        <option value="expired">Đã hết hạn</option>
+                        <option value="out-of-stock">Hết hàng</option>
+                    </select>
+                </label>
+            </section>
+
+            <section class="mi-charts">
+                <div class="chart-card card">
                     <div class="chart-header">
-                        <h3>Biến động Nhập/Xuất</h3>
-                        <div class="chart-controls">
-                            <button class="small" id="chartBarBtn">Cột</button>
-                            <button class="small" id="chartLineBtn">Đường</button>
-                        </div>
+                        <h3>Thống kê tồn kho theo danh mục</h3>
                     </div>
-                    <canvas id="inOutChart" aria-label="Biểu đồ nhập xuất" role="img"></canvas>
+                    <canvas id="categoryChart" aria-label="Biểu đồ danh mục" role="img" style="max-height: 240px;"></canvas>
+                    <div class="empty-chart hidden" id="categoryChartEmpty">
+                        <p style="color: #6B7280; padding: 40px; text-align: center;">Không có dữ liệu</p>
+                    </div>
                 </div>
 
-                <div class="chart-card">
-                    <div class="chart-header"><h3>Tỷ trọng danh mục</h3></div>
-                    <canvas id="categoryDonut" aria-label="Tỷ trọng danh mục" role="img"></canvas>
+                <div class="chart-card card donut-card">
+                    <div class="chart-header"><h3>Tỷ trọng giá trị</h3></div>
+                    <canvas id="categoryDonut" aria-label="Tỷ trọng danh mục" role="img" style="max-height: 200px;"></canvas>
                     <ul id="donutLegend" class="donut-legend"></ul>
+                    <div class="empty-chart hidden" id="donutChartEmpty">
+                        <p style="color: #6B7280; padding: 40px; text-align: center;">Không có dữ liệu</p>
+                    </div>
                 </div>
             </section>
 
-            <section class="activity">
+            <section class="mi-activity">
                 <div class="activity-header">
-                    <h3>Hoạt động gần đây</h3>
-                    <a href="/manager/inventory/activities" class="link">Xem tất cả</a>
+                    <h3>Tồn kho hiện tại</h3>
+                    <div class="flex gap-2">
+                        <input type="search" id="searchInventory" class="form-input" placeholder="Tìm kiếm theo tên, hoạt chất, hàm lượng..." style="width: 350px;">
+                        <button id="searchBtn" class="btn btn-outline">
+                            <span class="material-icons" style="font-size: 18px;">search</span>
+                            Tìm
+                        </button>
+                    </div>
                 </div>
 
-                <table class="activity-table">
-                    <thead>
-                    <tr>
-                        <th>Mã đơn</th>
-                        <th>Loại</th>
-                        <th>Kho</th>
-                        <th>Người tạo</th>
-                        <th>Số lượng</th>
-                        <th>Trạng thái</th>
-                        <th>Thời gian</th>
-                        <th>Hành động</th>
-                    </tr>
-                    </thead>
-                    <tbody id="recentActivities">
-                        @if(recentActivities == null || recentActivities.size() == 0)
-                            <tr><td colspan="8" class="muted">Không có hoạt động gần đây</td></tr>
-                        @else
-                            @for(var act : recentActivities)
-                                <tr>
-                                    <td><a href="${act.get("detailUrl") != null ? act.get("detailUrl").toString() : ""}" class="mono link">${act.get("code") != null ? act.get("code").toString() : ""}</a></td>
-                                    <td><span class="badge ${act.get("type") != null ? act.get("type").toString().toLowerCase() : ""}">${act.get("type") != null ? act.get("type").toString() : ""}</span></td>
-                                    <td>${act.get("warehouse") != null ? act.get("warehouse").toString() : "-"}</td>
-                                    <td>${act.get("creator") != null ? act.get("creator").toString() : "-"}</td>
-                                    <td>${act.get("totalQty") != null ? act.get("totalQty").toString() : "0"}</td>
-                                    <td><span class="status ${act.get("status") != null ? act.get("status").toString().toLowerCase() : ""}">${act.get("status") != null ? act.get("status").toString() : ""}</span></td>
-                                    <td>${act.get("timeAgo") != null ? act.get("timeAgo").toString() : ""}</td>
-                                    <td>
-                                        <a class="btn small" href="${act.get("detailUrl") != null ? act.get("detailUrl").toString() : ""}">Xem</a>
-                                        @if(act.get("canQuickAction") != null && Boolean.TRUE.equals(act.get("canQuickAction")))
-                                            <form method="post" action="${act.get("actionUrl") != null ? act.get("actionUrl").toString() : ""}" class="inline-form" onsubmit="return confirm('Bạn chắc chắn?')">
-                                                <button class="btn small ghost" type="submit">Xác nhận</button>
-                                            </form>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @endfor
-                        @endif
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table class="activity-table table">
+                        <thead>
+                        <tr>
+                            <th>Tên thuốc</th>
+                            <th>Hoạt chất</th>
+                            <th>Hàm lượng</th>
+                            <th>Dạng bào chế</th>
+                            <th>Lô sản xuất</th>
+                            <th>Số lượng</th>
+                            <th>Đơn vị</th>
+                            <th>Hạn dùng</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody">
+                            <tr>
+                                <td colspan="9" style="text-align: center; padding: 40px;">
+                                    <div class="spinner"></div>
+                                    <p style="margin-top: 12px; color: #6B7280;">Đang tải dữ liệu...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination-container">
+                    <div class="pagination-controls">
+                        <button id="prev-page" disabled>&laquo; Trước</button>
+                        <span id="page-info">Trang 1 / 1</span>
+                        <button id="next-page" disabled>Sau &raquo;</button>
+                    </div>
+                    <div class="records-per-page">
+                        <label for="records-per-page">Số bản ghi:</label>
+                        <select id="records-per-page" class="form-select">
+                            <option value="10">10</option>
+                            <option value="25" selected>25</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+                </div>
             </section>
         </main>
     `,
-    pageScript = @`<script src="/assets/js/manager/inventory.js" defer></script>`
+    pageScript = @`
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+        <script src="/assets/js/manager/inventory.js" defer></script>
+    `
 )

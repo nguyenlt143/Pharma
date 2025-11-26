@@ -1,5 +1,7 @@
 package vn.edu.fpt.pharma.service;
 
+import vn.edu.fpt.pharma.dto.PagingRequest;
+
 import java.util.Map;
 
 public interface RevenueReportService {
@@ -18,6 +20,6 @@ public interface RevenueReportService {
                                          String mode,
                                          String period,
                                          Long shift,
-                                         Long employeeId);
+                                         Long employeeId,
+                                         PagingRequest pagingRequest);
 }
-

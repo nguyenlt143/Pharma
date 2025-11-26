@@ -12,6 +12,7 @@ import vn.edu.fpt.pharma.dto.DataTableRequest;
 import vn.edu.fpt.pharma.dto.DataTableResponse;
 import vn.edu.fpt.pharma.dto.medicine.MedicineRequest;
 import vn.edu.fpt.pharma.dto.medicine.MedicineResponse;
+import vn.edu.fpt.pharma.dto.medicine.MedicineSearchDTO;
 import vn.edu.fpt.pharma.entity.Category;
 import vn.edu.fpt.pharma.entity.Medicine;
 import vn.edu.fpt.pharma.exception.EntityInUseException;
@@ -140,5 +141,20 @@ public class MedicineServiceImpl extends BaseServiceImpl<Medicine, Long, Medicin
             throw new EntityInUseException("Thuốc", "danh sách biến thể thuốc (" + variantCount + " biến thể)");
         }
         super.deleteById(id);
+    }
+
+    @Override
+    public List<MedicineSearchDTO> searchMedicinesByKeyword(String keyword) {
+        List<Object[]> rows = repository.searchMedicinesByKeyword(keyword);
+        return rows.stream()
+                .map(r -> new MedicineSearchDTO(
+                        ((Number) r[0]).longValue(),
+                        (String) r[1],
+                        (String) r[2],
+                        (String) r[3],
+                        (String) r[4],
+                        (String) r[5]
+                ))
+                .collect(Collectors.toList());
     }
 }

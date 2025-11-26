@@ -1,223 +1,387 @@
-// Warehouse Management System JavaScript
-class WarehouseManager {
-    constructor() {
-        this.init();
+document.addEventListener('DOMContentLoaded', function() {
+    const supplierInput = document.getElementById('supplier');
+    const importDateInput = document.getElementById('import-date');
+    const productTableBody = document.getElementById('productTableBody');
+    const totalAmountElement = document.getElementById('totalAmount');
+    const btnComplete = document.getElementById('btnComplete');
+    const btnCancel = document.getElementById('btnCancel');
+    const btnAddFromCatalog = document.getElementById('btnAddFromCatalog');
+    const searchInput = document.querySelector('.search-input');
+
+    // Set ngày hiện tại nếu chưa có
+    if (!importDateInput.value) {
+        importDateInput.value = new Date().toISOString().split('T')[0];
     }
 
-    init() {
-        this.bindEvents();
-        this.setCurrentDateTime();
-        this.renderTableFromBackend();
-    }
-
-    bindEvents() {
-        // Search functionality
-        const searchInput = document.querySelector('.search-input');
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => this.handleSearch(e.target.value));
-        }
-
-        // Add product button
-        const addButton = document.querySelector('.add-button');
-        if (addButton) {
-            addButton.addEventListener('click', () => this.handleAddProduct());
-        }
-
-        // Delete buttons (event delegation)
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('.delete-button')) {
-                this.handleDeleteProduct(e.target.closest('tr'));
-            }
+    // Tính tổng tiền
+    function calculateTotal() {
+        let total = 0;
+        document.querySelectorAll('.table-row').forEach(row => {
+            const quantity = parseFloat(row.querySelector('.quantity-input').value) || 0;
+            const price = parseFloat(row.querySelector('.price-input').value) || 0;
+            total += quantity * price;
         });
-
-        // Action buttons
-        const saveButton = document.querySelector('.btn-secondary');
-        const completeButton = document.querySelector('.btn-primary');
-
-        if (saveButton) saveButton.addEventListener('click', () => this.handleSaveDraft());
-        if (completeButton) completeButton.addEventListener('click', () => this.handleComplete());
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
+        totalAmountElement.textContent = total.toLocaleString('vi-VN');
     }
 
-    setCurrentDateTime() {
-        const now = new Date();
-        const dateInput = document.getElementById('import-date');
-        const timeInput = document.getElementById('import-time');
-
-        if (dateInput && !dateInput.value) {
-            const day = String(now.getDate()).padStart(2, '0');
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const year = now.getFullYear();
-            dateInput.value = `${year}-${month}-${day}`; // format YYYY-MM-DD
-        }
-
-        if (timeInput && !timeInput.value) {
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            timeInput.value = `${hours}:${minutes}`;
-        }
-    }
-
-    renderTableFromBackend() {
-        // Lấy dữ liệu từ JTE serialize sang JSON
-        const inventoryDetails = window.inventoryDetails || [];
-        const tbody = document.getElementById('productTableBody');
-        tbody.innerHTML = '';
-
-        if (inventoryDetails.length > 0) {
-            inventoryDetails.forEach((d, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${d.medicineName || ""}</td>
-                    <td>${d.unit || ""}</td>
-                    <td>${d.strength || ""}</td>
-                    <td><input type="text" class="table-input disabled" value="${d.batchCode || ""}" disabled></td>
-                    <td><input type="text" class="table-input disabled" value="${d.mfgDate || ""}" disabled></td>
-                    <td><input type="text" class="table-input disabled" value="${d.expiryDate || ""}" disabled></td>
-                    <td><input type="number" class="table-input" value="${d.quantity || 0}"></td>
-                    <td><input type="number" class="table-input" value="${d.price || 0}"></td>
-                    <td><button class="delete-button"><span class="material-icons">delete</span></button></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        } else {
-            const tr = document.createElement('tr');
-            tr.innerHTML = '<td colspan="10" style="text-align:center; color:#999;">Chưa có thuốc nào trong phiếu nhập</td>';
-            tbody.appendChild(tr);
-        }
-    }
-
-    handleSearch(query) {
-        console.log('Searching for:', query);
-        // TODO: filter table rows based on search query
-    }
-
-    handleAddProduct() {
-        const searchValue = document.querySelector('.search-input').value.trim();
-        if (!searchValue) {
-            alert('Vui lòng nhập tên thuốc để tìm kiếm');
-            return;
-        }
-
-        console.log('Adding product:', searchValue);
-        // TODO: add new row dynamically or open modal to select product
-    }
-
-    handleDeleteProduct(row) {
-        if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
-            row.remove();
-            this.updateRowNumbers();
-        }
-    }
-
-    updateRowNumbers() {
-        const rows = document.querySelectorAll('.product-table tbody tr');
-        rows.forEach((row, index) => {
-            const numberCell = row.querySelector('td:first-child');
-            if (numberCell) numberCell.textContent = index + 1;
+    // Cập nhật STT
+    function updateRowNumbers() {
+        document.querySelectorAll('.table-row').forEach((row, index) => {
+            row.querySelector('.col-stt').textContent = index + 1;
         });
     }
 
-    handleSaveDraft() {
-        if (this.validateForm()) {
-            console.log('Saving draft...');
-            showNotification('Đã lưu nháp thành công!', 'success');
-            // TODO: call backend API to save draft
-        }
+    // Thêm dòng sản phẩm mới
+    function addProductRow(product) {
+        const rowCount = productTableBody.querySelectorAll('.table-row').length;
+        const row = document.createElement('tr');
+        row.className = 'table-row';
+        row.dataset.variantId = product.variantId;
+
+        row.innerHTML = `
+            <td class="col-stt">${rowCount + 1}</td>
+            <td class="col-medicine">${product.medicineName}</td>
+            <td class="col-unit">${product.unit}</td>
+            <td class="col-concentration">${product.concentration}</td>
+            <td class="col-batch">
+                <input type="text" class="batch-input" placeholder="Nhập số lô" required>
+            </td>
+            <td class="col-manufacture-date">
+                <input type="date" class="manufacture-date-input" required>
+            </td>
+            <td class="col-expiry-date">
+                <input type="date" class="expiry-date-input" required>
+            </td>
+            <td class="col-quantity">
+                <input type="number" class="quantity-input" value="1" min="1" required>
+            </td>
+            <td class="col-price">
+                <input type="number" class="price-input" value="0" min="0" step="1000" placeholder="Giá nhập" required>
+            </td>
+            <td class="col-actions">
+                <button type="button" class="btn-delete" title="Xóa">
+                    <span class="material-icons">delete</span>
+                </button>
+            </td>
+        `;
+
+        productTableBody.appendChild(row);
+        calculateTotal();
     }
 
-    handleComplete() {
-        if (this.validateForm()) {
-            console.log('Completing import...');
-            showNotification('Hoàn thành nhập kho thành công!', 'success');
-            // TODO: call backend API to complete
+    // Lắng nghe thay đổi số lượng và giá
+    productTableBody.addEventListener('input', function(e) {
+        if (e.target.classList.contains('quantity-input') ||
+            e.target.classList.contains('price-input')) {
+            calculateTotal();
         }
-    }
-
-    validateForm() {
-        const requiredFields = [
-            document.getElementById('supplier'),
-            document.getElementById('import-date')
-            // Add time input if exists
-        ];
-
-        let isValid = true;
-        requiredFields.forEach(field => {
-            if (!field || !field.value.trim()) {
-                field.style.borderColor = '#EF4444';
-                isValid = false;
-            } else {
-                field.style.borderColor = '#E5E7EB';
-            }
-        });
-
-        if (!isValid) {
-            showNotification('Vui lòng điền đầy đủ thông tin bắt buộc!', 'error');
-        }
-
-        return isValid;
-    }
-
-    handleKeyboardShortcuts(e) {
-        switch (e.key) {
-            case 'F4':
-                e.preventDefault();
-                document.getElementById('supplier').focus();
-                break;
-            case 'F7':
-                e.preventDefault();
-                this.handleAddProduct();
-                break;
-            case 'F8':
-                e.preventDefault();
-                this.handleSaveDraft();
-                break;
-            case 'F9':
-                e.preventDefault();
-                this.handleComplete();
-                break;
-        }
-    }
-}
-
-// Initialize when DOM loaded
-document.addEventListener('DOMContentLoaded', () => {
-    new WarehouseManager();
-});
-
-// Utility: notification
-function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-    Object.assign(notification.style, {
-        position: 'fixed',
-        top: '20px',
-        right: '20px',
-        padding: '12px 24px',
-        borderRadius: '8px',
-        color: '#FFFFFF',
-        fontWeight: '500',
-        zIndex: '1000',
-        transform: 'translateX(100%)',
-        transition: 'transform 0.3s ease'
     });
 
-    const colors = {
-        info: '#4361EE',
-        success: '#10B981',
-        warning: '#F59E0B',
-        error: '#EF4444'
-    };
-    notification.style.backgroundColor = colors[type] || colors.info;
+    // Xóa dòng
+    productTableBody.addEventListener('click', function(e) {
+        if (e.target.closest('.btn-delete')) {
+            if (confirm('Bạn có chắc muốn xóa sản phẩm này?')) {
+                e.target.closest('.table-row').remove();
+                updateRowNumbers();
+                calculateTotal();
+            }
+        }
+    });
 
-    document.body.appendChild(notification);
-    setTimeout(() => notification.style.transform = 'translateX(0)', 100);
-    setTimeout(() => {
-        notification.style.transform = 'translateX(100%)';
-        setTimeout(() => document.body.removeChild(notification), 300);
-    }, 3000);
-}
+    // Tìm kiếm nhà cung cấp (F4)
+    supplierInput.addEventListener('click', function() {
+        openSupplierModal();
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F4') {
+            e.preventDefault();
+            openSupplierModal();
+        }
+        if (e.key === 'F7') {
+            e.preventDefault();
+            openProductCatalog();
+        }
+    });
+
+    // Thêm sản phẩm từ danh mục
+    btnAddFromCatalog.addEventListener('click', openProductCatalog);
+
+    // Validate form
+    function validateForm() {
+        if (!supplierInput.dataset.supplierId) {
+            alert('Vui lòng chọn nhà cung cấp');
+            supplierInput.focus();
+            return false;
+        }
+
+        if (!importDateInput.value) {
+            alert('Vui lòng chọn ngày nhập');
+            importDateInput.focus();
+            return false;
+        }
+
+        const rows = productTableBody.querySelectorAll('.table-row');
+        if (rows.length === 0) {
+            alert('Vui lòng thêm ít nhất 1 sản phẩm');
+            return false;
+        }
+
+        for (let row of rows) {
+            const batchInput = row.querySelector('.batch-input');
+            const mfgInput = row.querySelector('.manufacture-date-input');
+            const expInput = row.querySelector('.expiry-date-input');
+            const qtyInput = row.querySelector('.quantity-input');
+            const priceInput = row.querySelector('.price-input');
+
+            if (!batchInput.value.trim()) {
+                alert('Vui lòng nhập số lô cho tất cả sản phẩm');
+                batchInput.focus();
+                return false;
+            }
+
+            if (!mfgInput.value) {
+                alert('Vui lòng nhập ngày sản xuất cho tất cả sản phẩm');
+                mfgInput.focus();
+                return false;
+            }
+
+            if (!expInput.value) {
+                alert('Vui lòng nhập hạn sử dụng cho tất cả sản phẩm');
+                expInput.focus();
+                return false;
+            }
+
+            const mfgDate = new Date(mfgInput.value);
+            const expDate = new Date(expInput.value);
+
+            if (expDate <= mfgDate) {
+                alert('Hạn sử dụng phải sau ngày sản xuất');
+                expInput.focus();
+                return false;
+            }
+
+            if (!qtyInput.value || parseInt(qtyInput.value) < 1) {
+                alert('Số lượng phải lớn hơn 0');
+                qtyInput.focus();
+                return false;
+            }
+
+            if (!priceInput.value || parseFloat(priceInput.value) < 0) {
+                alert('Vui lòng nhập giá nhập hợp lệ');
+                priceInput.focus();
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // Thu thập dữ liệu form
+    function collectFormData() {
+        const details = [];
+
+        document.querySelectorAll('.table-row').forEach(row => {
+            const price = parseFloat(row.querySelector('.price-input').value);
+
+            details.push({
+                variantId: row.dataset.variantId,
+                batchCode: row.querySelector('.batch-input').value.trim(),
+                manufactureDate: row.querySelector('.manufacture-date-input').value,
+                expiryDate: row.querySelector('.expiry-date-input').value,
+                quantity: parseInt(row.querySelector('.quantity-input').value),
+                price: price,           // Giá nhập kho
+                snapCost: price         // Theo flow: price = snap_cost khi nhập từ supplier
+            });
+        });
+
+        return {
+            movementType: 'SUP_TO_WARE',
+            supplierId: supplierInput.dataset.supplierId,
+            movementDate: importDateInput.value,
+            status: 'COMPLETED',
+            details: details
+        };
+    }
+
+    // Gửi phiếu nhập
+    function submitReceipt(data) {
+        fetch('/api/warehouse/receipts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Lỗi khi tạo phiếu nhập');
+                }
+                return response.json();
+            })
+            .then(result => {
+                alert('Tạo phiếu nhập thành công!');
+                window.location.href = '/warehouse/receipt/list';
+            })
+            .catch(error => {
+                alert('Có lỗi xảy ra: ' + error.message);
+                console.error(error);
+            });
+    }
+
+    // Hoàn thành
+    btnComplete.addEventListener('click', function() {
+        if (!validateForm()) return;
+
+        if (confirm('Xác nhận hoàn thành phiếu nhập?')) {
+            const data = collectFormData();
+            submitReceipt(data);
+        }
+    });
+
+    // Hủy
+    btnCancel.addEventListener('click', function() {
+        if (confirm('Bạn có chắc muốn hủy? Mọi thay đổi sẽ không được lưu.')) {
+            window.location.href = '/warehouse/receipt/list';
+        }
+    });
+
+    // Modal chọn nhà cung cấp
+    function openSupplierModal() {
+        const modal = createModal('Chọn nhà cung cấp', `
+            <div class="modal-search">
+                <input type="text" id="supplierSearchInput" class="modal-search-input" placeholder="Tìm kiếm nhà cung cấp...">
+            </div>
+            <div id="supplierList" class="modal-list"></div>
+        `);
+
+        document.body.appendChild(modal);
+
+        const searchInput = modal.querySelector('#supplierSearchInput');
+        const supplierList = modal.querySelector('#supplierList');
+
+        // Load danh sách nhà cung cấp
+        function loadSuppliers(query = '') {
+            fetch(`/api/warehouse/suppliers/search?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(suppliers => {
+                    supplierList.innerHTML = suppliers.map(supplier => `
+                        <div class="modal-list-item" data-id="${supplier.id}">
+                            <div class="item-name">${supplier.name}</div>
+                            <div class="item-info">${supplier.phone || ''} - ${supplier.address || ''}</div>
+                        </div>
+                    `).join('');
+
+                    // Xử lý click chọn supplier
+                    supplierList.querySelectorAll('.modal-list-item').forEach(item => {
+                        item.addEventListener('click', function() {
+                            const id = this.dataset.id;
+                            const name = this.querySelector('.item-name').textContent;
+
+                            supplierInput.value = name;
+                            supplierInput.dataset.supplierId = id;
+
+                            modal.remove();
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading suppliers:', error);
+                    supplierList.innerHTML = '<div class="error">Không thể tải danh sách nhà cung cấp</div>';
+                });
+        }
+
+        searchInput.addEventListener('input', function() {
+            loadSuppliers(this.value);
+        });
+
+        loadSuppliers();
+    }
+
+    // Modal chọn sản phẩm từ danh mục
+    function openProductCatalog() {
+        const modal = createModal('Chọn thuốc từ danh mục', `
+            <div class="modal-search">
+                <input type="text" id="medicineSearchInput" class="modal-search-input" placeholder="Tìm kiếm thuốc...">
+            </div>
+            <div id="medicineList" class="modal-list"></div>
+        `);
+
+        document.body.appendChild(modal);
+
+        const searchInput = modal.querySelector('#medicineSearchInput');
+        const medicineList = modal.querySelector('#medicineList');
+
+        // Load danh sách thuốc
+        function loadMedicines(query = '') {
+            fetch(`/api/warehouse/medicines/search?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(medicines => {
+                    medicineList.innerHTML = medicines.map(medicine => `
+                        <div class="modal-list-item" data-id="${medicine.id}" 
+                             data-name="${medicine.medicineName}"
+                             data-unit="${medicine.unit}"
+                             data-concentration="${medicine.concentration || ''}">
+                            <div class="item-name">${medicine.medicineName}</div>
+                            <div class="item-info">ĐVT: ${medicine.unit} - Hàm lượng: ${medicine.concentration || 'N/A'}</div>
+                        </div>
+                    `).join('');
+
+                    // Xử lý click chọn medicine
+                    medicineList.querySelectorAll('.modal-list-item').forEach(item => {
+                        item.addEventListener('click', function() {
+                            const product = {
+                                variantId: this.dataset.id,
+                                medicineName: this.dataset.name,
+                                unit: this.dataset.unit,
+                                concentration: this.dataset.concentration
+                            };
+
+                            addProductRow(product);
+                            modal.remove();
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading medicines:', error);
+                    medicineList.innerHTML = '<div class="error">Không thể tải danh sách thuốc</div>';
+                });
+        }
+
+        searchInput.addEventListener('input', function() {
+            loadMedicines(this.value);
+        });
+
+        loadMedicines();
+    }
+
+    // Hàm tạo modal
+    function createModal(title, content) {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>${title}</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    ${content}
+                </div>
+            </div>
+        `;
+
+        // Xử lý đóng modal
+        modal.querySelector('.modal-close').addEventListener('click', () => modal.remove());
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+
+        return modal;
+    }
+
+    // Tính tổng ban đầu
+    calculateTotal();
+});

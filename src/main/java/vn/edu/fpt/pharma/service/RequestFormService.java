@@ -2,6 +2,7 @@ package vn.edu.fpt.pharma.service;
 
 import vn.edu.fpt.pharma.base.BaseService;
 import vn.edu.fpt.pharma.dto.requestform.RequestFormVM;
+import vn.edu.fpt.pharma.dto.warehouse.ExportCreateDTO;
 import vn.edu.fpt.pharma.dto.warehouse.RequestDetailVM;
 import vn.edu.fpt.pharma.dto.warehouse.RequestList;
 import vn.edu.fpt.pharma.entity.RequestForm;
@@ -30,4 +31,6 @@ public interface RequestFormService extends BaseService<RequestForm, Long> {
     List<vn.edu.fpt.pharma.dto.inventory.ReturnRequestVM> getReturnRequestsForBranch(Long branchId);
     vn.edu.fpt.pharma.dto.inventory.ReturnRequestVM getReturnRequestDetail(Long id);
     void confirmReturnRequest(Long requestId, Long branchId);
+//    Export Creation
+    ExportCreateDTO prepareExportCreation(Long requestId);
 }

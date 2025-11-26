@@ -16,4 +16,27 @@ public interface ShiftWorkRepository extends JpaRepository<ShiftWork, Long>, Jpa
 
     @Query("SELECT sw FROM ShiftWork sw WHERE sw.assignment.shift.id = :shiftId AND sw.assignment.userId = :userId AND sw.workDate = :workDate")
     Optional<ShiftWork> findByShiftIdAndUserIdAndWorkDate(@Param("shiftId") Long shiftId, @Param("userId") Long userId, @Param("workDate") LocalDate workDate);
+
+    @Query(value = """
+    SELECT 
+        s.id AS shift_id,
+        s.name,
+        s.start_time,
+        s.end_time,
+        w.work_date
+    FROM shifts s
+    LEFT JOIN shift_assignments a
+        ON a.shift_id = s.id AND a.user_id = :userId
+    LEFT JOIN shift_works w
+        ON w.assignment_id = a.id 
+            AND w.work_date BETWEEN :startDate AND :endDate
+    WHERE s.branch_id = :branchId
+    ORDER BY s.start_time
+    """, nativeQuery = true)
+    List<Object[]> getShiftSummary(
+            @Param("branchId") Long branchId,
+            @Param("userId") Long userId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
 }

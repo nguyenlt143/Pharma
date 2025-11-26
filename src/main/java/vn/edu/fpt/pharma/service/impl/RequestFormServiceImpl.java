@@ -2,20 +2,21 @@ package vn.edu.fpt.pharma.service.impl;
 
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.pharma.base.BaseServiceImpl;
+import vn.edu.fpt.pharma.constant.BranchType;
 import vn.edu.fpt.pharma.constant.RequestType;
 import vn.edu.fpt.pharma.dto.requestform.RequestFormVM;
+import vn.edu.fpt.pharma.dto.warehouse.ExportCreateDTO;
 import vn.edu.fpt.pharma.dto.warehouse.RequestDetailVM;
 import vn.edu.fpt.pharma.dto.warehouse.RequestList;
-import vn.edu.fpt.pharma.entity.RequestForm;
-import vn.edu.fpt.pharma.repository.RequestDetailRepository;
-import vn.edu.fpt.pharma.repository.RequestFormRepository;
+import vn.edu.fpt.pharma.entity.*;
+import vn.edu.fpt.pharma.repository.*;
 import vn.edu.fpt.pharma.service.AuditService;
 import vn.edu.fpt.pharma.service.RequestFormService;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,33 +26,25 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     private final RequestFormRepository repository;
     private final AuditService auditService;
     private final RequestDetailRepository requestDetailRepository;
-    private final vn.edu.fpt.pharma.repository.InventoryMovementRepository movementRepository;
-    private final vn.edu.fpt.pharma.repository.InventoryMovementDetailRepository movementDetailRepository;
-    private final vn.edu.fpt.pharma.repository.InventoryRepository inventoryRepository;
-    private final vn.edu.fpt.pharma.repository.PriceRepository priceRepository;
-    private final vn.edu.fpt.pharma.repository.BranchRepository branchRepository;
+    private final BranchRepository branchRepository;
+    private final InventoryRepository inventoryRepository;
+    private final MedicineVariantRepository medicineVariantRepository;
+    private final PriceRepository priceRepository;
 
-
-    // Constructor gọi explicit BaseServiceImpl
-    public RequestFormServiceImpl(
-            RequestFormRepository repository,
-            AuditService auditService,
-            RequestDetailRepository requestDetailRepository,
-            vn.edu.fpt.pharma.repository.InventoryMovementRepository movementRepository,
-            vn.edu.fpt.pharma.repository.InventoryMovementDetailRepository movementDetailRepository,
-            vn.edu.fpt.pharma.repository.InventoryRepository inventoryRepository,
-            vn.edu.fpt.pharma.repository.PriceRepository priceRepository,
-            vn.edu.fpt.pharma.repository.BranchRepository branchRepository
-    ) {
+    public RequestFormServiceImpl(RequestFormRepository repository, AuditService auditService,
+                                   RequestDetailRepository requestDetailRepository,
+                                   BranchRepository branchRepository,
+                                   InventoryRepository inventoryRepository,
+                                   MedicineVariantRepository medicineVariantRepository,
+                                   PriceRepository priceRepository) {
         super(repository, auditService);
         this.repository = repository;
         this.auditService = auditService;
         this.requestDetailRepository = requestDetailRepository;
-        this.movementRepository = movementRepository;
-        this.movementDetailRepository = movementDetailRepository;
-        this.inventoryRepository = inventoryRepository;
-        this.priceRepository = priceRepository;
         this.branchRepository = branchRepository;
+        this.inventoryRepository = inventoryRepository;
+        this.medicineVariantRepository = medicineVariantRepository;
+        this.priceRepository = priceRepository;
     }
 
     @Override
@@ -86,7 +79,7 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     }
 
     @Override
-    public List<RequestFormVM> searchRequestForms(Long branchId, String code, java.time.LocalDate createdAt) {
+    public List<RequestFormVM> searchRequestForms(Long branchId, String code, LocalDate createdAt) {
         Long id = null;
         if (code != null && code.startsWith("#RQ")) {
             try {
@@ -99,7 +92,7 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     }
 
     @Override
-    public List<RequestFormVM> searchImportForms(Long branchId, String code, java.time.LocalDate createdAt) {
+    public List<RequestFormVM> searchImportForms(Long branchId, String code, LocalDate createdAt) {
         Long id = null;
         if (code != null && code.startsWith("#RQ")) {
             try {
@@ -112,7 +105,7 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     }
 
     @Override
-    public List<RequestFormVM> searchExportForms(Long branchId, String code, java.time.LocalDate createdAt) {
+    public List<RequestFormVM> searchExportForms(Long branchId, String code, LocalDate createdAt) {
         Long id = null;
         if (code != null && code.startsWith("#RQ")) {
             try {
@@ -164,12 +157,14 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
                 .toList();
     }
 
-    // Request List
     @Override
     public List<RequestList> getAllRequestForms() {
         return repository.findAll()
                 .stream()
-                .map(RequestList::new)
+                .map(entity -> {
+                    String branchName = getBranchNameById(entity.getBranchId());
+                    return new RequestList(entity, branchName);
+                })
                 .toList();
     }
 
@@ -177,7 +172,10 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     public List<RequestList> getImportRequests() {
         return repository.findByRequestType(RequestType.IMPORT)
                 .stream()
-                .map(RequestList::new)
+                .map(entity -> {
+                    String branchName = getBranchNameById(entity.getBranchId());
+                    return new RequestList(entity, branchName);
+                })
                 .toList();
     }
 
@@ -185,7 +183,10 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     public List<RequestList> getReturnRequests() {
         return repository.findByRequestType(RequestType.RETURN)
                 .stream()
-                .map(RequestList::new)
+                .map(entity -> {
+                    String branchName = getBranchNameById(entity.getBranchId());
+                    return new RequestList(entity, branchName);
+                })
                 .toList();
     }
 
@@ -193,14 +194,41 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     public RequestList getDetailById(Long id) {
         RequestForm entity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("RequestForm not found"));
-        return new RequestList(entity);
+        String branchName = getBranchNameById(entity.getBranchId());
+        return new RequestList(entity, branchName);
     }
 
     @Override
     public List<RequestDetailVM> getDetailsOfRequest(Long requestId) {
         return requestDetailRepository.findByRequestFormId(requestId)
                 .stream()
-                .map(RequestDetailVM::new)
+                .map(detail -> {
+                    String medicineName = "N/A";
+                    String strength = "N/A";
+                    String dosageForm = "N/A";
+                    String unit = "N/A";
+
+                    if (detail.getVariantId() != null) {
+                        Optional<MedicineVariant> variantOpt = medicineVariantRepository.findById(detail.getVariantId());
+                        if (variantOpt.isPresent()) {
+                            MedicineVariant variant = variantOpt.get();
+                            Medicine medicine = variant.getMedicine();
+
+                            if (medicine != null) {
+                                medicineName = medicine.getName() != null ? medicine.getName() : "N/A";
+                            }
+
+                            strength = variant.getStrength() != null ? variant.getStrength() : "N/A";
+                            dosageForm = variant.getDosage_form() != null ? variant.getDosage_form() : "N/A";
+
+                            if (variant.getBaseUnitId() != null) {
+                                unit = variant.getBaseUnitId().getName() != null ? variant.getBaseUnitId().getName() : "N/A";
+                            }
+                        }
+                    }
+
+                    return new RequestDetailVM(detail, medicineName, strength, dosageForm, unit);
+                })
                 .toList();
     }
 
@@ -230,8 +258,90 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     }
 
     @Override
+    public ExportCreateDTO prepareExportCreation(Long requestId) {
+        // Get request form
+        RequestForm requestForm = repository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Request not found with ID: " + requestId));
+
+        // Get branch info
+        Branch branch = branchRepository.findById(requestForm.getBranchId())
+                .orElseThrow(() -> new RuntimeException("Branch not found with ID: " + requestForm.getBranchId()));
+
+        // Get request details
+        List<vn.edu.fpt.pharma.entity.RequestDetail> requestDetails =
+                requestDetailRepository.findByRequestFormId(requestId);
+
+        // Get warehouse branch (HEAD_QUARTER acts as warehouse)
+        Long warehouseBranchId = branchRepository.findAll().stream()
+                .filter(b -> b.getBranchType() == BranchType.HEAD_QUARTER)
+                .findFirst()
+                .map(Branch::getId)
+                .orElse(1L);
+
+        // Build medicine list with batches
+        List<ExportCreateDTO.MedicineWithBatches> medicines = new ArrayList<>();
+
+        for (vn.edu.fpt.pharma.entity.RequestDetail detail : requestDetails) {
+            // Get variant info
+            MedicineVariant variant = medicineVariantRepository.findById(detail.getVariantId())
+                    .orElseThrow(() -> new RuntimeException("Variant not found: " + detail.getVariantId()));
+
+            // Get available inventory in warehouse for this variant
+            List<Inventory> inventoryList = inventoryRepository.findAll().stream()
+                    .filter(inv -> inv.getVariant() != null &&
+                                   inv.getVariant().getId().equals(detail.getVariantId()) &&
+                                   inv.getBranch() != null &&
+                                   inv.getBranch().getId().equals(warehouseBranchId) &&
+                                   inv.getQuantity() > 0)
+                    .sorted(Comparator.comparing(inv -> inv.getBatch().getExpiryDate()))
+                    .toList();
+
+            // Build batch info list
+            List<ExportCreateDTO.BatchInfo> batches = new ArrayList<>();
+            for (Inventory inventory : inventoryList) {
+                Batch batch = inventory.getBatch();
+
+                // Get branch price for this variant
+                Double branchPrice = getBranchPriceForVariant(detail.getVariantId(), branch.getId());
+
+                ExportCreateDTO.BatchInfo batchInfo = ExportCreateDTO.BatchInfo.builder()
+                        .inventoryId(inventory.getId())
+                        .batchId(batch.getId())
+                        .batchCode(batch.getBatchCode())
+                        .availableQuantity(inventory.getQuantity())
+                        .branchPrice(branchPrice)
+                        .quantityToSend(0L)
+                        .build();
+
+                batches.add(batchInfo);
+            }
+
+            // Build medicine with batches
+            ExportCreateDTO.MedicineWithBatches medicine = ExportCreateDTO.MedicineWithBatches.builder()
+                    .variantId(variant.getId())
+                    .medicineName(variant.getMedicine() != null ? variant.getMedicine().getName() : "N/A")
+                    .unit(variant.getPackageUnitId() != null ? variant.getPackageUnitId().getName() : "")
+                    .concentration(variant.getStrength() != null ? variant.getStrength() : "")
+                    .requestedQuantity(detail.getQuantity())
+                    .batches(batches)
+                    .build();
+
+            medicines.add(medicine);
+        }
+
+        return ExportCreateDTO.builder()
+                .requestId(requestId)
+                .branchId(branch.getId())
+                .branchName(branch.getName())
+                .createdDate(LocalDate.now())
+                .note(requestForm.getNote())
+                .medicines(medicines)
+                .build();
+    }
+
+    @Override
     public List<vn.edu.fpt.pharma.dto.inventory.ReturnRequestVM> getReturnRequestsForBranch(Long branchId) {
-        List<RequestForm> forms = repository.findByBranchIdAndRequestType(branchId, vn.edu.fpt.pharma.constant.RequestType.RETURN);
+        List<RequestForm> forms = repository.findByBranchIdAndRequestType(branchId, RequestType.RETURN);
         List<Long> ids = forms.stream().map(RequestForm::getId).toList();
 
         final Map<Long, Long> countMap;
@@ -278,7 +388,7 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
             throw new IllegalArgumentException("Request does not belong to this branch");
         }
 
-        if (!requestForm.getRequestType().equals(vn.edu.fpt.pharma.constant.RequestType.RETURN)) {
+        if (!requestForm.getRequestType().equals(RequestType.RETURN)) {
             throw new IllegalArgumentException("Request is not a RETURN request");
         }
 
@@ -291,87 +401,49 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
             throw new IllegalArgumentException("Request has no details");
         }
 
-        vn.edu.fpt.pharma.entity.InventoryMovement movement = vn.edu.fpt.pharma.entity.InventoryMovement.builder()
-                .movementType(vn.edu.fpt.pharma.constant.MovementType.BR_TO_WARE)
-                .sourceBranchId(branchId)
-                .destinationBranchId(1L)
-                .requestForm(requestForm)
-                .movementStatus(vn.edu.fpt.pharma.constant.MovementStatus.RECEIVED)
-                .totalMoney(0.0)
-                .build();
-
-        movement = movementRepository.save(movement);
-
-        double totalMoney = 0.0;
-
-        for (vn.edu.fpt.pharma.entity.RequestDetail detail : details) {
-            List<vn.edu.fpt.pharma.entity.Inventory> branchInventories =
-                    inventoryRepository.findByBranchIdAndVariantId(branchId, detail.getVariantId());
-
-            if (branchInventories.isEmpty()) {
-                throw new IllegalStateException("No inventory found for variant " + detail.getVariantId());
-            }
-
-            Long remainingQty = detail.getQuantity();
-
-            for (vn.edu.fpt.pharma.entity.Inventory branchInv : branchInventories) {
-                if (remainingQty <= 0) break;
-
-                Long qtyToReturn = Math.min(remainingQty, branchInv.getQuantity());
-                Double price = priceRepository.findBranchPriceByVariantId(detail.getVariantId()).orElse(0.0);
-
-                vn.edu.fpt.pharma.entity.InventoryMovementDetail movementDetail =
-                        vn.edu.fpt.pharma.entity.InventoryMovementDetail.builder()
-                        .movement(movement)
-                        .variant(branchInv.getVariant())
-                        .batch(branchInv.getBatch())
-                        .quantity(qtyToReturn)
-                        .price(price)
-                        .snapCost(branchInv.getCostPrice())
-                        .build();
-
-                movementDetailRepository.save(movementDetail);
-                totalMoney += qtyToReturn * price;
-
-                branchInv.setQuantity(branchInv.getQuantity() - qtyToReturn);
-                inventoryRepository.save(branchInv);
-
-                var warehouseInv = inventoryRepository.findByBranchIdAndVariantIdAndBatchId(
-                        1L, detail.getVariantId(), branchInv.getBatch().getId()
-                );
-
-                if (warehouseInv.isPresent()) {
-                    var inv = warehouseInv.get();
-                    inv.setQuantity(inv.getQuantity() + qtyToReturn);
-                    inventoryRepository.save(inv);
-                } else {
-                    vn.edu.fpt.pharma.entity.Branch warehouseBranch = branchRepository.findById(1L)
-                            .orElseThrow(() -> new IllegalStateException("Warehouse not found"));
-
-                    vn.edu.fpt.pharma.entity.Inventory newInv = vn.edu.fpt.pharma.entity.Inventory.builder()
-                            .branch(warehouseBranch)
-                            .variant(branchInv.getVariant())
-                            .batch(branchInv.getBatch())
-                            .quantity(qtyToReturn)
-                            .costPrice(branchInv.getCostPrice())
-                            .minStock(0L)
-                            .build();
-                    inventoryRepository.save(newInv);
-                }
-
-                remainingQty -= qtyToReturn;
-            }
-
-            if (remainingQty > 0) {
-                throw new IllegalStateException("Not enough inventory for variant " + detail.getVariantId());
-            }
-        }
-
-        movement.setTotalMoney(totalMoney);
-        movementRepository.save(movement);
-
+        // Update request status to CONFIRMED
         requestForm.setRequestStatus(vn.edu.fpt.pharma.constant.RequestStatus.CONFIRMED);
         repository.save(requestForm);
     }
 
+    private String getBranchNameById(Long branchId) {
+        if (branchId == null) {
+            return "N/A";
+        }
+        return branchRepository.findById(branchId)
+                .map(Branch::getName)
+                .orElse("N/A");
+    }
+
+    private Double getBranchPriceForVariant(Long variantId, Long branchId) {
+        // Try to find price for specific branch first
+        Optional<Price> branchSpecificPrice = priceRepository.findAll().stream()
+                .filter(p -> p.getVariantId().equals(variantId) &&
+                           p.getBranchId() != null &&
+                           p.getBranchId().equals(branchId) &&
+                           (p.getStartDate() == null || p.getStartDate().isBefore(java.time.LocalDateTime.now())) &&
+                           (p.getEndDate() == null || p.getEndDate().isAfter(java.time.LocalDateTime.now())))
+                .findFirst();
+
+        if (branchSpecificPrice.isPresent() && branchSpecificPrice.get().getBranchPrice() != null) {
+            return branchSpecificPrice.get().getBranchPrice();
+        }
+
+        // Try global price
+        Optional<Price> globalPrice = priceRepository.findAll().stream()
+                .filter(p -> p.getVariantId().equals(variantId) &&
+                           p.getBranchId() == null &&
+                           (p.getStartDate() == null || p.getStartDate().isBefore(java.time.LocalDateTime.now())) &&
+                           (p.getEndDate() == null || p.getEndDate().isAfter(java.time.LocalDateTime.now())))
+                .findFirst();
+
+        if (globalPrice.isPresent() && globalPrice.get().getBranchPrice() != null) {
+            return globalPrice.get().getBranchPrice();
+        }
+
+        // Default to 0.0 if no price found
+        return 0.0;
+    }
+
 }
+

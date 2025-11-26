@@ -62,6 +62,12 @@
                         <span class="nav-text">Báo cáo</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="/owner/report/inventory" class="nav-link">
+                        <span class="material-icons nav-icon">inventory</span>
+                        <span class="nav-text">Báo cáo kho</span>
+                    </a>
+                </li>
             </ul>
         </nav>
 

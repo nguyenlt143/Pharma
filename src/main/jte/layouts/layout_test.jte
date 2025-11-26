@@ -57,7 +57,7 @@
                 <li class="nav-item">
                     <a href="/pharmacist/work" class="nav-link">
                         <span class="nav-icon material-icons">summarize</span>
-                        <span class="nav-text">Weekly work</span>
+                        <span class="nav-text">Lịch làm việc</span>
                     </a>
                 </li>
                 <li class="nav-item">

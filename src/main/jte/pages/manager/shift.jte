@@ -27,6 +27,21 @@ content = @`
                 <!-- render bằng JS -->
                 </tbody>
             </table>
+            <div class="pagination-container">
+                <div class="pagination-controls">
+                    <button id="prev-page" disabled>&laquo; Trước</button>
+                    <span id="page-info">Trang 1 / 1</span>
+                    <button id="next-page" disabled>Sau &raquo;</button>
+                </div>
+                <div class="records-per-page">
+                    <label for="records-per-page">Số bản ghi:</label>
+                    <select id="records-per-page" class="form-select">
+                        <option value="10">10</option>
+                        <option value="25" selected>25</option>
+                        <option value="50">50</option>
+                    </select>
+                </div>
+            </div>
         </div>
     </main>
 

@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PriceRequest {
+    private Long id;
     @NotNull(message = "Variant ID is required")
     private Long variantId;
     

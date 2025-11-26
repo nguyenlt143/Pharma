@@ -23,7 +23,8 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, Lo
             idt.price AS price,
             idt.quantity AS quantity
         FROM invoice_details idt
-        JOIN medicine_variant mv ON idt.variant_id = mv.id
+        JOIN inventory inv ON idt.inventory_id = inv.id
+        JOIN medicine_variant mv ON inv.variant_id = mv.id
         JOIN units u ON mv.base_unit_id = u.id
         JOIN medicines m ON mv.medicine_id = m.id
         WHERE idt.invoice_id = :id

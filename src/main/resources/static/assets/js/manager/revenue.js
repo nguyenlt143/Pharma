@@ -2,6 +2,13 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // -------------------
+    // Pagination State
+    // -------------------
+    let currentPage = 0;
+    let totalPages = 1;
+    let pageSize = 25; // Default page size
+
+    // -------------------
     // Utils
     // -------------------
     const formatCurrency = (amount) =>
@@ -66,6 +73,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // -------------------
+    // Update pagination controls
+    // -------------------
+    function updatePaginationControls() {
+        const prevBtn = document.getElementById('prev-page');
+        const nextBtn = document.getElementById('next-page');
+        const pageInfo = document.getElementById('page-info');
+
+        if (prevBtn) {
+            prevBtn.disabled = currentPage === 0;
+        }
+        if (nextBtn) {
+            nextBtn.disabled = currentPage >= totalPages - 1;
+        }
+        if (pageInfo) {
+            pageInfo.textContent = `Trang ${currentPage + 1} / ${totalPages}`;
+        }
+    }
+
+    // -------------------
     // Load dữ liệu từ API
     // -------------------
     async function loadData() {
@@ -73,6 +99,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const period = document.querySelector('.date-input').value; // date/week/month format
         const shift = document.getElementById('shift-select').value;
         const employeeId = document.getElementById('employee-select').value;
+        pageSize = parseInt(document.getElementById('records-per-page').value, 10);
+
 
         try {
             const params = new URLSearchParams();
@@ -84,6 +112,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (shift) params.set('shift', shift);
             if (employeeId) params.set('employeeId', employeeId);
+            params.set('page', currentPage.toString());
+            params.set('size', pageSize.toString());
+
             const url = `/api/manager/report/revenue?${params.toString()}`;
             const res = await fetch(encodeURI(url));
             const data = await res.json();
@@ -91,22 +122,35 @@ document.addEventListener('DOMContentLoaded', () => {
             // Cập nhật KPI
             updateKPI(data);
 
+            // Xử lý dữ liệu phân trang từ invoices
+            const invoicesData = data.invoices || {};
+            const invoicesList = invoicesData.data || [];
+            totalPages = Math.max(1, invoicesData.totalPages || 1);
+
             // Cập nhật bảng hóa đơn
             const tbody = document.getElementById('invoice-tbody');
             tbody.innerHTML = '';
-            data.invoices?.forEach(inv => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${inv.time ?? ''}</td>
-                    <td>${inv.code ?? ''}</td>
-                    <td>${inv.customer ?? ''}</td>
-                    <td>${inv.paymentLabel ?? ''}</td>
-                    <td>${formatCurrency(inv.amount)}</td>
-                    <td>${formatCurrency(inv.profit)}</td>
-                `;
-                tbody.appendChild(tr);
-            });
+
+            if (invoicesList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: #6B7280;">Không có dữ liệu</td></tr>';
+            } else {
+                invoicesList.forEach(inv => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${inv.time ?? ''}</td>
+                        <td>${inv.code ?? ''}</td>
+                        <td>${inv.customer ?? ''}</td>
+                        <td>${inv.paymentLabel ?? ''}</td>
+                        <td>${formatCurrency(inv.amount)}</td>
+                        <td>${formatCurrency(inv.profit)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
             addTableHoverEffect();
+
+            // Cập nhật phân trang
+            updatePaginationControls();
 
             // Render product stats list (like dashboard)
             const list = document.getElementById('productStatsList');
@@ -192,18 +236,57 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modeSel) {
         modeSel.addEventListener('change', () => {
             setTimeMode(modeSel.value || 'day');
+            currentPage = 0; // Reset to first page
             loadData();
         });
     }
-    document.querySelector('.date-input').addEventListener('change', loadData);
-    document.getElementById('shift-select').addEventListener('change', loadData);
-    document.getElementById('employee-select').addEventListener('change', loadData);
 
-    // -------------------
-    // Initial load
-    // -------------------
-    (async () => {
-        await initFilters();
-        await loadData();
-    })();
+    document.querySelector('.date-input').addEventListener('change', () => {
+        currentPage = 0; // Reset to first page
+        loadData();
+    });
+
+    document.getElementById('shift-select').addEventListener('change', () => {
+        currentPage = 0; // Reset to first page
+        loadData();
+    });
+
+    document.getElementById('employee-select').addEventListener('change', () => {
+        currentPage = 0; // Reset to first page
+        loadData();
+    });
+
+    // Pagination buttons
+    const prevBtn = document.getElementById('prev-page');
+    const nextBtn = document.getElementById('next-page');
+
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            if (currentPage > 0) {
+                currentPage--;
+                loadData();
+            }
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            if (currentPage < totalPages - 1) {
+                currentPage++;
+                loadData();
+            }
+        });
+    }
+
+    const recordsPerPageSelect = document.getElementById('records-per-page');
+    if (recordsPerPageSelect) {
+        recordsPerPageSelect.addEventListener('change', () => {
+            currentPage = 0; // Reset to first page
+            loadData();
+        });
+    }
+
+    // Init
+    initFilters();
+    loadData();
 });

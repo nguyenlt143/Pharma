@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import vn.edu.fpt.pharma.entity.Batch;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 
 public interface BatchRepository extends JpaRepository<Batch, Long>, JpaSpecificationExecutor<Batch> {
@@ -15,4 +16,6 @@ public interface BatchRepository extends JpaRepository<Batch, Long>, JpaSpecific
           AND b.expiry_date BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 90 DAY)
         """, nativeQuery = true)
     int countNearlyExpired();
+
+    Optional<Batch> findByVariantId(Long variantId);
 }

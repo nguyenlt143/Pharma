@@ -1,5 +1,87 @@
 /* Manager Inventory CSS - responsive, accessible, colorblind-friendly palette */
 
+/* Spinner */
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #E5E7EB;
+    border-top-color: #2563EB;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Ensure card and form classes exist */
+.card {
+    background: #fff;
+    border: 1px solid #e6eef6;
+    border-radius: 8px;
+    box-shadow: 0 1px 0 rgba(20,40,60,0.02);
+}
+
+.form-select {
+    padding: 8px 12px;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.form-input {
+    padding: 8px 12px;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 14px;
+}
+
+.form-input:focus,
+.form-select:focus {
+    outline: none;
+    border-color: #2563EB;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Badge styles */
+.badge-success {
+    background-color: #D1FAE5;
+    color: #065F46;
+}
+
+.badge-warning {
+    background-color: #FEF3C7;
+    color: #92400E;
+}
+
+.badge-danger {
+    background-color: #FEE2E2;
+    color: #991B1B;
+}
+
+.badge-gray {
+    background-color: #E5E7EB;
+    color: #374151;
+}
+
+/* Flex utilities */
+.flex {
+    display: flex;
+}
+
+.gap-2 {
+    gap: 8px;
+}
+
+/* Hidden utility */
+.hidden {
+    display: none !important;
+}
+
 /* Basic reset */
 * { box-sizing: border-box; }
 html,body { margin:0; padding:0; font-family: Inter, "Helvetica Neue", Arial, sans-serif; color:#263238; background:#f6f8fa; }
@@ -21,7 +103,11 @@ html,body { margin:0; padding:0; font-family: Inter, "Helvetica Neue", Arial, sa
 .mi-container { padding:20px 28px 60px; max-width:1200px; margin:0 auto; }
 
 /* KPI cards */
-.mi-kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:18px; }
+.mi-kpis { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:18px; }
+
+@media (min-width: 1400px) {
+    .mi-kpis { grid-template-columns:repeat(6,1fr); }
+}
 .kpi-card {
     background:#fff; border:1px solid #e6eef6; border-radius:8px;
     padding:14px; min-height:94px; display:flex; flex-direction:column; justify-content:space-between;

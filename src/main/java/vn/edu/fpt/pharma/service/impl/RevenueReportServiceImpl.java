@@ -1,8 +1,13 @@
 package vn.edu.fpt.pharma.service.impl;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import vn.edu.fpt.pharma.dto.PagingRequest;
+import vn.edu.fpt.pharma.dto.PagingResponse;
 import vn.edu.fpt.pharma.dto.manager.InvoiceListItem;
+import vn.edu.fpt.pharma.dto.manager.InvoiceWithProfitListItem;
 import vn.edu.fpt.pharma.dto.manager.KpiData;
 import vn.edu.fpt.pharma.dto.manager.TopProductItem;
 import vn.edu.fpt.pharma.repository.InvoiceRepository;
@@ -31,7 +36,8 @@ public class RevenueReportServiceImpl implements RevenueReportService {
                                                 String mode,
                                                 String period,
                                                 Long shift,
-                                                Long employeeId) {
+                                                Long employeeId,
+                                                PagingRequest pagingRequest) {
         // Determine date range
         LocalDateTime[] dateRange = determineDateRange(mode, period, date);
         LocalDateTime fromDate = dateRange[0];
@@ -44,10 +50,10 @@ public class RevenueReportServiceImpl implements RevenueReportService {
         Map<String, Object> productStatsData = getProductStatistics(branchId, fromDate, toDate, shift, employeeId);
 
         // Use projection that matches listing needs
-        List<InvoiceListItem> items = invoiceRepository.findInvoiceItems(branchId, fromDate, toDate, shift, employeeId);
+        Page<InvoiceWithProfitListItem> page = invoiceRepository.findInvoicesWithProfit(branchId, fromDate, toDate, shift, employeeId, PageRequest.of(pagingRequest.getPage(), pagingRequest.getSize()));
         List<Map<String, Object>> invoices = new ArrayList<>();
         DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-        for (InvoiceListItem it : items) {
+        for (InvoiceWithProfitListItem it : page.getContent()) {
             Map<String, Object> row = new HashMap<>();
             row.put("time", it.getCreatedAt() != null ? it.getCreatedAt().format(timeFmt) : "");
             row.put("code", it.getInvoiceCode());
@@ -62,7 +68,7 @@ public class RevenueReportServiceImpl implements RevenueReportService {
         body.put("totalInvoices", kpi.getOrderCount());
         body.put("totalRevenue", kpi.getRevenue());
         body.put("totalProfit", kpi.getProfit());
-        body.put("invoices", invoices);
+        body.put("invoices", new PagingResponse(page.getTotalElements(), (long) page.getTotalPages(), invoices));
         body.put("productStats", productStatsData.get("productStats"));
         body.put("totalProducts", productStatsData.get("totalProducts"));
         return body;

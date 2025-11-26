@@ -35,7 +35,7 @@ public class SecurityConfig {
                         .requestMatchers("/manager/**", "/api/manager/**").hasRole("MANAGER")
                         .requestMatchers("/inventory/**").hasRole("INVENTORY")
                         .requestMatchers("/warehouse/**").hasRole("WAREHOUSE")
-                        .requestMatchers("/pharmacist", "/api/pharmacist/**").hasRole("PHARMACIST")
+                        .requestMatchers("/pharmacist/**", "/api/pharmacist/**").hasRole("PHARMACIST")
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
