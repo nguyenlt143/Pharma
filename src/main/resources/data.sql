@@ -964,3 +964,13 @@ VALUES
 (5, 'PROFIT', '2025-10-01', 0, 69500000.00, 0, NOW(), FALSE),
 (5, 'IMPORT', '2025-10-01', 205000000.00, 0, 60, NOW(), FALSE);
 SET FOREIGN_KEY_CHECKS = 1;
+
+
+INSERT INTO unit_conversions (variant_id, unit_id, multiplier, deleted)
+VALUES
+       (1, 1, 1, FALSE),
+       (1, 2, 10, FALSE),
+       (1, 3, 50, FALSE),
+       (2, 1, 1, FALSE),
+       (2, 2, 8, FALSE),
+       (2, 3, 40, FALSE);
