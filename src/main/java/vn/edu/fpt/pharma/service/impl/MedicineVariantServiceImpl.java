@@ -159,7 +159,7 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
 
     @Override
     public List<Map<String, Object>> getUnitConversions(Long variantId) {
-        List<UnitConversion> conversions = unitConversionRepository.findByVariantId(variantId);
+        List<UnitConversion> conversions = unitConversionRepository.findByVariantIdId(variantId);
 
         return conversions.stream()
                 .map(conv -> {

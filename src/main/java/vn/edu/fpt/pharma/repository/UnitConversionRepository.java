@@ -8,7 +8,8 @@ import java.util.List;
 
 @Repository
 public interface UnitConversionRepository extends JpaRepository<UnitConversion, Long> {
-    List<UnitConversion> findByVariantId(Long variantId);
+    // Use nested property "variantId.id" because "variantId" is a MedicineVariant entity
+    List<UnitConversion> findByVariantIdId(Long variantId);
     void deleteByVariantIdId(Long variantId);
 }
 
