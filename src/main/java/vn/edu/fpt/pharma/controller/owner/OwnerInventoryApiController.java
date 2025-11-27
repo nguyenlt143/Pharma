@@ -11,6 +11,7 @@ import vn.edu.fpt.pharma.repository.*;
 import vn.edu.fpt.pharma.constant.RequestStatus;
 import vn.edu.fpt.pharma.constant.RequestType;
 import vn.edu.fpt.pharma.constant.MovementType;
+import vn.edu.fpt.pharma.entity.Inventory;
 import vn.edu.fpt.pharma.entity.InventoryMovement;
 import vn.edu.fpt.pharma.entity.Medicine;
 import vn.edu.fpt.pharma.entity.MedicineVariant;
@@ -185,9 +186,8 @@ public class OwnerInventoryApiController {
         List<Map<String, Object>> result = new ArrayList<>();
         
         for (Category cat : categories) {
-            // Calculate total value for this category
-            // @Transactional ensures session stays open
-            double totalValue = inventoryRepository.findAll().stream()
+            // Filter inventory by branch and category
+            List<Inventory> categoryInventory = inventoryRepository.findAll().stream()
                 .filter(inv -> {
                     if (branchId != null) {
                         try {
@@ -208,6 +208,18 @@ public class OwnerInventoryApiController {
                         return false;
                     }
                 })
+                .collect(java.util.stream.Collectors.toList());
+            
+            // Calculate item count (distinct variants)
+            long itemCount = categoryInventory.stream()
+                .map(Inventory::getVariant)
+                .filter(java.util.Objects::nonNull)
+                .map(MedicineVariant::getId)
+                .distinct()
+                .count();
+            
+            // Calculate total value
+            double totalValue = categoryInventory.stream()
                 .mapToDouble(inv -> {
                     Long qty = inv.getQuantity() != null ? inv.getQuantity() : 0L;
                     Double cost = inv.getCostPrice() != null ? inv.getCostPrice() : 0.0;
@@ -215,10 +227,11 @@ public class OwnerInventoryApiController {
                 })
                 .sum();
             
-            if (totalValue > 0) {
+            if (itemCount > 0 || totalValue > 0) {
                 Map<String, Object> item = new HashMap<>();
                 item.put("name", cat.getName());
                 item.put("value", totalValue);
+                item.put("itemCount", itemCount);
                 result.add(item);
             }
         }
