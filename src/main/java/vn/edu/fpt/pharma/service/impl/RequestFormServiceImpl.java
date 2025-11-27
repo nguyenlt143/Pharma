@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.Comparator;
 
 @Slf4j
 @Service
@@ -166,12 +167,8 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     public List<RequestList> getAllRequestForms() {
         return repository.findAll()
                 .stream()
-                .sorted((r1, r2) -> {
-                    if (r1.getCreatedAt() == null && r2.getCreatedAt() == null) return 0;
-                    if (r1.getCreatedAt() == null) return 1;
-                    if (r2.getCreatedAt() == null) return -1;
-                    return r2.getCreatedAt().compareTo(r1.getCreatedAt()); // Descending order (newest first)
-                })
+                .sorted(Comparator.comparing(RequestForm::getCreatedAt,
+                        Comparator.nullsLast(Comparator.naturalOrder())).reversed())
                 .map(entity -> {
                     String branchName = getBranchNameById(entity.getBranchId());
                     return new RequestList(entity, branchName);
@@ -183,12 +180,8 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     public List<RequestList> getImportRequests() {
         return repository.findByRequestType(RequestType.IMPORT)
                 .stream()
-                .sorted((r1, r2) -> {
-                    if (r1.getCreatedAt() == null && r2.getCreatedAt() == null) return 0;
-                    if (r1.getCreatedAt() == null) return 1;
-                    if (r2.getCreatedAt() == null) return -1;
-                    return r2.getCreatedAt().compareTo(r1.getCreatedAt());
-                })
+                .sorted(Comparator.comparing(RequestForm::getCreatedAt,
+                        Comparator.nullsLast(Comparator.naturalOrder())).reversed())
                 .map(entity -> {
                     String branchName = getBranchNameById(entity.getBranchId());
                     return new RequestList(entity, branchName);
@@ -200,12 +193,8 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     public List<RequestList> getReturnRequests() {
         return repository.findByRequestType(RequestType.RETURN)
                 .stream()
-                .sorted((r1, r2) -> {
-                    if (r1.getCreatedAt() == null && r2.getCreatedAt() == null) return 0;
-                    if (r1.getCreatedAt() == null) return 1;
-                    if (r2.getCreatedAt() == null) return -1;
-                    return r2.getCreatedAt().compareTo(r1.getCreatedAt());
-                })
+                .sorted(Comparator.comparing(RequestForm::getCreatedAt,
+                        Comparator.nullsLast(Comparator.naturalOrder())).reversed())
                 .map(entity -> {
                     String branchName = getBranchNameById(entity.getBranchId());
                     return new RequestList(entity, branchName);
