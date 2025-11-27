@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+import java.util.Map;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -29,5 +32,15 @@ public class MedicineVariantRequest {
     private String instructions;
     private Boolean prescription_require;
     private String uses;
+    private List<UnitConversionDTO> unitConversions;
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UnitConversionDTO {
+        private Long unitId;
+        private Double multiplier;
+    }
 }
 

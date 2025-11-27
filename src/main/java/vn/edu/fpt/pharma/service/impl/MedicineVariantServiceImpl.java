@@ -1,21 +1,21 @@
 package vn.edu.fpt.pharma.service.impl;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.pharma.base.BaseServiceImpl;
 import vn.edu.fpt.pharma.dto.medicine.MedicineVariantRequest;
 import vn.edu.fpt.pharma.dto.medicine.MedicineVariantResponse;
 import vn.edu.fpt.pharma.dto.medicine.SearchMedicineVM;
+import vn.edu.fpt.pharma.dto.medicine.UnitConversionVM;
 import vn.edu.fpt.pharma.entity.Medicine;
 import vn.edu.fpt.pharma.entity.MedicineVariant;
 import vn.edu.fpt.pharma.entity.Unit;
-import vn.edu.fpt.pharma.repository.InventoryRepository;
-import vn.edu.fpt.pharma.repository.MedicineRepository;
-import vn.edu.fpt.pharma.repository.MedicineVariantRepository;
-import vn.edu.fpt.pharma.repository.UnitRepository;
+import vn.edu.fpt.pharma.entity.UnitConversion;
+import vn.edu.fpt.pharma.repository.*;
 import vn.edu.fpt.pharma.service.AuditService;
 import vn.edu.fpt.pharma.service.MedicineVariantService;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,21 +27,25 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
     private final MedicineVariantRepository medicineVariantRepository;
     private final InventoryRepository inventoryRepository;
     private final vn.edu.fpt.pharma.repository.PriceRepository priceRepository;
+    private final UnitConversionRepository unitConversionRepository;
 
     public MedicineVariantServiceImpl(MedicineVariantRepository repository, AuditService auditService,
                                       MedicineRepository medicineRepository, UnitRepository unitRepository,
                                       MedicineVariantRepository medicineVariantRepository,
                                       InventoryRepository inventoryRepository,
-                                      vn.edu.fpt.pharma.repository.PriceRepository priceRepository) {
+                                      vn.edu.fpt.pharma.repository.PriceRepository priceRepository,
+                                      UnitConversionRepository unitConversionRepository) {
         super(repository, auditService);
         this.medicineRepository = medicineRepository;
         this.unitRepository = unitRepository;
         this.medicineVariantRepository = medicineVariantRepository;
         this.inventoryRepository = inventoryRepository;
         this.priceRepository = priceRepository;
+        this.unitConversionRepository = unitConversionRepository;
     }
 
     @Override
+    @Transactional
     public MedicineVariantResponse createVariant(MedicineVariantRequest request) {
         Medicine medicine = medicineRepository.findById(request.getMedicineId())
                 .orElseThrow(() -> new RuntimeException("Medicine not found"));
@@ -74,6 +78,12 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                 .build();
 
         MedicineVariant saved = repository.save(variant);
+
+        // Save unit conversions if provided
+        if (request.getUnitConversions() != null && !request.getUnitConversions().isEmpty()) {
+            saveUnitConversions(saved, request.getUnitConversions());
+        }
+
         return MedicineVariantResponse.fromEntity(saved);
     }
 
@@ -121,7 +131,46 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
         variant.setPackageUnitId(packageUnit);
 
         MedicineVariant updated = repository.save(variant);
+
+        // Update unit conversions if provided
+        if (request.getUnitConversions() != null) {
+            // Delete existing conversions
+            unitConversionRepository.deleteByVariantIdId(id);
+            // Save new conversions
+            saveUnitConversions(updated, request.getUnitConversions());
+        }
+
         return MedicineVariantResponse.fromEntity(updated);
+    }
+
+    private void saveUnitConversions(MedicineVariant variant, List<MedicineVariantRequest.UnitConversionDTO> conversions) {
+        for (MedicineVariantRequest.UnitConversionDTO dto : conversions) {
+            Unit unit = unitRepository.findById(dto.getUnitId())
+                    .orElseThrow(() -> new RuntimeException("Unit not found: " + dto.getUnitId()));
+
+            UnitConversion conversion = UnitConversion.builder()
+                    .variantId(variant)
+                    .unitId(unit)
+                    .multiplier(dto.getMultiplier())
+                    .build();
+
+            unitConversionRepository.save(conversion);
+        }
+    }
+
+    @Override
+    public List<Map<String, Object>> getUnitConversions(Long variantId) {
+        List<UnitConversion> conversions = unitConversionRepository.findByVariantIdId(variantId);
+
+        return conversions.stream()
+                .map(conv -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", conv.getId());
+                    map.put("unitId", conv.getUnitId());
+                    map.put("multiplier", conv.getMultiplier());
+                    return map;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -164,6 +213,14 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                     // Get inventory for this variant
                     List<vn.edu.fpt.pharma.dto.medicine.InventoryDetailDTO> inventories =
                         getInventoryByVariantId(variantId);
+                    List<UnitConversionVM> units = unitConversionRepository.findByVariantIdId(variantId)
+                            .stream()
+                            .map(u -> new UnitConversionVM(
+                                    u.getUnitId().getId(),
+                                    u.getUnitId().getName(),
+                                    u.getMultiplier()
+                            ))
+                            .collect(Collectors.toList());
 
                     return new vn.edu.fpt.pharma.dto.medicine.VariantInventoryDTO(
                             variantId,
@@ -184,7 +241,8 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                             (String) r[15], // uses
                             (String) r[16], // country
                             (String) r[17], // manufacturer
-                            inventories
+                            inventories,
+                            units
                     );
                 })
                 .collect(Collectors.toList());

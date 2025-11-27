@@ -8,6 +8,7 @@ import vn.edu.fpt.pharma.dto.medicine.VariantInventoryDTO;
 import vn.edu.fpt.pharma.entity.MedicineVariant;
 
 import java.util.List;
+import java.util.Map;
 
 public interface MedicineVariantService extends BaseService<MedicineVariant, Long> {
     List<MedicineVariantResponse> getVariantsByMedicineId(Long medicineId);
@@ -17,4 +18,5 @@ public interface MedicineVariantService extends BaseService<MedicineVariant, Lon
 
     List<SearchMedicineVM> findByKeyword(String keyword);
     List<VariantInventoryDTO> getVariantsWithInventoryByMedicineId(Long medicineId);
+    List<Map<String, Object>> getUnitConversions(Long variantId);
 }

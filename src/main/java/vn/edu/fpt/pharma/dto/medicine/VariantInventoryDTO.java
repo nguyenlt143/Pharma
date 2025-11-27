@@ -21,7 +21,8 @@ public record VariantInventoryDTO(
         String uses,
         String country,
         String manufacturer,
-        List<InventoryDetailDTO> inventories
+        List<InventoryDetailDTO> inventories,
+        List<UnitConversionVM> unitConversion
 ) {
 }
 
