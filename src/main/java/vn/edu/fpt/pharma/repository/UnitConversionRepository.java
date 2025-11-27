@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface UnitConversionRepository extends JpaRepository<UnitConversion, Long> {
-    List<UnitConversion> findByVariantIdId(Long variantId);
+    List<UnitConversion> findByVariantId(Long variantId);
     void deleteByVariantIdId(Long variantId);
 }
 

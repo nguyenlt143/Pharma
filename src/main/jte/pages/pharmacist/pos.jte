@@ -33,6 +33,7 @@
                             <th class="table-cell">Tên thuốc</th>
                             <th class="table-cell">Kiểu đóng gói</th>
                             <th class="table-cell">Số lượng</th>
+                            <th class="table-cell">Giá tiền</th>
                             <th class="table-cell text-right">Thành tiền</th>
                         </tr>
                         </thead>

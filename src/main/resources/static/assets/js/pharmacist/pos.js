@@ -36,7 +36,9 @@ function renderResults(medicines) {
     let html = "";
     medicines.forEach(medicine => {
         html += `
-      <div class="medicine-card" data-medicine-id="${medicine.id}">
+      <div class="medicine-card"
+      data-medicine-id="${medicine.id}"
+      data-medicine-name="${medicine.name}">
         <h3 class="medicine-name">${medicine.name}</h3>
         <p class="medicine-ingredient">Hoạt chất: ${medicine.activeIngredient}</p>
         <div class="variant-details" style="display: none;"></div>
@@ -50,6 +52,7 @@ function renderResults(medicines) {
 function addEventListenersToMedicineCards() {
     const medicineCards = document.querySelectorAll('.medicine-card');
     medicineCards.forEach(card => {
+        const medicineName = card.dataset.medicineName;
         card.addEventListener('click', () => {
             const medicineId = card.dataset.medicineId;
             const detailsContainer = card.querySelector('.variant-details');
@@ -91,7 +94,17 @@ function addEventListenersToMedicineCards() {
                                         const expiryDate = inv.expiryDate ? new Date(inv.expiryDate).toLocaleDateString('vi-VN') : 'N/A';
                                         const salePrice = inv.salePrice ? inv.salePrice.toLocaleString('vi-VN') + ' VNĐ' : 'Chưa có giá';
                                         inventoryInfoHtml += `
-                                            <div class="inventory-item" data-inventory-id="${inv.id}" data-variant-id="${variant.variantId}" style="margin-bottom: 10px; padding: 5px; background-color: #f9f9f9; border-radius: 4px; cursor: pointer;">
+                                            <div class="inventory-item"
+                                            data-inventory-id="${inv.id}"
+                                            data-medicine-name="${medicineName}"
+                                            data-strength="${variant.strength}"
+                                            data-base-unit-name="${variant.baseUnitName}"
+                                            data-variant-id="${variant.variantId}"
+                                            data-batch-number="${inv.batchNumber}"
+                                            data-expiry-date="${inv.expiryDate}"
+                                            data-sale-price="${inv.salePrice}"
+                                            data-max-quantity="${inv.quantity}"
+                                            style="margin-bottom: 10px; padding: 5px; background-color: #f9f9f9; border-radius: 4px; cursor: pointer;">
                                                 <strong>Số lô: ${inv.batchNumber || 'N/A'}</strong><br>
                                                 HSD: ${expiryDate}<br>
                                                 Tồn kho: <strong>${inv.quantity}</strong> ${variant.baseUnitName || ''}<br>
@@ -132,10 +145,13 @@ let prescriptionItems = [];
 function addInventoryItemClickListeners() {
     const inventoryItems = document.querySelectorAll('.inventory-item');
     inventoryItems.forEach(item => {
+        const medicineName = item.dataset.medicineName;
         item.addEventListener('click', (e) => {
             e.stopPropagation();
 
             // Extract all data from data attributes
+            const medicineName = item.dataset.medicineName;
+            const unitConversions = JSON.parse(item.dataset.unitConversions || "[]");
             const inventoryId = item.dataset.inventoryId;
             const maxQuantity = parseInt(item.dataset.maxQuantity, 10);
             const salePrice = parseFloat(item.dataset.salePrice);
@@ -192,6 +208,7 @@ function addInventoryItemClickListeners() {
                     salePrice: salePrice,
                     maxQuantity: maxQuantity,
                     quantity: 1,
+                    units: unitConversions
                 };
 
                 console.log('Adding new item to prescription:', newItem);
@@ -228,7 +245,15 @@ function renderPrescription() {
                     <div class="medicine-detail">Lô: ${item.batchNumber} - HSD: ${item.expiryDate}</div>
                 </div>
             </td>
-            <td>${item.baseUnitName}</td>
+            <td>
+                <select class="unit-select" data-inventory-id="${item.inventoryId}">
+                    ${item.units.map(u => `
+                        <option value="${u.multiplier}">
+                            ${u.unitName}
+                        </option>
+                    `).join('')}
+                </select>
+            </td>
             <td>
                 <input type="number" class="quantity-input" value="${item.quantity}" min="1" max="${item.maxQuantity}" data-inventory-id="${item.inventoryId}" style="width: 60px; padding: 4px;">
             </td>
@@ -251,6 +276,27 @@ function renderPrescription() {
 }
 
 function addPrescriptionActionListeners() {
+
+    document.querySelectorAll('.unit-select').forEach(select => {
+        select.addEventListener('change', (e) => {
+            const index = parseInt(e.target.closest('tr').rowIndex - 1, 10);
+            const multiplier = parseInt(e.target.value, 10);
+
+            const item = prescriptionItems[index];
+            item.selectedMultiplier = multiplier;
+
+            // Cập nhật lại max theo đơn vị mới
+            item.maxQuantity = Math.floor(item.baseStock / multiplier);
+
+            // Reset quantity nếu vượt mức
+            if (item.quantity > item.maxQuantity) {
+                item.quantity = item.maxQuantity;
+            }
+
+            renderPrescription();
+        });
+    });
+
     // Quantity change with validation
     document.querySelectorAll('.quantity-input').forEach(input => {
         input.addEventListener('change', (e) => {
