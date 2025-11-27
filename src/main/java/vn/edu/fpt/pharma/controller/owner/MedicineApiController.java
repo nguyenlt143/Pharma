@@ -210,5 +210,23 @@ public class MedicineApiController {
         medicineService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+    /**
+     * Get unit conversions for a variant
+     * GET /api/owner/medicine/variant/{variantId}/unit-conversions
+     */
+    @GetMapping("/variant/{variantId}/unit-conversions")
+    public ResponseEntity<List<Map<String, Object>>> getUnitConversions(
+            @PathVariable Long variantId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        // Verify owner role
+        if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        List<Map<String, Object>> conversions = medicineVariantService.getUnitConversions(variantId);
+        return ResponseEntity.ok(conversions);
+    }
 }
 

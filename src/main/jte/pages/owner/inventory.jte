@@ -118,8 +118,15 @@
                 </div>
 
                 <div class="chart-card">
-                    <div class="chart-header"><h3>Tỷ trọng danh mục</h3></div>
-                    <canvas id="categoryDonut" aria-label="Tỷ trọng danh mục" role="img"></canvas>
+                    <div class="chart-header">
+                        <h3>Thống kê tồn kho theo danh mục</h3>
+                    </div>
+                    <canvas id="categoryChart" aria-label="Biểu đồ danh mục" role="img" style="max-height: 240px;"></canvas>
+                </div>
+
+                <div class="chart-card donut-card">
+                    <div class="chart-header"><h3>Tỷ trọng giá trị</h3></div>
+                    <canvas id="categoryDonut" aria-label="Tỷ trọng danh mục" role="img" style="max-height: 200px;"></canvas>
                     <ul id="donutLegend" class="donut-legend"></ul>
                 </div>
             </section>

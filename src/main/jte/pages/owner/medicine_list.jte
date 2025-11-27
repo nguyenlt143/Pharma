@@ -402,6 +402,30 @@ content = @`
                     </div>
                 </div>
 
+                <!-- Unit Conversions Section -->
+                <div style="margin-top: 32px; padding-top: 24px; border-top: 2px solid #E5E7EB;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 style="font-size: 16px; font-weight: 600; margin: 0;">Danh sách đơn vị quy đổi </h3>
+                        <button type="button" onclick="addUnitConversionRow()" class="btn-primary" style="padding: 6px 12px; font-size: 14px;">
+                            + Thêm đơn vị tính
+                        </button>
+                    </div>
+                    <div style="border: 1px solid #E5E7EB; border-radius: 6px; overflow: hidden; margin-bottom: 16px;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead style="background: #3B82F6; color: white;">
+                                <tr>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 14px;">Tên đơn vị</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 14px;">Quy đổi</th>
+                                    <th style="padding: 12px; text-align: center; font-weight: 600; font-size: 14px; width: 80px;">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="unitConversionTableBody">
+                                <!-- Unit conversion rows will be added here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <div class="btn-group">
                     <button type="button" class="btn-secondary" onclick="cancelVariantForm()">Hủy</button>
                     <button type="submit" class="btn-primary">Lưu</button>

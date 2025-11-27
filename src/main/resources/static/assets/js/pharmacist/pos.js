@@ -36,7 +36,9 @@ function renderResults(medicines) {
     let html = "";
     medicines.forEach(medicine => {
         html += `
-      <div class="medicine-card" data-medicine-id="${medicine.id}">
+      <div class="medicine-card"
+      data-medicine-id="${medicine.id}"
+      data-medicine-name="${medicine.name}">
         <h3 class="medicine-name">${medicine.name}</h3>
         <p class="medicine-ingredient">Hoạt chất: ${medicine.activeIngredient}</p>
         <div class="variant-details" style="display: none;"></div>
@@ -50,6 +52,7 @@ function renderResults(medicines) {
 function addEventListenersToMedicineCards() {
     const medicineCards = document.querySelectorAll('.medicine-card');
     medicineCards.forEach(card => {
+        const medicineName = card.dataset.medicineName;
         card.addEventListener('click', () => {
             const medicineId = card.dataset.medicineId;
             const detailsContainer = card.querySelector('.variant-details');
@@ -91,7 +94,18 @@ function addEventListenersToMedicineCards() {
                                         const expiryDate = inv.expiryDate ? new Date(inv.expiryDate).toLocaleDateString('vi-VN') : 'N/A';
                                         const salePrice = inv.salePrice ? inv.salePrice.toLocaleString('vi-VN') + ' VNĐ' : 'Chưa có giá';
                                         inventoryInfoHtml += `
-                                            <div class="inventory-item" data-inventory-id="${inv.id}" data-variant-id="${variant.variantId}" style="margin-bottom: 10px; padding: 5px; background-color: #f9f9f9; border-radius: 4px; cursor: pointer;">
+                                            <div class="inventory-item"
+                                            data-inventory-id="${inv.id}"
+                                            data-medicine-name="${medicineName}"
+                                            data-units='${JSON.stringify(variant.unitConversion)}'
+                                            data-strength="${variant.strength}"
+                                            data-base-unit-name="${variant.baseUnitName}"
+                                            data-variant-id="${variant.variantId}"
+                                            data-batch-number="${inv.batchNumber}"
+                                            data-expiry-date="${inv.expiryDate}"
+                                            data-sale-price="${inv.salePrice}"
+                                            data-max-quantity="${inv.quantity}"
+                                            style="margin-bottom: 10px; padding: 5px; background-color: #f9f9f9; border-radius: 4px; cursor: pointer;">
                                                 <strong>Số lô: ${inv.batchNumber || 'N/A'}</strong><br>
                                                 HSD: ${expiryDate}<br>
                                                 Tồn kho: <strong>${inv.quantity}</strong> ${variant.baseUnitName || ''}<br>
@@ -132,10 +146,13 @@ let prescriptionItems = [];
 function addInventoryItemClickListeners() {
     const inventoryItems = document.querySelectorAll('.inventory-item');
     inventoryItems.forEach(item => {
+        const medicineName = item.dataset.medicineName;
         item.addEventListener('click', (e) => {
             e.stopPropagation();
 
             // Extract all data from data attributes
+            const medicineName = item.dataset.medicineName;
+            const unitConversions = JSON.parse(item.dataset.units || "[]");
             const inventoryId = item.dataset.inventoryId;
             const maxQuantity = parseInt(item.dataset.maxQuantity, 10);
             const salePrice = parseFloat(item.dataset.salePrice);
@@ -189,9 +206,17 @@ function addInventoryItemClickListeners() {
                     packageUnitName: item.dataset.packageUnitName || '',
                     batchNumber: item.dataset.batchNumber || 'N/A',
                     expiryDate: item.dataset.expiryDate || 'N/A',
+
+
                     salePrice: salePrice,
-                    maxQuantity: maxQuantity,
+                    currentPrice: salePrice,
                     quantity: 1,
+
+                    maxQuantity: maxQuantity,
+                    baseStock: maxQuantity,
+
+                    selectedMultiplier: 1,
+                    units: unitConversions
                 };
 
                 console.log('Adding new item to prescription:', newItem);
@@ -213,7 +238,7 @@ function renderPrescription() {
     prescriptionBody.innerHTML = ''; // Clear existing items
 
     prescriptionItems.forEach((item, index) => {
-        const itemTotal = item.quantity * item.salePrice;
+        const itemTotal = item.quantity * item.currentPrice;
         totalAmount += itemTotal;
 
         const row = document.createElement('tr');
@@ -228,12 +253,25 @@ function renderPrescription() {
                     <div class="medicine-detail">Lô: ${item.batchNumber} - HSD: ${item.expiryDate}</div>
                 </div>
             </td>
-            <td>${item.baseUnitName}</td>
+            <td>
+                <select class="unit-select" data-inventory-id="${item.inventoryId}">
+                    ${item.units.map(u => `
+                    <option value="${u.multiplier}"
+                            data-unit="${u.unitName}"
+                            ${item.selectedMultiplier === u.multiplier ? "selected" : ""}>
+                        ${u.unitName}
+                    </option>
+                    `).join('')}
+                </select>
+            </td>
             <td>
                 <input type="number" class="quantity-input" value="${item.quantity}" min="1" max="${item.maxQuantity}" data-inventory-id="${item.inventoryId}" style="width: 60px; padding: 4px;">
             </td>
-            <td class="text-right">${item.salePrice.toLocaleString('vi-VN')}</td>
+            <td class="text-right">${item.currentPrice.toLocaleString('vi-VN')}</td>
             <td class="text-right">${itemTotal.toLocaleString('vi-VN')}</td>
+            <td>
+                    <button class="delete-item-btn" data-index="${index}" style="color:red;">🗑</button>
+            </td>
         `;
         prescriptionBody.appendChild(row);
     });
@@ -251,6 +289,31 @@ function renderPrescription() {
 }
 
 function addPrescriptionActionListeners() {
+
+    document.querySelectorAll('.unit-select').forEach(select => {
+        select.addEventListener('change', (e) => {
+            const index = parseInt(e.target.closest('tr').rowIndex - 1, 10);
+            const multiplier = parseInt(e.target.value, 10);
+
+            const item = prescriptionItems[index];
+            item.selectedMultiplier = multiplier;
+
+            // Cập nhật giá theo đơn vị
+            item.currentPrice = item.salePrice * multiplier;
+
+            // Cập nhật tồn kho tối đa theo đơn vị mới
+            // baseStock là tổng tồn tính theo đơn vị nhỏ nhất
+            item.maxQuantity = Math.floor(item.baseStock / multiplier);
+
+            // Reset quantity nếu vượt mức
+            if (item.quantity > item.maxQuantity) {
+                item.quantity = item.maxQuantity;
+            }
+
+            renderPrescription();
+        });
+    });
+
     // Quantity change with validation
     document.querySelectorAll('.quantity-input').forEach(input => {
         input.addEventListener('change', (e) => {
@@ -285,6 +348,15 @@ function addPrescriptionActionListeners() {
             }
         });
 
+        document.querySelectorAll('.delete-item-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const index = parseInt(e.target.dataset.index);
+
+                prescriptionItems.splice(index, 1);
+                renderPrescription();
+            });
+        });
+
         // Prevent entering invalid characters
         input.addEventListener('keypress', (e) => {
             // Only allow numbers
@@ -294,12 +366,6 @@ function addPrescriptionActionListeners() {
         });
     });
 }
-
-// This function is no longer needed as we are not using cart buttons in the search result
-function addCartButtonListeners() {
-    // ... can be removed or left empty
-}
-
 
 // Clear buttons
 clearButtons.forEach(button => {

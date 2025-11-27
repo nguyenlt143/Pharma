@@ -600,40 +600,40 @@ VALUES
     ('SUP_TO_WARE', 2, NULL, 1, NULL, 69000000,  'RECEIVED', NOW(), FALSE),
     ('SUP_TO_WARE', 3, NULL, 1, NULL, 24750000,  'RECEIVED', NOW(), FALSE);
 
--- SUP_TO_WARE: Giá từ NCC (Bậc 1) - price = snap_cost
+-- SUP_TO_WARE: Giá từ NCC (Bậc 1) - price = snap_cost (đơn vị cơ bản)
 INSERT INTO inventory_movement_details
 (movement_id, variant_id, batch_id, quantity, price, snap_cost, created_at, deleted)
 VALUES
--- movement 1: price = snap_cost (giá từ NCC)
-(1, 1, 1, 2000, 20000, 20000, NOW(), FALSE),
-(1, 4, 4, 1000, 80000, 80000, NOW(), FALSE),
+-- movement 1: price = snap_cost (giá từ NCC) chia cho quantity_per_package
+(1, 1, 1, 20000, 2000, 2000, NOW(), FALSE),    -- qty: 2000*10=20000, price: 20000/10=2000
+(1, 4, 4, 10000, 8000, 8000, NOW(), FALSE),    -- qty: 1000*10=10000, price: 80000/10=8000
 -- movement 2
-(2, 2, 2, 1500, 16000, 16000, NOW(), FALSE),
-(2, 3, 3, 1200, 70000, 70000, NOW(), FALSE),
+(2, 2, 2, 15000, 1600, 1600, NOW(), FALSE),    -- qty: 1500*10=15000, price: 16000/10=1600
+(2, 3, 3, 12000, 7000, 7000, NOW(), FALSE),    -- qty: 1200*10=12000, price: 70000/10=7000
 -- movement 3
-(3, 5, 5, 1800, 110000, 110000, NOW(), FALSE),
-(3, 6, 6, 1200, 50000, 50000, NOW(), FALSE),
+(3, 5, 5, 36000, 5500, 5500, NOW(), FALSE),    -- qty: 1800*20=36000, price: 110000/20=5500
+(3, 6, 6, 12000, 5000, 5000, NOW(), FALSE),    -- qty: 1200*10=12000, price: 50000/10=5000
 -- movement 4
-(4, 7, 7, 1000, 68000, 68000, NOW(), FALSE),
-(4, 8, 8, 800, 88000, 88000, NOW(), FALSE),
+(4, 7, 7, 1000, 68000, 68000, NOW(), FALSE),   -- qty: 1000*1=1000, price: 68000/1=68000
+(4, 8, 8, 800, 88000, 88000, NOW(), FALSE),    -- qty: 800*1=800, price: 88000/1=88000
 -- movement 5
-(5, 9, 9, 600, 38000, 38000, NOW(), FALSE),
-(5, 10, 10, 500, 18000, 18000, NOW(), FALSE),
+(5, 9, 9, 6000, 3800, 3800, NOW(), FALSE),     -- qty: 600*10=6000, price: 38000/10=3800
+(5, 10, 10, 500, 18000, 18000, NOW(), FALSE),  -- qty: 500*1=500, price: 18000/1=18000
 -- movement 6
-(6, 1, 1, 1000, 20000, 20000, NOW(), FALSE),
-(6, 5, 5, 700, 110000, 110000, NOW(), FALSE),
+(6, 1, 1, 10000, 2000, 2000, NOW(), FALSE),    -- qty: 1000*10=10000, price: 20000/10=2000
+(6, 5, 5, 14000, 5500, 5500, NOW(), FALSE),    -- qty: 700*20=14000, price: 110000/20=5500
 -- movement 7
-(7, 3, 3, 900, 70000, 70000, NOW(), FALSE),
-(7, 6, 6, 600, 50000, 50000, NOW(), FALSE),
+(7, 3, 3, 9000, 7000, 7000, NOW(), FALSE),     -- qty: 900*10=9000, price: 70000/10=7000
+(7, 6, 6, 6000, 5000, 5000, NOW(), FALSE),     -- qty: 600*10=6000, price: 50000/10=5000
 -- movement 8
-(8, 2, 2, 800, 16000, 16000, NOW(), FALSE),
-(8, 7, 7, 700, 68000, 68000, NOW(), FALSE),
+(8, 2, 2, 8000, 1600, 1600, NOW(), FALSE),     -- qty: 800*10=8000, price: 16000/10=1600
+(8, 7, 7, 700, 68000, 68000, NOW(), FALSE),    -- qty: 700*1=700, price: 68000/1=68000
 -- movement 9
-(9, 4, 4, 500, 80000, 80000, NOW(), FALSE),
-(9, 8, 8, 300, 88000, 88000, NOW(), FALSE),
+(9, 4, 4, 5000, 8000, 8000, NOW(), FALSE),     -- qty: 500*10=5000, price: 80000/10=8000
+(9, 8, 8, 300, 88000, 88000, NOW(), FALSE),    -- qty: 300*1=300, price: 88000/1=88000
 -- movement 10
-(10, 9, 9, 400, 38000, 38000, NOW(), FALSE),
-(10, 10, 10, 350, 18000, 18000, NOW(), FALSE);
+(10, 9, 9, 4000, 3800, 3800, NOW(), FALSE),    -- qty: 400*10=4000, price: 38000/10=3800
+(10, 10, 10, 350, 18000, 18000, NOW(), FALSE); -- qty: 350*1=350, price: 18000/1=18000
 -- =========================================================
 -- 4) WARE_TO_BR (Kho tổng -> Chi nhánh): 30 movements
 --    Some linked to request_forms (IMPORT), others as direct allocations (request_form_id = NULL)
@@ -676,69 +676,69 @@ VALUES
     ('WARE_TO_BR', NULL, 1, 3, 40, 5130000, 'RECEIVED', NOW(), FALSE),
     ('WARE_TO_BR', NULL, 1, 3, 41, 19550000, 'RECEIVED', NOW(), FALSE);
 
--- WARE_TO_BR (Bậc 2): price = snap_cost × 1.25 (warehouse lãi 25%)
+-- WARE_TO_BR (Bậc 2): price = snap_cost × 1.25 (warehouse lãi 25%) chia cho quantity_per_package
 INSERT INTO inventory_movement_details (movement_id, variant_id, batch_id, quantity, price, snap_cost, created_at, deleted)
 VALUES
     -- movementdetail 21-62
--- movement 11: price = snap_cost × 1.25
-(11, 1, 1, 600, 25000, 20000, NOW(), FALSE),
-(11, 6, 6, 300, 62500, 50000, NOW(), FALSE),
-(11, 4, 4, 200, 100000, 80000, NOW(), FALSE),
+-- movement 11: price = snap_cost × 1.25 chia cho quantity_per_package
+(11, 1, 1, 6000, 2500, 2000, NOW(), FALSE),     -- qty: 600*10=6000, price: 25000/10=2500
+(11, 6, 6, 3000, 6250, 5000, NOW(), FALSE),     -- qty: 300*10=3000, price: 62500/10=6250
+(11, 4, 4, 2000, 10000, 8000, NOW(), FALSE),    -- qty: 200*10=2000, price: 100000/10=10000
 
 -- movement 12
-(12, 1, 1, 400, 25000, 20000, NOW(), FALSE),
-(12, 3, 3, 250, 87500, 70000, NOW(), FALSE),
-(12, 2, 2, 200, 20000, 16000, NOW(), FALSE),
+(12, 1, 1, 4000, 2500, 2000, NOW(), FALSE),     -- qty: 400*10=4000, price: 25000/10=2500
+(12, 3, 3, 2500, 8750, 7000, NOW(), FALSE),     -- qty: 250*10=2500, price: 87500/10=8750
+(12, 2, 2, 2000, 2000, 1600, NOW(), FALSE),     -- qty: 200*10=2000, price: 20000/10=2000
 
 -- movement 13 (variant 11,12 không có giai đoạn 1, dùng giá warehouse = 33k, 51k)
-(13, 11, 11, 150, 33000, 33000, NOW(), FALSE),
-(13, 12, 12, 120, 51000, 51000, NOW(), FALSE),
+(13, 11, 11, 1500, 3300, 3300, NOW(), FALSE),   -- qty: 150*10=1500, price: 33000/10=3300
+(13, 12, 12, 1200, 5100, 5100, NOW(), FALSE),   -- qty: 120*10=1200, price: 51000/10=5100
 
 -- movement 14
-(14, 5, 5, 500, 137500, 110000, NOW(), FALSE),
-(14, 6, 6, 200, 62500, 50000, NOW(), FALSE),
+(14, 5, 5, 10000, 6875, 5500, NOW(), FALSE),    -- qty: 500*20=10000, price: 137500/20=6875
+(14, 6, 6, 2000, 6250, 5000, NOW(), FALSE),     -- qty: 200*10=2000, price: 62500/10=6250
 
 -- movement 15 (variant 20,22 không có giai đoạn 1)
-(15, 20, 20, 300, 30000, 30000, NOW(), FALSE),
-(15, 22, 22, 150, 39000, 39000, NOW(), FALSE),
+(15, 20, 20, 8400, 1071.43, 1071.43, NOW(), FALSE),  -- qty: 300*28=8400, price: 30000/28=1071.43
+(15, 22, 22, 3000, 1950, 1950, NOW(), FALSE),        -- qty: 150*20=3000, price: 39000/20=1950
 
 -- movement 16
-(16, 7, 7, 250, 85000, 68000, NOW(), FALSE),
-(16, 8, 8, 180, 110000, 88000, NOW(), FALSE),
+(16, 7, 7, 250, 85000, 68000, NOW(), FALSE),    -- qty: 250*1=250, price: 85000/1=85000
+(16, 8, 8, 180, 110000, 88000, NOW(), FALSE),   -- qty: 180*1=180, price: 110000/1=110000
 
 -- movement 17 (variant 18,19 không có giai đoạn 1)
-(17, 18, 18, 200, 48000, 48000, NOW(), FALSE),
-(17, 19, 19, 150, 18000, 18000, NOW(), FALSE),
+(17, 18, 18, 2000, 4800, 4800, NOW(), FALSE),   -- qty: 200*10=2000, price: 48000/10=4800
+(17, 19, 19, 15000, 180, 180, NOW(), FALSE),    -- qty: 150*100=15000, price: 18000/100=180
 
 -- movement 18
-(18, 1, 1, 800, 25000, 20000, NOW(), FALSE),
-(18, 5, 5, 400, 137500, 110000, NOW(), FALSE),
-(18, 6, 6, 300, 62500, 50000, NOW(), FALSE),
+(18, 1, 1, 8000, 2500, 2000, NOW(), FALSE),     -- qty: 800*10=8000, price: 25000/10=2500
+(18, 5, 5, 8000, 6875, 5500, NOW(), FALSE),     -- qty: 400*20=8000, price: 137500/20=6875
+(18, 6, 6, 3000, 6250, 5000, NOW(), FALSE),     -- qty: 300*10=3000, price: 62500/10=6250
 
--- movements 19..41: price = snap_cost × 1.25
-(19, 1, 1, 200, 25000, 20000, NOW(), FALSE),
-(20, 2, 2, 150, 20000, 16000, NOW(), FALSE),
-(21, 3, 3, 180, 87500, 70000, NOW(), FALSE),
-(22, 4, 4, 120, 100000, 80000, NOW(), FALSE),
-(23, 5, 5, 140, 137500, 110000, NOW(), FALSE),
-(24, 6, 6, 160, 62500, 50000, NOW(), FALSE),
-(25, 7, 7, 130, 85000, 68000, NOW(), FALSE),
-(26, 8, 8, 110, 110000, 88000, NOW(), FALSE),
-(27, 9, 9, 90, 47500, 38000, NOW(), FALSE),
-(28, 10, 10, 100, 22500, 18000, NOW(), FALSE),
-(29, 1, 1, 250, 25000, 20000, NOW(), FALSE),
-(30, 2, 2, 220, 20000, 16000, NOW(), FALSE),
-(31, 3, 3, 200, 87500, 70000, NOW(), FALSE),
-(32, 4, 4, 180, 100000, 80000, NOW(), FALSE),
-(33, 5, 5, 160, 137500, 110000, NOW(), FALSE),
-(34, 6, 6, 140, 62500, 50000, NOW(), FALSE),
-(35, 7, 7, 120, 85000, 68000, NOW(), FALSE),
-(36, 8, 8, 110, 110000, 88000, NOW(), FALSE),
-(37, 9, 9, 100, 47500, 38000, NOW(), FALSE),
-(38, 10, 10, 90, 22500, 18000, NOW(), FALSE),
-(39, 1, 1, 210, 25000, 20000, NOW(), FALSE),
-(40, 2, 2, 190, 20000, 16000, NOW(), FALSE),
-(41, 3, 3, 170, 87500, 70000, NOW(), FALSE);
+-- movements 19..41: price = snap_cost × 1.25 chia cho quantity_per_package
+(19, 1, 1, 2000, 2500, 2000, NOW(), FALSE),     -- qty: 200*10=2000, price: 25000/10=2500
+(20, 2, 2, 1500, 2000, 1600, NOW(), FALSE),     -- qty: 150*10=1500, price: 20000/10=2000
+(21, 3, 3, 1800, 8750, 7000, NOW(), FALSE),     -- qty: 180*10=1800, price: 87500/10=8750
+(22, 4, 4, 1200, 10000, 8000, NOW(), FALSE),    -- qty: 120*10=1200, price: 100000/10=10000
+(23, 5, 5, 2800, 6875, 5500, NOW(), FALSE),     -- qty: 140*20=2800, price: 137500/20=6875
+(24, 6, 6, 1600, 6250, 5000, NOW(), FALSE),     -- qty: 160*10=1600, price: 62500/10=6250
+(25, 7, 7, 130, 85000, 68000, NOW(), FALSE),    -- qty: 130*1=130, price: 85000/1=85000
+(26, 8, 8, 110, 110000, 88000, NOW(), FALSE),   -- qty: 110*1=110, price: 110000/1=110000
+(27, 9, 9, 900, 4750, 3800, NOW(), FALSE),      -- qty: 90*10=900, price: 47500/10=4750
+(28, 10, 10, 100, 22500, 18000, NOW(), FALSE),  -- qty: 100*1=100, price: 22500/1=22500
+(29, 1, 1, 2500, 2500, 2000, NOW(), FALSE),     -- qty: 250*10=2500, price: 25000/10=2500
+(30, 2, 2, 2200, 2000, 1600, NOW(), FALSE),     -- qty: 220*10=2200, price: 20000/10=2000
+(31, 3, 3, 2000, 8750, 7000, NOW(), FALSE),     -- qty: 200*10=2000, price: 87500/10=8750
+(32, 4, 4, 1800, 10000, 8000, NOW(), FALSE),    -- qty: 180*10=1800, price: 100000/10=10000
+(33, 5, 5, 3200, 6875, 5500, NOW(), FALSE),     -- qty: 160*20=3200, price: 137500/20=6875
+(34, 6, 6, 1400, 6250, 5000, NOW(), FALSE),     -- qty: 140*10=1400, price: 62500/10=6250
+(35, 7, 7, 120, 85000, 68000, NOW(), FALSE),    -- qty: 120*1=120, price: 85000/1=85000
+(36, 8, 8, 110, 110000, 88000, NOW(), FALSE),   -- qty: 110*1=110, price: 110000/1=110000
+(37, 9, 9, 1000, 4750, 3800, NOW(), FALSE),     -- qty: 100*10=1000, price: 47500/10=4750
+(38, 10, 10, 90, 22500, 18000, NOW(), FALSE),   -- qty: 90*1=90, price: 22500/1=22500
+(39, 1, 1, 2100, 2500, 2000, NOW(), FALSE),     -- qty: 210*10=2100, price: 25000/10=2500
+(40, 2, 2, 1900, 2000, 1600, NOW(), FALSE),     -- qty: 190*10=1900, price: 20000/10=2000
+(41, 3, 3, 1700, 8750, 7000, NOW(), FALSE);     -- qty: 170*10=1700, price: 87500/10=8750
 
 -- =========================================================
 -- 5) BR_TO_WARE (Chi nhánh -> Kho tổng):
@@ -753,9 +753,9 @@ VALUES
 INSERT INTO inventory_movement_details (movement_id, variant_id, batch_id, quantity, price,
                                          snap_cost, created_at, deleted)
 VALUES
-    (42, 4, 4, 60, 100000,  100000, NOW(), FALSE),
-    (43, 12, 12, 40, 51000,  51000, NOW(), FALSE),
-    (44, 6, 6, 30, 62500, 62500,  NOW(), FALSE);
+    (42, 4, 4, 600, 10000,  10000, NOW(), FALSE),     -- qty: 60*10=600, price: 100000/10=10000
+    (43, 12, 12, 400, 5100,  5100, NOW(), FALSE),     -- qty: 40*10=400, price: 51000/10=5100
+    (44, 6, 6, 300, 6250, 6250,  NOW(), FALSE);       -- qty: 30*10=300, price: 62500/10=6250
 
 -- =========================================================
 -- 6) WARE_TO_SUP (Kho tổng trả Supplier): 2 movements
@@ -768,9 +768,9 @@ VALUES
 
 
 INSERT INTO inventory_movement_details (movement_id, variant_id, batch_id, quantity, price,  snap_cost, created_at, deleted)
-VALUES (45, 9, 9, 100, 47500,  47500, NOW(), FALSE),
-       (45, 10, 10, 50, 22500, 22500, NOW(), FALSE),
-       (46, 3, 3, 120, 87500, 87500, NOW(), FALSE);
+VALUES (45, 9, 9, 1000, 4750,  4750, NOW(), FALSE),    -- qty: 100*10=1000, price: 47500/10=4750
+       (45, 10, 10, 50, 22500, 22500, NOW(), FALSE),   -- qty: 50*1=50, price: 22500/1=22500
+       (46, 3, 3, 1200, 8750, 8750, NOW(), FALSE);     -- qty: 120*10=1200, price: 87500/10=8750
 
 -- =========================================================
 -- 7) DISPOSAL (2 movements) — chi nhánh hủy hàng
@@ -780,87 +780,87 @@ INSERT INTO inventory_movements (movement_type, supplier_id, source_branch_id, d
 VALUES ('DISPOSAL', NULL, 1, NULL, NULL, 735000, 'RECEIVED', NOW(), FALSE),
 ('DISPOSAL',NULL,1,NULL,NULL,408000,'RECEIVED',NOW(),FALSE);
 INSERT INTO inventory_movement_details (movement_id, variant_id, batch_id, quantity, price,  snap_cost, created_at, deleted)
-VALUES (47, 1, 1, 15, 20000,  20000, NOW(), FALSE),
-       (47, 4, 4, 5, 80000, 80000, NOW(), FALSE),
-       (48, 12, 12, 8, 51000,  51000, NOW(), FALSE);
+VALUES (47, 1, 1, 150, 2000,  2000, NOW(), FALSE),     -- qty: 15*10=150, price: 20000/10=2000
+       (47, 4, 4, 50, 8000, 8000, NOW(), FALSE),       -- qty: 5*10=50, price: 80000/10=8000
+       (48, 12, 12, 80, 5100,  5100, NOW(), FALSE);    -- qty: 8*10=80, price: 51000/10=5100
 
 -- =========================================================
 -- 8) INVENTORY: cập nhật tồn kho cho Kho tổng (branch_id = NULL) và chi nhánh 3
 --    We'll compute coarse balances: total_received - total_sent (approx)
 
--- Inventory at HQ (warehouse, branch_id=1) - cost_price = giá từ SUP_TO_WARE (giá NCC)
+-- Inventory at HQ (warehouse, branch_id=1) - cost_price = giá từ SUP_TO_WARE (giá NCC) chia cho quantity_per_package
 INSERT INTO inventory (id, created_at, deleted, branch_id, variant_id, batch_id, quantity, cost_price, min_stock)
-VALUES (1, NOW(),  FALSE, 1, 1, 1, (2000 + 1000) - (600 + 400 + 800 + 200 + 250 + 210 + 15), 20000, 0),
-       (2, NOW(),  FALSE, 1, 2, 2, (1500 + 800) - (200 + 150 + 220 + 190), 16000, 0),
-       (3, NOW(),  FALSE, 1, 3, 3, (1200 + 900) - (250 + 180 + 170 + 200 + 120), 70000, 0),
-       (4, NOW(),  FALSE, 1, 4, 4, (1000 + 500) - (200 + 120 + 180 + 60 + 5), 80000, 0),
-       (5, NOW(),  FALSE, 1, 5, 5, (1800 + 700) - (500 + 400 + 140 + 160), 110000, 0),
-       (6, NOW(),  FALSE, 1, 6, 6, (1200 + 600) - (300 + 200 + 160 + 140 + 30), 50000, 0),
-       (7, NOW(), FALSE, 1, 7, 7, (1000 + 700) - (250 + 130 + 120), 68000, 0),
-       (8, NOW(), FALSE, 1, 8, 8, (800 + 300) - (180 + 110 + 110), 88000, 0),
-       (9, NOW(), FALSE, 1, 9, 9, (600 + 400) - (90 + 100 + 100), 38000, 0),
-       (10, NOW(), FALSE, 1, 10, 10, (500 + 350) - (100 + 90 + 50), 18000, 0),
-       (11, NOW(),  FALSE, 1, 11, 11, 1050, 33000, 0),
-       (12, NOW(),  FALSE, 1, 12, 12, (120 + 40) - (40 + 8), 51000, 0),
-       (13, NOW(),  FALSE, 1, 13, 13, 2300, 58000, 0),
-       (14, NOW(),  FALSE, 1, 14, 14, 1500, 48000, 0),
-       (15, NOW(), FALSE, 1, 15, 15, 2000, 38000, 0),
-       (16, NOW(),  FALSE, 1, 16, 16, 3000, 43000, 0),
-       (17, NOW(),  FALSE, 1, 17, 17, 2500, 40000, 0),
-       (18, NOW(),  FALSE, 1, 18, 18, 1800, 48000, 0),
-       (19, NOW(), FALSE, 1, 19, 19, 1350, 18000, 0),
-       (20, NOW(), FALSE, 1, 20, 20, 900, 30000, 0),
-       (21, NOW(),  FALSE, 1, 21, 21, 1000, 43000, 0),
-       (22, NOW(), FALSE, 1, 22, 22, 1350, 39000, 0);
+VALUES (1, NOW(),  FALSE, 1, 1, 1, ((20000 + 10000) - (6000 + 4000 + 8000 + 2000 + 2500 + 2100 + 150)), 2000, 0),     -- qty*10, price/10
+       (2, NOW(),  FALSE, 1, 2, 2, ((15000 + 8000) - (2000 + 1500 + 2200 + 1900)), 1600, 0),                           -- qty*10, price/10
+       (3, NOW(),  FALSE, 1, 3, 3, ((12000 + 9000) - (2500 + 1800 + 1700 + 2000 + 1200)), 7000, 0),                    -- qty*10, price/10
+       (4, NOW(),  FALSE, 1, 4, 4, ((10000 + 5000) - (2000 + 1200 + 1800 + 600 + 50)), 8000, 0),                       -- qty*10, price/10
+       (5, NOW(),  FALSE, 1, 5, 5, ((36000 + 14000) - (10000 + 8000 + 2800 + 3200)), 5500, 0),                         -- qty*20, price/20
+       (6, NOW(),  FALSE, 1, 6, 6, ((12000 + 6000) - (3000 + 2000 + 1600 + 1400 + 300)), 5000, 0),                     -- qty*10, price/10
+       (7, NOW(), FALSE, 1, 7, 7, ((1000 + 700) - (250 + 130 + 120)), 68000, 0),                                       -- qty*1, price/1
+       (8, NOW(), FALSE, 1, 8, 8, ((800 + 300) - (180 + 110 + 110)), 88000, 0),                                        -- qty*1, price/1
+       (9, NOW(), FALSE, 1, 9, 9, ((6000 + 4000) - (900 + 1000 + 1000)), 3800, 0),                                     -- qty*10, price/10
+       (10, NOW(), FALSE, 1, 10, 10, ((500 + 350) - (100 + 90 + 50)), 18000, 0),                                       -- qty*1, price/1
+       (11, NOW(),  FALSE, 1, 11, 11, 10500, 3300, 0),                                                                 -- qty*10, price/10
+       (12, NOW(),  FALSE, 1, 12, 12, ((1200 + 400) - (400 + 80)), 5100, 0),                                           -- qty*10, price/10
+       (13, NOW(),  FALSE, 1, 13, 13, 23000, 5800, 0),                                                                 -- qty*10, price/10
+       (14, NOW(),  FALSE, 1, 14, 14, 15000, 4800, 0),                                                                 -- qty*10, price/10
+       (15, NOW(), FALSE, 1, 15, 15, 20000, 3800, 0),                                                                  -- qty*10, price/10
+       (16, NOW(),  FALSE, 1, 16, 16, 30000, 4300, 0),                                                                 -- qty*10, price/10
+       (17, NOW(),  FALSE, 1, 17, 17, 25000, 4000, 0),                                                                 -- qty*10, price/10
+       (18, NOW(),  FALSE, 1, 18, 18, 18000, 4800, 0),                                                                 -- qty*10, price/10
+       (19, NOW(), FALSE, 1, 19, 19, 135000, 180, 0),                                                                  -- qty*100, price/100
+       (20, NOW(), FALSE, 1, 20, 20, 25200, 1071.43, 0),                                                               -- qty*28, price/28
+       (21, NOW(),  FALSE, 1, 21, 21, 10000, 4300, 0),                                                                 -- qty*10, price/10
+       (22, NOW(), FALSE, 1, 22, 22, 27000, 1950, 0);                                                                  -- qty*20, price/20
 
--- Inventory at Branch 3 (Hà Nội) - cost_price = WARE_TO_BR price (warehouse_price × 1.25)
+-- Inventory at Branch 3 (Hà Nội) - cost_price = WARE_TO_BR price (warehouse_price × 1.25) chia cho quantity_per_package
 INSERT INTO inventory (id, created_at,  deleted, branch_id, variant_id, batch_id, quantity, cost_price, min_stock)
-VALUES (23, NOW() , FALSE, 3, 1, 1, (600 + 400 + 800 + 200 + 250 + 210), 25000, 30),
-       (24, NOW(),  FALSE, 3, 2, 2, (200 + 150 + 220 + 190), 20000, 20),
-       (25, NOW(),   FALSE, 3, 3, 3, (250 + 180 + 200), 87500, 20),
-       (26, NOW(),   FALSE, 3, 4, 4, (200 + 120 + 180) - 60, 100000, 20),
-       (27, NOW(),  FALSE, 3, 5, 5, (500 + 400 + 140 + 160), 137500, 30),
-       (28, NOW(),   FALSE, 3, 6, 6, (300 + 200 + 160 + 140) - 30, 62500, 20),
-       (29, NOW(),  FALSE, 3, 7, 7, (250 + 130 + 120), 85000, 20),
-       (30, NOW(),  FALSE, 3, 8, 8, (180 + 110 + 110), 110000, 20),
-       (31, NOW(),   FALSE, 3, 9, 9, (90 + 100), 47500, 15),
-       (32, NOW(),   FALSE, 3, 10, 10, (100 + 90), 22500, 15),
-       (33, NOW(),   FALSE, 3, 11, 11, 150, 33000, 10),
-       (34, NOW(),   FALSE, 3, 12, 12, (120 - 40), 51000, 10),
-       (35, NOW(),   FALSE, 3, 18, 18, 200, 48000, 10),
-       (36, NOW(),  FALSE, 3, 19, 19, 150, 18000, 10),
-       (37, NOW(),  FALSE, 3, 20, 20, 300, 30000, 15),
-       (38, NOW(),   FALSE, 3, 22, 22, 150, 39000, 10);
+VALUES (23, NOW() , FALSE, 3, 1, 1, (6000 + 4000 + 8000 + 2000 + 2500 + 2100), 2500, 300),    -- qty*10, price/10, min*10
+       (24, NOW(),  FALSE, 3, 2, 2, (2000 + 1500 + 2200 + 1900), 2000, 200),                   -- qty*10, price/10, min*10
+       (25, NOW(),   FALSE, 3, 3, 3, (2500 + 1800 + 2000), 8750, 200),                         -- qty*10, price/10, min*10
+       (26, NOW(),   FALSE, 3, 4, 4, ((2000 + 1200 + 1800) - 600), 10000, 200),                -- qty*10, price/10, min*10
+       (27, NOW(),  FALSE, 3, 5, 5, (10000 + 8000 + 2800 + 3200), 6875, 600),                  -- qty*20, price/20, min*20
+       (28, NOW(),   FALSE, 3, 6, 6, ((3000 + 2000 + 1600 + 1400) - 300), 6250, 200),          -- qty*10, price/10, min*10
+       (29, NOW(),  FALSE, 3, 7, 7, (250 + 130 + 120), 85000, 20),                             -- qty*1, price/1, min*1
+       (30, NOW(),  FALSE, 3, 8, 8, (180 + 110 + 110), 110000, 20),                            -- qty*1, price/1, min*1
+       (31, NOW(),   FALSE, 3, 9, 9, (900 + 1000), 4750, 150),                                 -- qty*10, price/10, min*10
+       (32, NOW(),   FALSE, 3, 10, 10, (100 + 90), 22500, 15),                                 -- qty*1, price/1, min*1
+       (33, NOW(),   FALSE, 3, 11, 11, 1500, 3300, 100),                                       -- qty*10, price/10, min*10
+       (34, NOW(),   FALSE, 3, 12, 12, ((1200 - 400)), 5100, 100),                             -- qty*10, price/10, min*10
+       (35, NOW(),   FALSE, 3, 18, 18, 2000, 4800, 100),                                       -- qty*10, price/10, min*10
+       (36, NOW(),  FALSE, 3, 19, 19, 15000, 180, 1000),                                       -- qty*100, price/100, min*100
+       (37, NOW(),  FALSE, 3, 20, 20, 8400, 1071.43, 420),                                     -- qty*28, price/28, min*28
+       (38, NOW(),   FALSE, 3, 22, 22, 3000, 1950, 200);                                       -- qty*20, price/20, min*20
 
 -- Note: quantities above are coarse aggregates built from movement_details; adjust as needed.
 
 -- =========================================================
 -- 9) PRICES: tạo giá bán cho các variant được dùng (insert or update)
 -- =========================================================
--- Prices (Bậc 3): branch_price = warehouse→branch, sale_price = branch_price × 1.25 (làm tròn chia hết 5000)
+-- Prices (Bậc 3): branch_price và sale_price chia cho quantity_per_package để có giá đơn vị cơ bản
 INSERT INTO prices (variant_id, sale_price, branch_price, start_date, end_date, created_at, deleted)
-VALUES (1, 35000, 25000, NOW(), NULL, NOW(), FALSE),     -- branch: 25000 → sale: 31250 → 35000
-       (2, 25000, 20000, NOW(), NULL, NOW(), FALSE),     -- branch: 20000 → sale: 25000 → 25000
-       (3, 110000, 87500, NOW(), NULL, NOW(), FALSE),    -- branch: 87500 → sale: 109375 → 110000
-       (4, 125000, 100000, NOW(), NULL, NOW(), FALSE),   -- branch: 100000 → sale: 125000 → 125000
-       (5, 175000, 137500, NOW(), NULL, NOW(), FALSE),   -- branch: 137500 → sale: 171875 → 175000
-       (6, 80000, 62500, NOW(), NULL, NOW(), FALSE),     -- branch: 62500 → sale: 78125 → 80000
-       (7, 110000, 85000, NOW(), NULL, NOW(), FALSE),    -- branch: 85000 → sale: 106250 → 110000
-       (8, 140000, 110000, NOW(), NULL, NOW(), FALSE),   -- branch: 110000 → sale: 137500 → 140000
-       (9, 60000, 47500, NOW(), NULL, NOW(), FALSE),     -- branch: 47500 → sale: 59375 → 60000
-       (10, 30000, 22500, NOW(), NULL, NOW(), FALSE),    -- branch: 22500 → sale: 28125 → 30000
-       (11, 45000, 33000, NOW(), NULL, NOW(), FALSE),    -- branch: 33000 → sale: 41250 → 45000
-       (12, 65000, 51000, NOW(), NULL, NOW(), FALSE),    -- branch: 51000 → sale: 63750 → 65000
-       (13, 75000, 58000, NOW(), NULL, NOW(), FALSE),    -- branch: 58000 → sale: 72500 → 75000
-       (14, 60000, 48000, NOW(), NULL, NOW(), FALSE),    -- branch: 48000 → sale: 60000 → 60000
-       (15, 50000, 38000, NOW(), NULL, NOW(), FALSE),    -- branch: 38000 → sale: 47500 → 50000
-       (16, 55000, 43000, NOW(), NULL, NOW(), FALSE),    -- branch: 43000 → sale: 53750 → 55000
-       (17, 50000, 40000, NOW(), NULL, NOW(), FALSE),    -- branch: 40000 → sale: 50000 → 50000
-       (18, 60000, 48000, NOW(), NULL, NOW(), FALSE),    -- branch: 48000 → sale: 60000 → 60000
-       (19, 25000, 18000, NOW(), NULL, NOW(), FALSE),    -- branch: 18000 → sale: 22500 → 25000
-       (20, 40000, 30000, NOW(), NULL, NOW(), FALSE),    -- branch: 30000 → sale: 37500 → 40000
-       (21, 55000, 43000, NOW(), NULL, NOW(), FALSE),    -- branch: 43000 → sale: 53750 → 55000
-       (22, 50000, 39000, NOW(), NULL, NOW(), FALSE);
+VALUES (1, 3500, 2500, NOW(), NULL, NOW(), FALSE),       -- 35000/10=3500, 25000/10=2500
+       (2, 2500, 2000, NOW(), NULL, NOW(), FALSE),       -- 25000/10=2500, 20000/10=2000
+       (3, 11000, 8750, NOW(), NULL, NOW(), FALSE),      -- 110000/10=11000, 87500/10=8750
+       (4, 12500, 10000, NOW(), NULL, NOW(), FALSE),     -- 125000/10=12500, 100000/10=10000
+       (5, 8750, 6875, NOW(), NULL, NOW(), FALSE),       -- 175000/20=8750, 137500/20=6875
+       (6, 8000, 6250, NOW(), NULL, NOW(), FALSE),       -- 80000/10=8000, 62500/10=6250
+       (7, 110000, 85000, NOW(), NULL, NOW(), FALSE),    -- 110000/1=110000, 85000/1=85000
+       (8, 140000, 110000, NOW(), NULL, NOW(), FALSE),   -- 140000/1=140000, 110000/1=110000
+       (9, 6000, 4750, NOW(), NULL, NOW(), FALSE),       -- 60000/10=6000, 47500/10=4750
+       (10, 30000, 22500, NOW(), NULL, NOW(), FALSE),    -- 30000/1=30000, 22500/1=22500
+       (11, 4500, 3300, NOW(), NULL, NOW(), FALSE),      -- 45000/10=4500, 33000/10=3300
+       (12, 6500, 5100, NOW(), NULL, NOW(), FALSE),      -- 65000/10=6500, 51000/10=5100
+       (13, 7500, 5800, NOW(), NULL, NOW(), FALSE),      -- 75000/10=7500, 58000/10=5800
+       (14, 6000, 4800, NOW(), NULL, NOW(), FALSE),      -- 60000/10=6000, 48000/10=4800
+       (15, 5000, 3800, NOW(), NULL, NOW(), FALSE),      -- 50000/10=5000, 38000/10=3800
+       (16, 5500, 4300, NOW(), NULL, NOW(), FALSE),      -- 55000/10=5500, 43000/10=4300
+       (17, 5000, 4000, NOW(), NULL, NOW(), FALSE),      -- 50000/10=5000, 40000/10=4000
+       (18, 6000, 4800, NOW(), NULL, NOW(), FALSE),      -- 60000/10=6000, 48000/10=4800
+       (19, 250, 180, NOW(), NULL, NOW(), FALSE),        -- 25000/100=250, 18000/100=180
+       (20, 1428.57, 1071.43, NOW(), NULL, NOW(), FALSE),-- 40000/28=1428.57, 30000/28=1071.43
+       (21, 5500, 4300, NOW(), NULL, NOW(), FALSE),      -- 55000/10=5500, 43000/10=4300
+       (22, 2500, 1950, NOW(), NULL, NOW(), FALSE);      -- 50000/20=2500, 39000/20=1950
 -- Done
 -- total_price = sum of invoice_details with new rounded prices
 INSERT INTO invoices (invoice_code, customer_id, shift_work_id, branch_id, total_price,
@@ -891,30 +891,30 @@ VALUES
 ('INV-HN-2003', 3, 3, 3, 175000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 2 DAY), 8, FALSE, 8), -- inv18: 140000*1
 ('INV-HN-2008', 3, 6, 3, 175000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 1 DAY), 8, FALSE, 8), -- inv19: 140000*1
 ('INV-HN-2009', 4, 9, 3, 125000, 'Cash', 'PAID', NOW(), 8, FALSE, 8);                            -- inv20: 105000*1
--- Done: price = sale_price (làm tròn lên chia hết 5000), cost_price = unit_price
+-- Done: price = sale_price (đơn vị cơ bản), quantity = số lượng đơn vị cơ bản
 INSERT INTO invoice_details (invoice_id, inventory_id, quantity, price, created_at, deleted)
 VALUES
-    (1, 23,  2, 35000,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
-    (1, 24,  1, 25000,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
-    (2, 28,  1, 80000,  DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),
-    (3, 32,  1, 30000,  NOW(), FALSE),
-    (4, 23,  10, 35000,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
-    (5, 28,  1, 80000,  DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),
-    (6, 25,  1, 110000,  NOW(), FALSE),
-    (7, 29,  1, 110000,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
-    (8, 24,  1, 25000, DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),
-    (9, 31,  2, 60000,  NOW(), FALSE),
-    (10, 25,  1, 110000,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
-    (11, 29,  2, 110000,  DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),
-    (12, 23,  3, 35000, NOW(), FALSE),
-    (13, 24,  2, 25000,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
-    (14, 26,  5, 125000,  DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),
-    (15, 32,  1, 30000,  NOW(), FALSE),
-    (16, 27,  1, 175000,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
-    (17, 30,  1, 140000,  DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),
-    (18, 27,  1, 175000,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
-    (19, 27,  1, 175000, DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),
-    (20, 26,  1, 125000,  NOW(), FALSE);
+    (1, 23,  20, 3500,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),     -- inv_id=23 (var 1, qty/pkg=10): 2 hộp → 20 viên, 35000/10=3500đ/viên
+    (1, 24,  10, 2500,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),     -- inv_id=24 (var 2, qty/pkg=10): 1 hộp → 10 viên, 25000/10=2500đ/viên
+    (2, 28,  10, 8000,  DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),     -- inv_id=28 (var 6, qty/pkg=10): 1 hộp → 10 viên, 80000/10=8000đ/viên
+    (3, 32,  1, 30000,  NOW(), FALSE),                               -- inv_id=32 (var 10, qty/pkg=1): 1 chai → 1 chai, 30000/1=30000đ/chai
+    (4, 23,  100, 3500,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),    -- inv_id=23 (var 1, qty/pkg=10): 10 hộp → 100 viên, 35000/10=3500đ/viên
+    (5, 28,  10, 8000,  DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),     -- inv_id=28 (var 6, qty/pkg=10): 1 hộp → 10 viên, 80000/10=8000đ/viên
+    (6, 25,  10, 11000,  NOW(), FALSE),                              -- inv_id=25 (var 3, qty/pkg=10): 1 hộp → 10 viên, 110000/10=11000đ/viên
+    (7, 29,  1, 110000,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),    -- inv_id=29 (var 7, qty/pkg=1): 1 chai → 1 chai, 110000/1=110000đ/chai
+    (8, 24,  10, 2500, DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),      -- inv_id=24 (var 2, qty/pkg=10): 1 hộp → 10 viên, 25000/10=2500đ/viên
+    (9, 31,  20, 6000,  NOW(), FALSE),                               -- inv_id=31 (var 9, qty/pkg=10): 2 hộp → 20 viên, 60000/10=6000đ/viên
+    (10, 25,  10, 11000,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),   -- inv_id=25 (var 3, qty/pkg=10): 1 hộp → 10 viên, 110000/10=11000đ/viên
+    (11, 29,  2, 110000,  DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),   -- inv_id=29 (var 7, qty/pkg=1): 2 chai → 2 chai, 110000/1=110000đ/chai
+    (12, 23,  30, 3500, NOW(), FALSE),                               -- inv_id=23 (var 1, qty/pkg=10): 3 hộp → 30 viên, 35000/10=3500đ/viên
+    (13, 24,  20, 2500,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),    -- inv_id=24 (var 2, qty/pkg=10): 2 hộp → 20 viên, 25000/10=2500đ/viên
+    (14, 26,  50, 12500,  DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),   -- inv_id=26 (var 4, qty/pkg=10): 5 hộp → 50 viên, 125000/10=12500đ/viên
+    (15, 32,  1, 30000,  NOW(), FALSE),                              -- inv_id=32 (var 10, qty/pkg=1): 1 chai → 1 chai, 30000/1=30000đ/chai
+    (16, 27,  20, 8750,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),    -- inv_id=27 (var 5, qty/pkg=20): 1 hộp → 20 viên, 175000/20=8750đ/viên
+    (17, 30,  1, 140000,  DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),   -- inv_id=30 (var 8, qty/pkg=1): 1 chai → 1 chai, 140000/1=140000đ/chai
+    (18, 27,  20, 8750,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),    -- inv_id=27 (var 5, qty/pkg=20): 1 hộp → 20 viên, 175000/20=8750đ/viên
+    (19, 27,  20, 8750, DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),     -- inv_id=27 (var 5, qty/pkg=20): 1 hộp → 20 viên, 175000/20=8750đ/viên
+    (20, 26,  10, 12500,  NOW(), FALSE);                             -- inv_id=26 (var 4, qty/pkg=10): 1 hộp → 10 viên, 125000/10=12500đ/viên
 
 
 -- =========================================================
@@ -922,14 +922,14 @@ VALUES
 -- =========================================================
 INSERT INTO stock_adjustments (variant_id, brand_id, batch_id, before_quantity, after_quantity, difference_quantity,
                                reason, created_at, deleted)
-VALUES (1, 1, 1, 250, 248, -2, 'Hư hỏng trong quá trình vận chuyển', NOW(), FALSE),
-       (4, 2, 4, 120, 115, -5, 'Trả kiểm tra chất lượng', NOW(), FALSE),
-       (6, 1, 6, 300, 295, -5, 'Hư hỏng do ẩm', NOW(), FALSE),
-       (7, 1, 7, 130, 132, 2, 'Tồn thực tế hơn hệ thống', NOW(), FALSE),
-       (12, 3, 12, 60, 52, -8, 'Hết hạn', NOW(), FALSE),
-       (5, 1, 5, 160, 165, 5, 'Nhập nhầm', NOW(), FALSE),
-       (9, 1, 9, 90, 88, -2, 'Kiểm kê', NOW(), FALSE),
-       (10, 1, 10, 100, 98, -2, 'Kiểm kê', NOW(), FALSE);
+VALUES (1, 1, 1, 2500, 2480, -20, 'Hư hỏng trong quá trình vận chuyển', NOW(), FALSE),    -- qty*10: 250*10, 248*10, -2*10
+       (4, 2, 4, 1200, 1150, -50, 'Trả kiểm tra chất lượng', NOW(), FALSE),               -- qty*10: 120*10, 115*10, -5*10
+       (6, 1, 6, 3000, 2950, -50, 'Hư hỏng do ẩm', NOW(), FALSE),                         -- qty*10: 300*10, 295*10, -5*10
+       (7, 1, 7, 130, 132, 2, 'Tồn thực tế hơn hệ thống', NOW(), FALSE),                  -- qty*1: 130*1, 132*1, 2*1
+       (12, 3, 12, 600, 520, -80, 'Hết hạn', NOW(), FALSE),                               -- qty*10: 60*10, 52*10, -8*10
+       (5, 1, 5, 3200, 3300, 100, 'Nhập nhầm', NOW(), FALSE),                             -- qty*20: 160*20, 165*20, 5*20
+       (9, 1, 9, 900, 880, -20, 'Kiểm kê', NOW(), FALSE),                                 -- qty*10: 90*10, 88*10, -2*10
+       (10, 1, 10, 100, 98, -2, 'Kiểm kê', NOW(), FALSE);                                 -- qty*1: 100*1, 98*1, -2*1
 
 
 
@@ -964,3 +964,13 @@ VALUES
 (5, 'PROFIT', '2025-10-01', 0, 69500000.00, 0, NOW(), FALSE),
 (5, 'IMPORT', '2025-10-01', 205000000.00, 0, 60, NOW(), FALSE);
 SET FOREIGN_KEY_CHECKS = 1;
+
+
+INSERT INTO unit_conversions (variant_id, unit_id, multiplier, deleted)
+VALUES
+       (1, 1, 1, FALSE),
+       (1, 2, 10, FALSE),
+       (1, 3, 50, FALSE),
+       (2, 1, 1, FALSE),
+       (2, 2, 8, FALSE),
+       (2, 3, 40, FALSE);

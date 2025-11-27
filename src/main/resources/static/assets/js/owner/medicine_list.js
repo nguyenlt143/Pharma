@@ -133,6 +133,11 @@ function loadUnits() {
     fetch('/api/owner/units')
         .then(res => res.json())
         .then(data => {
+            // Store units in global variable for unit conversion rows
+            if (Array.isArray(data)) {
+                units = data;
+            }
+
             // Load into variant modal dropdowns
             const baseUnitSelect = document.getElementById('baseUnitId');
             const packageUnitSelect = document.getElementById('packageUnitId');
@@ -163,6 +168,7 @@ function loadUnits() {
         })
         .catch(err => {
             console.error('Error loading units:', err);
+            units = [];
             const baseUnitSelect = document.getElementById('baseUnitId');
             const packageUnitSelect = document.getElementById('packageUnitId');
             if (baseUnitSelect) {
@@ -264,6 +270,7 @@ function loadVariants(medicineId) {
                     <td style="padding: 12px;">${variant.baseUnitName || (variant.baseUnitId && variant.baseUnitId.name) || '-'}</td>
                     <td style="padding: 12px;">${variant.barcode || variant.Barcode || '-'}</td>
                     <td style="padding: 12px; text-align: center;">
+                        <button onclick="viewVariantDetail(${variant.id})" class="btn-link" style="color: #7C3AED; margin: 0 4px;">Xem chi tiết</button>
                         <button onclick="openEditVariantForm(${variant.id})" class="btn-link" style="color: #2563EB; margin: 0 4px;">Sửa</button>
                         <button onclick="confirmDeleteVariant(${variant.id})" class="btn-link delete" style="margin: 0 4px;">Xóa</button>
                     </td>
@@ -346,6 +353,9 @@ function openEditVariantForm(variantId) {
                 prescriptionField.value = (data.prescription_require !== undefined ? data.prescription_require : data.prescriptionRequired) ? 'true' : 'false';
             }
             
+            // Load unit conversions for this variant
+            loadUnitConversions(variantId);
+
             document.getElementById('variantFormContainer').style.display = 'block';
             document.getElementById('variantFormContainer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         })
@@ -358,6 +368,106 @@ function cancelVariantForm() {
     document.getElementById('variantFormContainer').style.display = 'none';
     document.getElementById('variantForm').reset();
     document.getElementById('variantModalTitle').textContent = 'Quản lý biến thể thuốc';
+}
+
+function viewVariantDetail(variantId) {
+    fetch(`/api/owner/medicine/variant/${variantId}`)
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('variantModalTitle').textContent = 'Chi tiết biến thể thuốc';
+
+            // Set values safely with null checks
+            const setValue = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.value = value || '';
+                    el.disabled = true; // Disable all fields for read-only mode
+                }
+            };
+
+            setValue('variantId', data.id);
+            setValue('dosageForm', data.dosageForm || data.dosage_form);
+            setValue('dosage', data.dosage);
+            setValue('strength', data.strength);
+            setValue('packageUnitId', data.packageUnitId ? (typeof data.packageUnitId === 'object' ? data.packageUnitId.id : data.packageUnitId) : '');
+            setValue('baseUnitId', data.baseUnitId ? (typeof data.baseUnitId === 'object' ? data.baseUnitId.id : data.baseUnitId) : '');
+            setValue('quantityPerPackage', data.quantityPerPackage);
+            setValue('barcode', data.barcode || data.Barcode);
+            setValue('registrationNumber', data.registrationNumber);
+            setValue('storageConditions', data.storageConditions);
+            setValue('indications', data.indications);
+            setValue('contraindications', data.contraindications);
+            setValue('sideEffects', data.sideEffects);
+            setValue('instructions', data.instructions);
+            setValue('uses', data.uses);
+
+            const prescriptionField = document.getElementById('prescriptionRequired');
+            if (prescriptionField) {
+                prescriptionField.value = (data.prescription_require !== undefined ? data.prescription_require : data.prescriptionRequired) ? 'true' : 'false';
+                prescriptionField.disabled = true;
+            }
+
+            // Load unit conversions for this variant (read-only)
+            loadUnitConversions(variantId);
+
+            // Disable unit conversion controls
+            setTimeout(() => {
+                // Disable all unit conversion inputs and selects
+                document.querySelectorAll('#unitConversionTableBody .unit-select').forEach(el => el.disabled = true);
+                document.querySelectorAll('#unitConversionTableBody .multiplier-input').forEach(el => el.disabled = true);
+                document.querySelectorAll('#unitConversionTableBody .btn-link.delete').forEach(el => el.style.display = 'none');
+
+                // Hide add button
+                const addButtons = document.querySelectorAll('button[onclick="addUnitConversionRow()"]');
+                addButtons.forEach(btn => btn.style.display = 'none');
+            }, 500);
+
+            // Show form container
+            document.getElementById('variantFormContainer').style.display = 'block';
+
+            // Hide submit button, change cancel button text
+            const variantForm = document.getElementById('variantForm');
+            const btnGroup = variantForm.querySelector('.btn-group');
+            if (btnGroup) {
+                btnGroup.innerHTML = `
+                    <button type="button" class="btn-secondary" onclick="cancelViewVariant()">Đóng</button>
+                `;
+            }
+
+            document.getElementById('variantFormContainer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        })
+        .catch(err => {
+            showToast('Không thể tải thông tin biến thể', 'error');
+        });
+}
+
+function cancelViewVariant() {
+    // Re-enable all fields
+    document.querySelectorAll('#variantForm input, #variantForm select, #variantForm textarea').forEach(el => {
+        el.disabled = false;
+    });
+
+    // Re-enable unit conversion controls
+    document.querySelectorAll('#unitConversionTableBody .unit-select').forEach(el => el.disabled = false);
+    document.querySelectorAll('#unitConversionTableBody .multiplier-input').forEach(el => el.disabled = false);
+    document.querySelectorAll('#unitConversionTableBody .btn-link.delete').forEach(el => el.style.display = '');
+
+    // Show add button
+    const addButtons = document.querySelectorAll('button[onclick="addUnitConversionRow()"]');
+    addButtons.forEach(btn => btn.style.display = '');
+
+    // Restore original button group
+    const variantForm = document.getElementById('variantForm');
+    const btnGroup = variantForm.querySelector('.btn-group');
+    if (btnGroup) {
+        btnGroup.innerHTML = `
+            <button type="button" class="btn-secondary" onclick="cancelVariantForm()">Hủy</button>
+            <button type="submit" class="btn-primary">Lưu</button>
+        `;
+    }
+
+    // Hide form and reset title
+    cancelVariantForm();
 }
 
 function confirmDeleteVariant(variantId) {
@@ -522,6 +632,10 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const variantId = document.getElementById('variantId').value;
             const medicineId = parseInt(document.getElementById('variantMedicineId').value);
+
+            // Get unit conversions from form
+            const unitConversionsData = getUnitConversionsFromForm();
+
             const data = {
                 medicineId: medicineId,
                 dosageForm: document.getElementById('dosageForm').value,
@@ -538,7 +652,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 sideEffects: document.getElementById('sideEffects').value,
                 instructions: document.getElementById('instructions').value,
                 prescription_require: document.getElementById('prescriptionRequired').value === 'true',
-                uses: document.getElementById('uses').value
+                uses: document.getElementById('uses').value,
+                unitConversions: unitConversionsData
             };
 
             const url = variantId ? `/api/owner/medicine/variant/${variantId}` : '/api/owner/medicine/variant';
@@ -584,4 +699,160 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+// ========== Unit Conversion Management ==========
+let unitConversions = []; // Store unit conversions for the current variant
+
+function addUnitConversionRow() {
+    const tbody = document.getElementById('unitConversionTableBody');
+    const rowIndex = tbody.children.length;
+
+    const row = document.createElement('tr');
+    row.style.borderBottom = '1px solid #E5E7EB';
+    row.innerHTML = `
+        <td style="padding: 12px;">
+            <select class="form-select unit-select" data-index="${rowIndex}" onchange="updateTotalUnits()">
+                <option value="">Chọn đơn vị</option>
+                ${units.map(unit => `<option value="${unit.id}">${unit.name}</option>`).join('')}
+            </select>
+        </td>
+        <td style="padding: 12px;">
+            <input type="number" class="form-input multiplier-input" data-index="${rowIndex}" 
+                   placeholder="VD: 1, 10, 100" step="0.01" min="0.01" required
+                   onchange="updateTotalUnits()" style="width: 100%;">
+        </td>
+        <td style="padding: 12px; text-align: center;">
+            <button type="button" onclick="removeUnitConversionRow(this)" class="btn-link delete">Xóa</button>
+        </td>
+    `;
+
+    tbody.appendChild(row);
+    updateTotalUnits();
+}
+
+function removeUnitConversionRow(button) {
+    const row = button.closest('tr');
+    row.remove();
+    updateTotalUnits();
+
+    // Re-index remaining rows
+    const tbody = document.getElementById('unitConversionTableBody');
+    Array.from(tbody.children).forEach((row, index) => {
+        const select = row.querySelector('.unit-select');
+        const input = row.querySelector('.multiplier-input');
+        if (select) select.setAttribute('data-index', index);
+        if (input) input.setAttribute('data-index', index);
+    });
+}
+
+function updateTotalUnits() {
+    const tbody = document.getElementById('unitConversionTableBody');
+    const rows = tbody.querySelectorAll('tr');
+    let total = 0;
+    let hasError = false;
+
+    rows.forEach(row => {
+        const multiplierInput = row.querySelector('.multiplier-input');
+        if (multiplierInput) {
+            const value = parseFloat(multiplierInput.value);
+            if (!isNaN(value) && value > 0) {
+                total += value;
+            } else if (multiplierInput.value) {
+                hasError = true;
+            }
+        }
+    });
+
+    const displayEl = document.getElementById('totalUnitsDisplay');
+    if (displayEl) {
+        displayEl.textContent = hasError ? 'Lỗi nhập liệu' : total.toFixed(2);
+        displayEl.style.color = hasError ? '#DC2626' : '#1E40AF';
+    }
+}
+
+function getUnitConversionsFromForm() {
+    const tbody = document.getElementById('unitConversionTableBody');
+    const rows = tbody.querySelectorAll('tr');
+    const conversions = [];
+
+    rows.forEach(row => {
+        const unitSelect = row.querySelector('.unit-select');
+        const multiplierInput = row.querySelector('.multiplier-input');
+
+        if (unitSelect && multiplierInput) {
+            const unitId = parseInt(unitSelect.value);
+            const multiplier = parseFloat(multiplierInput.value);
+
+            if (unitId && !isNaN(multiplier) && multiplier > 0) {
+                conversions.push({
+                    unitId: unitId,
+                    multiplier: multiplier
+                });
+            }
+        }
+    });
+
+    return conversions;
+}
+
+function loadUnitConversions(variantId) {
+    fetch(`/api/owner/medicine/variant/${variantId}/unit-conversions`)
+        .then(res => res.json())
+        .then(data => {
+            unitConversions = data || [];
+            renderUnitConversions(unitConversions);
+        })
+        .catch(err => {
+            console.error('Error loading unit conversions:', err);
+            unitConversions = [];
+            renderUnitConversions([]);
+        });
+}
+
+function renderUnitConversions(conversions) {
+    const tbody = document.getElementById('unitConversionTableBody');
+    tbody.innerHTML = '';
+
+    if (conversions && conversions.length > 0) {
+        conversions.forEach((conversion, index) => {
+            const row = document.createElement('tr');
+            row.style.borderBottom = '1px solid #E5E7EB';
+
+            const unitId = conversion.unitId ? (typeof conversion.unitId === 'object' ? conversion.unitId.id : conversion.unitId) : '';
+            const unitName = conversion.unitId ? (typeof conversion.unitId === 'object' ? conversion.unitId.name : '') : '';
+
+            row.innerHTML = `
+                <td style="padding: 12px;">
+                    <select class="form-select unit-select" data-index="${index}" onchange="updateTotalUnits()">
+                        <option value="">Chọn đơn vị</option>
+                        ${units.map(unit => {
+                            const selected = unit.id == unitId ? 'selected' : '';
+                            return `<option value="${unit.id}" ${selected}>${unit.name}</option>`;
+                        }).join('')}
+                    </select>
+                </td>
+                <td style="padding: 12px;">
+                    <input type="number" class="form-input multiplier-input" data-index="${index}" 
+                           value="${conversion.multiplier || ''}" 
+                           placeholder="VD: 1, 10, 100" step="0.01" min="0.01" required
+                           onchange="updateTotalUnits()" style="width: 100%;">
+                </td>
+                <td style="padding: 12px; text-align: center;">
+                    <button type="button" onclick="removeUnitConversionRow(this)" class="btn-link delete">Xóa</button>
+                </td>
+            `;
+
+            tbody.appendChild(row);
+        });
+    }
+
+    updateTotalUnits();
+}
+
+function clearUnitConversions() {
+    const tbody = document.getElementById('unitConversionTableBody');
+    tbody.innerHTML = '';
+    unitConversions = [];
+    updateTotalUnits();
+}
 
