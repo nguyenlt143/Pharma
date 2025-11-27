@@ -6,6 +6,7 @@ import vn.edu.fpt.pharma.base.BaseServiceImpl;
 import vn.edu.fpt.pharma.dto.medicine.MedicineVariantRequest;
 import vn.edu.fpt.pharma.dto.medicine.MedicineVariantResponse;
 import vn.edu.fpt.pharma.dto.medicine.SearchMedicineVM;
+import vn.edu.fpt.pharma.dto.medicine.UnitConversionVM;
 import vn.edu.fpt.pharma.entity.Medicine;
 import vn.edu.fpt.pharma.entity.MedicineVariant;
 import vn.edu.fpt.pharma.entity.Unit;
@@ -212,6 +213,14 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                     // Get inventory for this variant
                     List<vn.edu.fpt.pharma.dto.medicine.InventoryDetailDTO> inventories =
                         getInventoryByVariantId(variantId);
+                    List<UnitConversionVM> units = unitConversionRepository.findByVariantIdId(variantId)
+                            .stream()
+                            .map(u -> new UnitConversionVM(
+                                    u.getUnitId().getId(),
+                                    u.getUnitId().getName(),
+                                    u.getMultiplier()
+                            ))
+                            .collect(Collectors.toList());
 
                     return new vn.edu.fpt.pharma.dto.medicine.VariantInventoryDTO(
                             variantId,
@@ -232,7 +241,8 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                             (String) r[15], // uses
                             (String) r[16], // country
                             (String) r[17], // manufacturer
-                            inventories
+                            inventories,
+                            units
                     );
                 })
                 .collect(Collectors.toList());

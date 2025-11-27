@@ -97,6 +97,7 @@ function addEventListenersToMedicineCards() {
                                             <div class="inventory-item"
                                             data-inventory-id="${inv.id}"
                                             data-medicine-name="${medicineName}"
+                                            data-units='${JSON.stringify(variant.unitConversion)}'
                                             data-strength="${variant.strength}"
                                             data-base-unit-name="${variant.baseUnitName}"
                                             data-variant-id="${variant.variantId}"
@@ -151,7 +152,7 @@ function addInventoryItemClickListeners() {
 
             // Extract all data from data attributes
             const medicineName = item.dataset.medicineName;
-            const unitConversions = JSON.parse(item.dataset.unitConversions || "[]");
+            const unitConversions = JSON.parse(item.dataset.units || "[]");
             const inventoryId = item.dataset.inventoryId;
             const maxQuantity = parseInt(item.dataset.maxQuantity, 10);
             const salePrice = parseFloat(item.dataset.salePrice);
@@ -205,9 +206,16 @@ function addInventoryItemClickListeners() {
                     packageUnitName: item.dataset.packageUnitName || '',
                     batchNumber: item.dataset.batchNumber || 'N/A',
                     expiryDate: item.dataset.expiryDate || 'N/A',
+
+
                     salePrice: salePrice,
-                    maxQuantity: maxQuantity,
+                    currentPrice: salePrice,
                     quantity: 1,
+
+                    maxQuantity: maxQuantity,
+                    baseStock: maxQuantity,
+
+                    selectedMultiplier: 1,
                     units: unitConversions
                 };
 
@@ -230,7 +238,7 @@ function renderPrescription() {
     prescriptionBody.innerHTML = ''; // Clear existing items
 
     prescriptionItems.forEach((item, index) => {
-        const itemTotal = item.quantity * item.salePrice;
+        const itemTotal = item.quantity * item.currentPrice;
         totalAmount += itemTotal;
 
         const row = document.createElement('tr');
@@ -248,17 +256,22 @@ function renderPrescription() {
             <td>
                 <select class="unit-select" data-inventory-id="${item.inventoryId}">
                     ${item.units.map(u => `
-                        <option value="${u.multiplier}">
-                            ${u.unitName}
-                        </option>
+                    <option value="${u.multiplier}"
+                            data-unit="${u.unitName}"
+                            ${item.selectedMultiplier === u.multiplier ? "selected" : ""}>
+                        ${u.unitName}
+                    </option>
                     `).join('')}
                 </select>
             </td>
             <td>
                 <input type="number" class="quantity-input" value="${item.quantity}" min="1" max="${item.maxQuantity}" data-inventory-id="${item.inventoryId}" style="width: 60px; padding: 4px;">
             </td>
-            <td class="text-right">${item.salePrice.toLocaleString('vi-VN')}</td>
+            <td class="text-right">${item.currentPrice.toLocaleString('vi-VN')}</td>
             <td class="text-right">${itemTotal.toLocaleString('vi-VN')}</td>
+            <td>
+                    <button class="delete-item-btn" data-index="${index}" style="color:red;">🗑</button>
+            </td>
         `;
         prescriptionBody.appendChild(row);
     });
@@ -285,7 +298,11 @@ function addPrescriptionActionListeners() {
             const item = prescriptionItems[index];
             item.selectedMultiplier = multiplier;
 
-            // Cập nhật lại max theo đơn vị mới
+            // Cập nhật giá theo đơn vị
+            item.currentPrice = item.salePrice * multiplier;
+
+            // Cập nhật tồn kho tối đa theo đơn vị mới
+            // baseStock là tổng tồn tính theo đơn vị nhỏ nhất
             item.maxQuantity = Math.floor(item.baseStock / multiplier);
 
             // Reset quantity nếu vượt mức
@@ -331,6 +348,15 @@ function addPrescriptionActionListeners() {
             }
         });
 
+        document.querySelectorAll('.delete-item-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const index = parseInt(e.target.dataset.index);
+
+                prescriptionItems.splice(index, 1);
+                renderPrescription();
+            });
+        });
+
         // Prevent entering invalid characters
         input.addEventListener('keypress', (e) => {
             // Only allow numbers
@@ -340,12 +366,6 @@ function addPrescriptionActionListeners() {
         });
     });
 }
-
-// This function is no longer needed as we are not using cart buttons in the search result
-function addCartButtonListeners() {
-    // ... can be removed or left empty
-}
-
 
 // Clear buttons
 clearButtons.forEach(button => {
