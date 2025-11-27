@@ -28,10 +28,17 @@
                 </a>
             </li>
 
+            <li class="px-4 py-2 rounded-md ${active == "confirm" ? "bg-blue-600" : "hover:bg-gray-700"}">
+                <a href="/inventory/confirm/list" class="flex items-center gap-2">
+                    <span class="material-icons-outlined">check_circle</span>
+                    <span>Xác nhận nhập hàng</span>
+                </a>
+            </li>
+
             <li class="px-4 py-2 rounded-md ${active == "export" ? "bg-blue-600" : "hover:bg-gray-700"}">
-                <a href="/inventory/export/list" class="flex items-center gap-2">
-                    <span class="material-icons-outlined">exit_to_app</span>
-                    <span>Xuất kho</span>
+                <a href="/inventory/return/list" class="flex items-center gap-2">
+                    <span class="material-icons-outlined">assignment_return</span>
+                    <span>Danh sách phiếu trả hàng</span>
                 </a>
             </li>
 
@@ -39,13 +46,6 @@
                 <a href="/inventory/check" class="flex items-center gap-2">
                     <span class="material-icons-outlined">fact_check</span>
                     <span>Kiểm kho</span>
-                </a>
-            </li>
-
-            <li class="px-4 py-2 rounded-md ${active == "return" ? "bg-blue-600" : "hover:bg-gray-700"}">
-                <a href="/inventory/return/list" class="flex items-center gap-2">
-                    <span class="material-icons-outlined">assignment_return</span>
-                    <span>Xác nhận trả hàng</span>
                 </a>
             </li>
 

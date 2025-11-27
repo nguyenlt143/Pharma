@@ -23,4 +23,12 @@ public interface InventoryMovementService extends BaseService<InventoryMovement,
     void closeReceipt(Long id);
     void cancelReceipt(Long id);
     Long createExportMovement(ExportSubmitDTO dto);
+
+    // For Inventory role - confirm import from warehouse
+    List<vn.edu.fpt.pharma.dto.inventory.ConfirmImportVM> getConfirmImportList(Long branchId);
+    vn.edu.fpt.pharma.dto.inventory.ConfirmImportVM getConfirmImportDetail(Long id);
+    void confirmImportReceipt(Long id, Long branchId);
+
+    // For Inventory role - create return to warehouse
+    Long createReturnMovement(vn.edu.fpt.pharma.dto.inventory.ReturnRequestDTO dto);
 }

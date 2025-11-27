@@ -8,6 +8,7 @@ import vn.edu.fpt.pharma.entity.InventoryMovement;
 import vn.edu.fpt.pharma.constant.MovementStatus;
 import vn.edu.fpt.pharma.constant.MovementType;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface InventoryMovementRepository extends JpaRepository<InventoryMovement, Long>, JpaSpecificationExecutor<InventoryMovement> {
@@ -22,4 +23,14 @@ public interface InventoryMovementRepository extends JpaRepository<InventoryMove
            "LEFT JOIN FETCH v.packageUnitId " +
            "WHERE im.id = :id")
     Optional<InventoryMovement> findByIdWithDetails(@Param("id") Long id);
+
+    @Query("SELECT DISTINCT im FROM InventoryMovement im " +
+           "LEFT JOIN FETCH im.inventoryMovementDetails " +
+           "WHERE im.movementType = :type " +
+           "AND im.destinationBranchId = :branchId " +
+           "AND im.movementStatus = :status")
+    List<InventoryMovement> findAllWithDetailsByTypeAndBranchAndStatus(
+            @Param("type") MovementType type,
+            @Param("branchId") Long branchId,
+            @Param("status") MovementStatus status);
 }

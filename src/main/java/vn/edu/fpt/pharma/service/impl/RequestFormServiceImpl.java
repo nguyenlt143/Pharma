@@ -200,13 +200,23 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
 
     @Override
     public List<RequestDetailVM> getDetailsOfRequest(Long requestId) {
+        // Determine warehouse branch id (HEAD_QUARTER)
+        Long warehouseBranchId = branchRepository.findAll().stream()
+                .filter(b -> b.getBranchType() == BranchType.HEAD_QUARTER)
+                .findFirst()
+                .map(Branch::getId)
+                .orElse(1L);
+
         return requestDetailRepository.findByRequestFormId(requestId)
                 .stream()
                 .map(detail -> {
                     String medicineName = "N/A";
+                    String activeIngredient = "-";
                     String strength = "N/A";
                     String dosageForm = "N/A";
                     String unit = "N/A";
+                    String categoryName = "N/A";
+                    Long batchCount = 0L;
 
                     if (detail.getVariantId() != null) {
                         Optional<MedicineVariant> variantOpt = medicineVariantRepository.findById(detail.getVariantId());
@@ -216,6 +226,12 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
 
                             if (medicine != null) {
                                 medicineName = medicine.getName() != null ? medicine.getName() : "N/A";
+                                if (medicine.getActiveIngredient() != null && !medicine.getActiveIngredient().isBlank()) {
+                                    activeIngredient = medicine.getActiveIngredient();
+                                }
+                                if (medicine.getCategory() != null && medicine.getCategory().getName() != null) {
+                                    categoryName = medicine.getCategory().getName();
+                                }
                             }
 
                             strength = variant.getStrength() != null ? variant.getStrength() : "N/A";
@@ -224,10 +240,21 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
                             if (variant.getBaseUnitId() != null) {
                                 unit = variant.getBaseUnitId().getName() != null ? variant.getBaseUnitId().getName() : "N/A";
                             }
+
+                            // Count distinct batches available for this variant at warehouse
+                            batchCount = inventoryRepository.findAll().stream()
+                                    .filter(inv -> inv.getVariant() != null
+                                            && inv.getVariant().getId().equals(variant.getId())
+                                            && inv.getBranch() != null
+                                            && inv.getBranch().getId().equals(warehouseBranchId))
+                                    .map(inv -> inv.getBatch() != null ? inv.getBatch().getId() : null)
+                                    .filter(java.util.Objects::nonNull)
+                                    .distinct()
+                                    .count();
                         }
                     }
 
-                    return new RequestDetailVM(detail, medicineName, strength, dosageForm, unit);
+                    return new RequestDetailVM(detail, medicineName, activeIngredient, strength, dosageForm, unit, categoryName, batchCount);
                 })
                 .toList();
     }
@@ -406,6 +433,34 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
         repository.save(requestForm);
     }
 
+    @Override
+    public String createReturnRequest(Long branchId, vn.edu.fpt.pharma.dto.inventory.ReturnRequestDTO request) {
+        // Create RequestForm for RETURN
+        RequestForm requestForm = RequestForm.builder()
+                .branchId(branchId)
+                .requestType(vn.edu.fpt.pharma.constant.RequestType.RETURN)
+                .requestStatus(vn.edu.fpt.pharma.constant.RequestStatus.REQUESTED)
+                .note(request.getNote())
+                .build();
+
+        RequestForm savedForm = repository.save(requestForm);
+
+        // Create RequestDetails
+        for (vn.edu.fpt.pharma.dto.inventory.ReturnRequestDTO.ReturnItemDTO item : request.getItems()) {
+            vn.edu.fpt.pharma.entity.RequestDetail detail = vn.edu.fpt.pharma.entity.RequestDetail.builder()
+                    .requestForm(savedForm)
+                    .variantId(item.getVariantId())
+                    .quantity(item.getQuantity().longValue())
+                    .build();
+            requestDetailRepository.save(detail);
+        }
+
+        // Set requestId back to DTO for movement linking
+        request.setRequestId(savedForm.getId());
+
+        return "#RQ" + String.format("%03d", savedForm.getId());
+    }
+
     private String getBranchNameById(Long branchId) {
         if (branchId == null) {
             return "N/A";
@@ -446,4 +501,3 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     }
 
 }
-

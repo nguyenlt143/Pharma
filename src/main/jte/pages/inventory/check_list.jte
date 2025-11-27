@@ -62,7 +62,7 @@
                 <div class="flex items-center gap-4">
                     <div class="relative">
                         <span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary-light dark:text-text-secondary-dark">search</span>
-                        <input id="searchInput" class="pl-10 pr-4 py-2 w-80 border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark rounded-md focus:ring-primary focus:border-primary" placeholder="Tìm kiếm theo mã phiếu..." type="text"/>
+                        <input id="searchInput" class="pl-10 pr-4 py-2 w-96 border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark rounded-md focus:ring-primary focus:border-primary" placeholder="Tìm theo mã phiếu kiểm..." type="text"/>
                     </div>
                 </div>
                 <button onclick="window.location.href='/inventory/check/create'" class="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md flex items-center gap-2">
@@ -111,6 +111,24 @@
     </main>
 </div>
 
-<script src="/assets/js/inventory/inventory_check_list.js"></script>
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const tableBody = document.getElementById('checkTableBody');
+    const rows = Array.from(tableBody.getElementsByTagName('tr'));
+
+    searchInput?.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+
+        rows.forEach(row => {
+            if (row.querySelector('td[colspan]')) return; // Skip empty state row
+
+            const checkCode = row.dataset.checkCode?.toLowerCase() || '';
+
+            const matches = checkCode.includes(searchTerm);
+
+            row.style.display = matches ? '' : 'none';
+        });
+    });
+</script>
 </body>
 </html>
