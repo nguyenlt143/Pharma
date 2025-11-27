@@ -29,4 +29,8 @@ public interface RequestFormService extends BaseService<RequestForm, Long> {
 
 //    Export Creation
     ExportCreateDTO prepareExportCreation(Long requestId);
+
+//    Request Status Update
+    void confirmRequest(Long requestId);
+    void cancelRequest(Long requestId);
 }

@@ -390,4 +390,32 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
         return 0.0;
     }
 
+    @Override
+    public void confirmRequest(Long requestId) {
+        RequestForm requestForm = repository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Request not found with ID: " + requestId));
+
+        if (requestForm.getRequestStatus() != vn.edu.fpt.pharma.constant.RequestStatus.REQUESTED) {
+            throw new RuntimeException("Only requests with REQUESTED status can be confirmed");
+        }
+
+        requestForm.setRequestStatus(vn.edu.fpt.pharma.constant.RequestStatus.CONFIRMED);
+        repository.save(requestForm);
+        log.info("Request {} has been confirmed", requestId);
+    }
+
+    @Override
+    public void cancelRequest(Long requestId) {
+        RequestForm requestForm = repository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Request not found with ID: " + requestId));
+
+        if (requestForm.getRequestStatus() != vn.edu.fpt.pharma.constant.RequestStatus.REQUESTED) {
+            throw new RuntimeException("Only requests with REQUESTED status can be cancelled");
+        }
+
+        requestForm.setRequestStatus(vn.edu.fpt.pharma.constant.RequestStatus.CANCELLED);
+        repository.save(requestForm);
+        log.info("Request {} has been cancelled", requestId);
+    }
+
 }
