@@ -60,6 +60,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="/manager/report/import" class="nav-link">
+                        <span class="material-icons nav-icon">swap_horiz</span>
+                        <span class="nav-text">Nhập/Xuất kho</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="/manager/shift" class="nav-link">
                         <span class="material-icons nav-icon">schedule</span>
                         <span class="nav-text">Ca làm việc</span>
