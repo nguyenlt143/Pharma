@@ -154,6 +154,49 @@
 </div>
 
 <script src="/assets/js/inventory/import_create.js"></script>
+<script>
+// Preload items from medicine list selection
+(function preloadSelected() {
+    const raw = sessionStorage.getItem('preselectedImportItems');
+    if (!raw) return;
+    try {
+        const items = JSON.parse(raw);
+        if (!Array.isArray(items) || items.length === 0) return;
+        const tbody = document.getElementById('selectedMedicinesList');
+        const emptyRow = document.getElementById('emptyRow');
+        if (emptyRow) emptyRow.remove();
+        let index = 1;
+        items.forEach(function(it){
+            const tr = document.createElement('tr');
+            const quantity = (typeof it.quantity === 'number' && it.quantity > 0) ? it.quantity : 1;
+            const available = (typeof it.availableQty === 'number') ? it.availableQty : 0;
+            const batchIdAttr = (it.batchId != null) ? ' data-batch-id="' + it.batchId + '"' : '';
+            const rowHtml = ''
+                + '<td class="px-3 py-2 text-center">' + (index++) + '</td>'
+                + '<td class="px-3 py-2 font-medium">' + (it.medicineName || '') + '</td>'
+                + '<td class="px-3 py-2 text-xs">' + (it.activeIngredient || '-') + '</td>'
+                + '<td class="px-3 py-2 text-xs">' + (it.strength || '-') + '</td>'
+                + '<td class="px-3 py-2 text-xs">' + (it.batchCode || '-') + '</td>'
+                + '<td class="px-3 py-2 text-center font-semibold">' + available + '</td>'
+                + '<td class="px-3 py-2 text-center">'
+                +   '<input type="number" class="qty-input w-20 border border-gray-300 rounded px-2 py-1 text-center"'
+                +   ' value="' + quantity + '" min="1" max="' + available + '"'
+                +   ' data-variant-id="' + it.variantId + '"' + batchIdAttr + ' />'
+                + '</td>'
+                + '<td class="px-3 py-2 text-center">'
+                +   '<button type="button" class="remove-btn text-red-600 hover:text-red-800" title="Xóa">'
+                +     '<span class="material-icons-outlined text-sm">delete</span>'
+                +   '</button>'
+                + '</td>';
+            tr.innerHTML = rowHtml;
+            tbody.appendChild(tr);
+        });
+        // Clear session storage after preload
+        sessionStorage.removeItem('preselectedImportItems');
+    } catch (e) {
+        console.error('Failed to preload import items', e);
+    }
+})();
+</script>
 </body>
 </html>
-

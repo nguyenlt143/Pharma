@@ -58,11 +58,11 @@
                                     data-inventory-id="@if(med.getInventoryId() != null)${med.getInventoryId()}@endif"
                                     data-medicine-name="${med.getMedicineName()}"
                                     data-active-ingredient="@if(med.getActiveIngredient() != null)${med.getActiveIngredient()}@endif"
-                                    data-strength="@if(med.getStrength() != null)${med.getStrength()}@endif"
-                                    data-batch-code="@if(med.getBatchCode() != null)${med.getBatchCode()}@endif"
+                                    data-strength="@if(med.getStrength() != null)${med.getStrength()}@else@endif"
+                                    data-batch-code="@if(med.getBatchCode() != null)${med.getBatchCode()}@else@endif"
                                     data-expiry-date="@if(med.getExpiryDate() != null)${med.getExpiryDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}@endif"
                                     data-available-qty="${med.getQuantity()}"
-                                    data-unit="@if(med.getUnit() != null)${med.getUnit()}@endif">
+                                    data-unit="@if(med.getUnit() != null)${med.getUnit()}@else@endif">
                                     <td class="px-3 py-2 font-medium">${med.getMedicineName()}</td>
                                     <td class="px-3 py-2">@if(med.getActiveIngredient() != null)${med.getActiveIngredient()}@else-@endif</td>
                                     <td class="px-3 py-2">@if(med.getStrength() != null)${med.getStrength()}@else-@endif</td>
@@ -106,7 +106,7 @@
                     </thead>
                     <tbody id="selectedMedicines" class="divide-y">
                         <tr class="empty-state">
-                            <td colspan="5" class="px-3 py-8 text-center text-gray-500">Chưa chọn thuốc nào</td>
+                            <td colspan="7" class="px-3 py-8 text-center text-gray-500">Chưa chọn thuốc nào</td>
                         </tr>
                     </tbody>
                 </table>
@@ -133,6 +133,35 @@
 <script>
 const selectedItems = new Map();
 const branchIdValue = ${branchId};
+
+// Load preselected items from sessionStorage (from medicine list)
+document.addEventListener('DOMContentLoaded', function() {
+    const preselected = sessionStorage.getItem('preselectedReturnItems');
+    if (preselected) {
+        try {
+            const items = JSON.parse(preselected);
+            items.forEach(item => {
+                const key = item.variantId + '_' + item.batchId;
+                selectedItems.set(key, {
+                    variantId: item.variantId,
+                    batchId: item.batchId,
+                    inventoryId: item.inventoryId,
+                    medicineName: item.medicineName,
+                    batchCode: item.batchCode,
+                    strength: item.strength || '',
+                    unit: item.unit,
+                    availableQty: item.availableQty,
+                    quantity: item.quantity
+                });
+            });
+            renderSelectedItems();
+            // Clear sessionStorage after loading
+            sessionStorage.removeItem('preselectedReturnItems');
+        } catch (e) {
+            console.error('Error loading preselected items:', e);
+        }
+    }
+});
 
 // Search functionality
 $('#branchMedicineSearch').on('input', function() {
@@ -205,7 +234,7 @@ function renderSelectedItems() {
     const tbody = $('#selectedMedicines');
     tbody.empty();
     if (selectedItems.size === 0) {
-        tbody.append('<tr class="empty-state"><td colspan="5" class="px-3 py-8 text-center text-gray-500">Chưa chọn thuốc nào</td></tr>');
+        tbody.append('<tr class="empty-state"><td colspan="7" class="px-3 py-8 text-center text-gray-500">Chưa chọn thuốc nào</td></tr>');
         return;
     }
     selectedItems.forEach((item, key) => {

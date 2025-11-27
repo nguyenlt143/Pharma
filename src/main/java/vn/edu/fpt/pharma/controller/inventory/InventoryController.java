@@ -245,6 +245,28 @@ public class InventoryController {
         return "pages/inventory/medicine_list";
     }
 
+    @PostMapping("/medicine/delete-out-of-stock")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> deleteOutOfStockMedicines(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        try {
+            Long branchId = userDetails.getUser().getBranchId();
+            int deletedCount = inventoryService.deleteOutOfStockFromBranch(branchId);
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Đã xóa " + deletedCount + " thuốc hết hàng khỏi kho",
+                "deletedCount", deletedCount
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "Lỗi: " + e.getMessage()
+            ));
+        }
+    }
+
     // -------------------- CHECK INVENTORY --------------------
     @GetMapping("/expiring_medicine")
     public String expireMedicine() {
