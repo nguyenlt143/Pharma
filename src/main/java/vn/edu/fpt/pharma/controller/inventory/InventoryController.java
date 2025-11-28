@@ -2,12 +2,14 @@ package vn.edu.fpt.pharma.controller.inventory;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 import vn.edu.fpt.pharma.config.CustomUserDetails;
@@ -20,9 +22,6 @@ import vn.edu.fpt.pharma.service.DashboardService;
 import vn.edu.fpt.pharma.service.RequestFormService;
 import vn.edu.fpt.pharma.service.StockAdjustmentService;
 import vn.edu.fpt.pharma.service.InventoryService;
-
-import java.time.LocalDate;
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -37,8 +36,9 @@ public class InventoryController {
 
     // -------------------- DASHBOARD --------------------
     @GetMapping("/dashboard")
-    public String dashboard(Model model) {
-        var data = dashboardService.getDashboardData();
+    public String dashboard(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long branchId = userDetails.getUser().getBranchId();
+        var data = dashboardService.getDashboardData(branchId);
         model.addAllAttributes(data);
         return "pages/inventory/dashboard";
     }
