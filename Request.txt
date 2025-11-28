@@ -1,0 +1,25 @@
+1. Yêu cầu đang ở trạng thái “Đang duyệt” (REQUESTED)
+
+Người dùng mở màn hình Request Detail.
+
+Trạng thái hiển thị hiện tại là Đang duyệt.
+
+2. Khi người dùng ấn nút “Đồng ý” (Approve)
+
+Hệ thống chuyển trạng thái của Request từ “Đang duyệt” sang “Đồng ý” (CONFIRMED).
+
+Sau khi cập nhật trạng thái xong:
+
+Không chuyển sang màn hình Tạo Phiếu Xuất.
+
+Không thực hiện hành động tạo phiếu.
+
+Hệ thống vẫn giữ nguyên ở màn hình Request Detail, nhưng giao diện hiển thị theo trạng thái mới là Đồng ý.
+
+3. Khi người dùng ấn nút “Tạo Phiếu Xuất”
+
+Hệ thống mở giao diện Tạo Phiếu Xuất.
+
+Không thay đổi lại trạng thái của Request (vẫn giữ nguyên ở trạng thái “Đồng ý” – CONFIRMED).
+
+Màn hình/flow tạo phiếu chỉ là xử lý tiếp theo, không ảnh hưởng tới trạng thái yêu cầu.

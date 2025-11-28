@@ -6,12 +6,59 @@ function closeModal() {
 
 // Xử lý từ chối yêu cầu
 function rejectRequest(id) {
-    console.log('Từ chối yêu cầu với ID:', id);
-    // Thêm logic thực sự xử lý từ chối ở đây
-    alert('Yêu cầu đã được từ chối');
+    if (!confirm('Bạn có chắc chắn muốn từ chối yêu cầu này?')) {
+        return;
+    }
+
+    fetch(`/warehouse/request/cancel/${id}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            alert('Yêu cầu đã được từ chối');
+            // Reload the page to show updated status
+            window.location.reload();
+        } else {
+            alert('Có lỗi xảy ra khi từ chối yêu cầu');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra khi từ chối yêu cầu');
+    });
 }
 
-// Xử lý tạo phiếu xuất
+// Xử lý đồng ý yêu cầu (chuyển trạng thái sang CONFIRMED)
+function approveRequest(id) {
+    if (!confirm('Bạn có chắc chắn muốn đồng ý yêu cầu này?')) {
+        return;
+    }
+
+    fetch(`/warehouse/request/confirm/${id}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            alert('Yêu cầu đã được đồng ý');
+            // Reload the page to show updated status
+            window.location.reload();
+        } else {
+            alert('Có lỗi xảy ra khi đồng ý yêu cầu');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra khi đồng ý yêu cầu');
+    });
+}
+
+// Xử lý tạo phiếu xuất (không thay đổi trạng thái)
 function createExportSlip(id) {
     console.log('Tạo phiếu xuất cho ID:', id);
     // Chuyển sang trang tạo phiếu xuất với request ID
