@@ -7,7 +7,6 @@ import vn.edu.fpt.pharma.base.BaseServiceImpl;
 import vn.edu.fpt.pharma.constant.BranchType;
 import vn.edu.fpt.pharma.constant.MovementStatus;
 import vn.edu.fpt.pharma.constant.MovementType;
-import vn.edu.fpt.pharma.constant.RequestStatus;
 import vn.edu.fpt.pharma.dto.warehouse.ExportSubmitDTO;
 import vn.edu.fpt.pharma.dto.warehouse.InventoryMovementVM;
 import vn.edu.fpt.pharma.dto.warehouse.ReceiptDetailVM;
@@ -380,12 +379,13 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
             // For now, we just mark as SHIPPED (đang giao)
         }
 
-        // 8. Update request status if exists
-        if (requestForm != null) {
-            requestForm.setRequestStatus(RequestStatus.RECEIVED);
-            requestFormRepository.save(requestForm);
-            log.info("Updated request form {} to RECEIVED", requestForm.getId());
-        }
+        // 8. Do NOT update request status - keep it as CONFIRMED
+        // The request status should remain CONFIRMED even after creating export slip
+        // if (requestForm != null) {
+        //     requestForm.setRequestStatus(RequestStatus.RECEIVED);
+        //     requestFormRepository.save(requestForm);
+        //     log.info("Updated request form {} to RECEIVED", requestForm.getId());
+        // }
 
         log.info("Export movement {} created successfully with {} items",
                 savedMovement.getId(), dto.getDetails().size());
