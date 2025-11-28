@@ -259,25 +259,6 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
         return "#RQ" + String.format("%03d", savedForm.getId());
     }
 
-    @Override
-    public String createReturnRequest(Long branchId, vn.edu.fpt.pharma.dto.inventory.ReturnRequestDTO request) {
-        RequestForm form = RequestForm.builder()
-                .branchId(branchId)
-                .requestType(RequestType.RETURN)
-                .requestStatus(vn.edu.fpt.pharma.constant.RequestStatus.REQUESTED)
-                .note(request.getNote())
-                .build();
-        RequestForm saved = repository.save(form);
-        for (vn.edu.fpt.pharma.dto.inventory.ReturnRequestDTO.ReturnItemDTO item : request.getItems()) {
-            vn.edu.fpt.pharma.entity.RequestDetail detail = vn.edu.fpt.pharma.entity.RequestDetail.builder()
-                    .requestForm(saved)
-                    .variantId(item.getVariantId())
-                    .quantity(item.getQuantity().longValue())
-                    .build();
-            requestDetailRepository.save(detail);
-        }
-        return "#RQ" + String.format("%03d", saved.getId());
-    }
 
     @Override
     public ExportCreateDTO prepareExportCreation(Long requestId) {
