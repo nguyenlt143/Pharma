@@ -60,4 +60,15 @@ public interface RequestFormRepository extends JpaRepository<RequestForm, Long>,
     List<RequestForm> findByRequestType(RequestType requestType);
     // IMPORT / RETURN
 
+    // New: count pending inbound for a specific branch
+    @Query(value = "SELECT COUNT(*) FROM request_forms WHERE branch_id = :branchId AND request_type = 'IMPORT' AND request_status IN ('REQUESTED','RECEIVED')", nativeQuery = true)
+    int countPendingInboundForBranch(@Param("branchId") Long branchId);
+
+    // New: count pending outbound for a specific branch
+    @Query(value = "SELECT COUNT(*) FROM request_forms WHERE branch_id = :branchId AND request_type = 'EXPORT' AND request_status IN ('REQUESTED','RECEIVED')", nativeQuery = true)
+    int countPendingOutboundForBranch(@Param("branchId") Long branchId);
+
+    // New: get recent request forms for a branch with limit
+    @Query(value = "SELECT * FROM request_forms WHERE branch_id = :branchId ORDER BY created_at DESC LIMIT :limit", nativeQuery = true)
+    List<RequestForm> findRecentByBranch(@Param("branchId") Long branchId, @Param("limit") int limit);
 }

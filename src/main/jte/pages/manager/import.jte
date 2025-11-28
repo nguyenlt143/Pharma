@@ -5,8 +5,8 @@
 @param Integer pendingInbound
 @param Integer pendingOutbound
 @param String range
-@param java.util.List<java.util.Map<String, Object>> categories
-@param java.util.List<java.util.Map<String, Object>> recentActivities
+
+@param java.util.List<java.util.Map<String, java.lang.Object>> recentActivities
 
 @template.layouts.manager(
     headContent = @`
@@ -15,41 +15,6 @@
     `,
     content = @`
         <main class="main">
-            <div class="breadcrumb">
-                <span>Báo Cáo</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2"/></svg>
-                <span>Nhập/Xuất kho - Chi nhánh</span>
-            </div>
-
-            <div class="page-header">
-                <h2 class="page-title">Báo cáo Nhập/Xuất - ${branchName != null ? branchName : "Chi nhánh"}</h2>
-            </div>
-
-            <section class="kpi-row">
-                <div class="kpi-card">
-                    <div class="kpi-title">Tổng giá trị tồn kho</div>
-                    <div class="kpi-value" id="totalValue">${totalValue != null ? totalValue : ""}</div>
-                    <div class="kpi-sub" id="valueDeltaLabel">${valueDeltaLabel != null ? valueDeltaLabel : ""}</div>
-                </div>
-
-                <div class="kpi-card warn">
-                    <div class="kpi-title">Sắp hết hàng</div>
-                    <div class="kpi-value" id="lowStockCount">${lowStockCount != null ? lowStockCount : 0}</div>
-                    <div class="kpi-sub">Sản phẩm cần nhập</div>
-                </div>
-
-                <div class="kpi-card">
-                    <div class="kpi-title">Đơn nhập chờ xử lý</div>
-                    <div class="kpi-value" id="pendingInbound">${pendingInbound != null ? pendingInbound : 0}</div>
-                    <div class="kpi-sub">Phiếu yêu cầu</div>
-                </div>
-
-                <div class="kpi-card">
-                    <div class="kpi-title">Đơn xuất chờ đi</div>
-                    <div class="kpi-value" id="pendingOutbound">${pendingOutbound != null ? pendingOutbound : 0}</div>
-                    <div class="kpi-sub">Đơn hàng</div>
-                </div>
-            </section>
 
             <section class="filters">
                 <label>Thời gian:
@@ -84,12 +49,6 @@
                     </div>
                     <canvas id="inOutChart" aria-label="Biểu đồ nhập xuất" role="img"></canvas>
                 </div>
-
-                <div class="chart-card">
-                    <div class="chart-header"><h3>Tỷ trọng danh mục</h3></div>
-                    <canvas id="categoryDonut" aria-label="Tỷ trọng danh mục" role="img"></canvas>
-                    <ul id="donutLegend" class="donut-legend"></ul>
-                </div>
             </section>
 
             <section class="activity">
@@ -108,26 +67,26 @@
                         <th>Mã đơn</th>
                         <th>Loại</th>
                         <th>Người tạo</th>
-                        <th>Số lượng</th>
-                        <th>Trạng thái</th>
+                        <th>Tổng giá trị</th>
                         <th>Thời gian</th>
                         <th>Hành động</th>
                     </tr>
                     </thead>
                     <tbody id="recentActivities">
-                        @if(recentActivities == null || recentActivities.size() == 0)
-                            <tr><td colspan="7" class="muted">Không có hoạt động gần đây</td></tr>
+                        @if(recentActivities == null || recentActivities.isEmpty())
+                            <tr><td colspan="6" class="muted">Không có hoạt động gần đây</td></tr>
                         @else
-                            @for(var act : recentActivities)
+
+                            @for(java.util.Map<String, java.lang.Object> __actObj : recentActivities)
                                 <tr>
-                                    <td><a href="javascript:void(0)" onclick="viewRequestDetail(${act.get("id") != null ? act.get("id").toString() : "0"})" class="mono link">${act.get("code") != null ? act.get("code").toString() : ""}</a></td>
-                                    <td><span class="badge badge-${act.get("typeClass") != null ? act.get("typeClass").toString() : ""}">${act.get("type") != null ? act.get("type").toString() : ""}</span></td>
-                                    <td>${act.get("creator") != null ? act.get("creator").toString() : "-"}</td>
-                                    <td>${act.get("totalQty") != null ? act.get("totalQty").toString() : "0"}</td>
-                                    <td><span class="status status-${act.get("statusClass") != null ? act.get("statusClass").toString() : ""}">${act.get("statusLabel") != null ? act.get("statusLabel").toString() : ""}</span></td>
-                                    <td>${act.get("timeAgo") != null ? act.get("timeAgo").toString() : ""}</td>
+                                    <td><a href="javascript:void(0)" onclick="viewRequestDetail(${__actObj.get("id") != null ? __actObj.get("id").toString() : "0"})" class="mono link">${__actObj.get("code") != null ? __actObj.get("code").toString() : ""}</a></td>
+                                    <td><span class="badge badge-${__actObj.get("typeClass") != null ? __actObj.get("typeClass").toString() : ""}">${__actObj.get("type") != null ? __actObj.get("type").toString() : ""}</span></td>
+                                    <td>${__actObj.get("creator") != null ? __actObj.get("creator").toString() : "-"}</td>
+
+                                    <td>${__actObj.get("totalValueFormatted") != null ? __actObj.get("totalValueFormatted").toString() : (__actObj.get("totalValue") != null ? ( __actObj.get("totalValue") instanceof Number ? java.text.NumberFormat.getInstance(java.util.Locale.forLanguageTag("vi-VN")).format(((Number)__actObj.get("totalValue")).longValue()) + " đ" : java.text.NumberFormat.getInstance(java.util.Locale.forLanguageTag("vi-VN")).format(new java.math.BigDecimal(__actObj.get("totalValue").toString()).longValue()) + " đ") : "0 đ")}</td>
+                                    <td>${__actObj.get("timeAgo") != null ? __actObj.get("timeAgo").toString() : ""}</td>
                                     <td>
-                                        <button class="btn btn-small" onclick="viewRequestDetail(${act.get("id") != null ? act.get("id").toString() : "0"})">Xem</button>
+                                        <button class="btn btn-small" onclick="viewRequestDetail(${__actObj.get("id") != null ? __actObj.get("id").toString() : "0"})">Xem</button>
                                     </td>
                                 </tr>
                             @endfor
@@ -155,4 +114,3 @@
     `,
     pageScript = @`<script src="/assets/js/manager/import-export.js" defer></script>`
 )
-
