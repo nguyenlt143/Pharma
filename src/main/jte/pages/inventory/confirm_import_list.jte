@@ -1,10 +1,11 @@
-@param java.util.List<vn.edu.fpt.pharma.dto.requestform.RequestFormVM> imports
+@param java.util.List<vn.edu.fpt.pharma.dto.inventory.ConfirmImportVM> confirmImports
+@param String q
 
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Danh sách phiếu nhập</title>
+    <title>Xác nhận nhập hàng</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 </head>
@@ -12,15 +13,15 @@
 <div class="flex h-screen">
 
     <!-- Sidebar -->
-    @template.layouts.inventory(active = "import")
+    @template.layouts.inventory(active = "confirm")
 
     <!-- Main -->
     <main class="flex-1 p-6 overflow-y-auto">
         <header class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold">LỊCH SỬ PHIẾU NHẬP</h2>
+            <h2 class="text-2xl font-bold">XÁC NHẬN NHẬP HÀNG</h2>
             <div class="flex items-center gap-2 text-sm text-gray-600">
-                <span class="material-icons-outlined text-base">inventory_2</span>
-                <span>Tổng: @if(imports != null)${imports.size()}@endif phiếu</span>
+                <span class="material-icons-outlined text-base">check_circle</span>
+                <span>Tổng: @if(confirmImports != null)${confirmImports.size()}@endif đơn</span>
             </div>
         </header>
 
@@ -32,12 +33,8 @@
                         <input id="searchInput" type="text" placeholder="Tìm theo mã phiếu, ghi chú..." class="pl-10 pr-4 py-2 w-96 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
                     </div>
                 </div>
-                <a href="/inventory/import/create" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center gap-2">
-                    <span class="material-icons-outlined">add_circle</span>
-                    Tạo phiếu nhập mới
-                </a>
+                <div></div>
             </div>
-
             <div class="overflow-x-auto">
                 <table class="w-full table-auto">
                     <thead class="bg-gray-50 text-left text-sm text-gray-600 uppercase">
@@ -48,54 +45,50 @@
                         <th class="px-4 py-3 font-medium text-center">Số loại thuốc</th>
                         <th class="px-4 py-3 font-medium text-right">Tổng giá tiền</th>
                         <th class="px-4 py-3 font-medium">Trạng thái</th>
-                        <th class="px-4 py-3 font-medium">Ghi chú</th>
                         <th class="px-4 py-3 font-medium text-center">Hành động</th>
                     </tr>
                     </thead>
-                    <tbody id="importTableBody" class="divide-y divide-gray-200">
-                    @if(imports != null && !imports.isEmpty())
-                        @for(vn.edu.fpt.pharma.dto.requestform.RequestFormVM item : imports)
+                    <tbody id="confirmTableBody" class="divide-y divide-gray-200">
+                    @if(confirmImports != null && !confirmImports.isEmpty())
+                        @for(vn.edu.fpt.pharma.dto.inventory.ConfirmImportVM item : confirmImports)
                             <tr class="hover:bg-gray-50"
-                                data-code="${item.code}"
-                                data-note="${item.note}"
-                                data-status="${item.status}">
-                                <td class="px-4 py-3">@if(imports.indexOf(item) >= 0)${imports.indexOf(item) + 1}@endif</td>
-                                <td class="px-4 py-3 font-medium text-blue-600">${item.code}</td>
-                                <td class="px-4 py-3">${item.createdAt}</td>
-                                <td class="px-4 py-3 text-center">${item.medicineCount}</td>
-                                <td class="px-4 py-3 text-right font-medium">@if(item.totalAmount != null)${String.format("%,.0f", item.totalAmount)}@else0@endif ₫</td>
+                                data-code="${item.getCode()}"
+                                data-status="${item.getStatus()}">
+                                <td class="px-4 py-3">@if(confirmImports.indexOf(item) >= 0)${confirmImports.indexOf(item) + 1}@endif</td>
+                                <td class="px-4 py-3 font-medium text-blue-600">${item.getCode()}</td>
+                                <td class="px-4 py-3">${item.getCreatedAt()}</td>
+                                <td class="px-4 py-3 text-center">${item.getMedicineCount()}</td>
+                                <td class="px-4 py-3 text-right font-medium">@if(item.getTotalMoney() != null)${String.format("%,.0f", item.getTotalMoney())}@else0@endif ₫</td>
                                 <td class="px-4 py-3">
-                                    @if(item.status.equals("REQUESTED"))
-                                        <span class="text-yellow-600 font-medium">ĐANG DUYỆT</span>
-                                    @elseif(item.status.equals("RECEIVED"))
-                                        <span class="text-green-600 font-medium">ĐÃ NHẬP</span>
-                                    @elseif(item.status.equals("CANCELLED"))
-                                        <span class="text-red-600 font-medium">ĐÃ HỦY</span>
+                                    @if(item.getStatus().equals("SHIPPED"))
+                                        <span class="text-blue-600 font-medium">ĐANG GIAO</span>
+                                    @elseif(item.getStatus().equals("RECEIVED"))
+                                        <span class="text-green-600 font-medium">ĐÃ NHẬN</span>
                                     @else
-                                        <span class="text-gray-500">${item.status}</span>
+                                        <span class="text-gray-500">${item.getStatus()}</span>
                                     @endif
                                 </td>
-                                <td class="px-4 py-3">${item.note}</td>
                                 <td class="px-4 py-3 text-center">
-                                    <a href="/inventory/import/detail/${item.code.substring(3)}" class="text-blue-600 hover:text-blue-800 font-medium">Xem</a>
+                                    <a href="/inventory/confirm/detail/${item.getId()}" class="text-blue-600 hover:text-blue-800 font-medium">Xem</a>
                                 </td>
                             </tr>
                         @endfor
                     @else
                         <tr>
-                            <td colspan="8" class="px-4 py-8 text-center text-gray-500">Chưa có phiếu nhập</td>
+                            <td colspan="7" class="px-4 py-8 text-center text-gray-500">
+                                Không có đơn hàng nào đang chờ xác nhận
+                            </td>
                         </tr>
                     @endif
                     </tbody>
                 </table>
             </div>
         </div>
-        <p class="text-xs text-gray-400 mt-4">Hiển thị thời gian: dd/MM/yyyy HH:mm</p>
     </main>
 </div>
 <script>
     const searchInput = document.getElementById('searchInput');
-    const tableBody = document.getElementById('importTableBody');
+    const tableBody = document.getElementById('confirmTableBody');
     const rows = Array.from(tableBody.getElementsByTagName('tr'));
 
     searchInput?.addEventListener('input', function() {
@@ -105,11 +98,9 @@
             if (row.querySelector('td[colspan]')) return; // Skip empty state row
 
             const code = row.dataset.code?.toLowerCase() || '';
-            const note = row.dataset.note?.toLowerCase() || '';
             const status = row.dataset.status?.toLowerCase() || '';
 
             const matches = code.includes(searchTerm) ||
-                          note.includes(searchTerm) ||
                           status.includes(searchTerm);
 
             row.style.display = matches ? '' : 'none';

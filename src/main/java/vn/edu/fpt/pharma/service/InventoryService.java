@@ -10,4 +10,7 @@ import java.util.List;
 public interface InventoryService extends BaseService<Inventory, Long> {
     List<InventoryMedicineVM> getInventoryMedicinesByBranch(Long branchId);
     List<MedicineSearchDTO> searchMedicinesInWarehouse(String query);
+
+    // Delete inventory items with quantity = 0 from branch
+    int deleteOutOfStockFromBranch(Long branchId);
 }

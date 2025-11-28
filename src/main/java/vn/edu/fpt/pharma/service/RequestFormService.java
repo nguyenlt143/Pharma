@@ -20,6 +20,9 @@ public interface RequestFormService extends BaseService<RequestForm, Long> {
 
     String createImportRequest(Long branchId, vn.edu.fpt.pharma.dto.inventory.ImportRequestDTO request);
 
+    // Create RETURN request form for branch
+    String createReturnRequest(Long branchId, vn.edu.fpt.pharma.dto.inventory.ReturnRequestDTO request);
+
 //    Request List
     List<RequestList> getAllRequestForms();              // all
     List<RequestList> getImportRequests();               // import

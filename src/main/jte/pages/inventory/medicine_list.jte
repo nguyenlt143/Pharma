@@ -5,150 +5,238 @@
 <html lang="vi">
 <head>
     <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Danh sách thuốc trong kho</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        primary: "#2563EB",
-                        "background-light": "#F8FAFC",
-                        "background-dark": "#1E293B",
-                        "card-light": "#FFFFFF",
-                        "card-dark": "#334155",
-                        "text-light": "#1E293B",
-                        "text-dark": "#E2E8F0",
-                        "text-secondary-light": "#64748B",
-                        "text-secondary-dark": "#94A3B8",
-                        "border-light": "#E2E8F0",
-                        "border-dark": "#475569",
-                    },
-                    fontFamily: {
-                        display: ["Roboto", "sans-serif"],
-                    },
-                    borderRadius: {
-                        DEFAULT: "0.5rem",
-                    },
-                },
-            },
-        };
-    </script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 </head>
-<body class="bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark">
+<body class="bg-gray-100 font-sans text-gray-900">
 <div class="flex h-screen">
     @template.layouts.inventory(active = "medicine")
-
     <main class="flex-1 p-6 overflow-y-auto">
-        <header class="flex justify-between items-center mb-6">
+        <div class="flex justify-between items-center mb-6">
             <div>
                 <h2 class="text-2xl font-bold">DANH SÁCH THUỐC TRONG KHO</h2>
-                <p class="text-text-secondary-light dark:text-text-secondary-dark">Xem chi tiết thuốc theo variant và batch</p>
+                <p class="text-sm text-gray-600">Xem và lọc thuốc theo trạng thái tồn kho / hạn dùng</p>
             </div>
-            <div class="flex items-center gap-2 text-sm text-gray-600">
+            <div class="text-sm text-gray-700 flex items-center gap-2">
                 <span class="material-icons-outlined text-base">warehouse</span>
-                <span>Chi nhánh ${branchId} | Tổng: @if(medicines != null)${medicines.size()}@endif loại</span>
-            </div>
-        </header>
-
-        <div class="bg-card-light dark:bg-card-dark p-6 rounded-lg shadow-md">
-            <div class="flex justify-between items-center mb-4">
-                <div class="flex items-center gap-4">
-                    <div class="relative">
-                        <span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary-light dark:text-text-secondary-dark">search</span>
-                        <input id="searchInput" class="pl-10 pr-4 py-2 w-96 border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark rounded-md focus:ring-primary focus:border-primary" placeholder="Tìm theo tên thuốc, hoạt chất, batch..." type="text"/>
-                    </div>
-                    <select id="categoryFilter" class="py-2 px-4 border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark rounded-md focus:ring-primary focus:border-primary">
-                        <option value="">Tất cả danh mục</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="w-full table-auto">
-                    <thead class="bg-gray-50 dark:bg-slate-700 text-left text-sm text-text-secondary-light dark:text-text-secondary-dark uppercase">
-                    <tr>
-                        <th class="px-4 py-3 font-medium">STT</th>
-                        <th class="px-4 py-3 font-medium">Tên thuốc</th>
-                        <th class="px-4 py-3 font-medium">Hoạt chất</th>
-                        <th class="px-4 py-3 font-medium">Hàm lượng</th>
-                        <th class="px-4 py-3 font-medium">Dạng bào chế</th>
-                        <th class="px-4 py-3 font-medium">Mã lô</th>
-                        <th class="px-4 py-3 font-medium">HSD</th>
-                        <th class="px-4 py-3 font-medium text-center">Số lượng</th>
-                        <th class="px-4 py-3 font-medium">Nhà SX</th>
-                        <th class="px-4 py-3 font-medium">Danh mục</th>
-                        <th class="px-4 py-3 font-medium text-center">Chi tiết</th>
-                    </tr>
-                    </thead>
-                    <tbody id="medicineTableBody" class="divide-y divide-border-light dark:divide-border-dark">
-                    @if(medicines != null && !medicines.isEmpty())
-                        @for(var item : medicines)
-                            <tr class="hover:bg-gray-50 dark:hover:bg-slate-800"
-                                data-medicine-name="${item.getMedicineName()}"
-                                data-active-ingredient="${item.getActiveIngredient()}"
-                                data-batch-code="${item.getBatchCode()}"
-                                data-category="${item.getCategoryName()}"
-                                data-variant-id="${item.getVariantId()}"
-                                data-batch-id="${item.getBatchId()}">
-                                <td class="px-4 py-3">@if(medicines.indexOf(item) >= 0)${medicines.indexOf(item) + 1}@endif</td>
-                                <td class="px-4 py-3 font-medium text-primary">${item.getMedicineName()}</td>
-                                <td class="px-4 py-3">${item.getActiveIngredient()}</td>
-                                <td class="px-4 py-3">@if(item.getStrength() != null)${item.getStrength()}@else-@endif</td>
-                                <td class="px-4 py-3">${item.getDosageForm()}</td>
-                                <td class="px-4 py-3">@if(item.getBatchCode() != null)<span class="font-mono text-sm bg-gray-100 dark:bg-slate-700 px-2 py-1 rounded">${item.getBatchCode()}</span>@else-@endif</td>
-                                <td class="px-4 py-3">
-                                    @if(item.getExpiryDate() != null)
-                                        @if(item.getExpiryDate().isBefore(java.time.LocalDate.now().plusMonths(6)))
-                                            <span class="text-red-600 font-medium">${item.getExpiryDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}</span>
-                                        @else
-                                            ${item.getExpiryDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}
-                                        @endif
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                                <td class="px-4 py-3 text-center font-semibold">
-                                    @if(item.getQuantity() > 0)
-                                        ${item.getQuantity()} @if(item.getUnit() != null)${item.getUnit()}@endif
-                                    @else
-                                        <span class="text-red-600">0</span>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-3">${item.getManufacturer()}</td>
-                                <td class="px-4 py-3">@if(item.getCategoryName() != null)<span class="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">${item.getCategoryName()}</span>@else-@endif</td>
-                                <td class="px-4 py-3 text-center">
-                                    <button onclick="viewDetail(${item.getVariantId()}, ${item.getBatchId()})" class="text-primary hover:text-blue-700 p-1" title="Xem chi tiết">
-                                        <span class="material-icons-outlined">info</span>
-                                    </button>
-                                </td>
-                            </tr>
-                        @endfor
-                    @else
-                        <tr>
-                            <td colspan="11" class="px-4 py-8 text-center text-text-secondary-light dark:text-text-secondary-dark">
-                                Không có thuốc trong kho
-                            </td>
-                        </tr>
-                    @endif
-                    </tbody>
-                </table>
+                Chi nhánh ${branchId} @if(medicines != null) | ${medicines.size()} loại @endif
             </div>
         </div>
 
-        <div class="mt-4 text-xs text-text-secondary-light dark:text-text-secondary-dark">
-            <p><strong>Variant ID:</strong> ID của biến thể thuốc (quy cách đóng gói)</p>
-            <p><strong>Batch ID:</strong> ID của lô thuốc</p>
-            <p class="text-red-600 font-medium mt-2">* Thuốc có HSD dưới 6 tháng được đánh dấu màu đỏ</p>
+        <div class="bg-white p-4 rounded-lg shadow mb-6">
+            <div class="flex flex-wrap items-center gap-4">
+                <div class="relative">
+                    <span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+                    <input id="searchInput" type="text" placeholder="Tìm theo tên / hoạt chất / mã lô" class="pl-10 pr-4 py-2 w-72 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+                <select id="categoryFilter" class="py-2 px-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">Tất cả danh mục</option>
+                </select>
+                <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+                    <input id="filterExpiring" type="checkbox" class="rounded border-gray-300"> Sắp hết hạn (≤ 1 tháng)
+                </label>
+                <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+                    <input id="filterLowStock" type="checkbox" class="rounded border-gray-300"> Sắp hết hàng (< 10)
+                </label>
+                <div class="ml-auto flex items-center gap-2 text-xs text-gray-500">
+                    <span class="w-3 h-3 bg-red-200 border border-red-500 inline-block"></span> <span>≤ 1 tuần</span>
+                    <span class="w-3 h-3 bg-orange-200 border border-orange-500 inline-block ml-3"></span> <span>1 tuần - 1 tháng</span>
+                    <span class="w-3 h-3 bg-yellow-200 border border-yellow-500 inline-block ml-3"></span> <span>Tồn kho < 10</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
+                <tr>
+                    <th class="px-3 py-2 text-center"><input id="selectAll" type="checkbox" class="rounded border-gray-300" title="Chọn tất cả hiển thị"></th>
+                    <th class="px-3 py-2 text-left">STT</th>
+                    <th class="px-3 py-2 text-left">Tên thuốc</th>
+                    <th class="px-3 py-2 text-left">Hoạt chất</th>
+                    <th class="px-3 py-2 text-left">Hàm lượng</th>
+                    <th class="px-3 py-2 text-left">Dạng bào chế</th>
+                    <th class="px-3 py-2 text-left">Mã lô</th>
+                    <th class="px-3 py-2 text-left">HSD</th>
+                    <th class="px-3 py-2 text-center">Tồn kho</th>
+                    <th class="px-3 py-2 text-left">Nhà SX</th>
+                    <th class="px-3 py-2 text-left">Danh mục</th>
+                    <th class="px-3 py-2 text-center">Cảnh báo</th>
+                </tr>
+                </thead>
+                <tbody id="medicineTableBody" class="divide-y">
+                @if(medicines != null && !medicines.isEmpty())
+                    @for(vn.edu.fpt.pharma.dto.inventory.InventoryMedicineVM item : medicines)
+                        <tr class="hover:bg-gray-50 ${ (item.getExpiryDate() != null && (item.getExpiryDate().isBefore(java.time.LocalDate.now().plusWeeks(1)) || item.getExpiryDate().isEqual(java.time.LocalDate.now().plusWeeks(1)))) ? "bg-red-50" : (item.getQuantity() != null && item.getQuantity() < 10 ? "bg-yellow-50" : "") }"
+                            data-medicine-name="${item.getMedicineName()}"
+                            data-active-ingredient="${item.getActiveIngredient()}"
+                            data-strength="@if(item.getStrength() != null)${item.getStrength()}@endif"
+                            data-batch-code="@if(item.getBatchCode() != null)${item.getBatchCode()}@endif"
+                            data-category="${item.getCategoryName()}"
+                            data-variant-id="${item.getVariantId()}"
+                            data-batch-id="${item.getBatchId()}"
+                            data-inventory-id="@if(item.getInventoryId() != null)${item.getInventoryId()}@endif"
+                            data-unit="@if(item.getUnit() != null)${item.getUnit()}@endif"
+                            data-available-qty="${item.getQuantity()}"
+                            data-low-stock="${item.getQuantity() != null && item.getQuantity() < 10}"
+                            data-expiry-category="${ item.getExpiryDate() != null && ( item.getExpiryDate().isBefore(java.time.LocalDate.now().plusWeeks(1)) || item.getExpiryDate().isEqual(java.time.LocalDate.now().plusWeeks(1)) ) ? "week" : ( item.getExpiryDate() != null && item.getExpiryDate().isAfter(java.time.LocalDate.now().plusWeeks(1)) && ( item.getExpiryDate().isBefore(java.time.LocalDate.now().plusMonths(1)) || item.getExpiryDate().isEqual(java.time.LocalDate.now().plusMonths(1)) ) ? "month" : "none" ) }">
+                            <td class="px-3 py-2 text-center"><input type="checkbox" class="row-select rounded border-gray-300" aria-label="Chọn thuốc dòng ${medicines.indexOf(item)+1}"></td>
+                            <td class="px-3 py-2">${medicines.indexOf(item)+1}</td>
+                            <td class="px-3 py-2 font-medium text-blue-700">${item.getMedicineName()}</td>
+                            <td class="px-3 py-2">${item.getActiveIngredient()}</td>
+                            <td class="px-3 py-2">@if(item.getStrength() != null)${item.getStrength()}@else-@endif</td>
+                            <td class="px-3 py-2">${item.getDosageForm()}</td>
+                            <td class="px-3 py-2">@if(item.getBatchCode() != null)<span class="font-mono bg-gray-100 px-2 py-1 rounded">${item.getBatchCode()}</span>@else-@endif</td>
+                            <td class="px-3 py-2">
+                                @if(item.getExpiryDate() != null)
+                                    @if(item.getExpiryDate().isBefore(java.time.LocalDate.now().plusWeeks(1)) || item.getExpiryDate().isEqual(java.time.LocalDate.now().plusWeeks(1)))
+                                        <span class="text-red-600 font-semibold">${item.getExpiryDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}</span>
+                                    @elseif(item.getExpiryDate().isAfter(java.time.LocalDate.now().plusWeeks(1)) && (item.getExpiryDate().isBefore(java.time.LocalDate.now().plusMonths(1)) || item.getExpiryDate().isEqual(java.time.LocalDate.now().plusMonths(1))))
+                                        <span class="text-orange-600 font-medium">${item.getExpiryDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}</span>
+                                    @else
+                                        ${item.getExpiryDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}
+                                    @endif
+                                @else - @endif
+                            </td>
+                            <td class="px-3 py-2 text-center font-semibold">@if(item.getQuantity() != null)${item.getQuantity()}@else0@endif @if(item.getUnit() != null)${item.getUnit()}@endif</td>
+                            <td class="px-3 py-2">${item.getManufacturer()}</td>
+                            <td class="px-3 py-2">@if(item.getCategoryName() != null)<span class="text-xs bg-blue-100 px-2 py-1 rounded">${item.getCategoryName()}</span>@else-@endif</td>
+                            <td class="px-3 py-2 text-center">
+                                @if(item.getExpiryDate() != null && (item.getExpiryDate().isBefore(java.time.LocalDate.now().plusWeeks(1)) || item.getExpiryDate().isEqual(java.time.LocalDate.now().plusWeeks(1))))
+                                    <span class="inline-flex items-center gap-1 text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full" title="Sắp hết hạn (< 1 tuần)"><span class="material-icons-outlined text-xs">warning</span>Hết hạn</span>
+                                @elseif(item.getExpiryDate() != null && item.getExpiryDate().isAfter(java.time.LocalDate.now().plusWeeks(1)) && (item.getExpiryDate().isBefore(java.time.LocalDate.now().plusMonths(1)) || item.getExpiryDate().isEqual(java.time.LocalDate.now().plusMonths(1))))
+                                    <span class="inline-flex items-center gap-1 text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full" title="Hết hạn trong 1 tuần - 1 tháng"><span class="material-icons-outlined text-xs">error_outline</span>Sắp hết hạn</span>
+                                @endif
+                                @if(item.getQuantity() != null && item.getQuantity() < 10)
+                                    <span class="inline-flex items-center gap-1 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full mt-1" title="Tồn kho thấp (< 10)"><span class="material-icons-outlined text-xs">inventory_2</span>Sắp hết</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @endfor
+                @else
+                    <tr><td colspan="12" class="px-3 py-6 text-center text-gray-500">Không có thuốc</td></tr>
+                @endif
+                </tbody>
+            </table>
+        </div>
+
+        <div id="bulkActionBar" class="mt-4 p-4 border border-blue-200 bg-blue-50 rounded-lg hidden">
+            <div class="flex flex-wrap items-center gap-4">
+                <div class="text-sm">Đã chọn: <strong id="selectedCount" class="text-blue-600">0</strong> thuốc</div>
+                <label class="flex items-center gap-2 text-sm">
+                    <span>Số lượng mặc định:</span>
+                    <input id="defaultQty" type="number" min="1" value="1" class="w-20 border border-gray-300 rounded px-2 py-1 text-center">
+                </label>
+                <div class="ml-auto flex gap-2">
+                    <button id="createImportFromList" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm flex items-center gap-1"><span class="material-icons-outlined text-sm">inventory_2</span>Tạo phiếu nhập</button>
+                    <button id="createReturnFromList" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm flex items-center gap-1"><span class="material-icons-outlined text-sm">assignment_return</span>Tạo phiếu trả</button>
+                </div>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">Chỉ chọn các dòng đang hiển thị. Có thể điều chỉnh số lượng ở bước tạo phiếu.</p>
         </div>
     </main>
 </div>
 
-<script src="/assets/js/inventory/medicine_list.js"></script>
+<script>
+const searchInputEl = document.getElementById('searchInput');
+const categoryFilterEl = document.getElementById('categoryFilter');
+const filterExpiring = document.getElementById('filterExpiring');
+const filterLowStock = document.getElementById('filterLowStock');
+const selectAllCheckbox = document.getElementById('selectAll');
+const bulkBar = document.getElementById('bulkActionBar');
+const selectedCountSpan = document.getElementById('selectedCount');
+const defaultQtyInput = document.getElementById('defaultQty');
+const createImportBtn = document.getElementById('createImportFromList');
+const createReturnBtn = document.getElementById('createReturnFromList');
+
+function applyFilters() {
+  const term = (searchInputEl.value || '').toLowerCase().trim();
+  const categoryTerm = (categoryFilterEl.value || '').toLowerCase().trim();
+  const wantExpiring = filterExpiring.checked;
+  const wantLowStock = filterLowStock.checked;
+  document.querySelectorAll('#medicineTableBody tr').forEach(row => {
+    const checkbox = row.querySelector('.row-select');
+    if (!checkbox) return;
+    const name = (row.dataset.medicineName || '').toLowerCase();
+    const active = (row.dataset.activeIngredient || '').toLowerCase();
+    const batchCode = (row.dataset.batchCode || '').toLowerCase();
+    const category = (row.dataset.category || '').toLowerCase();
+    const expiryCat = row.dataset.expiryCategory; // week|month|none
+    const lowStock = row.dataset.lowStock === 'true';
+    let ok = true;
+    if (term) ok = name.includes(term) || active.includes(term) || batchCode.includes(term);
+    if (ok && categoryTerm) ok = category.includes(categoryTerm);
+    if (ok && wantExpiring) ok = (expiryCat === 'week' || expiryCat === 'month');
+    if (ok && wantLowStock) ok = lowStock;
+    row.style.display = ok ? '' : 'none';
+  });
+  updateBulkBar();
+}
+
+function updateBulkBar() {
+  let count = 0;
+  document.querySelectorAll('#medicineTableBody tr').forEach(row => {
+    if (row.style.display === 'none') return;
+    const cb = row.querySelector('.row-select');
+    if (cb && cb.checked) count++;
+  });
+  selectedCountSpan.textContent = count;
+  bulkBar.classList.toggle('hidden', count === 0);
+}
+
+searchInputEl.addEventListener('input', applyFilters);
+categoryFilterEl.addEventListener('change', applyFilters);
+filterExpiring.addEventListener('change', applyFilters);
+filterLowStock.addEventListener('change', applyFilters);
+
+selectAllCheckbox.addEventListener('change', () => {
+  const checked = selectAllCheckbox.checked;
+  document.querySelectorAll('#medicineTableBody tr').forEach(row => {
+    if (row.style.display === 'none') return;
+    const cb = row.querySelector('.row-select');
+    if (cb) cb.checked = checked;
+  });
+  updateBulkBar();
+});
+
+document.getElementById('medicineTableBody').addEventListener('change', e => {
+  if (e.target.classList.contains('row-select')) updateBulkBar();
+});
+
+function collectSelected(forType) {
+  const items = [];
+  document.querySelectorAll('#medicineTableBody tr').forEach(row => {
+    if (row.style.display === 'none') return;
+    const cb = row.querySelector('.row-select');
+    if (!cb || !cb.checked) return;
+    const availableQty = parseInt(row.dataset.availableQty || '0');
+    const qty = Math.min(Math.max(parseInt(defaultQtyInput.value || '1'), 1), availableQty);
+    items.push({
+      variantId: Number(row.dataset.variantId),
+      batchId: row.dataset.batchId ? Number(row.dataset.batchId) : null,
+      inventoryId: row.dataset.inventoryId ? Number(row.dataset.inventoryId) : null,
+      medicineName: row.dataset.medicineName || '',
+      strength: row.dataset.strength || '',
+      unit: row.dataset.unit || '',
+      batchCode: row.dataset.batchCode || '',
+      availableQty: availableQty,
+      quantity: qty
+    });
+  });
+  if (items.length === 0) {
+    alert('Chưa chọn thuốc nào.');
+    return null;
+  }
+  const key = forType === 'import' ? 'preselectedImportItems' : 'preselectedReturnItems';
+  sessionStorage.setItem(key, JSON.stringify(items));
+  window.location.href = forType === 'import' ? '/inventory/import/create' : '/inventory/return/create';
+}
+
+createImportBtn.addEventListener('click', () => collectSelected('import'));
+createReturnBtn.addEventListener('click', () => collectSelected('return'));
+
+applyFilters(); // initial
+</script>
 </body>
 </html>
-
