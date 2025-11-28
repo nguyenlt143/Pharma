@@ -589,16 +589,16 @@ VALUES
 INSERT INTO inventory_movements
 (movement_type, supplier_id, source_branch_id, destination_branch_id, request_form_id, total_money, movement_status, created_at, deleted)
 VALUES
-    ('SUP_TO_WARE', 1, NULL, 1, NULL, 126000000, 'RECEIVED', NOW(), FALSE),
-    ('SUP_TO_WARE', 2, NULL, 1, NULL, 111600000, 'RECEIVED', NOW(), FALSE),
-    ('SUP_TO_WARE', 1, NULL, 1, NULL, 261000000, 'RECEIVED', NOW(), FALSE),
-    ('SUP_TO_WARE', 3, NULL, 1, NULL, 142000000, 'RECEIVED', NOW(), FALSE),
-    ('SUP_TO_WARE', 1, NULL, 1, NULL, 48500000,  'RECEIVED', NOW(), FALSE),
-    ('SUP_TO_WARE', 2, NULL, 1, NULL, 98700000,  'RECEIVED', NOW(), FALSE),
-    ('SUP_TO_WARE', 3, NULL, 1, NULL, 95400000,  'RECEIVED', NOW(), FALSE),
-    ('SUP_TO_WARE', 1, NULL, 1, NULL, 62440000,  'RECEIVED', NOW(), FALSE),
-    ('SUP_TO_WARE', 2, NULL, 1, NULL, 69000000,  'RECEIVED', NOW(), FALSE),
-    ('SUP_TO_WARE', 3, NULL, 1, NULL, 24750000,  'RECEIVED', NOW(), FALSE);
+    ('SUP_TO_WARE', 1, NULL, 1, NULL, 120000000, 'RECEIVED', NOW(), FALSE),
+    ('SUP_TO_WARE', 2, NULL, 1, NULL, 108000000, 'RECEIVED', NOW(), FALSE),
+    ('SUP_TO_WARE', 1, NULL, 1, NULL, 258000000, 'RECEIVED', NOW(), FALSE),
+    ('SUP_TO_WARE', 3, NULL, 1, NULL, 138400000, 'RECEIVED', NOW(), FALSE),
+    ('SUP_TO_WARE', 1, NULL, 1, NULL, 31800000,  'RECEIVED', NOW(), FALSE),
+    ('SUP_TO_WARE', 2, NULL, 1, NULL, 97000000,  'RECEIVED', NOW(), FALSE),
+    ('SUP_TO_WARE', 3, NULL, 1, NULL, 93000000,  'RECEIVED', NOW(), FALSE),
+    ('SUP_TO_WARE', 1, NULL, 1, NULL, 60400000,  'RECEIVED', NOW(), FALSE),
+    ('SUP_TO_WARE', 2, NULL, 1, NULL, 66400000,  'RECEIVED', NOW(), FALSE),
+    ('SUP_TO_WARE', 3, NULL, 1, NULL, 21500000,  'RECEIVED', NOW(), FALSE);
 
 -- SUP_TO_WARE: Giá từ NCC (Bậc 1) - price = snap_cost (đơn vị cơ bản)
 INSERT INTO inventory_movement_details
@@ -643,38 +643,38 @@ INSERT INTO inventory_movements
 (movement_type, supplier_id, source_branch_id, destination_branch_id, request_form_id, total_money, movement_status,
  created_at, deleted)
 VALUES
-    ('WARE_TO_BR', NULL, 1, 3, 1, 72300000, 'RECEIVED', NOW(), FALSE),  -- movement 11
-    ('WARE_TO_BR', NULL, 1, 3, 2, 20900000, 'RECEIVED', NOW(), FALSE),  -- movement 12
-    ('WARE_TO_BR', NULL, 1, 3, 3, 84000, 'RECEIVED', NOW(), FALSE),     -- movement 13
-    ('WARE_TO_BR', NULL, 1, 3, 4, 263000, 'RECEIVED', NOW(), FALSE),    -- movement 14
-    ('WARE_TO_BR', NULL, 1, 3, 5, 69000, 'RECEIVED', NOW(), FALSE),     -- movement 15
-    ('WARE_TO_BR', NULL, 1, 3, 6, 249000, 'RECEIVED', NOW(), FALSE),    -- movement 16
-    ('WARE_TO_BR', NULL, 1, 3, 7, 66000, 'RECEIVED', NOW(), FALSE),     -- movement 17
-    ('WARE_TO_BR', NULL, 1, 3, 8, 272000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 1, 53750000, 'RECEIVED', NOW(), FALSE),  -- movement 11
+    ('WARE_TO_BR', NULL, 1, 3, 2, 35875000, 'RECEIVED', NOW(), FALSE),  -- movement 12
+    ('WARE_TO_BR', NULL, 1, 3, 3, 11070000, 'RECEIVED', NOW(), FALSE),  -- movement 13
+    ('WARE_TO_BR', NULL, 1, 3, 4, 81250000, 'RECEIVED', NOW(), FALSE),  -- movement 14
+    ('WARE_TO_BR', NULL, 1, 3, 5, 15090000, 'RECEIVED', NOW(), FALSE),     -- movement 15 (recomputed: 8400*1100 + 3000*1950 = 15,090,000)
+    ('WARE_TO_BR', NULL, 1, 3, 6, 41050000, 'RECEIVED', NOW(), FALSE),  -- movement 16
+    ('WARE_TO_BR', NULL, 1, 3, 7, 12300000, 'RECEIVED', NOW(), FALSE),  -- movement 17
+    ('WARE_TO_BR', NULL, 1, 3, 8, 93750000, 'RECEIVED', NOW(), FALSE),
     -- movement 18
-    ('WARE_TO_BR', NULL, 1, 3, 19, 6800000, 'RECEIVED', NOW(), FALSE),
-    ('WARE_TO_BR', NULL, 1, 3, 20, 4050000, 'RECEIVED', NOW(), FALSE),
-    ('WARE_TO_BR', NULL, 1, 3, 21, 20700000, 'RECEIVED', NOW(), FALSE),
-    ('WARE_TO_BR', NULL, 1, 3, 22, 16200000, 'RECEIVED', NOW(), FALSE),
-    ('WARE_TO_BR', NULL, 1, 3, 23, 25200000, 'RECEIVED', NOW(), FALSE),
-    ('WARE_TO_BR', NULL, 1, 3, 24, 13280000, 'RECEIVED', NOW(), FALSE),
-    ('WARE_TO_BR', NULL, 1, 3, 25, 12870000, 'RECEIVED', NOW(), FALSE),
-    ('WARE_TO_BR', NULL, 1, 3, 26, 16500000, 'RECEIVED', NOW(), FALSE),
-    ('WARE_TO_BR', NULL, 1, 3, 27, 5220000, 'RECEIVED', NOW(), FALSE),
-    ('WARE_TO_BR', NULL, 1, 3, 28, 2900000, 'RECEIVED', NOW(), FALSE),
-    ('WARE_TO_BR', NULL, 1, 3, 29, 8500000, 'RECEIVED', NOW(), FALSE),
-    ('WARE_TO_BR', NULL, 1, 3, 30, 5940000, 'RECEIVED', NOW(), FALSE),
-    ('WARE_TO_BR', NULL, 1, 3, 31, 23000000, 'RECEIVED', NOW(), FALSE),
-    ('WARE_TO_BR', NULL, 1, 3, 32, 24300000, 'RECEIVED', NOW(), FALSE),
-    ('WARE_TO_BR', NULL, 1, 3, 33, 28800000, 'RECEIVED', NOW(), FALSE),
-    ('WARE_TO_BR', NULL, 1, 3, 34, 11620000, 'RECEIVED', NOW(), FALSE),
-    ('WARE_TO_BR', NULL, 1, 3, 35, 11880000, 'RECEIVED', NOW(), FALSE),
-    ('WARE_TO_BR', NULL, 1, 3, 36, 16500000, 'RECEIVED', NOW(), FALSE),
-    ('WARE_TO_BR', NULL, 1, 3, 37, 5800000, 'RECEIVED', NOW(), FALSE),
-    ('WARE_TO_BR', NULL, 1, 3, 38, 2610000, 'RECEIVED', NOW(), FALSE),
-    ('WARE_TO_BR', NULL, 1, 3, 39, 7140000, 'RECEIVED', NOW(), FALSE),
-    ('WARE_TO_BR', NULL, 1, 3, 40, 5130000, 'RECEIVED', NOW(), FALSE),
-    ('WARE_TO_BR', NULL, 1, 3, 41, 19550000, 'RECEIVED', NOW(), FALSE);
+    ('WARE_TO_BR', NULL, 1, 3, 19, 5000000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 20, 3000000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 21, 15750000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 22, 12000000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 23, 19250000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 24, 10000000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 25, 11050000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 26, 12100000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 27, 4275000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 28, 2250000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 29, 6250000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 30, 4400000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 31, 17500000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 32, 18000000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 33, 22000000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 34, 8750000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 35, 10200000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 36, 12100000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 37, 4750000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 38, 2025000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 39, 5250000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 40, 3800000, 'RECEIVED', NOW(), FALSE),
+    ('WARE_TO_BR', NULL, 1, 3, 41, 14875000, 'RECEIVED', NOW(), FALSE);
 
 -- WARE_TO_BR (Bậc 2): price = snap_cost × 1.25 (warehouse lãi 25%) chia cho quantity_per_package
 INSERT INTO inventory_movement_details (movement_id, variant_id, batch_id, quantity, price, snap_cost, created_at, deleted)
@@ -699,7 +699,7 @@ VALUES
 (14, 6, 6, 2000, 6250, 5000, NOW(), FALSE),     -- qty: 200*10=2000, price: 62500/10=6250
 
 -- movement 15 (variant 20,22 không có giai đoạn 1)
-(15, 20, 20, 8400, 1071.43, 1071.43, NOW(), FALSE),  -- qty: 300*28=8400, price: 30000/28=1071.43
+(15, 20, 20, 8400, 1100, 1100, NOW(), FALSE),  -- qty: 300*28=8400, updated to branch_price 1100
 (15, 22, 22, 3000, 1950, 1950, NOW(), FALSE),        -- qty: 150*20=3000, price: 39000/20=1950
 
 -- movement 16
@@ -746,9 +746,9 @@ VALUES
 INSERT INTO inventory_movements (movement_type, supplier_id, source_branch_id, destination_branch_id, request_form_id,
                                   total_money, movement_status, created_at, deleted)
 VALUES
-    ('BR_TO_WARE', NULL, 3, 1, 9, 8100000, 'RECEIVED', NOW(), FALSE),   -- movement 42
+    ('BR_TO_WARE', NULL, 3, 1, 9, 6000000, 'RECEIVED', NOW(), FALSE),   -- movement 42
     ('BR_TO_WARE', NULL, 3, 1, 10, 2040000, 'RECEIVED', NOW(), FALSE),  -- movement 43
-    ('BR_TO_WARE', NULL, 3, 1, NULL, 2490000, 'RECEIVED', NOW(), FALSE);-- movement 44
+    ('BR_TO_WARE', NULL, 3, 1, NULL, 1875000, 'RECEIVED', NOW(), FALSE);-- movement 44
 
 INSERT INTO inventory_movement_details (movement_id, variant_id, batch_id, quantity, price,
                                          snap_cost, created_at, deleted)
@@ -763,8 +763,8 @@ VALUES
 INSERT INTO inventory_movements (movement_type, supplier_id, source_branch_id, destination_branch_id, request_form_id,
                                   total_money, movement_status, created_at, deleted)
 VALUES
-    ('WARE_TO_SUP', 2, 1, NULL, NULL,  7250000, 'SHIPPED', NOW(), FALSE),  -- movement 45
-    ('WARE_TO_SUP', 3, 1, NULL, NULL,13800000, 'SHIPPED', NOW(), FALSE); -- movement 46
+    ('WARE_TO_SUP', 2, 1, NULL, NULL, 5875000, 'SHIPPED', NOW(), FALSE),  -- movement 45
+    ('WARE_TO_SUP', 3, 1, NULL, NULL, 10500000, 'SHIPPED', NOW(), FALSE); -- movement 46
 
 
 INSERT INTO inventory_movement_details (movement_id, variant_id, batch_id, quantity, price,  snap_cost, created_at, deleted)
@@ -777,7 +777,7 @@ VALUES (45, 9, 9, 1000, 4750,  4750, NOW(), FALSE),    -- qty: 100*10=1000, pric
 -- =========================================================
 INSERT INTO inventory_movements (movement_type, supplier_id, source_branch_id, destination_branch_id, request_form_id,
                                  total_money, movement_status, created_at, deleted)
-VALUES ('DISPOSAL', NULL, 1, NULL, NULL, 735000, 'RECEIVED', NOW(), FALSE),
+VALUES ('DISPOSAL', NULL, 1, NULL, NULL, 700000, 'RECEIVED', NOW(), FALSE),
 ('DISPOSAL',NULL,1,NULL,NULL,408000,'RECEIVED',NOW(),FALSE);
 INSERT INTO inventory_movement_details (movement_id, variant_id, batch_id, quantity, price,  snap_cost, created_at, deleted)
 VALUES (47, 1, 1, 150, 2000,  2000, NOW(), FALSE),     -- qty: 15*10=150, price: 20000/10=2000
@@ -809,7 +809,7 @@ VALUES (1, NOW(),  FALSE, 1, 1, 1, ((20000 + 10000) - (6000 + 4000 + 8000 + 2000
        (17, NOW(),  FALSE, 1, 17, 17, 25000, 4000, 0),                                                                 -- qty*10, price/10
        (18, NOW(),  FALSE, 1, 18, 18, 18000, 4800, 0),                                                                 -- qty*10, price/10
        (19, NOW(), FALSE, 1, 19, 19, 135000, 180, 0),                                                                  -- qty*100, price/100
-       (20, NOW(), FALSE, 1, 20, 20, 25200, 1071.43, 0),                                                               -- qty*28, price/28
+       (20, NOW(), FALSE, 1, 20, 20, 25200, 1100, 0),                                                               -- qty*28, cost_price updated to 1100 for variant 20
        (21, NOW(),  FALSE, 1, 21, 21, 10000, 4300, 0),                                                                 -- qty*10, price/10
        (22, NOW(), FALSE, 1, 22, 22, 27000, 1950, 0);                                                                  -- qty*20, price/20
 
@@ -829,7 +829,7 @@ VALUES (23, NOW() , FALSE, 3, 1, 1, (6000 + 4000 + 8000 + 2000 + 2500 + 2100), 2
        (34, NOW(),   FALSE, 3, 12, 12, ((1200 - 400)), 5100, 100),                             -- qty*10, price/10, min*10
        (35, NOW(),   FALSE, 3, 18, 18, 2000, 4800, 100),                                       -- qty*10, price/10, min*10
        (36, NOW(),  FALSE, 3, 19, 19, 15000, 180, 1000),                                       -- qty*100, price/100, min*100
-       (37, NOW(),  FALSE, 3, 20, 20, 8400, 1071.43, 420),                                     -- qty*28, price/28, min*28
+       (37, NOW(),  FALSE, 3, 20, 20, 8400, 1100, 420),                                     -- qty*28, cost_price updated to 1100 for variant 20 at branch 3
        (38, NOW(),   FALSE, 3, 22, 22, 3000, 1950, 200);                                       -- qty*20, price/20, min*20
 
 -- Note: quantities above are coarse aggregates built from movement_details; adjust as needed.
@@ -858,7 +858,7 @@ VALUES (1, 3500, 2500, NOW(), NULL, NOW(), FALSE),       -- 35000/10=3500, 25000
        (17, 5000, 4000, NOW(), NULL, NOW(), FALSE),      -- 50000/10=5000, 40000/10=4000
        (18, 6000, 4800, NOW(), NULL, NOW(), FALSE),      -- 60000/10=6000, 48000/10=4800
        (19, 250, 180, NOW(), NULL, NOW(), FALSE),        -- 25000/100=250, 18000/100=180
-       (20, 1428.57, 1071.43, NOW(), NULL, NOW(), FALSE),-- 40000/28=1428.57, 30000/28=1071.43
+       (20, 1500, 1100, NOW(), NULL, NOW(), FALSE),-- sale_price=1500, branch_price=1100 for variant 20 (rounded)
        (21, 5500, 4300, NOW(), NULL, NOW(), FALSE),      -- 55000/10=5500, 43000/10=4300
        (22, 2500, 1950, NOW(), NULL, NOW(), FALSE);      -- 50000/20=2500, 39000/20=1950
 -- Done
@@ -906,7 +906,7 @@ VALUES
     (9, 31,  20, 6000,  NOW(), FALSE),                               -- inv_id=31 (var 9, qty/pkg=10): 2 hộp → 20 viên, 60000/10=6000đ/viên
     (10, 25,  10, 11000,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),   -- inv_id=25 (var 3, qty/pkg=10): 1 hộp → 10 viên, 110000/10=11000đ/viên
     (11, 29,  2, 110000,  DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),   -- inv_id=29 (var 7, qty/pkg=1): 2 chai → 2 chai, 110000/1=110000đ/chai
-    (12, 23,  30, 3500, NOW(), FALSE),                               -- inv_id=23 (var 1, qty/pkg=10): 3 hộp → 30 viên, 35000/10=3500đ/viên
+    (12, 23,  30, 3500,  NOW(), FALSE),                               -- inv_id=23 (var 1, qty/pkg=10): 3 hộp → 30 viên, 35000/10=3500đ/viên
     (13, 24,  20, 2500,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),    -- inv_id=24 (var 2, qty/pkg=10): 2 hộp → 20 viên, 25000/10=2500đ/viên
     (14, 26,  50, 12500,  DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),   -- inv_id=26 (var 4, qty/pkg=10): 5 hộp → 50 viên, 125000/10=12500đ/viên
     (15, 32,  1, 30000,  NOW(), FALSE),                              -- inv_id=32 (var 10, qty/pkg=1): 1 chai → 1 chai, 30000/1=30000đ/chai

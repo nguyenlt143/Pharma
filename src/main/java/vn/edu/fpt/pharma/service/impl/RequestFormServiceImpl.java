@@ -18,13 +18,15 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.Comparator;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, RequestFormRepository>
         implements RequestFormService {
 
     private final RequestFormRepository repository;
-    private final AuditService auditService;
     private final RequestDetailRepository requestDetailRepository;
     private final BranchRepository branchRepository;
     private final InventoryRepository inventoryRepository;
@@ -39,7 +41,6 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
                                    PriceRepository priceRepository) {
         super(repository, auditService);
         this.repository = repository;
-        this.auditService = auditService;
         this.requestDetailRepository = requestDetailRepository;
         this.branchRepository = branchRepository;
         this.inventoryRepository = inventoryRepository;
@@ -119,8 +120,7 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
 
     private List<RequestFormVM> mapToRequestFormVM(List<RequestForm> entities) {
         List<Long> ids = entities.stream().map(RequestForm::getId).toList();
-        System.out.println("DEBUG: Request IDs to aggregate: " + ids);
-
+        log.debug("Aggregate Request IDs: {}", ids);
         final Map<Long, Long> countMap;
         final Map<Long, BigDecimal> totalMap;
         if (ids.isEmpty()) {
@@ -128,20 +128,16 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
             totalMap = Map.of();
         } else {
             List<Object[]> agg = requestDetailRepository.getAggregatedStatsByRequestIds(ids);
-            System.out.println("DEBUG: Aggregate results count: " + agg.size());
-
+            log.debug("Aggregate rows: {}", agg.size());
             for (Object[] row : agg) {
-                System.out.println("DEBUG: Row - request_id=" + row[0] + ", medicine_types=" + row[1] + ", total_units=" + row[2] + ", total_cost=" + row[3]);
+                log.debug("Row request_id={}, medicine_types={}, total_units={}, total_cost={}", row[0], row[1], row[2], row[3]);
             }
-
             countMap = agg.stream().collect(Collectors.toMap(row -> ((Number) row[0]).longValue(), row -> ((Number) row[1]).longValue()));
             totalMap = agg.stream().collect(Collectors.toMap(row -> ((Number) row[0]).longValue(), row -> {
                 Object totalCostRaw = row[3];
                 return totalCostRaw != null ? new BigDecimal(totalCostRaw.toString()) : BigDecimal.ZERO;
             }));
-
-            System.out.println("DEBUG: countMap = " + countMap);
-            System.out.println("DEBUG: totalMap = " + totalMap);
+            log.debug("countMap={}, totalMap={}", countMap, totalMap);
         }
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         return entities.stream()
@@ -161,6 +157,8 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     public List<RequestList> getAllRequestForms() {
         return repository.findAll()
                 .stream()
+                .sorted(Comparator.comparing(RequestForm::getCreatedAt,
+                        Comparator.nullsLast(Comparator.naturalOrder())).reversed())
                 .map(entity -> {
                     String branchName = getBranchNameById(entity.getBranchId());
                     return new RequestList(entity, branchName);
@@ -172,6 +170,8 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     public List<RequestList> getImportRequests() {
         return repository.findByRequestType(RequestType.IMPORT)
                 .stream()
+                .sorted(Comparator.comparing(RequestForm::getCreatedAt,
+                        Comparator.nullsLast(Comparator.naturalOrder())).reversed())
                 .map(entity -> {
                     String branchName = getBranchNameById(entity.getBranchId());
                     return new RequestList(entity, branchName);
@@ -183,6 +183,8 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     public List<RequestList> getReturnRequests() {
         return repository.findByRequestType(RequestType.RETURN)
                 .stream()
+                .sorted(Comparator.comparing(RequestForm::getCreatedAt,
+                        Comparator.nullsLast(Comparator.naturalOrder())).reversed())
                 .map(entity -> {
                     String branchName = getBranchNameById(entity.getBranchId());
                     return new RequestList(entity, branchName);
@@ -255,6 +257,26 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
         }
 
         return "#RQ" + String.format("%03d", savedForm.getId());
+    }
+
+    @Override
+    public String createReturnRequest(Long branchId, vn.edu.fpt.pharma.dto.inventory.ReturnRequestDTO request) {
+        RequestForm form = RequestForm.builder()
+                .branchId(branchId)
+                .requestType(RequestType.RETURN)
+                .requestStatus(vn.edu.fpt.pharma.constant.RequestStatus.REQUESTED)
+                .note(request.getNote())
+                .build();
+        RequestForm saved = repository.save(form);
+        for (vn.edu.fpt.pharma.dto.inventory.ReturnRequestDTO.ReturnItemDTO item : request.getItems()) {
+            vn.edu.fpt.pharma.entity.RequestDetail detail = vn.edu.fpt.pharma.entity.RequestDetail.builder()
+                    .requestForm(saved)
+                    .variantId(item.getVariantId())
+                    .quantity(item.getQuantity().longValue())
+                    .build();
+            requestDetailRepository.save(detail);
+        }
+        return "#RQ" + String.format("%03d", saved.getId());
     }
 
     @Override
@@ -445,5 +467,32 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
         return 0.0;
     }
 
-}
+    @Override
+    public void confirmRequest(Long requestId) {
+        RequestForm requestForm = repository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Request not found with ID: " + requestId));
 
+        if (requestForm.getRequestStatus() != vn.edu.fpt.pharma.constant.RequestStatus.REQUESTED) {
+            throw new RuntimeException("Only requests with REQUESTED status can be confirmed");
+        }
+
+        requestForm.setRequestStatus(vn.edu.fpt.pharma.constant.RequestStatus.CONFIRMED);
+        repository.save(requestForm);
+        log.info("Request {} has been confirmed", requestId);
+    }
+
+    @Override
+    public void cancelRequest(Long requestId) {
+        RequestForm requestForm = repository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Request not found with ID: " + requestId));
+
+        if (requestForm.getRequestStatus() != vn.edu.fpt.pharma.constant.RequestStatus.REQUESTED) {
+            throw new RuntimeException("Only requests with REQUESTED status can be cancelled");
+        }
+
+        requestForm.setRequestStatus(vn.edu.fpt.pharma.constant.RequestStatus.CANCELLED);
+        repository.save(requestForm);
+        log.info("Request {} has been cancelled", requestId);
+    }
+
+}

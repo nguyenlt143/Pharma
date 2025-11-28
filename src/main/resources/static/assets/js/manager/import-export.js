@@ -284,7 +284,7 @@ function renderActivities(activities) {
     if (!tbody) return;
 
     if (activities.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="muted">Không có hoạt động nào</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="muted">Không có hoạt động nào</td></tr>';
         return;
     }
 
@@ -293,9 +293,8 @@ function renderActivities(activities) {
             <td><a href="javascript:void(0)" onclick="viewRequestDetail(${act.id})" class="mono link">${act.code}</a></td>
             <td><span class="badge badge-${act.typeClass}">${act.type}</span></td>
             <td>${act.creator || '-'}</td>
-            <td>${act.totalQty || 0}</td>
-            <td><span class="status status-${act.statusClass}">${act.statusLabel}</span></td>
-            <td>${act.timeAgo}</td>
+            <td>${act.totalValueFormatted ? act.totalValueFormatted : formatCurrency(act.totalMoney)}</td>
+            <td>${act.timeAgo || ''}</td>
             <td>
                 <button class="btn btn-small" onclick="viewRequestDetail(${act.id})">Xem</button>
             </td>
@@ -362,8 +361,8 @@ function renderRequestDetail(data) {
                 <div class="detail-value">${data.branchName}</div>
             </div>
             <div class="detail-item">
-                <div class="detail-label">Trạng thái</div>
-                <div class="detail-value">${data.status}</div>
+                <div class="detail-label">Tổng giá trị</div>
+                <div class="detail-value">${data.totalValueFormatted ? data.totalValueFormatted : formatCurrency(data.totalMoney)}</div>
             </div>
             <div class="detail-item">
                 <div class="detail-label">Tổng số lượng</div>
@@ -443,4 +442,3 @@ function showError(message) {
     console.error(message);
     // You can implement a toast notification here
 }
-
