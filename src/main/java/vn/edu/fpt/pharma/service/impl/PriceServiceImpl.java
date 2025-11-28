@@ -12,7 +12,9 @@ import vn.edu.fpt.pharma.dto.DataTableRequest;
 import vn.edu.fpt.pharma.dto.DataTableResponse;
 import vn.edu.fpt.pharma.dto.price.PriceRequest;
 import vn.edu.fpt.pharma.dto.price.PriceResponse;
+import vn.edu.fpt.pharma.entity.MedicineVariant;
 import vn.edu.fpt.pharma.entity.Price;
+import vn.edu.fpt.pharma.repository.MedicineVariantRepository;
 import vn.edu.fpt.pharma.repository.PriceRepository;
 import vn.edu.fpt.pharma.service.AuditService;
 import vn.edu.fpt.pharma.service.PriceService;
@@ -24,14 +26,26 @@ import java.util.stream.Collectors;
 @Service
 public class PriceServiceImpl extends BaseServiceImpl<Price, Long, PriceRepository> implements PriceService {
 
-    public PriceServiceImpl(PriceRepository repository, AuditService auditService) {
+    private final MedicineVariantRepository medicineVariantRepository;
+
+    public PriceServiceImpl(PriceRepository repository, AuditService auditService, MedicineVariantRepository medicineVariantRepository) {
         super(repository, auditService);
+        this.medicineVariantRepository = medicineVariantRepository;
     }
 
     @Override
     public DataTableResponse<PriceResponse> getPrices(DataTableRequest request, Long variantId, Long branchId) {
         int page = request.start() / request.length();
-        Sort sort = Sort.by(request.orderDir().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, request.orderColumn());
+        
+        Sort sort = Sort.unsorted();
+        if (request.orderColumn() != null && !request.orderColumn().isEmpty()) {
+            Sort.Direction direction = "desc".equalsIgnoreCase(request.orderDir()) ? 
+                    Sort.Direction.DESC : Sort.Direction.ASC;
+            sort = Sort.by(direction, request.orderColumn());
+        } else {
+            // Default sort by id descending if no column specified
+            sort = Sort.by(Sort.Direction.DESC, "id");
+        }
         Pageable pageable = PageRequest.of(page, request.length(), sort);
 
         Specification<Price> spec = (root, query, cb) -> {
@@ -59,6 +73,7 @@ public class PriceServiceImpl extends BaseServiceImpl<Price, Long, PriceReposito
         price.setVariantId(request.getVariantId());
         price.setBranchId(request.getBranchId());
         price.setSalePrice(request.getSalePrice());
+        price.setBranchPrice(request.getBranchPrice());
         price.setStartDate(request.getStartDate());
         price.setEndDate(request.getEndDate());
         Price savedPrice = repository.save(price);
@@ -71,14 +86,11 @@ public class PriceServiceImpl extends BaseServiceImpl<Price, Long, PriceReposito
     }
 
     private PriceResponse mapToPriceResponse(Price price) {
-        return PriceResponse.builder()
-                .id(price.getId())
-                .variantId(price.getVariantId())
-                .branchId(price.getBranchId())
-                .salePrice(price.getSalePrice())
-                .startDate(price.getStartDate())
-                .endDate(price.getEndDate())
-                .build();
+        MedicineVariant variant = null;
+        if (price.getVariantId() != null) {
+            variant = medicineVariantRepository.findById(price.getVariantId()).orElse(null);
+        }
+        return PriceResponse.fromEntity(price, variant);
     }
 }
 

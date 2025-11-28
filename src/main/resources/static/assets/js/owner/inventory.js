@@ -1,5 +1,6 @@
 // Owner Inventory Dashboard JavaScript
 let inOutChart;
+let categoryChart;
 let categoryDonutChart;
 let chartType = 'bar';
 
@@ -128,6 +129,7 @@ function loadCategoryDistribution() {
     fetch(`/api/owner/inventory/categories${params}`)
         .then(res => res.json())
         .then(data => {
+            updateCategoryChart(data);
             updateCategoryDonut(data);
         })
         .catch(err => {
@@ -207,8 +209,92 @@ function updateInOutChart(data, type) {
     });
 }
 
+function updateCategoryChart(data) {
+    const ctx = document.getElementById('categoryChart');
+    
+    if (!ctx) return;
+    
+    if (categoryChart) {
+        categoryChart.destroy();
+    }
+    
+    if (!data || data.length === 0) {
+        // Create empty chart with no data
+        categoryChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Số lượng sản phẩm',
+                    data: [],
+                    backgroundColor: '#2563EB',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        return;
+    }
+    
+    const labels = data.map(item => item.name || '');
+    const itemCounts = data.map(item => item.itemCount || 0);
+    
+    categoryChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Số lượng sản phẩm',
+                data: itemCounts,
+                backgroundColor: '#2563EB',
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'Số lượng: ' + new Intl.NumberFormat('vi-VN').format(context.parsed.y);
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return new Intl.NumberFormat('vi-VN').format(value);
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
 function updateCategoryDonut(data) {
     const ctx = document.getElementById('categoryDonut');
+    
     if (!ctx) return;
     
     if (categoryDonutChart) {
@@ -216,12 +302,37 @@ function updateCategoryDonut(data) {
     }
     
     if (!data || data.length === 0) {
+        // Create empty chart with no data
+        categoryDonutChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: [],
+                datasets: [{
+                    data: [],
+                    backgroundColor: []
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+        // Clear legend
+        const legendEl = document.getElementById('donutLegend');
+        if (legendEl) {
+            legendEl.innerHTML = '';
+        }
         return;
     }
     
     const labels = data.map(item => item.name || '');
     const values = data.map(item => item.value || 0);
-    const colors = ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0', '#E91E63', '#009688'];
+    const colors = ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0', '#E91E63', '#009688', '#2563EB', '#10B981', '#F59E0B', '#EF4444'];
     
     categoryDonutChart = new Chart(ctx, {
         type: 'doughnut',
@@ -238,6 +349,16 @@ function updateCategoryDonut(data) {
             plugins: {
                 legend: {
                     display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.parsed;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percent = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                            return context.label + ': ' + new Intl.NumberFormat('vi-VN').format(value) + ' đ (' + percent + '%)';
+                        }
+                    }
                 }
             }
         }
@@ -246,14 +367,19 @@ function updateCategoryDonut(data) {
     // Update legend
     const legendEl = document.getElementById('donutLegend');
     if (legendEl) {
-        legendEl.innerHTML = data.map((item, index) => `
+        legendEl.innerHTML = data.map((item, index) => {
+            const total = values.reduce((a, b) => a + b, 0);
+            const percent = total > 0 ? ((item.value / total) * 100).toFixed(1) : 0;
+            return `
             <li>
                 <button class="legend-btn">
                     <span class="swatch" style="background-color: ${colors[index % colors.length]}"></span>
                     <span>${item.name || ''}</span>
+                    <span style="margin-left: auto; color: #6B7280; font-size: 12px;">${percent}%</span>
                 </button>
             </li>
-        `).join('');
+        `;
+        }).join('');
     }
 }
 
