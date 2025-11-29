@@ -58,6 +58,8 @@ public interface RequestFormRepository extends JpaRepository<RequestForm, Long>,
     List<RequestForm> findAllByBranchId(Long branchId);
 
     List<RequestForm> findByRequestType(RequestType requestType);
+
+    List<RequestForm> findByBranchIdAndRequestType(Long branchId, RequestType requestType);
     // IMPORT / RETURN
 
     // New: count pending inbound for a specific branch

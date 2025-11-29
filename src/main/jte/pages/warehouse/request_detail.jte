@@ -93,7 +93,7 @@ content = @`
 
                 @if(request.requestStatus().equals("REQUESTED"))
                     <button class="reject-button" onclick="rejectRequest(${request.id()})">Từ Chối</button>
-                    <button class="approve-button" onclick="createExportSlip(${request.id()})">Đồng Ý</button>
+                    <button class="approve-button" onclick="approveRequest(${request.id()})">Đồng Ý</button>
                 @elseif(request.requestStatus().equals("CONFIRMED"))
                     <button class="approve-button" onclick="createExportSlip(${request.id()})">Tạo Phiếu Xuất</button>
                     <button class="approve-button disabled">Đã duyệt</button>

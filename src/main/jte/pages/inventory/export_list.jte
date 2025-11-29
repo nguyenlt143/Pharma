@@ -27,8 +27,8 @@
             <div class="flex justify-between items-center mb-4">
                 <div class="flex items-center gap-4">
                     <div class="relative">
-                        <span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary-light dark:text-text-secondary-dark">search</span>
-                        <input class="pl-10 pr-4 py-2 w-80 border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark rounded-md focus:ring-primary focus:border-primary" placeholder="Tìm kiếm theo mã sản phẩm hoặc mã phiếu..." type="text"/>
+                        <span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+                        <input id="searchInput" class="pl-10 pr-4 py-2 w-96 border border-gray-300 bg-white rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="Tìm theo mã phiếu, ghi chú..." type="text"/>
                     </div>
                 </div>
                 <button class="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md flex items-center gap-2">
@@ -48,82 +48,55 @@
                         <th class="px-4 py-3 font-medium text-center">Hành động</th>
                     </tr>
                     </thead>
-                    <tbody class="divide-y divide-border-light dark:divide-border-dark">
-                    <tr class="hover:bg-gray-50 dark:hover:bg-slate-800">
-                        <td class="px-4 py-3 text-center">1</td>
-                        <td class="px-4 py-3 font-medium text-primary">#PXK00056</td>
-                        <td class="px-4 py-3">25/07/2024</td>
-                        <td class="px-4 py-3">Trả hàng cho kho tổng</td>
-                        <td class="px-4 py-3">Nguyễn Văn A</td>
-                        <td class="px-4 py-3 flex items-center justify-center gap-2">
-                            <button class="text-primary hover:text-blue-700 p-1" title="Xem chi tiết">
-                                <span class="material-icons-outlined">visibility</span>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-gray-50 dark:hover:bg-slate-800">
-                        <td class="px-4 py-3 text-center">2</td>
-                        <td class="px-4 py-3 font-medium text-primary">#PXK00055</td>
-                        <td class="px-4 py-3">24/07/2024</td>
-                        <td class="px-4 py-3">Cấp phát cho đơn vị</td>
-                        <td class="px-4 py-3">Trần Thị B</td>
-                        <td class="px-4 py-3 flex items-center justify-center gap-2">
-                            <button class="text-primary hover:text-blue-700 p-1" title="Xem chi tiết">
-                                <span class="material-icons-outlined">visibility</span>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-gray-50 dark:hover:bg-slate-800">
-                        <td class="px-4 py-3 text-center">3</td>
-                        <td class="px-4 py-3 font-medium text-primary">#PXK00054</td>
-                        <td class="px-4 py-3">23/07/2024</td>
-                        <td class="px-4 py-3">Xuất hủy</td>
-                        <td class="px-4 py-3">Lê Văn C</td>
-                        <td class="px-4 py-3 flex items-center justify-center gap-2">
-                            <button class="text-primary hover:text-blue-700 p-1" title="Xem chi tiết">
-                                <span class="material-icons-outlined">visibility</span>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-gray-50 dark:hover:bg-slate-800">
-                        <td class="px-4 py-3 text-center">4</td>
-                        <td class="px-4 py-3 font-medium text-primary">#PXK00053</td>
-                        <td class="px-4 py-3">22/07/2024</td>
-                        <td class="px-4 py-3">Trả hàng cho kho tổng</td>
-                        <td class="px-4 py-3">Nguyễn Văn A</td>
-                        <td class="px-4 py-3 flex items-center justify-center gap-2">
-                            <button class="text-primary hover:text-blue-700 p-1" title="Xem chi tiết">
-                                <span class="material-icons-outlined">visibility</span>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-gray-50 dark:hover:bg-slate-800">
-                        <td class="px-4 py-3 text-center">5</td>
-                        <td class="px-4 py-3 font-medium text-primary">#PXK00052</td>
-                        <td class="px-4 py-3">21/07/2024</td>
-                        <td class="px-4 py-3">Cấp phát cho đơn vị</td>
-                        <td class="px-4 py-3">Trần Thị B</td>
-                        <td class="px-4 py-3 flex items-center justify-center gap-2">
-                            <button class="text-primary hover:text-blue-700 p-1" title="Xem chi tiết">
-                                <span class="material-icons-outlined">visibility</span>
-                            </button>
-                        </td>
-                    </tr>
+                    <tbody id="exportTableBody" class="divide-y divide-gray-200">
+                    @if(exports != null && !exports.isEmpty())
+                        @for(vn.edu.fpt.pharma.dto.requestform.RequestFormVM item : exports)
+                        <tr class="hover:bg-gray-50"
+                            data-code="${item.code}"
+                            data-note="${item.note}"
+                            data-type="${item.type}">
+                            <td class="px-4 py-3 text-center">@if(exports.indexOf(item) >= 0)${exports.indexOf(item) + 1}@endif</td>
+                            <td class="px-4 py-3 font-medium text-blue-600">${item.code}</td>
+                            <td class="px-4 py-3">${item.createdAt}</td>
+                            <td class="px-4 py-3">${item.type}</td>
+                            <td class="px-4 py-3">—</td>
+                            <td class="px-4 py-3 text-center">
+                                <a href="/inventory/export/detail/${item.code.substring(3)}" class="text-blue-600 hover:text-blue-800 font-medium">Xem</a>
+                            </td>
+                        </tr>
+                        @endfor
+                    @else
+                        <tr>
+                            <td colspan="6" class="px-4 py-8 text-center text-gray-500">Chưa có phiếu xuất</td>
+                        </tr>
+                    @endif
                     </tbody>
                 </table>
-            </div>
-            <div class="flex justify-between items-center mt-4">
-                <span class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Hiển thị 1-5 trên 18 phiếu xuất</span>
-                <div class="flex items-center gap-2">
-                    <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-slate-700 disabled:opacity-50" disabled="">
-                        <span class="material-icons-outlined">chevron_left</span>
-                    </button>
-                    <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-slate-700">
-                        <span class="material-icons-outlined">chevron_right</span>
-                    </button>
-                </div>
             </div>
         </div>
     </main>
 </div>
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const tableBody = document.getElementById('exportTableBody');
+    const rows = Array.from(tableBody.getElementsByTagName('tr'));
+
+    searchInput?.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+
+        rows.forEach(row => {
+            if (row.querySelector('td[colspan]')) return; // Skip empty state row
+
+            const code = row.dataset.code?.toLowerCase() || '';
+            const note = row.dataset.note?.toLowerCase() || '';
+            const type = row.dataset.type?.toLowerCase() || '';
+
+            const matches = code.includes(searchTerm) ||
+                          note.includes(searchTerm) ||
+                          type.includes(searchTerm);
+
+            row.style.display = matches ? '' : 'none';
+        });
+    });
+</script>
 </body></html>

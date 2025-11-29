@@ -80,6 +80,9 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>, Jpa
     List<Object[]> searchMedicinesInWarehouse(@Param("query") String query);
     Optional<Inventory> findByBranchAndVariantAndBatch(Branch branch, MedicineVariant variant, Batch batch);
 
+    @Query("SELECT i FROM Inventory i WHERE i.branch.id = :branchId AND i.variant.id = :variantId AND i.deleted = false ORDER BY i.batch.expiryDate ASC")
+    List<Inventory> findByBranchIdAndVariantId(@Param("branchId") Long branchId, @Param("variantId") Long variantId);
+
     @Query("SELECT i FROM Inventory i WHERE i.branch.id = :branchId AND i.variant.id = :variantId AND i.batch.id = :batchId AND i.deleted = false")
     Optional<Inventory> findByBranchIdAndVariantIdAndBatchId(@Param("branchId") Long branchId, @Param("variantId") Long variantId, @Param("batchId") Long batchId);
 

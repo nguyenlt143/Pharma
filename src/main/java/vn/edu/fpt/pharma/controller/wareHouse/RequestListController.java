@@ -1,8 +1,11 @@
 package vn.edu.fpt.pharma.controller.wareHouse;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import vn.edu.fpt.pharma.dto.warehouse.RequestList;
@@ -41,5 +44,17 @@ public class RequestListController {
         model.addAttribute("details", requestFormService.getDetailsOfRequest(id));
 
         return "pages/warehouse/request_detail";
+    }
+
+    @PostMapping("/confirm/{id}")
+    public ResponseEntity<Void> confirmRequest(@PathVariable Long id) {
+        requestFormService.confirmRequest(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/cancel/{id}")
+    public ResponseEntity<Void> cancelRequest(@PathVariable Long id) {
+        requestFormService.cancelRequest(id);
+        return ResponseEntity.ok().build();
     }
 }
