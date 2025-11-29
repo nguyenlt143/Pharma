@@ -1,10 +1,7 @@
 package vn.edu.fpt.pharma.service.impl;
 
-import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.pharma.base.BaseServiceImpl;
@@ -18,7 +15,6 @@ import vn.edu.fpt.pharma.repository.CategoryRepository;
 import vn.edu.fpt.pharma.service.AuditService;
 import vn.edu.fpt.pharma.service.CategoryService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,18 +27,9 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, Long, Categor
 
     @Override
     public DataTableResponse<CategoryResponse> getCategories(DataTableRequest request) {
-        int page = request.start() / request.length();
+        Pageable pageable = createPageable(request);
+        Specification<Category> spec = buildSearchSpecification(request, List.of("name", "description"));
         
-        Sort sort = Sort.unsorted();
-        if (request.orderColumn() != null && !request.orderColumn().isEmpty()) {
-            String[] props = request.orderColumn().split("\\.");
-            sort = "desc".equalsIgnoreCase(request.orderDir()) ?
-                    Sort.by(props).descending() :
-                    Sort.by(props).ascending();
-        }
-        Pageable pageable = PageRequest.of(page, request.length(), sort);
-
-        Specification<Category> spec = buildSpecification(request);
         Page<Category> pageResult = spec != null ? 
                 repository.findAll(spec, pageable) : 
                 repository.findAll(pageable);
@@ -51,27 +38,10 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, Long, Categor
                 .map(CategoryResponse::fromEntity)
                 .collect(Collectors.toList());
 
-        return new DataTableResponse<>(
-                request.draw(),
-                repository.count(),
-                pageResult.getTotalElements(),
-                responses
-        );
-    }
+        Page<CategoryResponse> responsePage = new org.springframework.data.domain.PageImpl<>(
+                responses, pageable, pageResult.getTotalElements());
 
-    private Specification<Category> buildSpecification(DataTableRequest request) {
-        return (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            if (request.searchValue() != null && !request.searchValue().isEmpty()) {
-                String keyword = "%" + request.searchValue().toLowerCase() + "%";
-                Predicate namePredicate = cb.like(cb.lower(root.get("name")), keyword);
-                Predicate descPredicate = cb.like(cb.lower(root.get("description")), keyword);
-                predicates.add(cb.or(namePredicate, descPredicate));
-            }
-
-            return predicates.isEmpty() ? null : cb.and(predicates.toArray(new Predicate[0]));
-        };
+        return createDataTableResponse(request, responsePage, repository.count());
     }
 
     @Override

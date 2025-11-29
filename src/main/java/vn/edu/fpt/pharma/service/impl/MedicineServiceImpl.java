@@ -1,10 +1,7 @@
 package vn.edu.fpt.pharma.service.impl;
 
-import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.pharma.base.BaseServiceImpl;
@@ -21,7 +18,6 @@ import vn.edu.fpt.pharma.repository.MedicineRepository;
 import vn.edu.fpt.pharma.service.AuditService;
 import vn.edu.fpt.pharma.service.MedicineService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,19 +33,21 @@ public class MedicineServiceImpl extends BaseServiceImpl<Medicine, Long, Medicin
 
     @Override
     public DataTableResponse<MedicineResponse> getMedicines(DataTableRequest request, Integer status) {
-        int page = request.start() / request.length();
-        
-        Sort sort = Sort.unsorted();
-        if (request.orderColumn() != null && !request.orderColumn().isEmpty()) {
-            String[] props = request.orderColumn().split("\\.");
-            sort = "desc".equalsIgnoreCase(request.orderDir()) ?
-                    Sort.by(props).descending() :
-                    Sort.by(props).ascending();
-        }
-        Pageable pageable = PageRequest.of(page, request.length(), sort);
+        Pageable pageable = createPageable(request);
 
-        Specification<Medicine> spec = buildSpecification(request, status);
-        Page<Medicine> pageResult = spec != null ? 
+        // Build search specification
+        Specification<Medicine> searchSpec = buildSearchSpecification(request,
+                List.of("name", "brandName", "activeIngredient"));
+
+        // Add status filter if provided
+        Specification<Medicine> spec = searchSpec;
+        if (status != null) {
+            Specification<Medicine> statusSpec = (root, query, cb) ->
+                    cb.equal(root.get("status"), status);
+            spec = searchSpec != null ? searchSpec.and(statusSpec) : statusSpec;
+        }
+
+        Page<Medicine> pageResult = spec != null ?
                 repository.findAll(spec, pageable) : 
                 repository.findAll(pageable);
 
@@ -57,34 +55,10 @@ public class MedicineServiceImpl extends BaseServiceImpl<Medicine, Long, Medicin
                 .map(MedicineResponse::fromEntity)
                 .collect(Collectors.toList());
 
-        return new DataTableResponse<>(
-                request.draw(),
-                repository.count(),
-                pageResult.getTotalElements(),
-                responses
-        );
-    }
+        Page<MedicineResponse> responsePage = new org.springframework.data.domain.PageImpl<>(
+                responses, pageable, pageResult.getTotalElements());
 
-    private Specification<Medicine> buildSpecification(DataTableRequest request, Integer status) {
-        return (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            // Status filter
-            if (status != null) {
-                predicates.add(cb.equal(root.get("status"), status));
-            }
-
-            // Search filter
-            if (request.searchValue() != null && !request.searchValue().isEmpty()) {
-                String keyword = "%" + request.searchValue().toLowerCase() + "%";
-                Predicate namePredicate = cb.like(cb.lower(root.get("name")), keyword);
-                Predicate brandPredicate = cb.like(cb.lower(root.get("brandName")), keyword);
-                Predicate ingredientPredicate = cb.like(cb.lower(root.get("activeIngredient")), keyword);
-                predicates.add(cb.or(namePredicate, brandPredicate, ingredientPredicate));
-            }
-
-            return predicates.isEmpty() ? null : cb.and(predicates.toArray(new Predicate[0]));
-        };
+        return createDataTableResponse(request, responsePage, repository.count());
     }
 
     @Override

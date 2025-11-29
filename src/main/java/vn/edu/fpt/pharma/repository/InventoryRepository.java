@@ -80,9 +80,6 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>, Jpa
     List<Object[]> searchMedicinesInWarehouse(@Param("query") String query);
     Optional<Inventory> findByBranchAndVariantAndBatch(Branch branch, MedicineVariant variant, Batch batch);
 
-    @Query("SELECT i FROM Inventory i WHERE i.branch.id = :branchId AND i.variant.id = :variantId AND i.deleted = false ORDER BY i.batch.expiryDate ASC")
-    List<Inventory> findByBranchIdAndVariantId(@Param("branchId") Long branchId, @Param("variantId") Long variantId);
-
     @Query("SELECT i FROM Inventory i WHERE i.branch.id = :branchId AND i.variant.id = :variantId AND i.batch.id = :batchId AND i.deleted = false")
     Optional<Inventory> findByBranchIdAndVariantIdAndBatchId(@Param("branchId") Long branchId, @Param("variantId") Long variantId, @Param("batchId") Long batchId);
 
@@ -142,30 +139,28 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>, Jpa
         """, nativeQuery = true)
     Double calculateTotalValue(@Param("branchId") Long branchId);
 
+    // Generalized expiry item counting with customizable days threshold
     @Query(value = """
         SELECT COUNT(*) 
         FROM inventory i 
         JOIN batches b ON i.batch_id = b.id 
         WHERE i.branch_id = :branchId 
           AND i.deleted = false 
-          AND b.expiry_date <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY)
-          AND b.expiry_date >= CURRENT_DATE
+          AND (:daysThreshold IS NULL OR b.expiry_date <= DATE_ADD(CURRENT_DATE, INTERVAL :daysThreshold DAY))
+          AND (:checkExpired = false OR b.expiry_date < CURRENT_DATE)
+          AND (:checkExpired = true OR b.expiry_date >= CURRENT_DATE)
           AND i.quantity > 0
         """, nativeQuery = true)
-    int countNearExpiryItems(@Param("branchId") Long branchId);
+    int countItemsByExpiry(@Param("branchId") Long branchId, @Param("daysThreshold") Integer daysThreshold, @Param("checkExpired") boolean checkExpired);
 
-    @Query(value = """
-        SELECT COUNT(*) 
-        FROM inventory i 
-        JOIN batches b ON i.batch_id = b.id 
-        WHERE i.branch_id = :branchId 
-          AND i.deleted = false 
-          AND b.expiry_date < CURRENT_DATE
-          AND i.quantity > 0
-        """, nativeQuery = true)
-    int countExpiredItems(@Param("branchId") Long branchId);
+    // Convenience methods
+    default int countNearExpiryItems(Long branchId) {
+        return countItemsByExpiry(branchId, 30, false);
+    }
 
-    Optional<Inventory> findByBranchAndBatch(Branch branch, Batch batch);
+    default int countExpiredItems(Long branchId) {
+        return countItemsByExpiry(branchId, null, true);
+    }
 
     // Category Statistics
     @Query(value = """

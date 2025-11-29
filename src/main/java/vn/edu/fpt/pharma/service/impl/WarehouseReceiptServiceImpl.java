@@ -9,7 +9,7 @@ import vn.edu.fpt.pharma.constant.MovementType;
 import vn.edu.fpt.pharma.dto.warehouse.CreateReceiptRequest;
 import vn.edu.fpt.pharma.dto.warehouse.MedicineVariantDTO;
 import vn.edu.fpt.pharma.dto.warehouse.ReceiptDetailRequest;
-import vn.edu.fpt.pharma.dto.warehouse.SupplierDTO;
+import vn.edu.fpt.pharma.dto.supplier.SupplierResponse;
 import vn.edu.fpt.pharma.entity.*;
 import vn.edu.fpt.pharma.repository.*;
 import vn.edu.fpt.pharma.service.WarehouseReceiptService;
@@ -126,12 +126,12 @@ public class WarehouseReceiptServiceImpl implements WarehouseReceiptService {
     }
 
     @Override
-    public List<SupplierDTO> searchSuppliers(String query) {
+    public List<SupplierResponse> searchSuppliers(String query) {
         return supplierRepository.findAll().stream()
                 .filter(s -> query == null || query.isEmpty() ||
                         s.getName().toLowerCase().contains(query.toLowerCase()) ||
                         (s.getPhone() != null && s.getPhone().contains(query)))
-                .map(SupplierDTO::new)
+                .map(SupplierResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 

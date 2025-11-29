@@ -1,13 +1,10 @@
 package vn.edu.fpt.pharma.service.impl;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.pharma.dto.PagingRequest;
-import vn.edu.fpt.pharma.dto.PagingResponse;
-import vn.edu.fpt.pharma.dto.manager.InvoiceListItem;
-import vn.edu.fpt.pharma.dto.manager.InvoiceWithProfitListItem;
+import vn.edu.fpt.pharma.dto.manager.InvoiceSummary;
 import vn.edu.fpt.pharma.dto.manager.KpiData;
 import vn.edu.fpt.pharma.dto.manager.TopProductItem;
 import vn.edu.fpt.pharma.repository.InvoiceRepository;
@@ -50,25 +47,32 @@ public class RevenueReportServiceImpl implements RevenueReportService {
         Map<String, Object> productStatsData = getProductStatistics(branchId, fromDate, toDate, shift, employeeId);
 
         // Use projection that matches listing needs
-        Page<InvoiceWithProfitListItem> page = invoiceRepository.findInvoicesWithProfit(branchId, fromDate, toDate, shift, employeeId, PageRequest.of(pagingRequest.getPage(), pagingRequest.getSize()));
+        Page<InvoiceSummary> page = invoiceRepository.findInvoicesWithProfit(branchId, fromDate, toDate, shift, employeeId, PageRequest.of(pagingRequest.getPage(), pagingRequest.getSize()));
         List<Map<String, Object>> invoices = new ArrayList<>();
         DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-        for (InvoiceWithProfitListItem it : page.getContent()) {
+        for (InvoiceSummary it : page.getContent()) {
             Map<String, Object> row = new HashMap<>();
             row.put("time", it.getCreatedAt() != null ? it.getCreatedAt().format(timeFmt) : "");
-            row.put("code", it.getInvoiceCode());
-            row.put("customer", it.getCustomerName());
-            row.put("paymentLabel", it.getPaymentMethod());
-            row.put("amount", it.getTotalPrice());
+            row.put("code", it.getCode());
+            row.put("customer", it.getFullName());
+            row.put("paymentLabel", "N/A"); // This info is not in InvoiceSummary
+            row.put("amount", it.getTotalAmount());
             row.put("profit", it.getProfit());
             invoices.add(row);
         }
-
+//...
         Map<String, Object> body = new HashMap<>();
         body.put("totalInvoices", kpi.getOrderCount());
         body.put("totalRevenue", kpi.getRevenue());
         body.put("totalProfit", kpi.getProfit());
-        body.put("invoices", new PagingResponse(page.getTotalElements(), (long) page.getTotalPages(), invoices));
+
+        // Inline paging response
+        Map<String, Object> pagingData = new HashMap<>();
+        pagingData.put("totalItems", page.getTotalElements());
+        pagingData.put("totalPages", (long) page.getTotalPages());
+        pagingData.put("data", invoices);
+        body.put("invoices", pagingData);
+
         body.put("productStats", productStatsData.get("productStats"));
         body.put("totalProducts", productStatsData.get("totalProducts"));
         return body;

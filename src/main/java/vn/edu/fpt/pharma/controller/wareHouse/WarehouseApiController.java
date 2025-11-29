@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.pharma.dto.warehouse.CreateReceiptRequest;
 import vn.edu.fpt.pharma.dto.warehouse.MedicineVariantDTO;
-import vn.edu.fpt.pharma.dto.warehouse.SupplierDTO;
+import vn.edu.fpt.pharma.dto.supplier.SupplierResponse;
 import vn.edu.fpt.pharma.entity.InventoryMovement;
 import vn.edu.fpt.pharma.service.WarehouseReceiptService;
 
@@ -47,9 +47,9 @@ public class WarehouseApiController {
      * Tìm kiếm nhà cung cấp
      */
     @GetMapping("/suppliers/search")
-    public ResponseEntity<List<SupplierDTO>> searchSuppliers(
+    public ResponseEntity<List<SupplierResponse>> searchSuppliers(
             @RequestParam(required = false) String q) {
-        List<SupplierDTO> suppliers = receiptService.searchSuppliers(q);
+        List<SupplierResponse> suppliers = receiptService.searchSuppliers(q);
         return ResponseEntity.ok(suppliers);
     }
 

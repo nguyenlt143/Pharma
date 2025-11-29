@@ -38,7 +38,7 @@ public class ManagerDashBoardService {
     }
 
     private KpiData getKpi(Long branchId, LocalDateTime fromDate, LocalDateTime toDate) {
-        return invoiceRepository.sumRevenue(branchId, fromDate, toDate);
+        return invoiceRepository.sumRevenue(branchId, fromDate, toDate, null, null);
     }
 
     private List<DailyRevenue> getDailyRevenue(Long branchId, LocalDate fromDate, LocalDate toDate) {

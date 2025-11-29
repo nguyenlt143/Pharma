@@ -74,10 +74,10 @@ public class InventoryServiceImpl extends BaseServiceImpl<Inventory, Long, Inven
     }
 
     @Override
-    public List<vn.edu.fpt.pharma.dto.inventory.MedicineSearchDTO> searchMedicinesInWarehouse(String query) {
+    public List<vn.edu.fpt.pharma.dto.inventory.InventoryMedicineSearchDTO> searchMedicinesInWarehouse(String query) {
         List<Object[]> results = inventoryRepository.searchMedicinesInWarehouse(query);
         return results.stream().map(row -> {
-            vn.edu.fpt.pharma.dto.inventory.MedicineSearchDTO dto = new vn.edu.fpt.pharma.dto.inventory.MedicineSearchDTO();
+            vn.edu.fpt.pharma.dto.inventory.InventoryMedicineSearchDTO dto = new vn.edu.fpt.pharma.dto.inventory.InventoryMedicineSearchDTO();
             dto.setVariantId(row[0] != null ? ((Number) row[0]).longValue() : null);
             dto.setBatchId(row[1] != null ? ((Number) row[1]).longValue() : null);
             dto.setMedicineName(row[2] != null ? row[2].toString() : "");

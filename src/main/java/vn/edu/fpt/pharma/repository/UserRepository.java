@@ -12,29 +12,24 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
-    User findByEmailIgnoreCase(String email);
     Optional<User> findByUserNameIgnoreCase(String username);
-    @Query("""
-    SELECT u 
-    FROM User u 
-    WHERE u.role.id IN (4, 6) 
-      AND u.branchId = :branchId
-""")
-    List<User> findStaffInBranchId(@Param("branchId") Long branchId);
+    // Generalized method to find staff by role IDs and branch
+    @Query(value = "SELECT * FROM users u WHERE u.role_id IN (:roleIds) AND u.branch_id = :branchId AND (:includeDeleted = true OR u.deleted = false)", nativeQuery = true)
+    List<User> findStaffByRolesAndBranch(@Param("roleIds") List<Long> roleIds, @Param("branchId") Long branchId, @Param("includeDeleted") boolean includeDeleted);
 
-    // Include soft-deleted users as well (bypass @SQLRestriction via native query)
-    @Query(value = "SELECT * FROM users u WHERE u.role_id IN (4,6) AND u.branch_id = :branchId", nativeQuery = true)
-    List<User> findStaffInBranchIdIncludingDeleted(@Param("branchId") Long branchId);
+    // Convenience methods using the generalized query
+    default List<User> findStaffInBranchId(Long branchId) {
+        return findStaffByRolesAndBranch(List.of(4L, 6L), branchId, false);
+    }
 
-    @Query("""
-    SELECT u
-    FROM User u
-    WHERE u.role.id = 6
-      AND u.branchId = :branchId
-""")
-    List<User> findPharmacistsInBranchId(@Param("branchId") Long branchId);
+    default List<User> findStaffInBranchIdIncludingDeleted(Long branchId) {
+        return findStaffByRolesAndBranch(List.of(4L, 6L), branchId, true);
+    }
 
-    List<User> findByBranchId(Long branchId);
+    default List<User> findPharmacistsInBranchId(Long branchId) {
+        return findStaffByRolesAndBranch(List.of(6L), branchId, false);
+    }
+
     boolean existsByUserNameIgnoreCase(String userName);
 
     Optional<User> findById(long id);

@@ -6,8 +6,6 @@ import vn.edu.fpt.pharma.entity.InventoryMovementDetail;
 
 import java.util.List;
 
-
 public interface InventoryMovementDetailRepository extends JpaRepository<InventoryMovementDetail, Long>, JpaSpecificationExecutor<InventoryMovementDetail> {
     List<InventoryMovementDetail> findByMovementId(Long movementId);
-    long countByMovementId(Long movementId);
 }
