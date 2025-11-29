@@ -17,6 +17,12 @@ public interface ShiftWorkRepository extends JpaRepository<ShiftWork, Long>, Jpa
     @Query("SELECT sw FROM ShiftWork sw WHERE sw.assignment.shift.id = :shiftId AND sw.assignment.userId = :userId AND sw.workDate = :workDate")
     Optional<ShiftWork> findByShiftIdAndUserIdAndWorkDate(@Param("shiftId") Long shiftId, @Param("userId") Long userId, @Param("workDate") LocalDate workDate);
 
+    @Query("SELECT MAX(sw.workDate) FROM ShiftWork sw WHERE sw.assignment.id = :assignmentId")
+    LocalDate findLastWorkDateByAssignmentId(@Param("assignmentId") Long assignmentId);
+
+    @Query("SELECT COUNT(sw) FROM ShiftWork sw WHERE sw.assignment.id = :assignmentId AND sw.workDate >= :fromDate")
+    long countRemainingWorkDays(@Param("assignmentId") Long assignmentId, @Param("fromDate") LocalDate fromDate);
+
     @Query(value = """
     SELECT 
         s.id AS shift_id,

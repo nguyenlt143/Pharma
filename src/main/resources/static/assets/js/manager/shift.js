@@ -256,22 +256,32 @@ document.addEventListener("DOMContentLoaded", () => {
             let emps = await res.json();
             emps = Array.isArray(emps) ? emps : [];
 
-            // Align with table headers: Name | Role | CreatedAt | Delete
+            // Align with table headers: Name | Role | Remaining Days | Last Work Date | Actions
             employeeTableBody.innerHTML = emps.length > 0
-                ? emps.map(e => `
+                ? emps.map(e => {
+                    const remainingDays = e.remainingDays !== null && e.remainingDays !== undefined ? e.remainingDays : 0;
+                    const lastWorkDate = e.lastWorkDate ? new Date(e.lastWorkDate).toLocaleDateString("vi-VN") : "Chưa có";
+                    const remainingDaysClass = remainingDays < 7 ? 'style="color: red; font-weight: bold;"' : '';
+
+                    return `
                     <tr>
                         <td>${e.userFullName || ""}</td>
                         <td>${e.roleName || ""}</td>
-                        <td>${e.createdAt ? new Date(e.createdAt).toLocaleString("vi-VN") : ""}</td>
+                        <td ${remainingDaysClass}>${remainingDays} ngày</td>
+                        <td>${lastWorkDate}</td>
                         <td class="text-center">
+                            <button class="btn btn-primary btn-sm" onclick="extendSchedule(${e.userId}, ${shiftId})" title="Thêm 30 ngày">
+                                ➕ 30 ngày
+                            </button>
                             <button class="btn btn-danger btn-icon" onclick="removeEmployee(${e.userId}, ${shiftId})" title="Xóa khỏi ca">
                                 🗑️
                             </button>
                         </td>
                     </tr>
-                `).join("")
+                `;
+                }).join("")
                 : `<tr>
-                        <td colspan="4" style="text-align:center; padding: 20px; color: #6b7280; font-style: italic;">
+                        <td colspan="5" style="text-align:center; padding: 20px; color: #6b7280; font-style: italic;">
                             Chưa có nhân viên nào trong ca này
                         </td>
                    </tr>`;
@@ -336,6 +346,24 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         } catch (err) {
             console.error("❌ Lỗi remove employee:", err);
+            showToast("Có lỗi xảy ra!", 3000, 'error');
+        }
+    };
+
+    window.extendSchedule = async (userId, shiftId) => {
+        if (!confirm("Bạn có chắc muốn thêm 30 ngày làm việc cho nhân viên này?")) return;
+
+        try {
+            const res = await fetch(`/api/manager/shifts/${shiftId}/extend/${userId}`, { method: "POST" });
+            if (res.ok) {
+                showToast("Đã thêm 30 ngày làm việc thành công!", 2500, 'success');
+                viewEmployees(shiftId);
+            } else {
+                const error = await res.text();
+                showToast(error || "Thêm ngày làm việc thất bại!", 3000, 'error');
+            }
+        } catch (err) {
+            console.error("❌ Lỗi extend schedule:", err);
             showToast("Có lỗi xảy ra!", 3000, 'error');
         }
     };
