@@ -3,6 +3,7 @@ package vn.edu.fpt.pharma.controller.pharmacist;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -10,21 +11,21 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.pharma.config.CustomUserDetails;
+import vn.edu.fpt.pharma.dto.invoice.InvoiceCreateRequest;
 import vn.edu.fpt.pharma.dto.medicine.MedicineSearchDTO;
 import vn.edu.fpt.pharma.dto.medicine.VariantInventoryDTO;
 import vn.edu.fpt.pharma.dto.shifts.ShiftSummaryVM;
 import vn.edu.fpt.pharma.dto.user.ProfileVM;
+import vn.edu.fpt.pharma.entity.Branch;
+import vn.edu.fpt.pharma.entity.Invoice;
 import vn.edu.fpt.pharma.entity.User;
 import vn.edu.fpt.pharma.repository.BranchRepository;
-import vn.edu.fpt.pharma.service.MedicineService;
-import vn.edu.fpt.pharma.service.MedicineVariantService;
-import vn.edu.fpt.pharma.service.ShiftWorkService;
-import vn.edu.fpt.pharma.service.UserService;
+import vn.edu.fpt.pharma.service.*;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/pharmacist")
@@ -36,11 +37,20 @@ public class PharmacistController {
     private final MedicineService medicineService;
     private final BranchRepository branchRepository;
     private final ShiftWorkService shiftWorkService;
-
-
+    private final ShiftService shiftService;
+    private final InvoiceService invoiceService;
 
     @GetMapping("/pos")
     public String pos(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        Long userId = userDetails.getId();
+        Long branchId = userDetails.getUser().getBranchId();
+        boolean inShift = shiftService
+                .getCurrentShift(userId, branchId)
+                .isPresent();
+
+        model.addAttribute("inShift", true);
         model.addAttribute("keyword", "");
         return "pages/pharmacist/pos";
     }
@@ -57,6 +67,17 @@ public class PharmacistController {
         return medicineVariantService.getVariantsWithInventoryByMedicineId(medicineId);
     }
 
+    @PostMapping("/pos/api/invoices")
+    public ResponseEntity<?> createInvoice(@RequestBody InvoiceCreateRequest req) {
+
+        Invoice invoice = invoiceService.createInvoice(req);
+
+        return ResponseEntity.ok(Map.of(
+                "id", invoice.getId(),
+                "invoiceCode", invoice.getInvoiceCode(),
+                "message", "Thanh toán thành công"
+        ));
+    }
 
     @GetMapping("/work")
     public String work(

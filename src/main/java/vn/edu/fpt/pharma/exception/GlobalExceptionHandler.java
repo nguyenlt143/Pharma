@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("timestamp", LocalDateTime.now());
         errorResponse.put("status", HttpStatus.CONFLICT.value());
-        errorResponse.put("error", "Entity In Use");
+        errorResponse.put("error", "No Active Shift");
         errorResponse.put("message", ex.getMessage());
         errorResponse.put("entityName", ex.getEntityName());
         errorResponse.put("usageMessage", ex.getUsageMessage());

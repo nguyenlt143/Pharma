@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import vn.edu.fpt.pharma.entity.ShiftWork;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,5 +45,22 @@ public interface ShiftWorkRepository extends JpaRepository<ShiftWork, Long>, Jpa
             @Param("userId") Long userId,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
+    );
+
+    @Query("""
+    SELECT w 
+    FROM ShiftWork w
+    JOIN w.assignment a
+    JOIN a.shift s
+    WHERE a.userId = :userId
+      AND s.branchId = :branchId
+      AND w.workDate = :today
+      AND :now BETWEEN s.startTime AND s.endTime
+""")
+    Optional<ShiftWork> findShiftWork(
+            Long userId,
+            Long branchId,
+            LocalDate today,
+            LocalTime now
     );
 }
