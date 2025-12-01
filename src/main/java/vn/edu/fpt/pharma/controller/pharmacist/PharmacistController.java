@@ -50,7 +50,7 @@ public class PharmacistController {
                 .getCurrentShift(userId, branchId)
                 .isPresent();
 
-        model.addAttribute("inShift", true);
+        model.addAttribute("inShift", inShift);
         model.addAttribute("keyword", "");
         return "pages/pharmacist/pos";
     }

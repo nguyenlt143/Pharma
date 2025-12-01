@@ -8,8 +8,8 @@ import java.util.List;
 public class InvoiceCreateRequest {
     private String customerName;
     private String phoneNumber;
-    private Double totalPrice;
+    private Double totalAmount;
     private String paymentMethod;
     private String note;
-    private List<InvoiceItemRequest> item;
+    private List<InvoiceItemRequest> items;
 }

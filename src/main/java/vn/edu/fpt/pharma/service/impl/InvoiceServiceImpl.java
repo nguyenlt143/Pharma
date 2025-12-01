@@ -80,7 +80,7 @@ public class InvoiceServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
         invoice.setInvoiceCode(generateInvoiceCode());
         invoice.setCustomer(customer);
         invoice.setPaymentMethod(req.getPaymentMethod());
-        invoice.setTotalPrice(req.getTotalPrice());
+        invoice.setTotalPrice(req.getTotalAmount());
         invoice.setDescription(req.getNote());
         invoice.setUserId(userContext.getUserId());
         invoice.setBranchId(userContext.getBranchId());
@@ -89,7 +89,7 @@ public class InvoiceServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
 
         invoice = repository.save(invoice);
         List<InvoiceDetail> details = new ArrayList<>();
-        for (InvoiceItemRequest itemReq : req.getItem()){
+        for (InvoiceItemRequest itemReq : req.getItems()){
             Inventory inventory = inventoryService.findById(itemReq.getInventoryId());
             Long realQty = (long) (itemReq.getQuantity() * itemReq.getSelectedMultiplier());
             if(inventory.getQuantity() < realQty){
