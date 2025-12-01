@@ -78,6 +78,13 @@ public class ShiftServiceImpl implements ShiftService {
         repo.restoreById(id);
     }
 
+    @Override
+    public Optional<Shift> getCurrentShift(Long userId, Long branchId) {
+        LocalDate today = LocalDate.now();
+        LocalTime nowTime = LocalTime.now();
+        return repo.findCurrentShift(userId, branchId, today, nowTime);
+    }
+
     private ShiftResponse toDto(Shift s) {
         return ShiftResponse.builder()
                 .id(s.getId())

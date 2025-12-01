@@ -1,7 +1,30 @@
 @param String keyword
+@param Boolean inShift
 @template.layouts.pharmacist(
     headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/pos.css">`,
     content = @`
+    @if(!inShift)
+        <div class="shift-warning" id="shift-warning"
+             style="
+             position: fixed;
+             top: 20px;
+             right: 20px;
+             padding: 15px 20px;
+             background: #ff9800;
+             color: #fff;
+             border-radius: 6px;
+             z-index: 9999;
+             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+         ">
+            Bạn không trong ca làm việc! Chỉ được xem, không thể thao tác.
+        </div>
+
+        <script>
+            setTimeout(() => {
+                document.getElementById("shift-warning").remove();
+            }, 4000);
+        </script>
+    @endif
         <section class="search-section">
             <div class="search-container">
 
@@ -110,7 +133,7 @@
 
                         <div class="payment-row">
                             <span class="payment-label">Tiền thừa trả khách</span>
-                            <span class="payment-value">0.00</span>
+                            <span class="payment-value" id="changeAmount">0</span>
                         </div>
 
                         <div class="form-group">

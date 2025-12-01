@@ -290,4 +290,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
                 ((Number) r[6]).doubleValue()
         )).toList();
     }
+
+    @Query("SELECT COALESCE(MAX(i.id), 0) FROM Invoice i")
+    Long findMaxInvoiceId();
 }

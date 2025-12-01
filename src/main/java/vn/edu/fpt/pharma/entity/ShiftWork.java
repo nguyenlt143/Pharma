@@ -23,7 +23,6 @@ public class ShiftWork extends BaseEntity<Long> {
     private ShiftAssignment assignment;
 
     private LocalDate workDate;
-//    private int realMoney;
-//    private boolean isClosed;
+
 }
 

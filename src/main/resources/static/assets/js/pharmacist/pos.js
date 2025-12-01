@@ -227,6 +227,12 @@ function addInventoryItemClickListeners() {
     });
 }
 
+function getTotalAmount() {
+    return prescriptionItems.reduce((sum, item) => {
+        return sum + (item.quantity * item.currentPrice);
+    }, 0);
+}
+
 function renderPrescription() {
     const prescriptionBody = document.getElementById('prescription-items');
     const totalAmountEl = document.querySelector('.total-amount');
@@ -383,23 +389,34 @@ if (paymentButton) {
   paymentButton.addEventListener('click', () => {
     const customerName = customerNameInput.value.trim();
     const phoneNumber = phoneInput.value.trim();
-    const paymentAmount = paymentAmountInput.value.trim();
+    const paymentAmount = parseFloat(paymentAmountInput.value.trim()) || 0;
     const paymentMethod = paymentMethodSelect.value;
     const notes = notesTextarea.value.trim();
 
-    if (!paymentAmount) {
-      alert('Vui lòng nhập số tiền thanh toán');
-      paymentAmountInput.focus();
-      return;
-    }
+        const totalAmount = getTotalAmount();
 
-    processPayment({
+        if (prescriptionItems.length === 0) {
+            alert("Chưa có sản phẩm nào trong đơn!");
+            return;
+        }
+
+        if (paymentAmount < totalAmount) {
+            alert(`Khách trả thiếu tiền! Cần ${totalAmount.toLocaleString('vi-VN')} VNĐ`);
+            return;
+        }
+
+    const paymentData = {
       customerName,
       phoneNumber,
-      paymentAmount: parseFloat(paymentAmount),
+      paymentAmount,
+      totalAmount,
+      change: paymentAmount - totalAmount,
       paymentMethod,
-      notes
-    });
+      notes,
+      items: prescriptionItems
+    };
+
+    processPayment(paymentData);
   });
 }
 
@@ -415,12 +432,12 @@ document.addEventListener('keydown', (e) => {
 if (paymentAmountInput) {
   paymentAmountInput.addEventListener('input', () => {
     const paymentAmount = parseFloat(paymentAmountInput.value) || 0;
-    const totalAmount = 0; // TODO: replace with actual total
+    const totalAmount = getTotalAmount();
     const change = Math.max(0, paymentAmount - totalAmount);
 
-    const changeElement = document.querySelector('.payment-row:last-of-type .payment-value');
+   const changeElement = document.getElementById('changeAmount');
     if (changeElement) {
-      changeElement.textContent = change.toFixed(2);
+     changeElement.textContent = change.toLocaleString('vi-VN');
     }
   });
 }
@@ -433,13 +450,31 @@ function searchMedication(searchTerm) {
   }, 500);
 }
 
+
 function processPayment(paymentData) {
-  console.log('Processing payment:', paymentData);
-  setTimeout(() => {
-    alert('Thanh toán thành công!');
+  console.log("Sending invoice:", paymentData);
+
+  fetch('/pharmacist/pos/api/invoices', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(paymentData)
+  })
+  .then(res => {
+    if (!res.ok) throw new Error("Lỗi tạo hóa đơn");
+    return res.json();
+  })
+  .then(result => {
+    alert(`Thanh toán thành công! Mã hóa đơn: ${result.id}`);
     clearPaymentForm();
-    updatePaymentTotals();
-  }, 1000);
+    prescriptionItems = [];
+    renderPrescription();
+  })
+  .catch(err => {
+    console.error("Payment error", err);
+    alert("Thanh toán thất bại!");
+  });
 }
 
 function clearPaymentForm() {
@@ -448,6 +483,7 @@ function clearPaymentForm() {
   paymentAmountInput.value = '';
   notesTextarea.value = '';
   paymentMethodSelect.selectedIndex = 0;
+  document.querySelector('.payment-row:last-of-type .payment-value').textContent = '0';
 }
 
 function updatePaymentTotals() {

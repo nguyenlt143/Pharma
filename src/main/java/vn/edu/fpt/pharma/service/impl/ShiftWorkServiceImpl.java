@@ -9,6 +9,7 @@ import vn.edu.fpt.pharma.entity.Shift;
 import vn.edu.fpt.pharma.entity.ShiftAssignment;
 import vn.edu.fpt.pharma.entity.ShiftWork;
 import vn.edu.fpt.pharma.entity.User;
+import vn.edu.fpt.pharma.exception.NoActiveShiftException;
 import vn.edu.fpt.pharma.repository.ShiftAssignmentRepository;
 import vn.edu.fpt.pharma.repository.ShiftRepository;
 import vn.edu.fpt.pharma.repository.ShiftWorkRepository;
@@ -132,5 +133,15 @@ public class ShiftWorkServiceImpl implements ShiftWorkService {
         }
 
         return new ArrayList<>(result.values());
+    }
+
+    @Override
+    public Long getCurrentShiftWorkId(Long userId, Long branchId) {
+        LocalDate today = LocalDate.now();
+        LocalTime now = LocalTime.now();
+
+        return shiftWorkRepo.findShiftWork(userId, branchId, today, now)
+                .map(ShiftWork::getId)
+                .orElseThrow(() -> new NoActiveShiftException("Nhân viên không có ca làm hiện tại"));
     }
 }
