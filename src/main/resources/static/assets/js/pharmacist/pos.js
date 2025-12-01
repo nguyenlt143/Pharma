@@ -248,7 +248,7 @@ function renderPrescription() {
         totalAmount += itemTotal;
 
         const row = document.createElement('tr');
-        // Medicine name with strength (concentration)
+
         const medicineDisplayName = item.strength ? `${item.medicineName} - ${item.strength}` : item.medicineName;
 
         row.innerHTML = `
@@ -282,7 +282,9 @@ function renderPrescription() {
         prescriptionBody.appendChild(row);
     });
 
-    totalAmountEl.textContent = totalAmount.toLocaleString('vi-VN');
+    if (totalAmountEl) {
+        totalAmountEl.textContent = totalAmount.toLocaleString('vi-VN');
+    }
 
     // Update payment section with total
     if (paymentValues.length >= 2) {
@@ -461,21 +463,27 @@ function processPayment(paymentData) {
     },
     body: JSON.stringify(paymentData)
   })
-  .then(res => {
-    if (!res.ok) throw new Error("Lỗi tạo hóa đơn");
+  .then(async res => {
+    if (!res.ok) {
+      // Đọc lỗi BE trả về để hiển thị
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.message || "Lỗi tạo hóa đơn");
+    }
+
     return res.json();
   })
   .then(result => {
-    alert(`Thanh toán thành công! Mã hóa đơn: ${result.id}`);
+    alert(`Thanh toán thành công! Mã hóa đơn: ${result.invoiceCode}`);
     clearPaymentForm();
     prescriptionItems = [];
     renderPrescription();
   })
   .catch(err => {
     console.error("Payment error", err);
-    alert("Thanh toán thất bại!");
+    alert(err.message || "Thanh toán thất bại!");
   });
 }
+
 
 function clearPaymentForm() {
   customerNameInput.value = '';
@@ -483,7 +491,10 @@ function clearPaymentForm() {
   paymentAmountInput.value = '';
   notesTextarea.value = '';
   paymentMethodSelect.selectedIndex = 0;
-  document.querySelector('.payment-row:last-of-type .payment-value').textContent = '0';
+  const lastPaymentValue = document.querySelector('.payment-row:last-of-type .payment-value');
+  if (lastPaymentValue) {
+    lastPaymentValue.textContent = '0';
+  }
 }
 
 function updatePaymentTotals() {

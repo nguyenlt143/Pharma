@@ -141,7 +141,7 @@
                             <textarea class="form-textarea"></textarea>
                         </div>
 
-                        <button class="payment-button">Thanh Toán</button>
+                        <button class="payment-button" id="payButton" type="button">Thanh toán</button>
                     </div>
                 </div>
             </div>
