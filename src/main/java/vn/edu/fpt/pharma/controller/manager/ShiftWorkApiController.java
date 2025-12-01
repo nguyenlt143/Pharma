@@ -29,11 +29,15 @@ public class ShiftWorkApiController {
     }
 
     @PostMapping("/shifts/{shiftId}/works")
-    public ResponseEntity<ShiftWorkResponse> assign(@PathVariable Long shiftId,
+    public ResponseEntity<?> assign(@PathVariable Long shiftId,
                                                     @Valid @RequestBody ShiftWorkAssignRequest req) {
-        // req.workDate expected "YYYY-MM-DD"
-        ShiftWorkResponse res = shiftWorkService.assignToShift(shiftId, req);
-        return ResponseEntity.ok(res);
+        try {
+            // req.workDate expected "YYYY-MM-DD"
+            ShiftWorkResponse res = shiftWorkService.assignToShift(shiftId, req);
+            return ResponseEntity.ok(res);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/shift-works/{id}")

@@ -41,22 +41,34 @@ public class StaffApiController {
 
     // ✅ Get by ID
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getById(id));
+    public ResponseEntity<?> getById(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(userService.getById(id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
     }
 
     // ✅ Create staff — ép branchId từ user login
     @PostMapping
-    public ResponseEntity<UserDto> create(@Valid @RequestBody UserRequest req,
+    public ResponseEntity<?> create(@Valid @RequestBody UserRequest req,
                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
-        req.setBranchId(userDetails.getUser().getBranchId());
-        return ResponseEntity.ok(userService.create(req));
+        try {
+            req.setBranchId(userDetails.getUser().getBranchId());
+            return ResponseEntity.ok(userService.create(req));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
     }
 
     // ✅ Update staff — không cho sửa branchId
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> update(@PathVariable Long id, @Valid @RequestBody UserRequest req) {
-        return ResponseEntity.ok(userService.update(id, req));
+    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody UserRequest req) {
+        try {
+            return ResponseEntity.ok(userService.update(id, req));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
     }
 
     // ✅ Delete staff
