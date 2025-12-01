@@ -3,6 +3,7 @@ package vn.edu.fpt.pharma.controller.wareHouse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 import vn.edu.fpt.pharma.dto.warehouse.CreateReceiptRequest;
 import vn.edu.fpt.pharma.dto.warehouse.MedicineVariantDTO;
 import vn.edu.fpt.pharma.dto.supplier.SupplierResponse;
@@ -24,7 +25,7 @@ public class WarehouseApiController {
      * Tạo phiếu nhập từ nhà cung cấp
      */
     @PostMapping("/receipts")
-    public ResponseEntity<?> createReceipt(@RequestBody CreateReceiptRequest request) {
+    public ResponseEntity<?> createReceipt(@Valid @RequestBody CreateReceiptRequest request) {
         try {
             InventoryMovement movement = receiptService.createReceipt(request);
 
@@ -63,4 +64,3 @@ public class WarehouseApiController {
         return ResponseEntity.ok(variants);
     }
 }
-

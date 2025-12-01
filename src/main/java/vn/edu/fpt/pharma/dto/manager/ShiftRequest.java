@@ -10,16 +10,16 @@ import lombok.*;
 public class ShiftRequest {
     private Long id;
 
-    @NotBlank
+    @NotBlank(message = "Tên ca là bắt buộc")
     private String name;
 
     /**
      * Expect format "HH:mm" or "HH:mm:ss" (LocalTime ISO)
      */
-    @NotBlank
+    @NotBlank(message = "Giờ bắt đầu là bắt buộc")
     private String startTime;
 
-    @NotBlank
+    @NotBlank(message = "Giờ kết thúc là bắt buộc")
     private String endTime;
 
     private String note;

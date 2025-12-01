@@ -32,6 +32,16 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     boolean existsByUserNameIgnoreCase(String userName);
 
+    boolean existsByEmailIgnoreCase(String email);
+
+    boolean existsByPhoneNumber(String phoneNumber);
+
+    @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END FROM User u WHERE LOWER(u.email) = LOWER(:email) AND u.id <> :excludeId")
+    boolean existsByEmailIgnoreCaseAndIdNot(@Param("email") String email, @Param("excludeId") Long excludeId);
+
+    @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END FROM User u WHERE u.phoneNumber = :phone AND u.id <> :excludeId")
+    boolean existsByPhoneNumberAndIdNot(@Param("phone") String phone, @Param("excludeId") Long excludeId);
+
     Optional<User> findById(long id);
 
     @Modifying
