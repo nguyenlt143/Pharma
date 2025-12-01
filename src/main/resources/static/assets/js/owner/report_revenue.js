@@ -109,19 +109,18 @@ function loadReport() {
             }
 
             invoiceTable.clear();
-            if (data.invoices && data.invoices.length > 0) {
-                data.invoices.forEach(inv => {
+
+            // data.categories: [{ categoryName, revenue }]
+            if (data.categories && data.categories.length > 0) {
+                data.categories.forEach((cat, index) => {
                     invoiceTable.row.add([
-                        inv.id || '',
-                        inv.code || '',
-                        inv.fullName || '',
-                        inv.shiftName || '',
-                        inv.createdAt ? new Date(inv.createdAt).toLocaleString('vi-VN') : '',
-                        formatCurrency(inv.totalAmount || 0),
-                        formatCurrency(inv.profit || 0)
+                        index + 1,
+                        cat.categoryName || '',
+                        formatCurrency(cat.revenue || 0)
                     ]);
                 });
             }
+
             invoiceTable.draw();
         })
         .catch(err => {

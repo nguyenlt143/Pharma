@@ -123,13 +123,9 @@ content = @`
         <table id="invoiceTable" class="display" style="width:100%">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Mã hóa đơn</th>
-                    <th>Nhân viên</th>
-                    <th>Ca làm việc</th>
-                    <th>Thời gian</th>
-                    <th>Tổng tiền</th>
-                    <th>Lợi nhuận</th>
+                    <th>STT</th>
+                    <th>Danh mục thuốc</th>
+                    <th>Doanh thu</th>
                 </tr>
             </thead>
             <tbody>

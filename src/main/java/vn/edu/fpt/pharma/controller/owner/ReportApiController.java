@@ -1,14 +1,15 @@
 package vn.edu.fpt.pharma.controller.owner;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.pharma.config.CustomUserDetails;
-import vn.edu.fpt.pharma.repository.InvoiceRepository;
 import vn.edu.fpt.pharma.dto.manager.InvoiceSummary;
 import vn.edu.fpt.pharma.dto.manager.KpiData;
+import vn.edu.fpt.pharma.repository.InvoiceRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -35,7 +36,7 @@ public class ReportApiController {
             @RequestParam(required = false) String period,
             @RequestParam(required = false) Long branchId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        
+
         // Verify owner role
         if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -46,14 +47,24 @@ public class ReportApiController {
         LocalDateTime from = firstOfMonth.atStartOfDay();
         LocalDateTime to = firstOfMonth.plusMonths(1).atStartOfDay();
 
+        // Tổng quan KPI (doanh thu, lợi nhuận, số đơn)
         KpiData kpi = invoiceRepository.sumRevenue(branchId, from, to, null, null);
-        List<InvoiceSummary> invoices = invoiceRepository.findInvoicesForReport(branchId, from, to, null, null);
+
+        // Doanh thu theo danh mục thuốc
+        List<Object[]> categoryRows = invoiceRepository.categoryRevenue(branchId, from, to, null, null, Pageable.unpaged());
+        List<Map<String, Object>> categories = new ArrayList<>();
+        for (Object[] row : categoryRows) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("categoryName", row[0]);
+            item.put("revenue", row[1]);
+            categories.add(item);
+        }
 
         Map<String, Object> response = new HashMap<>();
         response.put("totalRevenue", kpi.getRevenue());
         response.put("totalProfit", kpi.getProfit());
         response.put("totalOrders", kpi.getOrderCount());
-        response.put("invoices", invoices);
+        response.put("categories", categories);
 
         return ResponseEntity.ok(response);
     }
