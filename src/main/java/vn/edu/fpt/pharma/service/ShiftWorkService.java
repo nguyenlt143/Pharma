@@ -13,4 +13,6 @@ public interface ShiftWorkService {
     void removeShiftWork(Long id);
 
     List<ShiftSummaryVM> getSummary(Long branchId, Long userId, LocalDate start, LocalDate end);
+
+    Long getCurrentShiftWorkId(Long userId, Long branchId);
 }

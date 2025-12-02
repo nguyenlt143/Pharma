@@ -9,6 +9,7 @@ import vn.edu.fpt.pharma.entity.Shift;
 import vn.edu.fpt.pharma.entity.ShiftAssignment;
 import vn.edu.fpt.pharma.entity.ShiftWork;
 import vn.edu.fpt.pharma.entity.User;
+import vn.edu.fpt.pharma.exception.NoActiveShiftException;
 import vn.edu.fpt.pharma.repository.ShiftAssignmentRepository;
 import vn.edu.fpt.pharma.repository.ShiftRepository;
 import vn.edu.fpt.pharma.repository.ShiftWorkRepository;
@@ -50,14 +51,14 @@ public class ShiftWorkServiceImpl implements ShiftWorkService {
     @Override
     public ShiftWorkResponse assignToShift(Long shiftId, ShiftWorkAssignRequest req) {
         // validate shift exists
-        Shift shift = shiftRepo.findById(shiftId).orElseThrow(() -> new IllegalArgumentException("Shift not found"));
-        User user = userRepo.findById(req.getUserId()).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        Shift shift = shiftRepo.findById(shiftId).orElseThrow(() -> new IllegalArgumentException("Ca làm việc không tồn tại"));
+        User user = userRepo.findById(req.getUserId()).orElseThrow(() -> new IllegalArgumentException("Nhân viên không tồn tại"));
 
         LocalDate date = LocalDate.parse(req.getWorkDate());
 
         // prevent duplicates
         shiftWorkRepo.findByShiftIdAndUserIdAndWorkDate(shiftId, req.getUserId(), date)
-                .ifPresent(existing -> { throw new IllegalArgumentException("User already assigned to this shift on date"); });
+                .ifPresent(existing -> { throw new IllegalArgumentException("Nhân viên đã được phân công vào ca này trong ngày đã chọn"); });
 
         // Find or create ShiftAssignment
         ShiftAssignment assignment = assignmentRepo.findByShiftIdAndUserId(shiftId, req.getUserId())
@@ -132,5 +133,15 @@ public class ShiftWorkServiceImpl implements ShiftWorkService {
         }
 
         return new ArrayList<>(result.values());
+    }
+
+    @Override
+    public Long getCurrentShiftWorkId(Long userId, Long branchId) {
+        LocalDate today = LocalDate.now();
+        LocalTime now = LocalTime.now();
+
+        return shiftWorkRepo.findShiftWork(userId, branchId, today, now)
+                .map(ShiftWork::getId)
+                .orElseThrow(() -> new NoActiveShiftException("Nhân viên không có ca làm hiện tại"));
     }
 }

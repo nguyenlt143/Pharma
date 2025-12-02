@@ -91,7 +91,7 @@ public class InventoryController {
 
     @GetMapping("/api/medicines/search")
     @ResponseBody
-    public List<vn.edu.fpt.pharma.dto.inventory.MedicineSearchDTO> searchMedicines(
+    public List<vn.edu.fpt.pharma.dto.inventory.InventoryMedicineSearchDTO> searchMedicines(
             @RequestParam String query
     ) {
         return inventoryService.searchMedicinesInWarehouse(query);

@@ -38,25 +38,17 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
         this.shiftAssignmentRepository = shiftAssignmentRepository;
     }
 
-
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = repository.findByUserNameIgnoreCase(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-        
-        // Validate that user has a role
         if (user.getRole() == null) {
             throw new UsernameNotFoundException("User '" + username + "' does not have a role assigned");
         }
-        
         return new CustomUserDetails(user);
     }
 
     public List<UserVM> transformUsers(List<User> users) {
-//        List<String> storeCodes = users.stream().map(User::getStoreCode).toList();
-//        List<Store> stores = storeRepository.findAllByStoreCodeIn(storeCodes);
-//        Map<String, String> storeNameMap = stores.stream()
-//                .collect(Collectors.toMap(Store::getStoreCode, Store::getStoreName, (s1, s2) -> s1));
         return List.of();
     }
 
@@ -84,27 +76,31 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
                 .toList();
     }
 
-
     @Override
     public UserDto getById(Long id) {
         User u = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Staff not found"));
+                .orElseThrow(() -> new RuntimeException("Nhân viên không tồn tại"));
         return toDto(u);
     }
 
     @Override
     public UserDto create(UserRequest req) {
         if (userRepository.existsByUserNameIgnoreCase(req.getUserName())) {
-            throw new RuntimeException("Username already exists");
+            throw new RuntimeException("Tên đăng nhập đã tồn tại");
         }
-        // Lấy role STAFF
+        if (userRepository.existsByEmailIgnoreCase(req.getEmail())) {
+            throw new RuntimeException("Email đã tồn tại");
+        }
+        if (userRepository.existsByPhoneNumber(req.getPhoneNumber())) {
+            throw new RuntimeException("Số điện thoại đã tồn tại");
+        }
         Role role = roleRepository.findById(req.getRoleId())
-                .orElseThrow(() -> new RuntimeException("Role  not found"));
+                .orElseThrow(() -> new RuntimeException("Vai trò không tồn tại"));
 
         User user = new User();
         user.setFullName(req.getFullName());
         user.setUserName(req.getUserName());
-        user.setPassword(req.getPassword()); //
+        user.setPassword(req.getPassword() == null ? null : passwordEncoder.encode(req.getPassword()));
         user.setEmail(req.getEmail());
         user.setPhoneNumber(req.getPhoneNumber());
         user.setBranchId(req.getBranchId());
@@ -117,20 +113,29 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
     @Override
     public UserDto update(Long id, UserRequest req) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Staff not found"));
+                .orElseThrow(() -> new RuntimeException("Nhân viên không tồn tại"));
 
-        // ❗ Validate username nếu đổi
         if (!user.getUserName().equalsIgnoreCase(req.getUserName())
                 && userRepository.existsByUserNameIgnoreCase(req.getUserName())) {
-            throw new RuntimeException("Username already exists");
+            throw new RuntimeException("Tên đăng nhập đã tồn tại");
+        }
+        if (!equalsIgnoreCase(user.getEmail(), req.getEmail())
+                && userRepository.existsByEmailIgnoreCaseAndIdNot(req.getEmail(), id)) {
+            throw new RuntimeException("Email đã tồn tại");
+        }
+        if (!equals(user.getPhoneNumber(), req.getPhoneNumber())
+                && userRepository.existsByPhoneNumberAndIdNot(req.getPhoneNumber(), id)) {
+            throw new RuntimeException("Số điện thoại đã tồn tại");
         }
 
-        // ❗ Không cho sửa branchId
         req.setBranchId(user.getBranchId());
         user.setFullName(req.getFullName());
         user.setUserName(req.getUserName());
         user.setEmail(req.getEmail());
         user.setPhoneNumber(req.getPhoneNumber());
+        if (req.getPassword() != null && !req.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(req.getPassword()));
+        }
 
         userRepository.save(user);
         return toDto(user);
@@ -138,7 +143,6 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
 
     @Override
     public void delete(Long id) {
-        // Check if user has active shift assignments
         if (shiftAssignmentRepository.existsByUserIdAndDeletedFalse(id)) {
             throw new RuntimeException("Nhân viên đang trong một ca làm việc, không thể xóa");
         }
@@ -161,7 +165,6 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         user.setFullName(profileVM.fullName());
-//        user.setEmail(profileVM.email());
         user.setPhoneNumber(profileVM.phone());
         if (profileVM.password() != null && !profileVM.password().isBlank()) {
             if (!profileVM.password().equals(profileVM.confirmPassword())) {
@@ -172,7 +175,17 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
         userRepository.save(user);
     }
 
+    private boolean equalsIgnoreCase(String a, String b) {
+        if (a == null && b == null) return true;
+        if (a == null || b == null) return false;
+        return a.equalsIgnoreCase(b);
+    }
 
+    private boolean equals(String a, String b) {
+        if (a == null && b == null) return true;
+        if (a == null || b == null) return false;
+        return a.equals(b);
+    }
 
     private UserDto toDto(User u) {
         return UserDto.builder()

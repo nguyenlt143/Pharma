@@ -2,6 +2,8 @@ package vn.edu.fpt.pharma.dto.manager;
 
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,5 +16,7 @@ public class ShiftAssignmentResponse {
     private String roleName;
     private String status; // placeholder for workType/status mapping
     private String createdAt;
+    private Long remainingDays; // Số ngày làm việc còn lại
+    private LocalDate lastWorkDate; // Ngày làm việc cuối cùng
 }
 

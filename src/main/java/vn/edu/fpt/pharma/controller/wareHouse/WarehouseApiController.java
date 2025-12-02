@@ -3,9 +3,10 @@ package vn.edu.fpt.pharma.controller.wareHouse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 import vn.edu.fpt.pharma.dto.warehouse.CreateReceiptRequest;
 import vn.edu.fpt.pharma.dto.warehouse.MedicineVariantDTO;
-import vn.edu.fpt.pharma.dto.warehouse.SupplierDTO;
+import vn.edu.fpt.pharma.dto.supplier.SupplierResponse;
 import vn.edu.fpt.pharma.entity.InventoryMovement;
 import vn.edu.fpt.pharma.service.WarehouseReceiptService;
 
@@ -24,7 +25,7 @@ public class WarehouseApiController {
      * Tạo phiếu nhập từ nhà cung cấp
      */
     @PostMapping("/receipts")
-    public ResponseEntity<?> createReceipt(@RequestBody CreateReceiptRequest request) {
+    public ResponseEntity<?> createReceipt(@Valid @RequestBody CreateReceiptRequest request) {
         try {
             InventoryMovement movement = receiptService.createReceipt(request);
 
@@ -47,9 +48,9 @@ public class WarehouseApiController {
      * Tìm kiếm nhà cung cấp
      */
     @GetMapping("/suppliers/search")
-    public ResponseEntity<List<SupplierDTO>> searchSuppliers(
+    public ResponseEntity<List<SupplierResponse>> searchSuppliers(
             @RequestParam(required = false) String q) {
-        List<SupplierDTO> suppliers = receiptService.searchSuppliers(q);
+        List<SupplierResponse> suppliers = receiptService.searchSuppliers(q);
         return ResponseEntity.ok(suppliers);
     }
 
@@ -63,4 +64,3 @@ public class WarehouseApiController {
         return ResponseEntity.ok(variants);
     }
 }
-

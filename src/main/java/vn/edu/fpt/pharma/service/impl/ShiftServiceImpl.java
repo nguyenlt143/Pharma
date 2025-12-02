@@ -9,7 +9,6 @@ import vn.edu.fpt.pharma.repository.ShiftRepository;
 import vn.edu.fpt.pharma.service.ShiftService;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -58,6 +57,15 @@ public class ShiftServiceImpl implements ShiftService {
             throw new IllegalArgumentException("Giờ kết thúc phải lớn hơn giờ bắt đầu");
         }
 
+        // Validate no overlapping shifts
+        List<Shift> overlapping = repo.findOverlappingShifts(branchId, st, et, request.getId());
+        if (!overlapping.isEmpty()) {
+            String overlappingNames = overlapping.stream()
+                    .map(shift -> shift.getName() + " (" + shift.getStartTime() + " - " + shift.getEndTime() + ")")
+                    .collect(Collectors.joining(", "));
+            throw new IllegalArgumentException("Ca làm việc bị trùng thời gian với: " + overlappingNames);
+        }
+
         s.setBranchId(branchId);
         s.setName(request.getName());
         s.setNote(request.getNote());
@@ -76,6 +84,13 @@ public class ShiftServiceImpl implements ShiftService {
     @Override
     public void restore(Long id) {
         repo.restoreById(id);
+    }
+
+    @Override
+    public Optional<Shift> getCurrentShift(Long userId, Long branchId) {
+        LocalDate today = LocalDate.now();
+        LocalTime nowTime = LocalTime.now();
+        return repo.findCurrentShift(userId, branchId, today, nowTime);
     }
 
     private ShiftResponse toDto(Shift s) {

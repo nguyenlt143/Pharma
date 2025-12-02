@@ -97,6 +97,43 @@
     background: #fecaca;
 }
 
+.btn-info {
+    background: #e0f2fe;
+    color: #075985;
+    border-color: #bae6fd;
+}
+.btn-info:hover {
+    background: #bae6fd;
+}
+
+.btn-success {
+    background: #d1fae5;
+    color: #065f46;
+    border-color: #a7f3d0;
+}
+.btn-success:hover {
+    background: #a7f3d0;
+}
+
+.btn-ghost {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+.btn-ghost:hover {
+    background: #e5e7eb;
+}
+
+/* Button size variants */
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 13px;
+}
+
+.btn-icon {
+    padding: 6px 8px;
+}
+
 /* ===== Table ===== */
 .shift-table {
     width: 100%;
@@ -393,9 +430,6 @@
     text-decoration: underline;
 }
 
-.btn-icon {
-    padding: 6px 8px;
-}
 
 /* Utility classes */
 .text-center {

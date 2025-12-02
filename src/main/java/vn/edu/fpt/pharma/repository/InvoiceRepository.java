@@ -3,15 +3,22 @@ package vn.edu.fpt.pharma.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import vn.edu.fpt.pharma.dto.manager.DailyRevenue;
 import vn.edu.fpt.pharma.dto.invoice.InvoiceInfoVM;
-import vn.edu.fpt.pharma.dto.manager.*;
+import vn.edu.fpt.pharma.dto.manager.InvoiceSummary;
+import vn.edu.fpt.pharma.dto.manager.KpiData;
+import vn.edu.fpt.pharma.dto.manager.TopProductItem;
 import vn.edu.fpt.pharma.entity.Invoice;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpecificationExecutor<Invoice> {
@@ -23,11 +30,13 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
         SELECT DATE(i.created_at) AS date,
                SUM(i.total_price) AS revenue
         FROM invoices i
+        LEFT JOIN shift_works sw ON i.shift_work_id = sw.id AND sw.deleted = false
+        LEFT JOIN shift_assignments sa ON sw.assignment_id = sa.id AND sa.deleted = false
         WHERE i.created_at >= :fromDate
           AND i.created_at < :toDate
           AND i.deleted = false
           AND (:branchId IS NULL OR i.branch_id = :branchId)
-          AND (:shiftId IS NULL OR i.shift_work_id = :shiftId)
+          AND (:shiftId IS NULL OR sa.shift_id = :shiftId)
           AND (:employeeId IS NULL OR i.user_id = :employeeId)
         GROUP BY DATE(i.created_at)
         ORDER BY DATE(i.created_at)
@@ -47,104 +56,39 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     }
 
     // -----------------------------
-    // KPI — SUM REVENUE / PROFIT
+    // KPI — SUM REVENUE / PROFIT (REFACTORED)
     // -----------------------------
-    @Query(value = """
-        SELECT
-            COALESCE(SUM(i.total_price), 0) AS revenue,
-            COALESCE(COUNT(DISTINCT i.id), 0) AS order_count,
-            COALESCE(SUM(
-                (COALESCE(id.price, 0) - COALESCE(inv.cost_price, 0))
-                * COALESCE(id.quantity, 0)
-            ), 0) AS profit
-        FROM invoices i
-        LEFT JOIN invoice_details id ON i.id = id.invoice_id AND id.deleted = false
-        LEFT JOIN inventory inv ON inv.id = id.inventory_id AND inv.deleted = false
-        WHERE i.created_at >= :fromDate
-          AND i.created_at < :toDate
-          AND i.deleted = false
-          AND (:branchId IS NULL OR i.branch_id = :branchId)
-          AND (:shiftId IS NULL OR i.shift_work_id = :shiftId)
-          AND (:employeeId IS NULL OR i.user_id = :employeeId)
-        """, nativeQuery = true)
-    List<Object[]> sumRevenueNative(
-            @Param("branchId") Long branchId,
-            @Param("fromDate") LocalDateTime fromDate,
-            @Param("toDate") LocalDateTime toDate,
-            @Param("shiftId") Long shiftId,
-            @Param("employeeId") Long employeeId
-    );
-
     default KpiData sumRevenue(
             Long branchId, LocalDateTime fromDate, LocalDateTime toDate,
             Long shiftId, Long employeeId
     ) {
-        List<Object[]> results = sumRevenueNative(branchId, fromDate, toDate, shiftId, employeeId);
-
-        if (results == null || results.isEmpty() || results.get(0) == null)
-            return new KpiData(0.0, 0L, 0.0);
-
-        Object[] row = results.get(0);
-
-        Double revenue = row[0] != null ? ((Number) row[0]).doubleValue() : 0.0;
-        Long orderCount = row[1] != null ? ((Number) row[1]).longValue() : 0L;
-        Double profit = row[2] != null ? ((Number) row[2]).doubleValue() : 0.0;
-
-        return new KpiData(revenue, orderCount, profit);
+        List<InvoiceSummary> invoices = findInvoicesForReport(branchId, fromDate, toDate, shiftId, employeeId);
+        double totalRevenue = invoices.stream().mapToDouble(InvoiceSummary::getTotalAmount).sum();
+        double totalProfit = invoices.stream().mapToDouble(InvoiceSummary::getProfit).sum();
+        long orderCount = invoices.size();
+        return new KpiData(totalRevenue, orderCount, totalProfit);
     }
 
-    default KpiData sumRevenue(
-            Long branchId, LocalDateTime fromDate, LocalDateTime toDate
+    // PAGE INVOICE WITH PROFIT (Refactored to use findInvoicesForReport)
+    // -----------------------------
+    default Page<InvoiceSummary> findInvoicesWithProfit(
+            Long branchId, LocalDateTime fromDate, LocalDateTime toDate,
+            Long shiftId, Long employeeId, Pageable pageable
     ) {
-        return sumRevenue(branchId, fromDate, toDate, null, null);
-    }
+        // 1. Fetch the full list using the existing report query
+        List<InvoiceSummary> fullList = findInvoicesForReport(branchId, fromDate, toDate, shiftId, employeeId);
 
-    // -----------------------------
-    // PAGE INVOICE WITH PROFIT
-    // -----------------------------
-    @Query(value = """
-        SELECT
-            i.created_at AS createdAt,
-            i.invoice_code AS invoiceCode,
-            c.name AS customerName,
-            i.payment_method AS paymentMethod,
-            i.total_price AS totalPrice,
-            SUM(
-                (COALESCE(id.price,0) - COALESCE(inv.cost_price, 0))
-                * COALESCE(id.quantity, 0)
-            ) AS profit
-        FROM invoices i
-        LEFT JOIN customers c ON i.customer_id = c.id
-        LEFT JOIN invoice_details id ON i.id = id.invoice_id AND id.deleted = false
-        LEFT JOIN inventory inv ON inv.id = id.inventory_id AND inv.deleted = false
-        WHERE i.created_at >= :fromDate
-          AND i.created_at < :toDate
-          AND i.deleted = false
-          AND (:branchId IS NULL OR i.branch_id = :branchId)
-          AND (:shiftId IS NULL OR i.shift_work_id = :shiftId)
-          AND (:employeeId IS NULL OR i.user_id = :employeeId)
-        GROUP BY i.id, c.name
-        ORDER BY i.created_at DESC
-        """,
-            countQuery = """
-                SELECT COUNT(DISTINCT i.id)
-                FROM invoices i
-                WHERE i.created_at >= :fromDate
-                  AND i.created_at < :toDate
-                  AND i.deleted = false
-                  AND (:branchId IS NULL OR i.branch_id = :branchId)
-                  AND (:shiftId IS NULL OR i.shift_work_id = :shiftId)
-                  AND (:employeeId IS NULL OR i.user_id = :employeeId)
-            """,
-            nativeQuery = true)
-    Page<InvoiceWithProfitListItem> findInvoicesWithProfit(
-            @Param("branchId") Long branchId,
-            @Param("fromDate") LocalDateTime fromDate,
-            @Param("toDate") LocalDateTime toDate,
-            @Param("shiftId") Long shiftId,
-            @Param("employeeId") Long employeeId,
-            Pageable pageable
-    );
+        // 2. Apply pagination manually
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), fullList.size());
+
+        List<InvoiceSummary> pageContent = (start > fullList.size())
+                ? Collections.emptyList()
+                : fullList.subList(start, end);
+
+        // 3. Return a Page object
+        return new PageImpl<>(pageContent, pageable, fullList.size());
+    }
 
     // -----------------------------
     // TOP PRODUCT CATEGORY
@@ -159,10 +103,12 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
         JOIN inv.variant mv
         JOIN mv.medicine m
         JOIN m.category c
+        LEFT JOIN ShiftWork sw ON i.shiftWorkId = sw.id
+        LEFT JOIN ShiftAssignment sa ON sw.assignment.id = sa.id
         WHERE i.createdAt >= :fromDate
           AND i.createdAt < :toDate
           AND (:branchId IS NULL OR i.branchId = :branchId)
-          AND (:shiftId IS NULL OR i.shiftWorkId = :shiftId)
+          AND (:shiftId IS NULL OR sa.shift.id = :shiftId)
           AND (:employeeId IS NULL OR i.userId = :employeeId)
         GROUP BY c.id, c.name
         ORDER BY SUM(id.quantity) DESC
@@ -189,10 +135,12 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
         JOIN inv.variant mv
         JOIN mv.medicine m
         JOIN m.category c
+        LEFT JOIN ShiftWork sw ON i.shiftWorkId = sw.id
+        LEFT JOIN ShiftAssignment sa ON sw.assignment.id = sa.id
         WHERE i.createdAt >= :fromDate
           AND i.createdAt < :toDate
           AND (:branchId IS NULL OR i.branchId = :branchId)
-          AND (:shiftId IS NULL OR i.shiftWorkId = :shiftId)
+          AND (:shiftId IS NULL OR sa.shift.id = :shiftId)
           AND (:employeeId IS NULL OR i.userId = :employeeId)
         GROUP BY c.id, c.name
         ORDER BY SUM(COALESCE(id.price, 0) * COALESCE(id.quantity, 0)) DESC
@@ -206,40 +154,8 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
             Pageable pageable
     );
 
+    // LIST INVOICE ITEMS (REMOVED AND MERGED INTO findInvoicesForReport)
     // -----------------------------
-    // LIST INVOICE ITEMS
-    // -----------------------------
-    @Query(value = """
-        SELECT
-          i.created_at AS createdAt,
-          i.invoice_code AS invoiceCode,
-          COALESCE(c.name, '') AS customerName,
-          i.payment_method AS paymentMethod,
-          COALESCE(i.total_price, 0) AS totalPrice,
-          COALESCE(SUM(
-            (COALESCE(d.price, 0) - COALESCE(inv.cost_price, 0))
-            * COALESCE(d.quantity, 0)
-          ), 0) AS profit
-        FROM invoices i
-        LEFT JOIN customers c ON i.customer_id = c.id
-        LEFT JOIN invoice_details d ON i.id = d.invoice_id AND d.deleted = false
-        LEFT JOIN inventory inv ON inv.id = d.inventory_id AND inv.deleted = false
-        WHERE i.created_at >= :fromDate
-          AND i.created_at < :toDate
-          AND i.branch_id = :branchId
-          AND i.deleted = false
-          AND (:shiftId IS NULL OR i.shift_work_id = :shiftId)
-          AND (:employeeId IS NULL OR i.user_id = :employeeId)
-        GROUP BY i.id, i.created_at, i.invoice_code, c.name, i.payment_method, i.total_price
-        ORDER BY i.created_at DESC
-        """, nativeQuery = true)
-    List<InvoiceListItem> findInvoiceItems(
-            @Param("branchId") Long branchId,
-            @Param("fromDate") LocalDateTime fromDate,
-            @Param("toDate") LocalDateTime toDate,
-            @Param("shiftId") Long shiftId,
-            @Param("employeeId") Long employeeId
-    );
 
     // -----------------------------
     // BULK FIND BY INVOICE CODE
@@ -374,4 +290,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
                 ((Number) r[6]).doubleValue()
         )).toList();
     }
+
+    @Query("SELECT COALESCE(MAX(i.id), 0) FROM Invoice i")
+    Long findMaxInvoiceId();
 }

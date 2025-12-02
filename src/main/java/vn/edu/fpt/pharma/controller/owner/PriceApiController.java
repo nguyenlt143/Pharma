@@ -70,11 +70,14 @@ public class PriceApiController {
             @PathVariable Long id,
             @Valid @RequestBody PriceRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        
+
         // Verify owner role
         if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+
+        // Ensure the service knows this is an update, not a create
+        request.setId(id);
 
         PriceResponse response = priceService.createOrUpdatePrice(request);
         return ResponseEntity.ok(response);

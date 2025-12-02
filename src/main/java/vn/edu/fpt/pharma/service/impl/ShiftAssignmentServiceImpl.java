@@ -5,11 +5,15 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.pharma.base.BaseServiceImpl;
 import vn.edu.fpt.pharma.entity.Shift;
 import vn.edu.fpt.pharma.entity.ShiftAssignment;
+import vn.edu.fpt.pharma.entity.ShiftWork;
 import vn.edu.fpt.pharma.repository.ShiftAssignmentRepository;
 import vn.edu.fpt.pharma.repository.ShiftRepository;
+import vn.edu.fpt.pharma.repository.ShiftWorkRepository;
 import vn.edu.fpt.pharma.service.AuditService;
 import vn.edu.fpt.pharma.service.ShiftAssignmentService;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -17,10 +21,13 @@ import java.util.List;
 public class ShiftAssignmentServiceImpl extends BaseServiceImpl<ShiftAssignment, Long, ShiftAssignmentRepository> implements ShiftAssignmentService  {
 
     private final ShiftRepository shiftRepository;
+    private final ShiftWorkRepository shiftWorkRepository;
 
-    public ShiftAssignmentServiceImpl(ShiftAssignmentRepository repository, AuditService auditService, ShiftRepository shiftRepository) {
+    public ShiftAssignmentServiceImpl(ShiftAssignmentRepository repository, AuditService auditService,
+                                     ShiftRepository shiftRepository, ShiftWorkRepository shiftWorkRepository) {
         super(repository, auditService);
         this.shiftRepository = shiftRepository;
+        this.shiftWorkRepository = shiftWorkRepository;
     }
 
     @Override
@@ -45,14 +52,20 @@ public class ShiftAssignmentServiceImpl extends BaseServiceImpl<ShiftAssignment,
 
     @Override
     public ShiftAssignment createAssignment(Long shiftId, Long userId) {
-        Shift shift = shiftRepository.findById(shiftId).orElseThrow(() -> new IllegalArgumentException("Shift not found"));
+        Shift shift = shiftRepository.findById(shiftId).orElseThrow(() -> new IllegalArgumentException("Ca làm việc không tồn tại"));
         // Prevent duplicate
         ShiftAssignment existing = findByShiftIdAndUserId(shiftId, userId);
         if (existing != null) return existing;
+
         ShiftAssignment sa = new ShiftAssignment();
         sa.setShift(shift);
         sa.setUserId(userId);
-        return repository.save(sa);
+        sa = repository.save(sa);
+
+        // Tự động tạo 30 ngày ShiftWork từ hôm nay
+        extendShiftWorks(sa.getId(), 30);
+
+        return sa;
     }
 
     @Override
@@ -61,5 +74,38 @@ public class ShiftAssignmentServiceImpl extends BaseServiceImpl<ShiftAssignment,
         if (sa != null) {
             repository.delete(sa);
         }
+    }
+
+    @Override
+    public void extendShiftWorks(Long assignmentId, int days) {
+        ShiftAssignment assignment = repository.findById(assignmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Phân công ca không tồn tại"));
+
+        // Tìm ngày cuối cùng, nếu không có thì bắt đầu từ hôm nay
+        LocalDate lastDate = shiftWorkRepository.findLastWorkDateByAssignmentId(assignmentId);
+        LocalDate startDate = (lastDate != null) ? lastDate.plusDays(1) : LocalDate.now();
+
+        // Tạo ShiftWork cho số ngày mong muốn
+        List<ShiftWork> works = new ArrayList<>();
+        for (int i = 0; i < days; i++) {
+            ShiftWork sw = ShiftWork.builder()
+                    .assignment(assignment)
+                    .workDate(startDate.plusDays(i))
+                    .build();
+            works.add(sw);
+        }
+
+        shiftWorkRepository.saveAll(works);
+    }
+
+    @Override
+    public LocalDate getLastWorkDate(Long assignmentId) {
+        return shiftWorkRepository.findLastWorkDateByAssignmentId(assignmentId);
+    }
+
+    @Override
+    public long getRemainingWorkDays(Long assignmentId) {
+        LocalDate today = LocalDate.now();
+        return shiftWorkRepository.countRemainingWorkDays(assignmentId, today);
     }
 }

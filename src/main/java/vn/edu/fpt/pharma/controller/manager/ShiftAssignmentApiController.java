@@ -62,9 +62,24 @@ public class ShiftAssignmentApiController {
         return ResponseEntity.ok(staffs);
     }
 
+    @PostMapping("/extend/{userId}")
+    public ResponseEntity<Void> extendShiftWork(@PathVariable Long shiftId, @PathVariable Long userId) {
+        ShiftAssignment sa = assignmentService.findByShiftIdAndUserId(shiftId, userId);
+        if (sa == null) {
+            return ResponseEntity.notFound().build();
+        }
+        assignmentService.extendShiftWorks(sa.getId(), 30);
+        return ResponseEntity.ok().build();
+    }
+
     private ShiftAssignmentResponse toDto(ShiftAssignment sa) {
         if (sa == null) return null;
         UserDto u = userService.getById(sa.getUserId());
+
+        // Lấy thông tin số ngày còn lại và ngày cuối
+        Long remainingDays = assignmentService.getRemainingWorkDays(sa.getId());
+        java.time.LocalDate lastWorkDate = assignmentService.getLastWorkDate(sa.getId());
+
         return ShiftAssignmentResponse.builder()
                 .id(sa.getId())
                 .userId(sa.getUserId())
@@ -72,6 +87,8 @@ public class ShiftAssignmentApiController {
                 .roleName(u.getRoleName())
                 .status("Assigned")
                 .createdAt(sa.getCreatedAt() != null ? sa.getCreatedAt().toString() : null)
+                .remainingDays(remainingDays)
+                .lastWorkDate(lastWorkDate)
                 .build();
     }
 }

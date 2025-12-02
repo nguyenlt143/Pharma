@@ -138,4 +138,63 @@ public abstract class BaseServiceImpl<T extends BaseEntity<ID>, ID, RE extends J
         return (Path<String>) path;
     }
 
+    /**
+     * Helper method to create Pageable from DataTableRequest
+     */
+    protected Pageable createPageable(DataTableRequest request) {
+        int page = request.start() / request.length();
+
+        Sort sort = Sort.unsorted();
+        if (request.orderColumn() != null && !request.orderColumn().isEmpty()) {
+            String[] props = request.orderColumn().split("\\.");
+            sort = "desc".equalsIgnoreCase(request.orderDir()) ?
+                    Sort.by(props).descending() :
+                    Sort.by(props).ascending();
+        }
+
+        return PageRequest.of(page, request.length(), sort);
+    }
+
+    /**
+     * Helper method to create DataTableResponse
+     */
+    protected <R> DataTableResponse<R> createDataTableResponse(DataTableRequest request, Page<R> pageResult, long totalRecords) {
+        return new DataTableResponse<>(
+                request.draw(),
+                totalRecords,
+                pageResult.getTotalElements(),
+                pageResult.getContent()
+        );
+    }
+
+    /**
+     * Helper method to build search specification with OR conditions
+     */
+    protected Specification<T> buildSearchSpecification(DataTableRequest request, List<String> searchableColumns) {
+        if (request.searchValue() == null || request.searchValue().isEmpty() || searchableColumns == null || searchableColumns.isEmpty()) {
+            return null;
+        }
+
+        String keyword = "%" + request.searchValue().toLowerCase() + "%";
+
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            for (String col : searchableColumns) {
+                Path<String> path = resolvePath(root, col);
+                predicates.add(cb.like(cb.lower(path.as(String.class)), keyword));
+            }
+
+            return cb.or(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    /**
+     * Helper method to find entity by ID or throw EntityNotFoundException
+     */
+    protected T findByIdOrThrow(ID id, String entityName) {
+        return repository.findById(id)
+                .orElseThrow(() -> new vn.edu.fpt.pharma.exception.EntityNotFoundException(entityName, id));
+    }
+
 }

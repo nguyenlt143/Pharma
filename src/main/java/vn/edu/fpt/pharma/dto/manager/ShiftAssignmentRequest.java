@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class ShiftAssignmentRequest {
-    @NotNull
+    @NotNull(message = "ID nhân viên là bắt buộc")
     private Long userId;
 }
 

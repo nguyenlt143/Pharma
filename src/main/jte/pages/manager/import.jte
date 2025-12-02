@@ -15,6 +15,11 @@
     `,
     content = @`
         <main class="main">
+            <div class="breadcrumb">
+                <span>Báo Cáo</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2"/></svg>
+                <span>Xuất-Nhập kho</span>
+            </div>
 
             <section class="filters">
                 <label>Thời gian:

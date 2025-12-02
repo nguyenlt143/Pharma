@@ -2,9 +2,7 @@ package vn.edu.fpt.pharma.service.impl;
 
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.pharma.base.BaseServiceImpl;
@@ -35,18 +33,7 @@ public class PriceServiceImpl extends BaseServiceImpl<Price, Long, PriceReposito
 
     @Override
     public DataTableResponse<PriceResponse> getPrices(DataTableRequest request, Long variantId, Long branchId) {
-        int page = request.start() / request.length();
-        
-        Sort sort = Sort.unsorted();
-        if (request.orderColumn() != null && !request.orderColumn().isEmpty()) {
-            Sort.Direction direction = "desc".equalsIgnoreCase(request.orderDir()) ? 
-                    Sort.Direction.DESC : Sort.Direction.ASC;
-            sort = Sort.by(direction, request.orderColumn());
-        } else {
-            // Default sort by id descending if no column specified
-            sort = Sort.by(Sort.Direction.DESC, "id");
-        }
-        Pageable pageable = PageRequest.of(page, request.length(), sort);
+        Pageable pageable = createPageable(request);
 
         Specification<Price> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();

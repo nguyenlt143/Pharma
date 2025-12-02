@@ -22,8 +22,9 @@ public interface MedicineRepository extends JpaRepository<Medicine, Long>, JpaSp
             m.country
         FROM medicines m
         WHERE m.deleted = false
-          AND (m.name LIKE CONCAT('%', :keyword, '%')
-               OR m.active_ingredient LIKE CONCAT('%', :keyword, '%'))
+          AND (LOWER(m.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+               OR LOWER(m.active_ingredient) LIKE LOWER(CONCAT('%', :keyword, '%'))
+               OR LOWER(m.brand_name) LIKE LOWER(CONCAT('%', :keyword, '%')))
         ORDER BY m.name
         LIMIT 20
         """, nativeQuery = true)

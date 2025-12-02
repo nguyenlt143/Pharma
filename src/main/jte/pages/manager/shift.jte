@@ -98,7 +98,8 @@ content = @`
                             <tr>
                                 <th>Tên nhân viên</th>
                                 <th>Chức vụ</th>
-                                <th>Thời gian tạo</th>
+                                <th>Số ngày còn lại</th>
+                                <th>Ngày cuối cùng</th>
                                 <th class="text-center">Hành động</th>
                             </tr>
                             </thead>

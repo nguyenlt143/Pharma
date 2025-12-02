@@ -1,10 +1,7 @@
 package vn.edu.fpt.pharma.service.impl;
 
-import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.pharma.base.BaseServiceImpl;
@@ -18,7 +15,6 @@ import vn.edu.fpt.pharma.repository.SupplierRepository;
 import vn.edu.fpt.pharma.service.AuditService;
 import vn.edu.fpt.pharma.service.SupplierService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,19 +32,10 @@ public class SupplierServiceImpl extends BaseServiceImpl<Supplier, Long, Supplie
 
     @Override
     public DataTableResponse<SupplierResponse> getSuppliers(DataTableRequest request) {
-        int page = request.start() / request.length();
-        
-        Sort sort = Sort.unsorted();
-        if (request.orderColumn() != null && !request.orderColumn().isEmpty()) {
-            String[] props = request.orderColumn().split("\\.");
-            sort = "desc".equalsIgnoreCase(request.orderDir()) ?
-                    Sort.by(props).descending() :
-                    Sort.by(props).ascending();
-        }
-        Pageable pageable = PageRequest.of(page, request.length(), sort);
+        Pageable pageable = createPageable(request);
+        Specification<Supplier> spec = buildSearchSpecification(request, List.of("name", "phone", "address"));
 
-        Specification<Supplier> spec = buildSpecification(request);
-        Page<Supplier> pageResult = spec != null ? 
+        Page<Supplier> pageResult = spec != null ?
                 repository.findAll(spec, pageable) : 
                 repository.findAll(pageable);
 
@@ -56,28 +43,10 @@ public class SupplierServiceImpl extends BaseServiceImpl<Supplier, Long, Supplie
                 .map(SupplierResponse::fromEntity)
                 .collect(Collectors.toList());
 
-        return new DataTableResponse<>(
-                request.draw(),
-                repository.count(),
-                pageResult.getTotalElements(),
-                responses
-        );
-    }
+        Page<SupplierResponse> responsePage = new org.springframework.data.domain.PageImpl<>(
+                responses, pageable, pageResult.getTotalElements());
 
-    private Specification<Supplier> buildSpecification(DataTableRequest request) {
-        return (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            if (request.searchValue() != null && !request.searchValue().isEmpty()) {
-                String keyword = "%" + request.searchValue().toLowerCase() + "%";
-                Predicate namePredicate = cb.like(cb.lower(root.get("name")), keyword);
-                Predicate phonePredicate = cb.like(cb.lower(root.get("phone")), keyword);
-                Predicate addressPredicate = cb.like(cb.lower(root.get("address")), keyword);
-                predicates.add(cb.or(namePredicate, phonePredicate, addressPredicate));
-            }
-
-            return predicates.isEmpty() ? null : cb.and(predicates.toArray(new Predicate[0]));
-        };
+        return createDataTableResponse(request, responsePage, repository.count());
     }
 
     @Override

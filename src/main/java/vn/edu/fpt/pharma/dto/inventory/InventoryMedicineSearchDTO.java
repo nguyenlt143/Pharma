@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MedicineSearchDTO {
+public class InventoryMedicineSearchDTO {
     private Long variantId;
     private Long batchId;
     private String medicineName;
