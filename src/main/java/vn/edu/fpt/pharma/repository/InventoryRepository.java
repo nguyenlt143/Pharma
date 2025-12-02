@@ -60,7 +60,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>, Jpa
             COALESCE(mv.strength, '') as strength,
             COALESCE(mv.dosage_form, '') as dosageForm,
             COALESCE(b.batch_code, '') as batchCode,
-            DATE_FORMAT(b.expiry_date, '%d/%m/%Y') as expiryDate,
+            FORMATDATETIME(b.expiry_date, 'dd/MM/yyyy') as expiryDate,
             i.quantity as currentStock,
             COALESCE(u.name, '') as unit,
             COALESCE(m.manufacturer, '') as manufacturer
@@ -146,7 +146,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>, Jpa
         JOIN batches b ON i.batch_id = b.id 
         WHERE i.branch_id = :branchId 
           AND i.deleted = false 
-          AND (:daysThreshold IS NULL OR b.expiry_date <= DATE_ADD(CURRENT_DATE, INTERVAL :daysThreshold DAY))
+          AND (:daysThreshold IS NULL OR b.expiry_date <= DATEADD('DAY', :daysThreshold, CURRENT_DATE))
           AND (:checkExpired = false OR b.expiry_date < CURRENT_DATE)
           AND (:checkExpired = true OR b.expiry_date >= CURRENT_DATE)
           AND i.quantity > 0

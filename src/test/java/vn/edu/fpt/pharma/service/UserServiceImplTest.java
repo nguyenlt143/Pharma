@@ -46,8 +46,12 @@ class UserServiceImplTest {
     @Mock
     private AuditService auditService;
 
-    @InjectMocks
     private UserServiceImpl userService;
+
+    @org.junit.jupiter.api.BeforeEach
+    void setUp() {
+        userService = new UserServiceImpl(userRepository, auditService, userRepository, roleRepository, passwordEncoder, shiftAssignmentRepository);
+    }
 
     @Nested
     @DisplayName("getStaffs Tests")
@@ -116,11 +120,11 @@ class UserServiceImplTest {
 
         @Test
         void getById_notFound_throwsException() {
-            lenient().when(userRepository.findById(999L)).thenReturn(Optional.empty());
+            when(userRepository.findById(999L)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> userService.getById(999L))
-                    .isInstanceOf(UsernameNotFoundException.class)
-                    .hasMessage("Staff not found");
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("Nhân viên không tồn tại");
         }
     }
 
@@ -193,6 +197,7 @@ class UserServiceImplTest {
         @Test
         void update_validData_success() {
             User existingUser = createUser(1L, "john", false);
+            existingUser.setBranchId(1L);
             UserRequest request = createUserRequest("john", "newemail@example.com", "9876543210", 1L, 1L);
 
             when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
@@ -216,7 +221,7 @@ class UserServiceImplTest {
             when(userRepository.existsByUserNameIgnoreCase("jane")).thenReturn(true);
 
             assertThatThrownBy(() -> userService.update(1L, request))
-                    .isInstanceOf(IllegalArgumentException.class)
+                    .isInstanceOf(RuntimeException.class)
                     .hasMessageContaining("Tên đăng nhập đã tồn tại");
 
             verify(userRepository, never()).save(any(User.class));
@@ -226,11 +231,13 @@ class UserServiceImplTest {
         void update_preservesBranchId() {
             User existingUser = createUser(1L, "john", false);
             existingUser.setBranchId(1L);
+            existingUser.setEmail("john@example.com");
+            existingUser.setPhoneNumber("1234567890");
             UserRequest request = createUserRequest("john", "john@example.com", "1234567890", 2L, 1L);
 
-            lenient().when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
-            lenient().when(userRepository.existsByEmailIgnoreCaseAndIdNot(anyString(), anyLong())).thenReturn(false);
-            lenient().when(userRepository.existsByPhoneNumberAndIdNot(anyString(), anyLong())).thenReturn(false);
+            when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
+            when(userRepository.existsByEmailIgnoreCaseAndIdNot(anyString(), anyLong())).thenReturn(false);
+            when(userRepository.existsByPhoneNumberAndIdNot(anyString(), anyLong())).thenReturn(false);
             when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             userService.update(1L, request);

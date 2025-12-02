@@ -62,7 +62,7 @@ class UserRepositoryTest extends BaseDataJpaTest {
 
     @Test
     void findStaffInBranchId_returnsOnlyActiveStaff() {
-        Role role = createAndSaveRole("STAFF");
+        Role role = createAndSaveRoleWithId(4L, "STAFF");
         User user1 = createAndSaveUser("active1", "active1@test.com", role, 1L);
         User user2 = createAndSaveUser("active2", "active2@test.com", role, 1L);
         User deletedUser = createAndSaveUser("deleted", "deleted@test.com", role, 1L);
@@ -77,7 +77,7 @@ class UserRepositoryTest extends BaseDataJpaTest {
 
     @Test
     void findStaffInBranchIdIncludingDeleted_returnsAll() {
-        Role role = createAndSaveRole("STAFF");
+        Role role = createAndSaveRoleWithId(4L, "STAFF");
         User user1 = createAndSaveUser("active", "active@test.com", role, 1L);
         User deletedUser = createAndSaveUser("deleted", "deleted@test.com", role, 1L);
         userRepository.deleteById(deletedUser.getId());
@@ -118,6 +118,13 @@ class UserRepositoryTest extends BaseDataJpaTest {
     // Helper methods
     private Role createAndSaveRole(String name) {
         Role role = new Role();
+        role.setName(name);
+        return roleRepository.save(role);
+    }
+
+    private Role createAndSaveRoleWithId(Long id, String name) {
+        Role role = new Role();
+        role.setId(id);
         role.setName(name);
         return roleRepository.save(role);
     }
