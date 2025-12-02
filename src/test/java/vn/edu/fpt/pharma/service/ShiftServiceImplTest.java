@@ -119,6 +119,7 @@ class ShiftServiceImplTest {
             ShiftRequest request = createShiftRequest(null, "Morning", "08:00", "16:00", "Morning shift");
             Shift savedShift = createShift(1L, "Morning", "08:00", "16:00", false);
 
+            when(shiftRepository.findOverlappingShifts(anyLong(), any(), any(), any())).thenReturn(List.of());
             when(shiftRepository.save(any(Shift.class))).thenReturn(savedShift);
 
             ShiftResponse result = shiftService.save(request, 1L);
@@ -137,6 +138,7 @@ class ShiftServiceImplTest {
             Shift updatedShift = createShift(1L, "Updated Morning", "09:00", "17:00", false);
 
             when(shiftRepository.findById(1L)).thenReturn(Optional.of(existingShift));
+            when(shiftRepository.findOverlappingShifts(anyLong(), any(), any(), any())).thenReturn(List.of());
             when(shiftRepository.save(any(Shift.class))).thenReturn(updatedShift);
 
             ShiftResponse result = shiftService.save(request, 1L);
@@ -174,6 +176,7 @@ class ShiftServiceImplTest {
             ShiftRequest request = createShiftRequest(null, "Shift", "08:00:00", "16:00:00", "With seconds");
             Shift savedShift = createShift(1L, "Shift", "08:00", "16:00", false);
 
+            when(shiftRepository.findOverlappingShifts(anyLong(), any(), any(), any())).thenReturn(List.of());
             when(shiftRepository.save(any(Shift.class))).thenReturn(savedShift);
 
             ShiftResponse result = shiftService.save(request, 1L);
@@ -188,11 +191,81 @@ class ShiftServiceImplTest {
             Shift savedShift = createShift(1L, "Shift", "08:00", "16:00", false);
             savedShift.setBranchId(2L);
 
+            when(shiftRepository.findOverlappingShifts(anyLong(), any(), any(), any())).thenReturn(List.of());
             when(shiftRepository.save(any(Shift.class))).thenReturn(savedShift);
 
             shiftService.save(request, 2L);
 
             verify(shiftRepository).save(argThat(shift -> shift.getBranchId().equals(2L)));
+        }
+
+        @Test
+        void save_overlappingShift_throwsException() {
+            ShiftRequest request = createShiftRequest(null, "New Shift", "09:00", "17:00", "Overlaps");
+            Shift existingShift = createShift(2L, "Existing Shift", "08:00", "16:00", false);
+
+            when(shiftRepository.findOverlappingShifts(eq(1L), any(LocalTime.class), any(LocalTime.class), isNull()))
+                    .thenReturn(List.of(existingShift));
+
+            assertThatThrownBy(() -> shiftService.save(request, 1L))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Ca làm việc bị trùng thời gian với")
+                    .hasMessageContaining("Existing Shift");
+
+            verify(shiftRepository, never()).save(any(Shift.class));
+        }
+
+        @Test
+        void save_overlappingShift_withMultipleOverlaps_showsAllConflicts() {
+            ShiftRequest request = createShiftRequest(null, "New Shift", "09:00", "18:00", "Overlaps multiple");
+            Shift shift1 = createShift(2L, "Morning", "08:00", "12:00", false);
+            Shift shift2 = createShift(3L, "Afternoon", "14:00", "20:00", false);
+
+            when(shiftRepository.findOverlappingShifts(eq(1L), any(LocalTime.class), any(LocalTime.class), isNull()))
+                    .thenReturn(List.of(shift1, shift2));
+
+            assertThatThrownBy(() -> shiftService.save(request, 1L))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Ca làm việc bị trùng thời gian với")
+                    .hasMessageContaining("Morning")
+                    .hasMessageContaining("Afternoon");
+
+            verify(shiftRepository, never()).save(any(Shift.class));
+        }
+
+        @Test
+        void save_updateShift_excludesItselfFromOverlapCheck() {
+            ShiftRequest request = createShiftRequest(1L, "Updated Shift", "09:00", "17:00", "Update");
+            Shift existingShift = createShift(1L, "Original", "08:00", "16:00", false);
+            Shift updatedShift = createShift(1L, "Updated Shift", "09:00", "17:00", false);
+
+            when(shiftRepository.findById(1L)).thenReturn(Optional.of(existingShift));
+            when(shiftRepository.findOverlappingShifts(eq(1L), any(LocalTime.class), any(LocalTime.class), eq(1L)))
+                    .thenReturn(List.of());
+            when(shiftRepository.save(any(Shift.class))).thenReturn(updatedShift);
+
+            ShiftResponse result = shiftService.save(request, 1L);
+
+            assertThat(result).isNotNull();
+            assertThat(result.getName()).isEqualTo("Updated Shift");
+            verify(shiftRepository).findOverlappingShifts(1L, LocalTime.parse("09:00"), LocalTime.parse("17:00"), 1L);
+            verify(shiftRepository).save(any(Shift.class));
+        }
+
+        @Test
+        void save_adjacentShifts_noOverlap_success() {
+            // Ca 1: 08:00-16:00, Ca 2: 16:00-23:00 (chạm nhau nhưng không giao nhau)
+            ShiftRequest request = createShiftRequest(null, "Evening", "16:00", "23:00", "After morning");
+            Shift savedShift = createShift(2L, "Evening", "16:00", "23:00", false);
+
+            when(shiftRepository.findOverlappingShifts(eq(1L), any(LocalTime.class), any(LocalTime.class), isNull()))
+                    .thenReturn(List.of());
+            when(shiftRepository.save(any(Shift.class))).thenReturn(savedShift);
+
+            ShiftResponse result = shiftService.save(request, 1L);
+
+            assertThat(result).isNotNull();
+            verify(shiftRepository).save(any(Shift.class));
         }
     }
 

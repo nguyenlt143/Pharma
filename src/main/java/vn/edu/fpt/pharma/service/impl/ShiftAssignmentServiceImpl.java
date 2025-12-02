@@ -52,7 +52,7 @@ public class ShiftAssignmentServiceImpl extends BaseServiceImpl<ShiftAssignment,
 
     @Override
     public ShiftAssignment createAssignment(Long shiftId, Long userId) {
-        Shift shift = shiftRepository.findById(shiftId).orElseThrow(() -> new IllegalArgumentException("Shift not found"));
+        Shift shift = shiftRepository.findById(shiftId).orElseThrow(() -> new IllegalArgumentException("Ca làm việc không tồn tại"));
         // Prevent duplicate
         ShiftAssignment existing = findByShiftIdAndUserId(shiftId, userId);
         if (existing != null) return existing;
@@ -79,7 +79,7 @@ public class ShiftAssignmentServiceImpl extends BaseServiceImpl<ShiftAssignment,
     @Override
     public void extendShiftWorks(Long assignmentId, int days) {
         ShiftAssignment assignment = repository.findById(assignmentId)
-                .orElseThrow(() -> new IllegalArgumentException("Assignment not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Phân công ca không tồn tại"));
 
         // Tìm ngày cuối cùng, nếu không có thì bắt đầu từ hôm nay
         LocalDate lastDate = shiftWorkRepository.findLastWorkDateByAssignmentId(assignmentId);

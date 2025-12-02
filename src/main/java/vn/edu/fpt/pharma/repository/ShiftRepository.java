@@ -40,4 +40,20 @@ public interface ShiftRepository extends JpaRepository<Shift, Long>, JpaSpecific
                                      Long branchId,
                                      LocalDate today,
                                      LocalTime nowTime);
+
+    /**
+     * Tìm các ca có thời gian giao nhau với khoảng thời gian cho trước
+     * Hai ca giao nhau nếu: startTime < otherEndTime AND endTime > otherStartTime
+     */
+    @Query("""
+    SELECT s FROM Shift s 
+    WHERE s.branchId = :branchId 
+    AND (:excludeId IS NULL OR s.id != :excludeId)
+    AND s.startTime < :endTime 
+    AND s.endTime > :startTime
+    """)
+    List<Shift> findOverlappingShifts(@Param("branchId") Long branchId,
+                                      @Param("startTime") LocalTime startTime,
+                                      @Param("endTime") LocalTime endTime,
+                                      @Param("excludeId") Long excludeId);
 }
