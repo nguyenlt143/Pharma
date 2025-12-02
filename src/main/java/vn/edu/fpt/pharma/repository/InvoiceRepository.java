@@ -202,36 +202,41 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     // REVENUE BY USER — PER SHIFT
     // -----------------------------
     @Query(value = """
-        SELECT
-            s.name AS shiftName,
-            COUNT(i.id) AS orderCount,
-            SUM(CASE WHEN LOWER(i.payment_method) = 'cash' THEN i.total_price ELSE 0 END) AS cashTotal,
-            SUM(CASE WHEN LOWER(i.payment_method) = 'transfer' THEN i.total_price ELSE 0 END) AS transferTotal,
-            SUM(i.total_price) AS totalRevenue
-        FROM invoices i
-        JOIN shift_works sw ON i.shift_work_id = sw.id
-        JOIN shift_assignments sa ON sw.assignment_id = sa.id
-        JOIN shifts s ON sa.shift_id = s.id
-        WHERE sa.user_id = :userId
-          AND i.invoice_type = 'PAID'
-          AND i.deleted = 0
-        GROUP BY s.name
-        ORDER BY MIN(s.start_time)
-        """, nativeQuery = true)
+    SELECT
+        s.name AS shiftName,
+        COUNT(i.id) AS orderCount,
+        SUM(CASE WHEN LOWER(i.payment_method) IN ('tiền mặt', 'cash') THEN i.total_price ELSE 0 END) AS cashTotal,
+        SUM(CASE WHEN LOWER(i.payment_method) IN ('chuyển khoản', 'transfer') THEN i.total_price ELSE 0 END) AS transferTotal,
+        SUM(i.total_price) AS totalRevenue
+    FROM invoices i
+    JOIN shift_works sw ON i.shift_work_id = sw.id
+    JOIN shift_assignments sa ON sw.assignment_id = sa.id
+    JOIN shifts s ON sa.shift_id = s.id
+    WHERE i.user_id = :userId
+      AND i.invoice_type = 'PAID'
+      AND i.deleted = 0
+      AND LOWER(i.payment_method) IN ('tiền mặt', 'cash', 'chuyển khoản', 'transfer')
+    GROUP BY s.id, s.name, s.start_time
+    ORDER BY s.start_time;
+    """, nativeQuery = true)
     List<Object[]> findRevenueShiftByUser(@Param("userId") Long userId);
 
     // -----------------------------
     // INVOICE INFO PRINTING
     // -----------------------------
     @Query(value = """
-        SELECT
-            b.name, b.address,
-            c.name, c.phone,
-            i.created_at, i.total_price, i.description
-        FROM invoices i
-        JOIN customers c ON i.customer_id = c.id
-        JOIN branches b ON i.branch_id = b.id
-        WHERE i.id = :id
+            SELECT\s
+                b.name AS branch_name,
+                b.address AS branch_address,
+                c.name AS customer_name,
+                c.phone AS customer_phone,
+                i.created_at,
+                i.total_price,
+                i.description
+            FROM invoices i
+            JOIN customers c ON i.customer_id = c.id
+            JOIN branchs b ON i.branch_id = b.id
+            WHERE i.id = ?;
         """, nativeQuery = true)
     InvoiceInfoVM findInvoiceInfoById(@Param("id") long id);
 

@@ -14,19 +14,19 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, Lo
 
     @Query(value = """
         SELECT
-            CASE
-                WHEN mv.strength IS NOT NULL AND mv.strength != ''
-                    THEN CONCAT(m.active_ingredient, ' ', mv.strength)
-                ELSE m.name
-            END AS name,
+            CONCAT(m.name, ' ', mv.strength) AS name,
             u.name AS unit,
             idt.price AS price,
             idt.quantity AS quantity
         FROM invoice_details idt
         JOIN inventory inv ON idt.inventory_id = inv.id
+        JOIN prices p ON inv.variant_id = p.variant_id
         JOIN medicine_variant mv ON inv.variant_id = mv.id
-        JOIN units u ON mv.base_unit_id = u.id
         JOIN medicines m ON mv.medicine_id = m.id
+        LEFT JOIN unit_conversions uc
+            ON inv.variant_id = uc.variant_id
+            AND uc.multiplier = (idt.price / p.sale_price)
+        LEFT JOIN units u ON uc.unit_id = u.id
         WHERE idt.invoice_id = :id
 """, nativeQuery = true)
     List<Object[]> findByInvoiceId(@Param("id") long id);

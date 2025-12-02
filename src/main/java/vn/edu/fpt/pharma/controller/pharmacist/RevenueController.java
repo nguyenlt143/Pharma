@@ -12,6 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.pharma.config.CustomUserDetails;
 import vn.edu.fpt.pharma.dto.DataTableRequest;
@@ -71,11 +72,22 @@ public class RevenueController {
     }
 
     @GetMapping("/all/revenue/detail")
-    public String detail(Model model){
+    public String detail(@RequestParam("period") String period, Model model) {
+
+        // Period dạng: "2025/11"
+        String[] parts = period.split("/");
+        int year = Integer.parseInt(parts[1]);
+        int month = Integer.parseInt(parts[0]);
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
-        List<RevenueDetailVM> revenueDetailVMS = invoiceDetailService.getRevenueDetail(userDetails.getId(), 2025, 11);
+
+        List<RevenueDetailVM> revenueDetailVMS =
+                invoiceDetailService.getRevenueDetail(userDetails.getId(), year, month);
+
+        model.addAttribute("period", period);
         model.addAttribute("revenueDetailVMS", revenueDetailVMS);
+
         return "pages/pharmacist/revenue_detail";
     }
 

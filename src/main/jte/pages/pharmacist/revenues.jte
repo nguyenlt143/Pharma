@@ -41,7 +41,18 @@
                     {data: 'period', title: 'Thời gian'},
                     {data: 'totalInvoice', title: 'Số hoá đơn'},
                     {data: 'totalCustomer', title: 'Số khách hàng'},
-                    {data: 'totalRevenue', title: 'Doanh thu'}
+                    {data: 'totalRevenue', title: 'Doanh thu'},
+                        {
+                        data: 'period',
+                        orderable: false,
+                        searchable: false,
+                        render: function(period) {
+                            return '<a href="/pharmacist/all/revenue/detail?period=' + period + '" ' +
+                                   'class="btn btn-sm btn-primary">' +
+                                   '<i class="bi bi-eye"></i> Xem chi tiết' +
+                                   '</a>';
+                        }
+                     }
                 ],
                 paging: true,
                 searching: true,
