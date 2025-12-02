@@ -134,8 +134,47 @@
 const selectedItems = new Map();
 const branchIdValue = ${branchId};
 
-// Load preselected items from sessionStorage (from medicine list)
+// Load preselected items from sessionStorage (from medicine list or shortage check)
 document.addEventListener('DOMContentLoaded', function() {
+    // Check for shortage data first (from inventory check)
+    const shortageData = sessionStorage.getItem('shortageData');
+    if (shortageData) {
+        try {
+            const shortageItems = JSON.parse(shortageData);
+            // Pre-fill from shortage data by matching with table rows
+            shortageItems.forEach(shortage => {
+                const row = $('.medicine-row[data-variant-id="' + shortage.variantId + '"]').first();
+                if (row.length > 0) {
+                    const variantId = row.data('variant-id');
+                    const batchId = row.data('batch-id');
+                    const key = variantId + '_' + batchId;
+
+                    selectedItems.set(key, {
+                        variantId: variantId,
+                        batchId: batchId,
+                        inventoryId: row.data('inventory-id'),
+                        medicineName: row.data('medicine-name'),
+                        batchCode: row.data('batch-code'),
+                        strength: row.data('strength') || '',
+                        unit: row.data('unit') || '',
+                        availableQty: row.data('available-qty'),
+                        quantity: shortage.shortage
+                    });
+                }
+            });
+            renderSelectedItems();
+            sessionStorage.removeItem('shortageData');
+
+            // Show info message
+            if (shortageItems.length > 0) {
+                alert('Đã tự động thêm ' + shortageItems.length + ' loại thuốc bị thiếu từ kiểm kho.\nVui lòng kiểm tra và xác nhận số lượng.');
+            }
+        } catch (e) {
+            console.error('Error loading shortage data:', e);
+        }
+    }
+
+    // Also check for preselected items (from medicine list)
     const preselected = sessionStorage.getItem('preselectedReturnItems');
     if (preselected) {
         try {
@@ -155,7 +194,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
             renderSelectedItems();
-            // Clear sessionStorage after loading
             sessionStorage.removeItem('preselectedReturnItems');
         } catch (e) {
             console.error('Error loading preselected items:', e);
