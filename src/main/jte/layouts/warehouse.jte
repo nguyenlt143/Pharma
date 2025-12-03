@@ -27,27 +27,27 @@
         <nav class="sidebar-nav">
             <ul class="nav-list">
                 <li class="nav-item">
-                    <a href="/warehouse/receipt/create" class="nav-link ${active.equals("receipt-create") ? "active" : ""}">
+                    <a href="/warehouse/receipt/create" class="nav-link">
                         <span class="nav-text">Tạo phiếu nhập</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/warehouse/receipt-list" class="nav-link ${active.equals("receipt-list") ? "active" : ""}">
+                    <a href="/warehouse/receipt-list" class="nav-link">
                         <span class="nav-text">Danh sách phiếu</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/warehouse/request/list" class="nav-link ${active.equals("request-list") ? "active" : ""}">
+                    <a href="/warehouse/request/list" class="nav-link">
                         <span class="nav-text">Danh sách yêu cầu</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/warehouse/" class="nav-link ${active.equals("check") ? "active" : ""}">
+                    <a href="/warehouse/" class="nav-link">
                         <span class="nav-text">Kiểm kê tồn kho</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/warehouse/inventory" class="nav-link ${active.equals("inventory") ? "active" : ""}">
+                    <a href="/warehouse/inventory" class="nav-link">
                         <span class="nav-text">Danh sách thuốc tồn kho</span>
                     </a>
                 </li>
