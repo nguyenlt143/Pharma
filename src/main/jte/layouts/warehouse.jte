@@ -20,7 +20,7 @@
     <!-- Sidebar -->
     <aside class="sidebar">
         <header class="sidebar-header">
-            <h1 class="sidebar-title">WAREHOUSE MANAGEMENT</h1>
+            <h1 class="sidebar-title">Quản Lý Kho Tổng</h1>
         </header>
 
         <nav class="sidebar-nav">

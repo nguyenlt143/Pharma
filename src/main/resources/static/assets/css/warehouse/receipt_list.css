@@ -1,4 +1,3 @@
-/* Receipt List Styles */
 * {
     margin: 0;
     padding: 0;
@@ -14,7 +13,22 @@ body {
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
+    margin-left: calc(286px + (100vw - 286px - 1400px) / 2);
     padding: 20px;
+}
+
+@media (min-width: 1687px) {
+    .container {
+        margin-left: calc(286px + (100vw - 286px - 1400px) / 2);
+    }
+}
+
+@media (max-width: 1686px) {
+    .container {
+        margin-left: 286px;
+        margin-right: 20px;
+        max-width: calc(100vw - 286px - 40px);
+    }
 }
 
 .main-content {
@@ -288,25 +302,37 @@ body {
 }
 
 /* Responsive Design */
+@media (max-width: 1200px) {
+    .container {
+        margin-left: 286px;
+    }
+}
+
 @media (max-width: 768px) {
+    .container {
+        margin-left: 250px;
+    }
     .tab-container {
         flex-wrap: wrap;
     }
-
     .filter-container {
         flex-direction: column;
     }
-
     .filter-button {
         width: 100%;
     }
-
     .table-container {
         overflow-x: auto;
     }
-
     .data-table {
         min-width: 600px;
     }
 }
 
+@media (max-width: 480px) {
+    .container {
+        margin-left: 200px;
+        max-width: calc(100vw - 200px);
+        padding: 16px;
+    }
+}
