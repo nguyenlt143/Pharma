@@ -47,7 +47,7 @@
                 <li class="nav-item">
                     <a href="/pharmacist/work" class="nav-link">
                         <span class="nav-icon material-icons">summarize</span>
-                        <span class="nav-text">Weekly work</span>
+                        <span class="nav-text">Lịch làm việc</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -78,7 +78,6 @@
                 <div class="date-info">
                     <span class="date-text">01/01/2200</span>
                 </div>
-
                 <div class="user-info">
                     <span class="material-icons user-icon">account_circle</span>
                     <span class="user-name">nhan vien a</span>

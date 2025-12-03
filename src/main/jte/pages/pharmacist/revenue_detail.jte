@@ -12,13 +12,6 @@ content = @`
                     <span class="material-icons page-icon">menu</span>
                     <h1 class="page-title">Doanh thu tháng 8</h1>
                 </div>
-
-                <div class="date-filter">
-                    <div class="date-input-container">
-                        <span class="material-icons date-input-icon">calendar_today</span>
-                        <input type="text" class="date-input" value="1/1/2200" readonly>
-                    </div>
-                </div>
             </div>
 
             <!-- Revenue Table -->
@@ -37,17 +30,28 @@ content = @`
                     </tr>
                     </thead>
                     <tbody>
+
                     @for(int i = 0; i < revenueDetailVMS.size(); i++)
                         <tr class="table-row">
-                            <td class="col-stt">${i + 1}</td>
-                            <td class="col-medicine">${revenueDetailVMS.get(i).drugName()}</td>
-                            <td class="col-unit">${revenueDetailVMS.get(i).unit()}</td>
-                            <td class="col-quantity">${revenueDetailVMS.get(i).quantity()}</td>
-                            <td class="col-price">${String.format("%,.0f", revenueDetailVMS.get(i).price())}</td>
-                            <td class="col-total">${String.format("%,.0f", revenueDetailVMS.get(i).totalAmount())}</td>
+                            <td class="table-cell data-cell drug-name">${revenueDetailVMS.get(i).drugName()}</td>
+                            <td class="table-cell data-cell">${revenueDetailVMS.get(i).quantity()}</td>
+                            <td class="table-cell data-cell">Viên</td>
+                            <td class="table-cell data-cell">${revenueDetailVMS.get(i).manufacturer()}</td>
+                            <td class="table-cell data-cell">${revenueDetailVMS.get(i).country()}</td>
+                            <td class="table-cell data-cell">${String.format("%,.0f", revenueDetailVMS.get(i).price())}</td>
+                            <td class="table-cell data-cell">${String.format("%,.0f", revenueDetailVMS.get(i).totalAmount())}</td>
                         </tr>
                     @endfor
                     </tbody>
+                    <tfoot>
+                    <tr class="table-row total-row">
+                        <td class="table-cell data-cell drug-name">Tổng</td>
+                        <td colspan="6"></td>
+                        <td class="table-cell data-cell">
+                            ${String.format("%,.0f", revenueDetailVMS.stream().mapToDouble(r -> r.totalAmount()).sum())}
+                        </td>
+                    </tr>
+                    </tfoot>
                 </table>
             </div>
         </div>

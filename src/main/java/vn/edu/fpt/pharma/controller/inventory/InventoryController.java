@@ -18,6 +18,7 @@ import vn.edu.fpt.pharma.dto.inventorycheck.StockAdjustmentDetailVM;
 import vn.edu.fpt.pharma.dto.requestform.RequestFormVM;
 import vn.edu.fpt.pharma.dto.inventory.InventoryMedicineVM;
 import vn.edu.fpt.pharma.dto.inventory.InventoryCheckRequestDTO;
+import vn.edu.fpt.pharma.entity.Inventory;
 import vn.edu.fpt.pharma.service.DashboardService;
 import vn.edu.fpt.pharma.service.RequestFormService;
 import vn.edu.fpt.pharma.service.StockAdjustmentService;
@@ -223,10 +224,42 @@ public class InventoryController {
     @ResponseBody
     public ResponseEntity<?> submitInventoryCheck(@RequestBody InventoryCheckRequestDTO request,
                                                   @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Long branchId = userDetails.getUser().getBranchId();
-        Long userId = userDetails.getUser().getId();
-        stockAdjustmentService.performInventoryCheck(branchId, userId, request);
-        return ResponseEntity.ok().build();
+        try {
+            Long branchId = userDetails.getUser().getBranchId();
+            Long userId = userDetails.getUser().getId();
+
+            // Kiểm tra xem có thuốc nào bị thiếu không
+            List<Map<String, Object>> shortageItems = new java.util.ArrayList<>();
+            for (var item : request.getItems()) {
+                Inventory inv = inventoryService.findById(item.getInventoryId());
+                if (inv != null) {
+                    Long systemQty = inv.getQuantity() != null ? inv.getQuantity() : 0L;
+                    Long countedQty = item.getCountedQuantity() != null ? item.getCountedQuantity() : 0L;
+
+                    if (countedQty < systemQty) {
+                        // Có thiếu hụt
+                        Map<String, Object> shortage = new java.util.HashMap<>();
+                        shortage.put("inventoryId", item.getInventoryId());
+                        shortage.put("variantId", item.getVariantId());
+                        shortage.put("shortage", systemQty - countedQty);
+                        shortageItems.add(shortage);
+                    }
+                }
+            }
+
+            // Thực hiện kiểm kho
+            stockAdjustmentService.performInventoryCheck(branchId, userId, request);
+
+            // Trả về kết quả
+            Map<String, Object> response = new java.util.HashMap<>();
+            response.put("success", true);
+            response.put("hasShortage", !shortageItems.isEmpty());
+            response.put("shortageItems", shortageItems);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        }
     }
 
     // -------------------- MEDICINE LIST --------------------

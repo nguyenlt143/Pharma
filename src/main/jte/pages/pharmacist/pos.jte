@@ -125,9 +125,9 @@
 
                         <div class="form-group">
                             <label class="form-label">Phương thức thanh toán</label>
-                            <select class="form-select">
-                                <option>Tiền mặt</option>
-                                <option>Chuyển khoản</option>
+                            <select class="form-select" id="payment-method">
+                                <option value="cash">Tiền mặt</option>
+                                <option value="transfer">Chuyển khoản</option>
                             </select>
                         </div>
 

@@ -12,6 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.pharma.config.CustomUserDetails;
 import vn.edu.fpt.pharma.dto.DataTableRequest;
@@ -22,8 +23,6 @@ import vn.edu.fpt.pharma.dto.reveuce.RevenueVM;
 import vn.edu.fpt.pharma.service.InvoiceDetailService;
 import vn.edu.fpt.pharma.service.RevenueService;
 import vn.edu.fpt.pharma.util.StringUtils;
-
-import java.util.List;
 
 @Slf4j
 @Controller
@@ -70,13 +69,41 @@ public class RevenueController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/all/revenue/detail/view")
+    public String revenueDetailPage(
+            @RequestParam("period") String period,
+            Model model) {
+
+        model.addAttribute("period", period);
+        return "pages/pharmacist/revenue_details";
+    }
+
     @GetMapping("/all/revenue/detail")
-    public String detail(Model model){
+    public Object getDetailRevenue(
+            @RequestParam("period") String period,
+            HttpServletRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
-        List<RevenueDetailVM> revenueDetailVMS = invoiceDetailService.getRevenueDetail(userDetails.getId(), 2025, 11);
-        model.addAttribute("revenueDetailVMS", revenueDetailVMS);
-        return "pages/pharmacist/revenue_detail";
+        Long userId = userDetails.getId();
+        String[] parts;
+        if (period.contains("/")) {
+            parts = period.split("/");
+        } else if (period.contains("-")) {
+            parts = period.split("-");
+        } else {
+            return ResponseEntity.badRequest().body("Invalid period format");
+        }
+        int year = Integer.parseInt(parts[0]);
+        int month = Integer.parseInt(parts[1]);
+
+        if (year < 100) {
+            int tmp = year;
+            year = month;
+            month = tmp;
+        }
+        DataTableRequest reqDto = DataTableRequest.fromParams(request.getParameterMap());
+        DataTableResponse<RevenueDetailVM> response = revenueService.ViewRevenuesDetail(reqDto, userId, year, month);
+        return ResponseEntity.ok(response);
     }
 
 
@@ -87,6 +114,28 @@ public class RevenueController {
         Long userId = userDetails.getId();
         DataTableRequest reqDto = DataTableRequest.fromParams(request.getParameterMap());
         DataTableResponse<RevenueShiftVM> response = revenueService.getRevenueShiftSummary(reqDto, userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/all/shift/detail/view")
+    public String shiftDetailPage(
+            @RequestParam("shiftName") String shiftName,
+            Model model) {
+
+        model.addAttribute("shiftName", shiftName);
+        return "pages/pharmacist/shift_details";
+    }
+
+    @GetMapping("/all/shift/detail")
+    public Object getDetailShift(
+            @RequestParam("shiftName") String shiftName,
+            HttpServletRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        Long userId = userDetails.getId();
+
+        DataTableRequest reqDto = DataTableRequest.fromParams(request.getParameterMap());
+        DataTableResponse<RevenueDetailVM> response = revenueService.ViewShiftDetail(reqDto, userId, shiftName);
         return ResponseEntity.ok(response);
     }
 }

@@ -32,21 +32,21 @@ public class InvoiceDetailServiceImpl extends BaseServiceImpl<InvoiceDetail, Lon
                 ))
                 .collect(Collectors.toList());
     }
-    @Override
-    public List<RevenueDetailVM> getRevenueDetail(Long userId, Integer year, Integer month) {
-        List<Object[]> rows = repository.getMedicineRevenueByMonth(userId, year, month);
-
-        return rows.stream()
-                .map(r -> new RevenueDetailVM(
-                        (String) r[0],
-                        ((Number) r[1]).longValue(),
-                        (String) r[2],
-                        (String) r[3],
-                        (String) r[4],
-                        (String) r[5],
-                        ((Number) r[6]).doubleValue(),
-                        ((Number) r[7]).doubleValue()
-                ))
-                .collect(Collectors.toList());
-    }
+//    @Override
+//    public List<RevenueDetailVM> getRevenueDetail(Long userId, Integer year, Integer month) {
+//        List<Object[]> rows = repository.getMedicineRevenueByMonth(userId, year, month);
+//
+//        return rows.stream()
+//                .map(r -> new RevenueDetailVM(
+//                        (String) r[0],
+//                        ((Number) r[1]).longValue(),
+//                        (String) r[2],
+//                        (String) r[3],
+//                        (String) r[4],
+//                        (String) r[5],
+//                        ((Number) r[6]).doubleValue(),
+//                        ((Number) r[7]).doubleValue()
+//                ))
+//                .collect(Collectors.toList());
+//    }
 }

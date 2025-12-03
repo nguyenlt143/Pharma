@@ -210,6 +210,7 @@ function addInventoryItemClickListeners() {
 
                     salePrice: salePrice,
                     currentPrice: salePrice,
+                    unitPrice: salePrice,
                     quantity: 1,
 
                     maxQuantity: maxQuantity,
@@ -393,7 +394,7 @@ if (paymentButton) {
     const phoneNumber = phoneInput.value.trim();
     const paymentAmount = parseFloat(paymentAmountInput.value.trim()) || 0;
     const paymentMethod = paymentMethodSelect.value;
-    const notes = notesTextarea.value.trim();
+    const note= notesTextarea.value.trim();
 
         const totalAmount = getTotalAmount();
 
@@ -414,7 +415,7 @@ if (paymentButton) {
       totalAmount,
       change: paymentAmount - totalAmount,
       paymentMethod,
-      notes,
+      note,
       items: prescriptionItems
     };
 

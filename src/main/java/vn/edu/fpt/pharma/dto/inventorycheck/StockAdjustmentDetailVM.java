@@ -29,10 +29,17 @@ public class StockAdjustmentDetailVM {
     public StockAdjustmentDetailVM(StockAdjustment entity) {
         this.id = entity.getId();
 
-        // TODO: Cần join với MedicineVariant và Medicine để lấy tên đầy đủ
+        // Get full medicine name from joined entities
         // Format: medicine.name + " " + medicineVariant.strength
-        // VD: "Paracetamol 500mg"
-        this.medicineName = "Thuốc #" + (entity.getVariantId() != null ? entity.getVariantId() : "N/A");
+        if (entity.getBatch() != null && entity.getBatch().getVariant() != null) {
+            var variant = entity.getBatch().getVariant();
+            var medicine = variant.getMedicine();
+            String name = medicine != null ? medicine.getName() : "N/A";
+            String strength = variant.getStrength() != null ? variant.getStrength() : "";
+            this.medicineName = name + (strength.isEmpty() ? "" : " " + strength);
+        } else {
+            this.medicineName = "Thuốc #" + (entity.getVariantId() != null ? entity.getVariantId() : "N/A");
+        }
 
         this.batchCode = entity.getBatch() != null
                 ? entity.getBatch().getBatchCode()

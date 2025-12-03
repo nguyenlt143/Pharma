@@ -20,7 +20,7 @@ function renderSelected() {
                 </td>
                 <td class="px-3 py-2 text-center font-semibold text-blue-600">${it.system}</td>
                 <td class="px-3 py-2 text-center">
-                    <input type="number" min="0" value="${it.counted}" class="counted-input w-24 px-2 py-1 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 text-center" />
+                    <input type="number" min="0" max="${it.system}" value="${it.counted}" class="counted-input w-24 px-2 py-1 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 text-center" title="Không được vượt quá số tồn kho" />
                 </td>
                 <td class="px-3 py-2 text-center ${diffClass}">${diff}</td>
                 <td class="px-3 py-2 text-center">
@@ -33,7 +33,16 @@ function renderSelected() {
 
         row.find('.counted-input').on('input', function() {
             let val = parseInt($(this).val());
-            if (isNaN(val) || val < 0) val = 0;
+            if (isNaN(val) || val < 0) {
+                val = 0;
+                $(this).val(0);
+            }
+            // Validate: không được vượt quá số tồn hệ thống
+            if (val > it.system) {
+                alert(`Số lượng kiểm không được vượt quá số tồn hệ thống (${it.system})`);
+                val = it.system;
+                $(this).val(val);
+            }
             it.counted = val;
             renderSelected();
         });
@@ -144,13 +153,37 @@ $(document).ready(function() {
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(payload),
-            success: function() {
-                alert('Kiểm kho thành công!');
-                window.location.href = '/inventory/check';
+            success: function(response) {
+                if (response.success) {
+                    if (response.hasShortage && response.shortageItems.length > 0) {
+                        // Có thiếu hụt - hỏi người dùng có muốn tạo phiếu trả không
+                        const confirmMsg = `Kiểm kho hoàn tất!\n\nPhát hiện ${response.shortageItems.length} loại thuốc bị thiếu.\nBạn có muốn tạo phiếu trả hàng cho số thuốc thiếu không?`;
+
+                        if (confirm(confirmMsg)) {
+                            // Lưu shortage data vào sessionStorage và chuyển sang trang tạo phiếu trả
+                            sessionStorage.setItem('shortageData', JSON.stringify(response.shortageItems));
+                            window.location.href = '/inventory/return/create';
+                        } else {
+                            // Không tạo phiếu trả, quay về danh sách kiểm kho
+                            window.location.href = '/inventory/check';
+                        }
+                    } else {
+                        // Không có thiếu hụt
+                        alert('Kiểm kho thành công! Không phát hiện thiếu hụt.');
+                        window.location.href = '/inventory/check';
+                    }
+                }
             },
             error: function(xhr) {
                 console.error('Error:', xhr);
-                alert('Lỗi kiểm kho: ' + (xhr.responseText || 'Vui lòng thử lại'));
+                let errorMsg = 'Vui lòng thử lại';
+                try {
+                    const errorResponse = JSON.parse(xhr.responseText);
+                    errorMsg = errorResponse.message || errorMsg;
+                } catch(e) {
+                    errorMsg = xhr.responseText || errorMsg;
+                }
+                alert('Lỗi kiểm kho: ' + errorMsg);
                 $btn.prop('disabled', false).removeClass('opacity-50');
             }
         });

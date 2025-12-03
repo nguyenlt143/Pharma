@@ -102,7 +102,7 @@ public class InvoiceServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
             detail.setInvoice(invoice);
             detail.setInventory(inventory);
             detail.setQuantity(itemReq.getQuantity());
-            detail.setPrice(itemReq.getUnitPrice());
+            detail.setPrice(itemReq.getUnitPrice() * itemReq.getSelectedMultiplier());
 
             invoiceDetailRepository.save(detail);
         }

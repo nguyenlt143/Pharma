@@ -86,13 +86,15 @@ VALUES
 (3, '07:00:00', '11:30:00', 'Ca sáng Hà Nội', 'Ca sáng tại chi nhánh Hà Nội', NOW(), FALSE),
 (3, '13:00:00', '17:30:00', 'Ca chiều Hà Nội', 'Ca chiều tại chi nhánh Hà Nội', NOW(), FALSE),
 
+
 -- Chi nhánh TP.HCM (branch_id = 4)
 (4, '07:00:00', '11:30:00', 'Ca sáng TP.HCM', 'Ca sáng tại chi nhánh TP.HCM', NOW(), FALSE),
 (4, '13:00:00', '17:30:00', 'Ca chiều TP.HCM', 'Ca chiều tại chi nhánh TP.HCM', NOW(), FALSE),
 
 -- Chi nhánh Đà Nẵng (branch_id = 5)
 (5, '07:00:00', '12:00:00', 'Ca sáng Đà Nẵng', 'Ca sáng tại chi nhánh Đà Nẵng', NOW(), FALSE),
-(5, '13:00:00', '17:30:00', 'Ca chiều Đà Nẵng', 'Ca chiều tại chi nhánh Đà Nẵng', NOW(), FALSE);
+(5, '13:00:00', '17:30:00', 'Ca chiều Đà Nẵng', 'Ca chiều tại chi nhánh Đà Nẵng', NOW(), FALSE),
+(3, '00:00:00', '23:59:59', 'Ca full ngày', 'Ca test chạy full 24 giờ', NOW(), FALSE);
 
 INSERT INTO shift_assignments (user_id, shift_id, created_at, deleted)
 VALUES
@@ -100,6 +102,7 @@ VALUES
     (6, 1, NOW(), FALSE),  -- pharmacist1hn
     (7, 1, NOW(), FALSE),  -- pharmacist2hn
     (8, 2, NOW(), FALSE),-- pharmacist3hn
+
     -- TP.HCM branch (branch_id = 4)
     (11, 3, NOW(), FALSE), -- pharmacist1hcm
     (12, 3, NOW(), FALSE), -- pharmacist2hcm
@@ -108,6 +111,7 @@ VALUES
     (16, 5, NOW(), FALSE), -- pharmacist1dn
     (17, 5, NOW(), FALSE), -- pharmacist2dn
     (18, 6, NOW(), FALSE);
+    (6, 7, NOW(), FALSE);
 
 INSERT INTO shift_works (assignment_id, work_date, created_at, deleted)
 VALUES
@@ -128,7 +132,9 @@ VALUES
 -- TP. Đà Nẵng
 (7, NOW(),                           NOW(), FALSE),
 (8, NOW(),                           NOW(), FALSE),
-(9, NOW(),                           NOW(), FALSE);
+(9, NOW(),                           NOW(), FALSE),
+(10, CURDATE(), NOW(), FALSE),                        -- hôm nay
+(10, DATE_ADD(CURDATE(), INTERVAL 1 DAY), NOW(), FALSE);
 
 INSERT INTO units (name, description, created_at, deleted)
 VALUES ('Viên', 'Dạng đơn vị thuốc nhỏ nhất, thường dùng cho thuốc viên nén hoặc viên nang', NOW(), FALSE),

@@ -59,9 +59,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function viewDetail(variantId, batchId) {
-    alert(`Xem chi tiết:\nVariant ID: ${variantId}\nBatch ID: ${batchId}\n\n(Chức năng chi tiết sẽ được triển khai sau)`);
-    // TODO: Navigate to detail page or show modal
-    // window.location.href = `/inventory/medicine/detail?variantId=${variantId}&batchId=${batchId}`;
-}
 
