@@ -3,6 +3,7 @@
 @param Content content
 @param Content headContent
 @param Content pageScript
+@param String active = ""
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -26,28 +27,28 @@
         <nav class="sidebar-nav">
             <ul class="nav-list">
                 <li class="nav-item">
-                    <a href="/warehouse/receipt/create" class="nav-link">
+                    <a href="/warehouse/receipt/create" class="nav-link ${active.equals("receipt-create") ? "active" : ""}">
                         <span class="nav-text">Tạo phiếu nhập</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/warehouse/receipt-list" class="nav-link">
+                    <a href="/warehouse/receipt-list" class="nav-link ${active.equals("receipt-list") ? "active" : ""}">
                         <span class="nav-text">Danh sách phiếu</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/warehouse/request/list" class="nav-link">
+                    <a href="/warehouse/request/list" class="nav-link ${active.equals("request-list") ? "active" : ""}">
                         <span class="nav-text">Danh sách yêu cầu</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/warehouse/inventory" class="nav-link">
+                    <a href="/warehouse/" class="nav-link ${active.equals("check") ? "active" : ""}">
                         <span class="nav-text">Kiểm kê tồn kho</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/warehouse/expiry" class="nav-link">
-                        <span class="nav-text">Hàng sắp hết hạn</span>
+                    <a href="/warehouse/inventory" class="nav-link ${active.equals("inventory") ? "active" : ""}">
+                        <span class="nav-text">Danh sách thuốc tồn kho</span>
                     </a>
                 </li>
             </ul>

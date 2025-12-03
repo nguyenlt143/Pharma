@@ -20,6 +20,8 @@ import vn.edu.fpt.pharma.entity.Branch;
 import vn.edu.fpt.pharma.service.BranchService;
 import vn.edu.fpt.pharma.service.InventoryMovementService;
 import vn.edu.fpt.pharma.service.RequestFormService;
+import vn.edu.fpt.pharma.service.InventoryService;
+import vn.edu.fpt.pharma.dto.inventory.InventoryMedicineVM;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +34,7 @@ public class WarehouseController {
     private final InventoryMovementService inventoryMovementService;
     private final BranchService branchService;
     private final RequestFormService requestFormService;
+    private final InventoryService inventoryService;
     @GetMapping("/receipt/create")
     public String receiptCreate(Model model) {
         // Tạo ViewModel rỗng cho form mới
@@ -107,8 +110,14 @@ public class WarehouseController {
 
     @GetMapping("/inventory")
     public String warehouseInventory(Model model) {
+        // Load medicines from central warehouse (branchId = 1)
+        List<InventoryMedicineVM> medicines = inventoryService.getInventoryMedicinesByBranch(1L);
 
-        return "pages/warehouse/warehouse_manage";
+        model.addAttribute("medicines", medicines);
+        model.addAttribute("branchId", 1L);
+        model.addAttribute("branchName", "Kho Tổng");
+
+        return "pages/warehouse/warehouse_inventory";
     }
 
     @GetMapping("/export/create")
