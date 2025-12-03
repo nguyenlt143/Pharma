@@ -86,7 +86,7 @@
     </aside>
 
     <!-- Nội dung trang con -->
-    <main class="main-content">
+    <main class="page-wrapper">
         ${content}
     </main>
 </div>

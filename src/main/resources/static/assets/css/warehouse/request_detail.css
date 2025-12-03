@@ -12,11 +12,7 @@ body {
 }
 
 .overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    min-height: 100vh;
     background-color: #F9FAFB;
     display: flex;
     align-items: center;
@@ -62,6 +58,7 @@ body {
     align-items: center;
     justify-content: center;
     transition: background-color 0.2s;
+    text-decoration: none;
 }
 
 .close-button:hover {
