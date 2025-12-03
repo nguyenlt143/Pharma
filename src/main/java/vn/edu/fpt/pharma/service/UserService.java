@@ -14,6 +14,7 @@ public interface UserService extends BaseService<User, Long> {
     List<UserDto> getStaffs(Long branchId);
     List<UserDto> getStaffsActive(Long branchId);
     List<UserDto> getPharmacists(Long branchId);
+    List<UserDto> getAccountsByRoles(List<Long> roleIds, boolean showDeleted);
     UserDto getById(Long id);
     UserDto create(UserRequest req);
     UserDto update(Long id, UserRequest req);

@@ -30,6 +30,10 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
         return findStaffByRolesAndBranch(List.of(6L), branchId, false);
     }
 
+    // Query for admin to manage high-level accounts (OWNER, MANAGER, WAREHOUSE) without branch constraint
+    @Query(value = "SELECT * FROM users u WHERE u.role_id IN (:roleIds) AND (:includeDeleted = true OR u.deleted = false)", nativeQuery = true)
+    List<User> findAccountsByRoles(@Param("roleIds") List<Long> roleIds, @Param("includeDeleted") boolean includeDeleted);
+
     boolean existsByUserNameIgnoreCase(String userName);
 
     boolean existsByEmailIgnoreCase(String email);
@@ -41,6 +45,10 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END FROM User u WHERE u.phoneNumber = :phone AND u.id <> :excludeId")
     boolean existsByPhoneNumberAndIdNot(@Param("phone") String phone, @Param("excludeId") Long excludeId);
+
+    // Check if a branch already has an active manager
+    @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END FROM User u WHERE u.role.id = :roleId AND u.branchId = :branchId AND u.deleted = false")
+    boolean existsByRoleIdAndBranchIdAndDeletedFalse(@Param("roleId") Long roleId, @Param("branchId") Long branchId);
 
     Optional<User> findById(long id);
 
