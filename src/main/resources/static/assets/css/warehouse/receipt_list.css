@@ -14,7 +14,7 @@ body {
     max-width: 1400px;
     margin: 0 auto;
     margin-left: calc(286px + (100vw - 286px - 1400px) / 2);
-    padding: 20px;
+    padding: 16px 20px;
 }
 
 @media (min-width: 1687px) {
@@ -34,7 +34,7 @@ body {
 .main-content {
     background-color: #ffffff;
     border-radius: 12px;
-    padding: 30px;
+    padding: 45px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -220,7 +220,7 @@ body {
 
 .table-container {
     width: 100%;
-    max-height: 600px;
+    max-height: 650px;
     overflow-y: auto;
     border-radius: 8px;
     border: 1px solid #e0e0e0;
