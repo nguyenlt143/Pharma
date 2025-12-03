@@ -20,10 +20,11 @@ body {
     width: 100%;
     max-width: 960px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 16px 20px;
     display: flex;
     flex-direction: column;
 }
+
 
 /* Header Section */
 .header {
@@ -51,7 +52,7 @@ body {
 
 /* Search Section */
 .search-section {
-    margin: 12px 0;
+    margin: 10px 0;
 }
 
 .search-container {
@@ -59,15 +60,15 @@ body {
     align-items: center;
     background-color: #E7ECF4;
     border-radius: 8px;
-    padding: 0 8px;
-    height: 48px;
-    gap: 8px;
+    padding: 0 12px;
+    height: 56px;
+    gap: 10px;
 }
 
 .search-icon img,
 .search-input img {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
 }
 
 /* Tab Section */
@@ -109,7 +110,7 @@ body {
 
 /* Filter Section */
 .filter-section {
-    margin: 12px 0;
+    margin: 10px 0;
 }
 
 .filter-container {
@@ -121,15 +122,16 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 0 12px;
-    height: 32px;
+    gap: 10px;
+    padding: 0 16px;
+    height: 40px;
     background-color: #E7ECF4;
     border: none;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s;
-    font-size: 14px;
+    font-size: 16px;
+    font-weight: 500;
     color: #0D131C;
 }
 
@@ -138,13 +140,13 @@ body {
 }
 
 .filter-icon {
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
 }
 
 /* Table Section */
 .table-section {
-    margin: 12px 0;
+    margin: 10px 0;
 }
 
 .table-container {
@@ -191,10 +193,10 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 4px 12px;
+    padding: 6px 16px;
     border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 15px;
+    font-weight: 600;
     color: #fff;
 }
 
@@ -218,6 +220,8 @@ body {
 .detail-link {
     color: #007bff;
     text-decoration: none;
+    font-size: 15px;
+    font-weight: 600;
 }
 
 .detail-link:hover {
@@ -225,12 +229,6 @@ body {
 }
 
 /* Responsive */
-@media (max-width: 1280px) {
-    .container {
-        padding: 20px 40px;
-    }
-}
-
 @media (max-width: 768px) {
     .container {
         padding: 20px;
@@ -258,3 +256,10 @@ body {
         flex-direction: column;
     }
 }
+
+@media (max-width: 480px) {
+    .container {
+        padding: 16px;
+    }
+}
+

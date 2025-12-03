@@ -12,95 +12,14 @@ body {
     color: #111827;
 }
 
-.app-container {
-    display: flex;
-    min-height: 100vh;
-}
-
-/* Sidebar Styles */
-.sidebar {
-    width: 286px;
-    background-color: #0F172A;
-    color: #FFFFFF;
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    height: 100vh;
-    left: 0;
-    top: 0;
-}
-
-.sidebar-header {
-    padding: 16px 16px 17px;
-    border-bottom: 1px solid #374151;
-}
-
-.sidebar-title {
-    font-family: 'Roboto', sans-serif;
-    font-weight: 700;
-    font-size: 20px;
-    line-height: 28px;
-    color: #FFFFFF;
-}
-
-.sidebar-nav {
-    flex: 1;
-}
-
-.nav-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.nav-item {
-    margin: 0;
-}
-
-.nav-item.active {
-    background-color: #2563EB;
-    border-radius: 6px;
-    margin: 0 8px;
-}
-
-.nav-link {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    color: #FFFFFF;
-    text-decoration: none;
-    font-family: 'Roboto', sans-serif;
-    font-size: 16px;
-    line-height: 24px;
-    transition: background-color 0.2s;
-}
-
-.nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
-}
-
-.nav-item.active .nav-link:hover {
-    background-color: transparent;
-}
-
-.nav-icon {
-    width: 24px;
-    height: 24px;
-    object-fit: contain;
-}
-
-/* Main Content */
+/* Main Content - Note: sidebar and page-wrapper are handled by sidebar.css and warehouse.jte layout */
 .main-content {
-    flex: 1;
-    margin-left: 286px;
-    padding: 0;
+    padding: 0 0 80px 0;
     background-color: #F7F7F9;
 }
 
 .page-header {
-    padding: 98px 0 0 25px;
+    padding: 32px 32px 0 24px;
     background-color: #F7F7F9;
 }
 
@@ -109,26 +28,26 @@ body {
     font-size: 20px;
     line-height: 28px;
     color: #111827;
-    margin-bottom: 54px;
+    margin-bottom: 24px;
 }
 
 /* Form Section */
 .form-section {
-    padding: 0 25px;
-    margin-bottom: 92px;
+    padding: 0 32px 0 24px;
+    margin-bottom: 24px;
 }
 
 .form-container {
     background-color: #FFFFFF;
     border-radius: 8px;
-    padding: 20px 57px 32px;
+    padding: 24px;
     box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .form-row {
     display: flex;
-    gap: 12px;
-    margin-bottom: 23px;
+    gap: 16px;
+    margin-bottom: 16px;
 }
 
 .form-row:last-child {
@@ -209,7 +128,7 @@ body {
 
 /* Product Section */
 .product-section {
-    padding: 0 25px;
+    padding: 0 32px 0 24px;
     margin-bottom: 24px;
 }
 
@@ -286,12 +205,15 @@ body {
 /* Table Styles */
 .table-container {
     overflow-x: auto;
+    margin: 0 -24px;
+    padding: 0 24px;
 }
 
 .product-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 14px;
+    table-layout: auto;
 }
 
 .product-table th {
@@ -303,6 +225,60 @@ body {
     text-transform: uppercase;
     color: #6B7280;
     border-bottom: 1px solid #E5E7EB;
+    white-space: nowrap;
+}
+
+/* Column width optimization */
+.product-table th:nth-child(1),
+.product-table td:nth-child(1) {
+    width: 50px;
+    text-align: center;
+}
+
+.product-table th:nth-child(2),
+.product-table td:nth-child(2) {
+    min-width: 200px;
+}
+
+.product-table th:nth-child(3),
+.product-table td:nth-child(3) {
+    width: 80px;
+}
+
+.product-table th:nth-child(4),
+.product-table td:nth-child(4) {
+    width: 120px;
+}
+
+.product-table th:nth-child(5),
+.product-table td:nth-child(5) {
+    width: 100px;
+}
+
+.product-table th:nth-child(6),
+.product-table td:nth-child(6) {
+    width: 110px;
+}
+
+.product-table th:nth-child(7),
+.product-table td:nth-child(7) {
+    width: 110px;
+}
+
+.product-table th:nth-child(8),
+.product-table td:nth-child(8) {
+    width: 100px;
+}
+
+.product-table th:nth-child(9),
+.product-table td:nth-child(9) {
+    width: 120px;
+}
+
+.product-table th:nth-child(10),
+.product-table td:nth-child(10) {
+    width: 50px;
+    text-align: center;
 }
 
 .product-table td {
@@ -623,13 +599,6 @@ body {
 }
 
 @media (max-width: 768px) {
-    .sidebar {
-        width: 250px;
-    }
-
-    .main-content {
-        margin-left: 250px;
-    }
 
     .form-row {
         flex-direction: column;
@@ -652,13 +621,6 @@ body {
 }
 
 @media (max-width: 480px) {
-    .sidebar {
-        width: 200px;
-    }
-
-    .main-content {
-        margin-left: 200px;
-    }
 
     .page-header {
         padding-left: 16px;

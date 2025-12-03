@@ -21,9 +21,9 @@ content = @`
             <!-- HEADER -->
             <header class="modal-header">
                 <h1 class="modal-title">Chi Tiết Yêu Cầu</h1>
-                <button class="close-button" onclick="closeModal()">
+                <a href="/warehouse/request/list" class="close-button">
                     <span class="material-icons">close</span>
-                </button>
+                </a>
             </header>
 
             <!-- GENERAL INFO -->
