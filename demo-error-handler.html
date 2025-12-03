@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo: Error Handler & Toast Notification</title>
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-600: #059669;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .demo-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #1f2937;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+
+        .demo-section {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .demo-section h2 {
+            color: #374151;
+            font-size: 18px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-600);
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
+        .btn-info {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #2563eb;
+        }
+
+        .code-block {
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-x: auto;
+            margin-top: 12px;
+        }
+
+        .code-block pre {
+            margin: 0;
+        }
+
+        /* Toast styling */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #111827;
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 8px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: 0.25s;
+            z-index: 9999;
+            pointer-events: none;
+            max-width: 420px;
+            min-width: 280px;
+            white-space: pre-line;
+            word-wrap: break-word;
+            line-height: 1.5;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .toast.show {
+            opacity: 1 !important;
+            transform: translateY(0);
+            display: block !important;
+        }
+
+        .toast.success {
+            background: #16a34a;
+        }
+
+        .toast.error {
+            background: #dc2626;
+        }
+
+        .toast.hidden {
+            display: none;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 16px;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            color: #4b5563;
+        }
+
+        .feature-list li:before {
+            content: "✅ ";
+            margin-right: 8px;
+        }
+
+        .note {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-top: 20px;
+            color: #92400e;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1>🎨 Error Handler Demo</h1>
+        <p class="subtitle">Demo xử lý và hiển thị lỗi validation với toast notification</p>
+
+        <!-- Toast Types -->
+        <div class="demo-section">
+            <h2>1. Toast Notification Types</h2>
+            <button class="btn btn-primary" onclick="showSuccess()">Success Toast</button>
+            <button class="btn btn-danger" onclick="showError()">Error Toast</button>
+            <button class="btn btn-info" onclick="showInfo()">Info Toast</button>
+
+            <div class="code-block">
+<pre>showToastNotification('Thành công!', 2500, 'success');
+showToastNotification('Có lỗi xảy ra!', 3000, 'error');
+showToastNotification('Thông báo', 2000, 'info');</pre>
+            </div>
+        </div>
+
+        <!-- Validation Errors -->
+        <div class="demo-section">
+            <h2>2. Validation Errors (Multiple Fields)</h2>
+            <button class="btn btn-warning" onclick="showValidationError()">Show Validation Error</button>
+
+            <div class="code-block">
+<pre>// Backend response format
+{
+  "errors": {
+    "userName": "Tên đăng nhập phải từ 4-30 ký tự",
+    "phoneNumber": "Số điện thoại không hợp lệ",
+    "email": "Email không hợp lệ"
+  }
+}
+
+// Frontend hiển thị
+userName: Tên đăng nhập phải từ 4-30 ký tự
+phoneNumber: Số điện thoại không hợp lệ
+email: Email không hợp lệ</pre>
+            </div>
+        </div>
+
+        <!-- Business Logic Error -->
+        <div class="demo-section">
+            <h2>3. Business Logic Error</h2>
+            <button class="btn btn-danger" onclick="showBusinessError()">Show Business Error</button>
+
+            <div class="code-block">
+<pre>// Backend response format
+{
+  "message": "Tên đăng nhập đã tồn tại"
+}
+
+// Frontend hiển thị
+Tên đăng nhập đã tồn tại</pre>
+            </div>
+        </div>
+
+        <!-- Long Message -->
+        <div class="demo-section">
+            <h2>4. Long Error Message</h2>
+            <button class="btn btn-danger" onclick="showLongError()">Show Long Error</button>
+
+            <div class="code-block">
+<pre>// Toast tự động wrap text và xuống dòng
+// Hỗ trợ max-width: 420px</pre>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="demo-section">
+            <h2>✨ Features</h2>
+            <ul class="feature-list">
+                <li>Hiển thị validation errors từng field</li>
+                <li>Hỗ trợ nhiều dòng với <code>white-space: pre-line</code></li>
+                <li>Tự động wrap text dài</li>
+                <li>3 loại toast: success (xanh), error (đỏ), info (xám)</li>
+                <li>Smooth animation với opacity & transform</li>
+                <li>Responsive với max-width & min-width</li>
+            </ul>
+        </div>
+
+        <div class="note">
+            <strong>📝 Note:</strong> Đây là demo frontend only. Trong production, errors sẽ được trả về từ backend API thông qua GlobalExceptionHandler.
+        </div>
+    </div>
+
+    <!-- Toast Element -->
+    <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+    <script>
+        /**
+         * Show toast notification
+         */
+        function showToastNotification(message, timeout = 2500, type = 'info') {
+            const toastEl = document.getElementById('toast');
+
+            if (!toastEl) {
+                console.error('Toast element not found');
+                alert(message);
+                return;
+            }
+
+            toastEl.textContent = message;
+            toastEl.classList.remove('hidden', 'success', 'error', 'show');
+            toastEl.style.display = 'block';
+
+            // Force reflow
+            void toastEl.offsetWidth;
+
+            toastEl.classList.add('show');
+
+            if (type === 'success') {
+                toastEl.classList.add('success');
+            } else if (type === 'error') {
+                toastEl.classList.add('error');
+            }
+
+            setTimeout(() => {
+                toastEl.classList.remove('show');
+                setTimeout(() => {
+                    toastEl.classList.add('hidden');
+                    toastEl.style.display = 'none';
+                }, 250);
+            }, timeout);
+        }
+
+        // Demo functions
+        function showSuccess() {
+            showToastNotification('✅ Tạo tài khoản thành công!', 2500, 'success');
+        }
+
+        function showError() {
+            showToastNotification('❌ Có lỗi xảy ra, vui lòng thử lại!', 3000, 'error');
+        }
+
+        function showInfo() {
+            showToastNotification('ℹ️ Đang xử lý yêu cầu của bạn...', 2000, 'info');
+        }
+
+        function showValidationError() {
+            const message = `userName: Tên đăng nhập phải từ 4-30 ký tự
+phoneNumber: Số điện thoại không hợp lệ
+email: Email không hợp lệ`;
+            showToastNotification(message, 4000, 'error');
+        }
+
+        function showBusinessError() {
+            showToastNotification('Tên đăng nhập đã tồn tại trong hệ thống', 3000, 'error');
+        }
+
+        function showLongError() {
+            const message = `Không thể xóa tài khoản này vì đang được sử dụng trong các ca làm việc, hóa đơn và phiếu nhập kho. Vui lòng kiểm tra và thử lại sau.`;
+            showToastNotification(message, 4500, 'error');
+        }
+
+        // Auto show demo on load
+        setTimeout(() => {
+            showToastNotification('👋 Chào mừng! Click các nút để xem demo', 3000, 'info');
+        }, 500);
+    </script>
+</body>
+</html>
+

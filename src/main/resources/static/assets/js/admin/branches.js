@@ -124,6 +124,11 @@
     async function deleteBranch(id) {
         const res = await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
         if (!res.ok) {
+            const contentType = res.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                const errorData = await res.json();
+                throw new Error(errorData.message || 'Xoá thất bại');
+            }
             const errorText = await res.text();
             throw new Error(errorText || 'Xoá thất bại');
         }

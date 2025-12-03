@@ -195,7 +195,15 @@
 
     async function restoreAccount(id) {
         const res = await fetch(`${API_BASE}/${id}/restore`, { method: 'PATCH' });
-        if (!res.ok) throw new Error('Khôi phục thất bại');
+        if (!res.ok) {
+            const contentType = res.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                const errorData = await res.json();
+                throw new Error(errorData.message || 'Khôi phục thất bại');
+            }
+            const errorText = await res.text();
+            throw new Error(errorText || 'Khôi phục thất bại');
+        }
         return;
     }
 
