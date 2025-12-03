@@ -75,6 +75,15 @@
     border-radius: 6px;
 }
 
+.nav-link.active {
+    background-color: #2563EB;
+    border-radius: 6px;
+}
+
+.nav-link.active:hover {
+    background-color: #2563EB;
+}
+
 .nav-item.active .nav-link:hover {
     background-color: transparent;
 }
