@@ -216,6 +216,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
       AND i.invoice_type = 'PAID'
       AND i.deleted = 0
       AND LOWER(i.payment_method) IN ('tiền mặt', 'cash', 'chuyển khoản', 'transfer')
+      AND DATE(sw.work_date) = DATE(NOW())
     GROUP BY s.id, s.name, s.start_time
     ORDER BY s.start_time;
     """, nativeQuery = true)

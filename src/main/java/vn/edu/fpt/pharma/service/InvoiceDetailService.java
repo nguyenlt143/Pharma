@@ -10,5 +10,5 @@ import java.util.List;
 public interface InvoiceDetailService extends BaseService<InvoiceDetail, Long> {
     List<MedicineItemVM> getListMedicine(Long invoiceId);
 
-    List<RevenueDetailVM> getRevenueDetail(Long userId, Integer year, Integer month);
+//    List<RevenueDetailVM> getRevenueDetail(Long userId, Integer year, Integer month);
 }

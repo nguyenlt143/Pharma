@@ -14,15 +14,17 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
-
-    <table id="shiftTable" class="table table-striped">
+    <table id="revenueDetailTable" class="table table-striped">
         <thead>
         <tr>
-            <th>Thời gian</th>
-            <th>Tổng số đơn</th>
-            <th>Tiền mặt</th>
-            <th>Chuyển khoản</th>
-            <th>Doanh thu</th>
+            <th>Tên thuốc</th>
+            <th>Đơn vị</th>
+            <th>Số lô</th>
+            <th>Nhà sản xuất</th>
+            <th>Quốc gia</th>
+            <th>Số lượng</th>
+            <th>Giá</th>
+            <th>Thành tiền</th>
         </tr>
         </thead>
         <tbody></tbody>
@@ -30,39 +32,42 @@
 
     <script>
         $(document).ready(function () {
-            const table = $('#shiftTable').DataTable({
+            const table = $('#revenueDetailTable').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: '/pharmacist/all/shift',
+                    url: '/pharmacist/all/shift/detail',
                     type: 'GET',
+                    data: function (d) {
+                        d.shiftName = new URLSearchParams(window.location.search).get("shiftName");
+                    },
                     dataSrc: 'data'
                 },
                 columns: [
-                    { data: 'shiftName', title: 'Ca làm việc' },
-                    { data: 'orderCount', title: 'Tổng số đơn' },
-                    { data: 'cashTotal', title: 'Tiền mặt', render: $.fn.dataTable.render.number(',', '.', 0, '') },
-                    { data: 'transferTotal', title: 'Chuyển khoản', render: $.fn.dataTable.render.number(',', '.', 0, '') },
-                    { data: 'totalRevenue', title: 'Doanh thu', render: $.fn.dataTable.render.number(',', '.', 0, '') },
+                    { data: 'drugName', title: 'Tên thuốc' },
+                    { data: 'unit', title: 'Đơn vị' },
+                    { data: 'batch', title: 'Số lô' },
+                    { data: 'manufacturer', title: 'Nhà sản xuất' },
+                    { data: 'country', title: 'Quốc gia' },
+                    { data: 'quantity', title: 'Số lượng' },
                     {
-                        data: 'shiftName',
-                        orderable: false,
-                        searchable: false,
-                        render: function(shiftName) {
-                            return '<a href="/pharmacist/all/shift/detail/view?shiftName=' + shiftName + '" ' +
-                                   'class="btn btn-sm btn-primary">' +
-                                   '<i class="bi bi-eye"></i> Xem chi tiết' +
-                                   '</a>';
-                        }
-                     }
+                        data: 'price',
+                        title: 'Giá',
+                        render: $.fn.dataTable.render.number(',', '.', 2)
+                    },
+                    {
+                        data: 'totalAmount',
+                        title: 'Thành tiền',
+                        render: $.fn.dataTable.render.number(',', '.', 2)
+                    }
                 ],
                 paging: true,
                 searching: true,
                 ordering: true,
-                pageLength: 2,
+                pageLength: 5,
                 scrollCollapse: true,
                 scrollY: '65vh',
-                order: [[0, 'asc']],
+                order: [[0, "asc"]],
                 language: {
                     search: "Tìm kiếm:",
                     lengthMenu: "Hiển thị _MENU_ dòng",
@@ -77,6 +82,6 @@
                 }
             });
         });
-
     </script>
+
 `)

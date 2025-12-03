@@ -15,7 +15,7 @@
         </div>
     @endif
 
-    <table id="invoiceTable" class="table table-striped">
+    <table id="revenueTable" class="table table-striped">
         <thead>
         <tr>
             <th>Thời gian</th>
@@ -29,7 +29,7 @@
 
     <script>
         $(document).ready(function () {
-            const table = $('#invoiceTable').DataTable({
+            const table = $('#revenueTable').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -47,7 +47,7 @@
                         orderable: false,
                         searchable: false,
                         render: function(period) {
-                            return '<a href="/pharmacist/all/revenue/detail?period=' + period + '" ' +
+                            return '<a href="/pharmacist/all/revenue/detail/view?period=' + period + '" ' +
                                    'class="btn btn-sm btn-primary">' +
                                    '<i class="bi bi-eye"></i> Xem chi tiết' +
                                    '</a>';

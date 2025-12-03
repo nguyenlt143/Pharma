@@ -36,7 +36,6 @@ content = @`
                             <td class="table-cell data-cell drug-name">${revenueDetailVMS.get(i).drugName()}</td>
                             <td class="table-cell data-cell">${revenueDetailVMS.get(i).quantity()}</td>
                             <td class="table-cell data-cell">Viên</td>
-                            <td class="table-cell data-cell">${revenueDetailVMS.get(i).activeIngredient()}</td>
                             <td class="table-cell data-cell">${revenueDetailVMS.get(i).manufacturer()}</td>
                             <td class="table-cell data-cell">${revenueDetailVMS.get(i).country()}</td>
                             <td class="table-cell data-cell">${String.format("%,.0f", revenueDetailVMS.get(i).price())}</td>
