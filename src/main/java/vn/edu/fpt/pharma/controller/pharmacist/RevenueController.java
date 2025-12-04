@@ -85,8 +85,56 @@ public class RevenueController {
             return "redirect:/pharmacist/revenues";
         }
 
-        if (!period.matches("^\\d{2,4}[/-]\\d{1,2}$")) {
-            redirectAttributes.addFlashAttribute("error", "Định dạng kỳ báo cáo không hợp lệ (VD: 2023/12 hoặc 2023-12)");
+        // Accept both MM/YYYY and YYYY/MM formats
+        if (!period.matches("^\\d{1,4}[/-]\\d{1,4}$")) {
+            redirectAttributes.addFlashAttribute("error", "Định dạng kỳ báo cáo không hợp lệ (VD: 12/2024 hoặc 2024-12)");
+            return "redirect:/pharmacist/revenues";
+        }
+
+        // Validate period parts exist
+        String[] parts;
+        if (period.contains("/")) {
+            parts = period.split("/");
+        } else if (period.contains("-")) {
+            parts = period.split("-");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Định dạng kỳ báo cáo không hợp lệ");
+            return "redirect:/pharmacist/revenues";
+        }
+
+        if (parts.length != 2) {
+            redirectAttributes.addFlashAttribute("error", "Định dạng kỳ báo cáo không hợp lệ");
+            return "redirect:/pharmacist/revenues";
+        }
+
+        try {
+            int part1 = Integer.parseInt(parts[0]);
+            int part2 = Integer.parseInt(parts[1]);
+
+            // Determine which is month and which is year
+            int month, year;
+            if (part1 > 12 || (part2 <= 12 && part2 > 0 && part1 > 1900)) {
+                // part1 is year, part2 is month
+                year = part1;
+                month = part2;
+            } else {
+                // part1 is month, part2 is year
+                month = part1;
+                year = part2;
+            }
+
+            // Validation
+            if (year < 2000 || year > 2100) {
+                redirectAttributes.addFlashAttribute("error", "Năm không hợp lệ (2000-2100)");
+                return "redirect:/pharmacist/revenues";
+            }
+            if (month < 1 || month > 12) {
+                redirectAttributes.addFlashAttribute("error", "Tháng không hợp lệ (1-12)");
+                return "redirect:/pharmacist/revenues";
+            }
+
+        } catch (NumberFormatException e) {
+            redirectAttributes.addFlashAttribute("error", "Định dạng kỳ báo cáo không hợp lệ");
             return "redirect:/pharmacist/revenues";
         }
 
