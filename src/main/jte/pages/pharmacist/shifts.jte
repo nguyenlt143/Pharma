@@ -29,8 +29,9 @@
                     <thead>
                         <tr>
                             <th>Tên ca</th>
-                            <th>Thời gian</th>
-                            <th>Doanh thu</th>
+                            <th>Tiền mặt</th>
+                            <th>Chuyển khoản</th>
+                            <th>Tổng doanh thu</th>
                             <th>Số đơn hàng</th>
                             <th>Hành động</th>
                         </tr>
@@ -56,9 +57,21 @@
             columns: [
                 { data: 'shiftName' },
                 {
-                    data: 'timeRange',
+                    data: 'cashTotal',
                     render: function(data) {
-                        return data || 'N/A';
+                        return new Intl.NumberFormat('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND'
+                        }).format(data);
+                    }
+                },
+                {
+                    data: 'transferTotal',
+                    render: function(data) {
+                        return new Intl.NumberFormat('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND'
+                        }).format(data);
                     }
                 },
                 {
@@ -70,7 +83,7 @@
                         }).format(data);
                     }
                 },
-                { data: 'totalOrders' },
+                { data: 'orderCount' },
                 {
                     data: 'shiftName',
                     render: function(data) {

@@ -30,8 +30,8 @@
                         <tr>
                             <th>Kỳ báo cáo</th>
                             <th>Doanh thu</th>
-                            <th>Số đơn hàng</th>
-                            <th>Trung bình/đơn</th>
+                            <th>Số hóa đơn</th>
+                            <th>Số khách hàng</th>
                             <th>Hành động</th>
                         </tr>
                     </thead>
@@ -64,16 +64,8 @@
                         }).format(data);
                     }
                 },
-                { data: 'totalOrders' },
-                {
-                    data: 'averagePerOrder',
-                    render: function(data) {
-                        return new Intl.NumberFormat('vi-VN', {
-                            style: 'currency',
-                            currency: 'VND'
-                        }).format(data);
-                    }
-                },
+                { data: 'totalInvoice' },
+                { data: 'totalCustomer' },
                 {
                     data: 'period',
                     render: function(data) {

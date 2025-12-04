@@ -32,10 +32,14 @@
                 <table id="revenueDetailTable" class="display table">
                     <thead>
                         <tr>
-                            <th>Ngày</th>
-                            <th>Số hóa đơn</th>
-                            <th>Doanh thu</th>
-                            <th>Tỷ suất lợi nhuận</th>
+                            <th>Tên thuốc</th>
+                            <th>Đơn vị</th>
+                            <th>Lô sản xuất</th>
+                            <th>Hãng sản xuất</th>
+                            <th>Xuất xứ</th>
+                            <th>Số lượng</th>
+                            <th>Giá bán</th>
+                            <th>Thành tiền</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -60,15 +64,14 @@
                 }
             },
             columns: [
+                { data: 'drugName' },
+                { data: 'unit' },
+                { data: 'batch' },
+                { data: 'manufacturer' },
+                { data: 'country' },
+                { data: 'quantity' },
                 {
-                    data: 'date',
-                    render: function(data) {
-                        return new Date(data).toLocaleDateString('vi-VN');
-                    }
-                },
-                { data: 'invoiceCount' },
-                {
-                    data: 'totalAmount',
+                    data: 'price',
                     render: function(data) {
                         return new Intl.NumberFormat('vi-VN', {
                             style: 'currency',
@@ -77,9 +80,12 @@
                     }
                 },
                 {
-                    data: 'profitMargin',
+                    data: 'totalAmount',
                     render: function(data) {
-                        return data ? (data * 100).toFixed(2) + '%' : '0%';
+                        return new Intl.NumberFormat('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND'
+                        }).format(data);
                     }
                 }
             ],
