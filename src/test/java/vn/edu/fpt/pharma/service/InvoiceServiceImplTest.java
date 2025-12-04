@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith(MockitoExtension.class) // RE-ENABLED - Invoice functionality restored
 @MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("InvoiceServiceImpl Tests")
 class InvoiceServiceImplTest {
@@ -141,7 +141,7 @@ class InvoiceServiceImplTest {
             assertThat(result).isNotNull();
             assertThat(result.branchName()).isEqualTo("Branch 1");
             assertThat(result.customerName()).isEqualTo("John Doe");
-            assertThat(result.totalAmount()).isEqualTo(java.math.BigDecimal.valueOf(50000.0));
+            assertThat(result.totalPrice()).isEqualTo(java.math.BigDecimal.valueOf(50000.0));
             assertThat(result.medicines()).hasSize(1);
             verify(invoiceRepository).findInvoiceInfoById(1L);
             verify(invoiceDetailService).getListMedicine(1L);

@@ -22,4 +22,5 @@ public interface UserService extends BaseService<User, Long> {
     void restore(Long id);
     User findByUserName(String username);
     void updateProfile(Long id, ProfileVM profileVM);
+    void updateProfile(Long id, vn.edu.fpt.pharma.dto.user.ProfileUpdateRequest profileUpdateRequest);
 }

@@ -23,7 +23,7 @@ import vn.edu.fpt.pharma.util.StringUtils;
 import java.util.List;
 
 @Slf4j
-@Controller
+@Controller // RE-ENABLED for invoice viewing
 @RequiredArgsConstructor
 @RequestMapping("/pharmacist/invoices")
 public class InvoiceController {
@@ -32,7 +32,10 @@ public class InvoiceController {
 
 
     @GetMapping
-    public String invoices(){
+    public String invoices(Model model){
+        // Thêm success và error messages (sẽ null nếu không có)
+        model.addAttribute("success", null);
+        model.addAttribute("error", null);
         return "pages/pharmacist/invoices";
     }
 
@@ -47,7 +50,7 @@ public class InvoiceController {
     public String handleValidation(MethodArgumentNotValidException ex, RedirectAttributes redirectAttributes){
         log.error("MethodArgumentNotValidException: ", ex);
         String errorMsg = StringUtils.convertValidationExceptionToString(ex.getBindingResult().getAllErrors());
-        redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        redirectAttributes.addFlashAttribute("error", errorMsg);
         return "redirect:/pharmacist/invoices";
     }
 
@@ -61,13 +64,24 @@ public class InvoiceController {
     }
 
     @GetMapping("detail")
-    public String viewDetails(@RequestParam("invoiceId") Long invoiceId, Model model){
-        InvoiceDetailVM invoiceDetailVM = invoiceService.getInvoiceDetail(invoiceId);
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
-        model.addAttribute("user", userDetails);
-        model.addAttribute("invoice", invoiceDetailVM);
-        model.addAttribute("medicines", invoiceDetailVM.medicines());
-        return "pages/pharmacist/invoice_detail";
+    public String viewDetails(@RequestParam("invoiceId") Long invoiceId, Model model, RedirectAttributes redirectAttributes){
+        // Validation cho invoiceId
+        if (invoiceId == null || invoiceId <= 0) {
+            redirectAttributes.addFlashAttribute("error", "ID hóa đơn không hợp lệ");
+            return "redirect:/pharmacist/invoices";
+        }
+
+        try {
+            InvoiceDetailVM invoiceDetailVM = invoiceService.getInvoiceDetail(invoiceId);
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+            model.addAttribute("user", userDetails);
+            model.addAttribute("invoice", invoiceDetailVM);
+            model.addAttribute("medicines", invoiceDetailVM.medicines());
+            return "pages/pharmacist/invoice_detail";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Không tìm thấy hóa đơn: " + e.getMessage());
+            return "redirect:/pharmacist/invoices";
+        }
     }
 }
