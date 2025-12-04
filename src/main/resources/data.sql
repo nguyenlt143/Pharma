@@ -111,7 +111,6 @@ VALUES
     (16, 5, NOW(), FALSE), -- pharmacist1dn
     (17, 5, NOW(), FALSE), -- pharmacist2dn
     (18, 6, NOW(), FALSE);
-    (6, 7, NOW(), FALSE);
 
 INSERT INTO shift_works (assignment_id, work_date, created_at, deleted)
 VALUES
@@ -845,7 +844,7 @@ VALUES (23, NOW() , FALSE, 3, 1, 1, (6000 + 4000 + 8000 + 2000 + 2500 + 2100), 2
 -- =========================================================
 -- Prices (Bậc 3): branch_price và sale_price chia cho quantity_per_package để có giá đơn vị cơ bản
 INSERT INTO prices (variant_id, sale_price, branch_price, start_date, end_date, created_at, deleted)
-VALUES (1, 3500, 2500, NOW(), NULL, NOW(), FALSE),       -- 35000/10=3500, 25000/10=2500
+    VALUES (1, 3500, 2500, NOW(), NULL, NOW(), FALSE),       -- 35000/10=3500, 25000/10=2500
        (2, 2500, 2000, NOW(), NULL, NOW(), FALSE),       -- 25000/10=2500, 20000/10=2000
        (3, 11000, 8750, NOW(), NULL, NOW(), FALSE),      -- 110000/10=11000, 87500/10=8750
        (4, 12500, 10000, NOW(), NULL, NOW(), FALSE),     -- 125000/10=12500, 100000/10=10000
@@ -878,20 +877,20 @@ VALUES
 ('INV-HN-2006', 5, 7, 3, 30000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),                             -- inv3: 25000*1
 ('INV-INT-3001', 1, 1, 1, 350000, 'Transfer', 'DRAFT', DATE_SUB(NOW(), INTERVAL 2 DAY), 6, FALSE, 6),  -- inv4: 30000*10
 ('INV-HN-2011', 6, 4, 3, 80000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 1 DAY), 6, FALSE, 6),  -- inv5: 65000*1
-('INV-HN-2012', 1, 7, 3, 110000, 'Card', 'PAID', NOW(), 6, FALSE, 6),                             -- inv6: 90000*1
+('INV-HN-2012', 1, 7, 3, 110000, 'Transfer', 'PAID', NOW(), 6, FALSE, 6),                             -- inv6: 90000*1
 ('INV-HN-2013', 2, 1, 3, 110000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 2 DAY), 6, FALSE, 6),  -- inv7: 90000*1
 ('INV-HN-2016', 5, 4, 3, 25000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 1 DAY), 6, FALSE, 6),  -- inv8: 25000*1
 ('INV-HN-2018', NULL, 7, 3, 120000, 'Cash', 'PAID', NOW(), 6, FALSE, 6),                          -- inv6 dup: 90000*1
 
 -- user_id 7 → shift_work_id {2,5,8}
-('INV-HN-2002', 2, 2, 3, 110000, 'Card', 'PAID', DATE_SUB(NOW(), INTERVAL 2 DAY), 7, FALSE, 7),  -- inv10: 90000*1
-('INV-HN-2005', 4, 5, 3, 220000, 'Card', 'PAID', DATE_SUB(NOW(), INTERVAL 1 DAY), 7, FALSE, 7), -- inv11: 90000*2
-('INV-HN-2007', 2, 8, 3, 105000, 'Card', 'PAID', NOW(), 7, FALSE, 7),                             -- inv12: 30000*3
-('INV-HN-2010', 5, 2, 3, 50000, 'Card', 'PAID', DATE_SUB(NOW(), INTERVAL 2 DAY), 7, FALSE, 7),  -- inv13: 25000*2
+('INV-HN-2002', 2, 2, 3, 110000, 'Transfer', 'PAID', DATE_SUB(NOW(), INTERVAL 2 DAY), 7, FALSE, 7),  -- inv10: 90000*1
+('INV-HN-2005', 4, 5, 3, 220000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 1 DAY), 7, FALSE, 7), -- inv11: 90000*2
+('INV-HN-2007', 2, 8, 3, 105000, 'Transfer', 'PAID', NOW(), 7, FALSE, 7),                             -- inv12: 30000*3
+('INV-HN-2010', 5, 2, 3, 50000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 2 DAY), 7, FALSE, 7),  -- inv13: 25000*2
 ('INV-INT-3002', 2, 5, 3, 625000, 'Transfer', 'DRAFT', DATE_SUB(NOW(), INTERVAL 1 DAY), 7, FALSE, 7),  -- inv14: 105000*5
-('INV-HN-2014', 3, 8, 3, 30000, 'Card', 'PAID', NOW(), 7, FALSE, 7),                             -- inv15: 25000*1
+('INV-HN-2014', 3, 8, 3, 30000, 'Cash', 'PAID', NOW(), 7, FALSE, 7),                             -- inv15: 25000*1
 ('INV-HN-2015', 4, 2, 3, 175000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 2 DAY), 7, FALSE, 7), -- inv16: 140000*1
-('INV-HN-2017', 6, 5, 3, 140000, 'Card', 'PAID', DATE_SUB(NOW(), INTERVAL 1 DAY), 7, FALSE, 7), -- inv17: 115000*1
+('INV-HN-2017', 6, 5, 3, 140000, 'Transfer', 'PAID', DATE_SUB(NOW(), INTERVAL 1 DAY), 7, FALSE, 7), -- inv17: 115000*1
 
 -- user_id 8 → shift_work_id {3,6,9}
 ('INV-HN-2003', 3, 3, 3, 175000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 2 DAY), 8, FALSE, 8), -- inv18: 140000*1

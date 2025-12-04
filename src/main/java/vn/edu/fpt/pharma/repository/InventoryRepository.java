@@ -146,10 +146,11 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>, Jpa
         JOIN batches b ON i.batch_id = b.id 
         WHERE i.branch_id = :branchId 
           AND i.deleted = false 
-          AND (:daysThreshold IS NULL OR b.expiry_date <= DATEADD('DAY', :daysThreshold, CURRENT_DATE))
-          AND (:checkExpired = false OR b.expiry_date < CURRENT_DATE)
-          AND (:checkExpired = true OR b.expiry_date >= CURRENT_DATE)
           AND i.quantity > 0
+          AND (
+              (:checkExpired = true AND b.expiry_date < CURRENT_DATE) OR
+              (:checkExpired = false AND :daysThreshold IS NOT NULL AND b.expiry_date <= DATEADD('DAY', :daysThreshold, CURRENT_DATE) AND b.expiry_date >= CURRENT_DATE)
+          )
         """, nativeQuery = true)
     int countItemsByExpiry(@Param("branchId") Long branchId, @Param("daysThreshold") Integer daysThreshold, @Param("checkExpired") boolean checkExpired);
 

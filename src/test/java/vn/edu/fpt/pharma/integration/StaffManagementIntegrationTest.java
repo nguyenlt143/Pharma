@@ -70,6 +70,7 @@ class StaffManagementIntegrationTest {
 
         String createResponse = mockMvc.perform(post("/api/manager/staffs")
                         .with(user("manager"))
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createRequest)))
                 .andExpect(status().isCreated())
@@ -172,7 +173,7 @@ class StaffManagementIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request2)))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Tên đăng nhập đã tồn tại")));
+                .andExpect(jsonPath("$.message").value("Tên đăng nhập đã tồn tại"));
     }
 }
 

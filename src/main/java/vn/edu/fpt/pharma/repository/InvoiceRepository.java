@@ -255,7 +255,8 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
             COALESCE(SUM(
                 (COALESCE(id.price, 0) - COALESCE(inv.cost_price, 0))
                 * COALESCE(id.quantity, 0)
-            ), 0) AS profit
+            ), 0) AS profit,
+            COALESCE(i.payment_method, '') AS payment_method
         FROM invoices i
         LEFT JOIN invoice_details id ON i.id = id.invoice_id AND id.deleted = false
         LEFT JOIN inventory inv ON inv.id = id.inventory_id AND inv.deleted = false
@@ -269,7 +270,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
           AND (:branchId IS NULL OR i.branch_id = :branchId)
           AND (:shift IS NULL OR s.id = :shift)
           AND (:employeeId IS NULL OR u.id = :employeeId)
-        GROUP BY i.id, i.invoice_code, u.full_name, s.name, i.created_at, i.total_price
+        GROUP BY i.id, i.invoice_code, u.full_name, s.name, i.created_at, i.total_price, i.payment_method
         ORDER BY i.created_at DESC
         """, nativeQuery = true)
     List<Object[]> findInvoicesForReportNative(
@@ -293,7 +294,8 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
                 (String) r[3],
                 ((java.sql.Timestamp) r[4]).toLocalDateTime(),
                 ((Number) r[5]).doubleValue(),
-                ((Number) r[6]).doubleValue()
+                ((Number) r[6]).doubleValue(),
+                (String) r[7]
         )).toList();
     }
 

@@ -55,7 +55,7 @@ public class RevenueReportServiceImpl implements RevenueReportService {
             row.put("time", it.getCreatedAt() != null ? it.getCreatedAt().format(timeFmt) : "");
             row.put("code", it.getCode());
             row.put("customer", it.getFullName());
-            row.put("paymentLabel", "N/A"); // This info is not in InvoiceSummary
+            row.put("paymentLabel", formatPaymentMethod(it.getPaymentMethod()));
             row.put("amount", it.getTotalAmount());
             row.put("profit", it.getProfit());
             invoices.add(row);
@@ -163,5 +163,20 @@ public class RevenueReportServiceImpl implements RevenueReportService {
         } catch (Exception e) {
             return LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         }
+    }
+
+    private String formatPaymentMethod(String paymentMethod) {
+        if (paymentMethod == null || paymentMethod.isBlank()) {
+            return "N/A";
+        }
+        String normalized = paymentMethod.toLowerCase().trim();
+        // Handle both English and Vietnamese payment method values
+        if (normalized.equals("cash") || normalized.equals("tiền mặt") || normalized.equals("tien mat")) {
+            return "Tiền mặt";
+        } else if (normalized.equals("transfer") || normalized.equals("chuyển khoản") || normalized.equals("chuyen khoan")) {
+            return "Chuyển khoản";
+        }
+        // Return the original value if not recognized
+        return paymentMethod;
     }
 }

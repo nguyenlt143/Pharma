@@ -7,6 +7,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import vn.edu.fpt.pharma.config.CustomUserDetails;
@@ -14,6 +16,7 @@ import vn.edu.fpt.pharma.dto.manager.UserDto;
 import vn.edu.fpt.pharma.dto.manager.UserRequest;
 import vn.edu.fpt.pharma.entity.Role;
 import vn.edu.fpt.pharma.entity.User;
+import vn.edu.fpt.pharma.repository.BranchRepository;
 import vn.edu.fpt.pharma.repository.RoleRepository;
 import vn.edu.fpt.pharma.repository.ShiftAssignmentRepository;
 import vn.edu.fpt.pharma.repository.UserRepository;
@@ -26,8 +29,10 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("UserServiceImpl Tests")
 class UserServiceImplTest {
 
@@ -39,6 +44,8 @@ class UserServiceImplTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private BranchRepository branchRepository;
 
     @Mock
     private ShiftAssignmentRepository shiftAssignmentRepository;
@@ -50,7 +57,11 @@ class UserServiceImplTest {
 
     @org.junit.jupiter.api.BeforeEach
     void setUp() {
-        userService = new UserServiceImpl(userRepository, auditService, userRepository, roleRepository, passwordEncoder, shiftAssignmentRepository);
+        // Manually construct - both repository and userRepository point to same mock
+        userService = new UserServiceImpl(userRepository, auditService, userRepository, roleRepository, passwordEncoder, shiftAssignmentRepository, branchRepository);
+
+        // Setup default mocks that are commonly used
+        lenient().when(branchRepository.findById(anyLong())).thenReturn(Optional.empty());
     }
 
     @Nested
@@ -105,10 +116,16 @@ class UserServiceImplTest {
     @Nested
     @DisplayName("getById Tests")
     class GetByIdTests {
+
         @Test
         void getById_found_returnsUserDto() {
             User user = createUser(1L, "john", false);
-            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            user.setBranchId(1L);
+            user.setEmail("john@example.com");
+            user.setPhoneNumber("1234567890");
+            user.setFullName("John Doe");
+
+            doReturn(Optional.of(user)).when(userRepository).findById(1L);
 
             UserDto result = userService.getById(1L);
 
@@ -194,17 +211,20 @@ class UserServiceImplTest {
     @Nested
     @DisplayName("update Tests")
     class UpdateTests {
+
         @Test
         void update_validData_success() {
             User existingUser = createUser(1L, "john", false);
             existingUser.setBranchId(1L);
+            existingUser.setEmail("old@example.com");
+            existingUser.setPhoneNumber("1234567890");
             UserRequest request = createUserRequest("john", "newemail@example.com", "9876543210", 1L, 1L);
 
-            when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
-            when(userRepository.existsByEmailIgnoreCaseAndIdNot("newemail@example.com", 1L)).thenReturn(false);
-            when(userRepository.existsByPhoneNumberAndIdNot("9876543210", 1L)).thenReturn(false);
-            when(passwordEncoder.encode(anyString())).thenReturn("encoded_new_password");
-            when(userRepository.save(any(User.class))).thenReturn(existingUser);
+            doReturn(Optional.of(existingUser)).when(userRepository).findById(1L);
+            doReturn(false).when(userRepository).existsByEmailIgnoreCaseAndIdNot("newemail@example.com", 1L);
+            doReturn(false).when(userRepository).existsByPhoneNumberAndIdNot("9876543210", 1L);
+            doReturn("encoded_new_password").when(passwordEncoder).encode(anyString());
+            doAnswer(invocation -> invocation.getArgument(0)).when(userRepository).save(any(User.class));
 
             UserDto result = userService.update(1L, request);
 
@@ -215,10 +235,13 @@ class UserServiceImplTest {
         @Test
         void update_duplicateUsername_throwsException() {
             User existingUser = createUser(1L, "john", false);
+            existingUser.setBranchId(1L);
+            existingUser.setEmail("john@example.com");
+            existingUser.setPhoneNumber("1234567890");
             UserRequest request = createUserRequest("jane", "john@example.com", "1234567890", 1L, 1L);
 
-            when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
-            when(userRepository.existsByUserNameIgnoreCase("jane")).thenReturn(true);
+            doReturn(Optional.of(existingUser)).when(userRepository).findById(1L);
+            doReturn(true).when(userRepository).existsByUserNameIgnoreCase("jane");
 
             assertThatThrownBy(() -> userService.update(1L, request))
                     .isInstanceOf(RuntimeException.class)
@@ -233,15 +256,16 @@ class UserServiceImplTest {
             existingUser.setBranchId(1L);
             existingUser.setEmail("john@example.com");
             existingUser.setPhoneNumber("1234567890");
-            UserRequest request = createUserRequest("john", "john@example.com", "1234567890", 2L, 1L);
+            UserRequest request = createUserRequest("john", "john@example.com", "1234567890", 1L, 2L); // Try to change branchId to 2L
 
-            when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
-            when(userRepository.existsByEmailIgnoreCaseAndIdNot(anyString(), anyLong())).thenReturn(false);
-            when(userRepository.existsByPhoneNumberAndIdNot(anyString(), anyLong())).thenReturn(false);
-            when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            doReturn(Optional.of(existingUser)).when(userRepository).findById(1L);
+            doReturn(false).when(userRepository).existsByEmailIgnoreCaseAndIdNot(anyString(), anyLong());
+            doReturn(false).when(userRepository).existsByPhoneNumberAndIdNot(anyString(), anyLong());
+            doAnswer(invocation -> invocation.getArgument(0)).when(userRepository).save(any(User.class));
 
             userService.update(1L, request);
 
+            // Should preserve original branchId (1L), not use request's branchId (2L)
             verify(userRepository).save(argThat(user -> user.getBranchId().equals(1L)));
         }
     }

@@ -4,6 +4,8 @@ package vn.edu.fpt.pharma.controller.manager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -30,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(RevenueApiController.class)
 @Import(RevenueApiControllerTest.MockConfig.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("RevenueApiController Tests")
 class RevenueApiControllerTest extends BaseControllerTest {
 

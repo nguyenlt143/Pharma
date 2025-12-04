@@ -5,5 +5,6 @@ public enum MovementType {
     WARE_TO_SUP,
     WARE_TO_BR,
     BR_TO_WARE,
-    DISPOSAL
+    DISPOSAL,
+    INVENTORY_ADJUSTMENT
 }

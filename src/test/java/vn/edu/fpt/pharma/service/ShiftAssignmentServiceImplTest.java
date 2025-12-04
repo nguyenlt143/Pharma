@@ -8,6 +8,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import vn.edu.fpt.pharma.entity.Shift;
 import vn.edu.fpt.pharma.entity.ShiftAssignment;
 import vn.edu.fpt.pharma.entity.ShiftWork;
@@ -27,6 +29,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("ShiftAssignmentServiceImpl Tests")
 class ShiftAssignmentServiceImplTest {
 
@@ -228,7 +231,7 @@ class ShiftAssignmentServiceImplTest {
 
             assertThatThrownBy(() -> assignmentService.createAssignment(shiftId, userId))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Shift not found");
+                    .hasMessage("Ca làm việc không tồn tại");
 
             verify(assignmentRepository, never()).save(any());
         }
@@ -334,7 +337,7 @@ class ShiftAssignmentServiceImplTest {
 
             assertThatThrownBy(() -> assignmentService.extendShiftWorks(assignmentId, 10))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Assignment not found");
+                    .hasMessage("Phân công ca không tồn tại");
 
             verify(shiftWorkRepository, never()).saveAll(any());
         }

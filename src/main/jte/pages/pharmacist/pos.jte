@@ -31,9 +31,9 @@
                 <div class="search-input-wrapper">
                     <span class="material-icons search-icon">search</span>
                     <label>
-                        <input type="text" class="search-input" name="keyword" placeholder="Search for medication..." value="${keyword}">
+                        <input type="text" class="search-input" name="keyword" placeholder="Tìm kiếm thuốc...." value="${keyword}">
                     </label>
-                    <button id="search-button" class="search-button">Search</button>
+                    <button id="search-button" class="search-button">Tìm kiếm</button>
                 </div>
 
                 <div id="medicine-list" class="medicine-list"></div>

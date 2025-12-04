@@ -197,7 +197,7 @@ class ShiftManagementIntegrationTest {
             // Then: Should throw exception
             assertThatThrownBy(() -> shiftWorkService.assignToShift(shift.getId(), request))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("User already assigned to this shift on date");
+                    .hasMessage("Nhân viên đã được phân công vào ca này trong ngày đã chọn");
         }
 
         @Test

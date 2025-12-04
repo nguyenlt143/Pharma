@@ -226,7 +226,7 @@ class ShiftWorkServiceImplTest {
 
             assertThatThrownBy(() -> shiftWorkService.assignToShift(shiftId, request))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("User already assigned to this shift on date");
+                    .hasMessage("Nhân viên đã được phân công vào ca này trong ngày đã chọn");
 
             verify(shiftWorkRepository, never()).save(any());
         }
@@ -244,7 +244,7 @@ class ShiftWorkServiceImplTest {
 
             assertThatThrownBy(() -> shiftWorkService.assignToShift(shiftId, request))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Shift not found");
+                    .hasMessage("Ca làm việc không tồn tại");
 
             verify(shiftWorkRepository, never()).save(any());
         }
@@ -266,7 +266,7 @@ class ShiftWorkServiceImplTest {
 
             assertThatThrownBy(() -> shiftWorkService.assignToShift(shiftId, request))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("User not found");
+                    .hasMessage("Nhân viên không tồn tại");
 
             verify(shiftWorkRepository, never()).save(any());
         }
