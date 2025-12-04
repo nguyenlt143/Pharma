@@ -1,87 +1,101 @@
+@param String shiftName
+@param String success = null
 @param String error = null
-@param String message = null
 
-@template.layouts.layout_test(content = @`
-    @if(error != null)
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            ${error}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-    @if(message != null)
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-    <table id="revenueDetailTable" class="table table-striped">
-        <thead>
-        <tr>
-            <th>Tên thuốc</th>
-            <th>Đơn vị</th>
-            <th>Số lô</th>
-            <th>Nhà sản xuất</th>
-            <th>Quốc gia</th>
-            <th>Số lượng</th>
-            <th>Giá</th>
-            <th>Thành tiền</th>
-        </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+@template.layouts.pharmacist(
+    headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/shift_details.css">`,
+    content = @`
+    <main class="main-content">
+        <div class="content-wrapper">
+            <!-- Page Header -->
+            <header class="page-header">
+                <h1 class="page-title">Chi tiết Ca làm việc - ${shiftName}</h1>
+                <div class="page-actions">
+                    <a href="/pharmacist/shifts" class="btn btn-secondary">← Quay lại</a>
+                </div>
+            </header>
 
+            <!-- Alert Messages -->
+            @if(success != null)
+                <div class="alert alert-success" role="alert">
+                    ${success}
+                </div>
+            @endif
+            @if(error != null)
+                <div class="alert alert-danger" role="alert">
+                    ${error}
+                </div>
+            @endif
+
+            <!-- Shift Detail Table -->
+            <div class="table-container">
+                <table id="shiftDetailTable" class="display table">
+                    <thead>
+                        <tr>
+                            <th>Ngày</th>
+                            <th>Thời gian bắt đầu</th>
+                            <th>Thời gian kết thúc</th>
+                            <th>Doanh thu</th>
+                            <th>Số hóa đơn</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be loaded via DataTables -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    `,
+    pageScript = @`
     <script>
-        $(document).ready(function () {
-            const table = $('#revenueDetailTable').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: {
-                    url: '/pharmacist/all/shift/detail',
-                    type: 'GET',
-                    data: function (d) {
-                        d.shiftName = new URLSearchParams(window.location.search).get("shiftName");
-                    },
-                    dataSrc: 'data'
-                },
-                columns: [
-                    { data: 'drugName', title: 'Tên thuốc' },
-                    { data: 'unit', title: 'Đơn vị' },
-                    { data: 'batch', title: 'Số lô' },
-                    { data: 'manufacturer', title: 'Nhà sản xuất' },
-                    { data: 'country', title: 'Quốc gia' },
-                    { data: 'quantity', title: 'Số lượng' },
-                    {
-                        data: 'price',
-                        title: 'Giá',
-                        render: $.fn.dataTable.render.number(',', '.', 2)
-                    },
-                    {
-                        data: 'totalAmount',
-                        title: 'Thành tiền',
-                        render: $.fn.dataTable.render.number(',', '.', 2)
-                    }
-                ],
-                paging: true,
-                searching: true,
-                ordering: true,
-                pageLength: 5,
-                scrollCollapse: true,
-                scrollY: '65vh',
-                order: [[0, "asc"]],
-                language: {
-                    search: "Tìm kiếm:",
-                    lengthMenu: "Hiển thị _MENU_ dòng",
-                    info: "Hiển thị _START_ đến _END_ trong tổng _TOTAL_ kết quả",
-                    paginate: {
-                        first: "Đầu",
-                        last: "Cuối",
-                        next: "Sau",
-                        previous: "Trước"
-                    },
-                    processing: "Đang tải dữ liệu..."
+    $(document).ready(function() {
+        $('#shiftDetailTable').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: '/pharmacist/all/shift/detail',
+                type: 'GET',
+                data: {
+                    shiftName: '${shiftName}'
                 }
-            });
+            },
+            columns: [
+                {
+                    data: 'date',
+                    render: function(data) {
+                        return new Date(data).toLocaleDateString('vi-VN');
+                    }
+                },
+                {
+                    data: 'startTime',
+                    render: function(data) {
+                        return data ? new Date(data).toLocaleTimeString('vi-VN') : 'N/A';
+                    }
+                },
+                {
+                    data: 'endTime',
+                    render: function(data) {
+                        return data ? new Date(data).toLocaleTimeString('vi-VN') : 'N/A';
+                    }
+                },
+                {
+                    data: 'totalAmount',
+                    render: function(data) {
+                        return new Intl.NumberFormat('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND'
+                        }).format(data);
+                    }
+                },
+                { data: 'invoiceCount' }
+            ],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/vi.json'
+            },
+            order: [[0, 'desc']]
         });
+    });
     </script>
-
-`)
+    `
+)

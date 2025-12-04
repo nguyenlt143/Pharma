@@ -1,11 +1,16 @@
 package vn.edu.fpt.pharma.service.impl;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.pharma.base.BaseServiceImpl;
 import vn.edu.fpt.pharma.constant.InvoiceType;
 import vn.edu.fpt.pharma.dto.DataTableRequest;
 import vn.edu.fpt.pharma.dto.DataTableResponse;
-import vn.edu.fpt.pharma.dto.invoice.*;
+import vn.edu.fpt.pharma.dto.invoice.InvoiceDetailVM;
+import vn.edu.fpt.pharma.dto.invoice.InvoiceInfoVM;
+import vn.edu.fpt.pharma.dto.invoice.MedicineItemVM;
+import vn.edu.fpt.pharma.dto.invoice.InvoiceCreateRequest;
+import vn.edu.fpt.pharma.dto.invoice.InvoiceItemRequest;
 import vn.edu.fpt.pharma.entity.Customer;
 import vn.edu.fpt.pharma.entity.Inventory;
 import vn.edu.fpt.pharma.entity.Invoice;
@@ -71,6 +76,7 @@ public class InvoiceServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
     }
 
     @Override
+    @Transactional
     public Invoice createInvoice(InvoiceCreateRequest req) {
         Customer customer = null;
         if(req.getPhoneNumber()!=null && !req.getPhoneNumber().isEmpty()){
@@ -104,6 +110,7 @@ public class InvoiceServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
             detail.setQuantity(itemReq.getQuantity());
             detail.setPrice(itemReq.getUnitPrice() * itemReq.getSelectedMultiplier());
 
+            details.add(detail);
             invoiceDetailRepository.save(detail);
         }
         invoice.setDetails(details);

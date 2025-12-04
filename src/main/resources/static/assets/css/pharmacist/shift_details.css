@@ -1,0 +1,139 @@
+/* Copy base styles from shifts.css */
+@import url('shifts.css');
+
+/* Shift Details specific styling */
+.page-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.shift-badge {
+    background: #6f42c1;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Time columns styling */
+.table th:nth-child(2),
+.table th:nth-child(3),
+.table td:nth-child(2),
+.table td:nth-child(3) {
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    width: 120px;
+}
+
+.table th:nth-child(4),
+.table th:nth-child(5),
+.table td:nth-child(4),
+.table td:nth-child(5) {
+    text-align: right;
+}
+
+/* Time display styling */
+.time-display {
+    background: #f8f9fa;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    border: 1px solid #dee2e6;
+}
+
+.time-start {
+    color: #28a745;
+    border-color: #28a745;
+}
+
+.time-end {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+/* Shift performance indicators */
+.shift-row {
+    position: relative;
+}
+
+.shift-row.high-performance {
+    background: rgba(40, 167, 69, 0.05);
+}
+
+.shift-row.medium-performance {
+    background: rgba(255, 193, 7, 0.05);
+}
+
+.shift-row.low-performance {
+    background: rgba(220, 53, 69, 0.05);
+}
+
+/* Shift duration info */
+.shift-info {
+    background: #e7f3ff;
+    border: 1px solid #b3d9ff;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.shift-info h4 {
+    margin: 0 0 10px 0;
+    color: #0066cc;
+    font-size: 16px;
+}
+
+.shift-info .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.shift-info .info-item {
+    text-align: center;
+}
+
+.shift-info .info-label {
+    font-size: 12px;
+    color: #6c757d;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.shift-info .info-value {
+    font-size: 18px;
+    font-weight: 600;
+    color: #0066cc;
+}
+
+/* Date highlighting */
+.date-today {
+    background: rgba(255, 193, 7, 0.2);
+    border-left: 3px solid #ffc107;
+}
+
+.date-weekend {
+    background: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+}
+
+/* Revenue trend indicators */
+.revenue-up::after {
+    content: " ↗";
+    color: #28a745;
+    font-weight: bold;
+}
+
+.revenue-down::after {
+    content: " ↘";
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.revenue-stable::after {
+    content: " →";
+    color: #6c757d;
+    font-weight: bold;
+}

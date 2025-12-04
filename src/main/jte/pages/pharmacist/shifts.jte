@@ -1,82 +1,89 @@
+@param String success = null
 @param String error = null
-@param String message = null
 
-@template.layouts.layout_test(content = @`
-    @if(error != null)
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            ${error}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+@template.layouts.pharmacist(
+    headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/shifts.css">`,
+    content = @`
+    <main class="main-content">
+        <div class="content-wrapper">
+            <!-- Page Header -->
+            <header class="page-header">
+                <h1 class="page-title">Báo cáo Ca làm việc</h1>
+            </header>
+
+            <!-- Alert Messages -->
+            @if(success != null)
+                <div class="alert alert-success" role="alert">
+                    ${success}
+                </div>
+            @endif
+            @if(error != null)
+                <div class="alert alert-danger" role="alert">
+                    ${error}
+                </div>
+            @endif
+
+            <!-- Shift Table -->
+            <div class="table-container">
+                <table id="shiftTable" class="display table">
+                    <thead>
+                        <tr>
+                            <th>Tên ca</th>
+                            <th>Thời gian</th>
+                            <th>Doanh thu</th>
+                            <th>Số đơn hàng</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be loaded via DataTables -->
+                    </tbody>
+                </table>
+            </div>
         </div>
-    @endif
-    @if(message != null)
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
-    <table id="shiftTable" class="table table-striped">
-        <thead>
-        <tr>
-            <th>Thời gian</th>
-            <th>Tổng số đơn</th>
-            <th>Tiền mặt</th>
-            <th>Chuyển khoản</th>
-            <th>Doanh thu</th>
-        </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-
+    </main>
+    `,
+    pageScript = @`
     <script>
-        $(document).ready(function () {
-            const table = $('#shiftTable').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: {
-                    url: '/pharmacist/all/shift',
-                    type: 'GET',
-                    dataSrc: 'data'
+    $(document).ready(function() {
+        $('#shiftTable').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: '/pharmacist/all/shift',
+                type: 'GET'
+            },
+            columns: [
+                { data: 'shiftName' },
+                {
+                    data: 'timeRange',
+                    render: function(data) {
+                        return data || 'N/A';
+                    }
                 },
-                columns: [
-                    { data: 'shiftName', title: 'Ca làm việc' },
-                    { data: 'orderCount', title: 'Tổng số đơn' },
-                    { data: 'cashTotal', title: 'Tiền mặt', render: $.fn.dataTable.render.number(',', '.', 0, '') },
-                    { data: 'transferTotal', title: 'Chuyển khoản', render: $.fn.dataTable.render.number(',', '.', 0, '') },
-                    { data: 'totalRevenue', title: 'Doanh thu', render: $.fn.dataTable.render.number(',', '.', 0, '') },
-                    {
-                        data: 'shiftName',
-                        orderable: false,
-                        searchable: false,
-                        render: function(shiftName) {
-                            return '<a href="/pharmacist/all/shift/detail/view?shiftName=' + shiftName + '" ' +
-                                   'class="btn btn-sm btn-primary">' +
-                                   '<i class="bi bi-eye"></i> Xem chi tiết' +
-                                   '</a>';
-                        }
-                     }
-                ],
-                paging: true,
-                searching: true,
-                ordering: true,
-                pageLength: 2,
-                scrollCollapse: true,
-                scrollY: '65vh',
-                order: [[0, 'asc']],
-                language: {
-                    search: "Tìm kiếm:",
-                    lengthMenu: "Hiển thị _MENU_ dòng",
-                    info: "Hiển thị _START_ đến _END_ trong tổng _TOTAL_ kết quả",
-                    paginate: {
-                        first: "Đầu",
-                        last: "Cuối",
-                        next: "Sau",
-                        previous: "Trước"
-                    },
-                    processing: "Đang tải dữ liệu..."
+                {
+                    data: 'totalRevenue',
+                    render: function(data) {
+                        return new Intl.NumberFormat('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND'
+                        }).format(data);
+                    }
+                },
+                { data: 'totalOrders' },
+                {
+                    data: 'shiftName',
+                    render: function(data) {
+                        return '<a href="/pharmacist/all/shift/detail/view?shiftName=' + encodeURIComponent(data) + '" class="btn btn-sm btn-primary">Xem chi tiết</a>';
+                    }
                 }
-            });
+            ],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/vi.json'
+            },
+            order: [[0, 'asc']]
         });
-
+    });
     </script>
-`)
+    `
+)

@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.pharma.base.BaseServiceImpl;
 import vn.edu.fpt.pharma.config.CustomUserDetails;
 import vn.edu.fpt.pharma.dto.manager.UserDto;
@@ -221,6 +222,25 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
     }
 
     @Override
+    @Transactional
+    public void updateProfile(Long id, vn.edu.fpt.pharma.dto.user.ProfileUpdateRequest profileUpdateRequest) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setFullName(profileUpdateRequest.getFullName());
+        user.setPhoneNumber(profileUpdateRequest.getPhone());
+        user.setEmail(profileUpdateRequest.getEmail());
+
+        // Chỉ cập nhật mật khẩu nếu được cung cấp
+        if (profileUpdateRequest.getPassword() != null && !profileUpdateRequest.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(profileUpdateRequest.getPassword()));
+        }
+
+        userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
     public void updateProfile(Long id, ProfileVM profileVM) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));

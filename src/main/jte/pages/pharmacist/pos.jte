@@ -85,64 +85,116 @@
                 </div>
 
                 <div class="payment-content">
-                    <div class="customer-info">
-                        <div class="form-group">
-                            <label class="form-label">Tên khách hàng</label>
-                            <div class="input-wrapper">
-                                <input type="text" class="form-input">
-                                <button class="clear-button">
-                                    <span class="material-icons">close</span>
-                                </button>
+                    <!-- Error Alert -->
+                    <div id="errorAlert" class="alert alert-danger" style="display: none;" role="alert">
+                        <span id="errorMessage"></span>
+                    </div>
+
+                    <!-- Success Alert -->
+                    <div id="successAlert" class="alert alert-success" style="display: none;" role="alert">
+                        <span id="successMessage"></span>
+                    </div>
+
+                    <form id="paymentForm" novalidate>
+                        <div class="customer-info">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    Tên khách hàng <span class="required">*</span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <input type="text"
+                                           class="form-input"
+                                           id="customerName"
+                                           name="customerName"
+                                           required
+                                           maxlength="100"
+                                           placeholder="Nhập tên khách hàng">
+                                    <button type="button" class="clear-button" onclick="clearInput('customerName')">
+                                        <span class="material-icons">close</span>
+                                    </button>
+                                </div>
+                                <div class="invalid-feedback" id="customerName-error"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Số điện thoại</label>
+                                <div class="input-wrapper">
+                                    <input type="tel"
+                                           class="form-input"
+                                           id="phoneNumber"
+                                           name="phoneNumber"
+                                           pattern="^(0|\+84)[0-9]{9,10}$"
+                                           title="Số điện thoại phải bắt đầu bằng 0 hoặc +84 và có 10-11 chữ số"
+                                           placeholder="Nhập số điện thoại">
+                                    <button type="button" class="clear-button" onclick="clearInput('phoneNumber')">
+                                        <span class="material-icons">close</span>
+                                    </button>
+                                </div>
+                                <div class="invalid-feedback" id="phoneNumber-error"></div>
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Số điện thoại</label>
-                            <div class="input-wrapper">
-                                <input type="text" class="form-input">
-                                <button class="clear-button">
-                                    <span class="material-icons">close</span>
-                                </button>
+                        <div class="payment-details">
+                            <div class="payment-row">
+                                <span class="payment-label">Tổng tiền hàng</span>
+                                <span class="payment-value" id="subtotal">0</span>
                             </div>
-                        </div>
-                    </div>
 
-                    <div class="payment-details">
-                        <div class="payment-row">
-                            <span class="payment-label">Tổng tiền hàng</span>
-                            <span class="payment-value"></span>
-                        </div>
+                            <div class="payment-row">
+                                <span class="payment-label">Khách cần trả</span>
+                                <span class="payment-value" id="totalAmount">0</span>
+                            </div>
 
-                        <div class="payment-row">
-                            <span class="payment-label">Khách cần trả</span>
-                            <span class="payment-value"></span>
-                        </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    Khách thanh toán (F8) <span class="required">*</span>
+                                </label>
+                                <input type="number"
+                                       class="form-input"
+                                       id="paidAmount"
+                                       name="paidAmount"
+                                       step="0.01"
+                                       min="0"
+                                       required
+                                       placeholder="0.00">
+                                <div class="invalid-feedback" id="paidAmount-error"></div>
+                            </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Khách thanh toán (F8)</label>
-                            <input type="text" class="form-input">
-                        </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    Phương thức thanh toán <span class="required">*</span>
+                                </label>
+                                <select class="form-select" id="paymentMethod" name="paymentMethod" required>
+                                    <option value="">-- Chọn phương thức --</option>
+                                    <option value="cash">Tiền mặt</option>
+                                    <option value="transfer">Chuyển khoản</option>
+                                </select>
+                                <div class="invalid-feedback" id="paymentMethod-error"></div>
+                            </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Phương thức thanh toán</label>
-                            <select class="form-select" id="payment-method">
-                                <option value="cash">Tiền mặt</option>
-                                <option value="transfer">Chuyển khoản</option>
-                            </select>
-                        </div>
+                            <div class="payment-row">
+                                <span class="payment-label">Tiền thừa trả khách</span>
+                                <span class="payment-value" id="changeAmount">0</span>
+                            </div>
 
-                        <div class="payment-row">
-                            <span class="payment-label">Tiền thừa trả khách</span>
-                            <span class="payment-value" id="changeAmount">0</span>
-                        </div>
+                            <div class="form-group">
+                                <label class="form-label">Ghi chú</label>
+                                <textarea class="form-textarea"
+                                         id="note"
+                                         name="note"
+                                         maxlength="500"
+                                         placeholder="Ghi chú thêm (không bắt buộc)"></textarea>
+                                <div class="invalid-feedback" id="note-error"></div>
+                            </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Ghi chú</label>
-                            <textarea class="form-textarea"></textarea>
+                            <button class="payment-button"
+                                   id="payButton"
+                                   type="submit"
+                                   disabled>
+                                   Thanh toán
+                            </button>
                         </div>
-
-                        <button class="payment-button" id="payButton" type="button">Thanh toán</button>
-                    </div>
+                    </form>
                 </div>
             </div>
         </section>

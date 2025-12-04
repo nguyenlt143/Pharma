@@ -522,6 +522,351 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+// ============ VALIDATION FUNCTIONS ============
+
+function showError(fieldId, message) {
+    const field = document.getElementById(fieldId);
+    const errorDiv = document.getElementById(fieldId + '-error');
+
+    if (field) {
+        field.classList.add('is-invalid');
+    }
+    if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+    }
+}
+
+function clearError(fieldId) {
+    const field = document.getElementById(fieldId);
+    const errorDiv = document.getElementById(fieldId + '-error');
+
+    if (field) {
+        field.classList.remove('is-invalid');
+    }
+    if (errorDiv) {
+        errorDiv.textContent = '';
+        errorDiv.style.display = 'none';
+    }
+}
+
+function clearInput(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (field) {
+        field.value = '';
+        clearError(fieldId);
+        validatePaymentForm();
+    }
+}
+
+function showAlert(type, message) {
+    const alertId = type === 'success' ? 'successAlert' : 'errorAlert';
+    const messageId = type === 'success' ? 'successMessage' : 'errorMessage';
+
+    const alert = document.getElementById(alertId);
+    const messageEl = document.getElementById(messageId);
+
+    if (alert && messageEl) {
+        messageEl.textContent = message;
+        alert.style.display = 'block';
+
+        // Auto hide after 5 seconds
+        setTimeout(() => {
+            alert.style.display = 'none';
+        }, 5000);
+    }
+}
+
+function validateField(fieldId, rules) {
+    const field = document.getElementById(fieldId);
+    if (!field) return true;
+
+    const value = field.value.trim();
+    clearError(fieldId);
+
+    // Check required
+    if (rules.required && !value) {
+        showError(fieldId, rules.requiredMessage || `${fieldId} không được để trống`);
+        return false;
+    }
+
+    // Skip other validations if field is empty and not required
+    if (!value && !rules.required) return true;
+
+    // Check pattern
+    if (rules.pattern && !rules.pattern.test(value)) {
+        showError(fieldId, rules.patternMessage || `${fieldId} không đúng định dạng`);
+        return false;
+    }
+
+    // Check min/max length
+    if (rules.minLength && value.length < rules.minLength) {
+        showError(fieldId, `${fieldId} phải có ít nhất ${rules.minLength} ký tự`);
+        return false;
+    }
+
+    if (rules.maxLength && value.length > rules.maxLength) {
+        showError(fieldId, `${fieldId} không được vượt quá ${rules.maxLength} ký tự`);
+        return false;
+    }
+
+    // Check numeric values
+    if (rules.type === 'number') {
+        const numValue = parseFloat(value);
+        if (isNaN(numValue)) {
+            showError(fieldId, `${fieldId} phải là số hợp lệ`);
+            return false;
+        }
+
+        if (rules.min !== undefined && numValue < rules.min) {
+            showError(fieldId, rules.minMessage || `${fieldId} phải lớn hơn hoặc bằng ${rules.min}`);
+            return false;
+        }
+
+        if (rules.max !== undefined && numValue > rules.max) {
+            showError(fieldId, `${fieldId} phải nhỏ hơn hoặc bằng ${rules.max}`);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function validatePaymentForm() {
+    const totalAmount = getTotalAmount();
+
+    const validations = [
+        validateField('customerName', {
+            required: true,
+            maxLength: 100,
+            requiredMessage: 'Tên khách hàng không được để trống'
+        }),
+
+        validateField('phoneNumber', {
+            required: false,
+            pattern: /^(0|\+84)[0-9]{9,10}$/,
+            patternMessage: 'Số điện thoại phải bắt đầu bằng 0 hoặc +84 và có 10-11 chữ số'
+        }),
+
+        validateField('paidAmount', {
+            required: true,
+            type: 'number',
+            min: totalAmount,
+            requiredMessage: 'Số tiền khách thanh toán không được để trống',
+            minMessage: `Số tiền thanh toán phải ít nhất ${totalAmount.toLocaleString('vi-VN')} VNĐ`
+        }),
+
+        validateField('paymentMethod', {
+            required: true,
+            requiredMessage: 'Phương thức thanh toán không được để trống'
+        }),
+
+        validateField('note', {
+            required: false,
+            maxLength: 500
+        })
+    ];
+
+    const isFormValid = validations.every(v => v);
+    const hasItems = prescriptionItems.length > 0;
+
+    // Update pay button state
+    const payButton = document.getElementById('payButton');
+    if (payButton) {
+        payButton.disabled = !isFormValid || !hasItems;
+
+        if (!hasItems) {
+            payButton.textContent = 'Chưa có sản phẩm';
+        } else if (!isFormValid) {
+            payButton.textContent = 'Vui lòng điền đầy đủ thông tin';
+        } else {
+            payButton.textContent = 'Thanh toán';
+        }
+    }
+
+    return isFormValid && hasItems;
+}
+
+// ============ EVENT LISTENERS ============
+
+// Initialize validation on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const paymentForm = document.getElementById('paymentForm');
+    if (paymentForm) {
+        paymentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!validatePaymentForm()) {
+                showAlert('error', 'Vui lòng kiểm tra lại thông tin đã nhập');
+                return;
+            }
+
+            if (prescriptionItems.length === 0) {
+                showAlert('error', 'Chưa có sản phẩm nào trong đơn hàng');
+                return;
+            }
+
+            // Collect form data
+            const formData = {
+                customerName: document.getElementById('customerName').value.trim(),
+                phoneNumber: document.getElementById('phoneNumber').value.trim(),
+                totalAmount: getTotalAmount(),
+                paymentMethod: document.getElementById('paymentMethod').value,
+                note: document.getElementById('note').value.trim(),
+                items: prescriptionItems.map(item => ({
+                    inventoryId: item.inventoryId,
+                    quantity: item.quantity,
+                    unitPrice: item.currentPrice,
+                    selectedMultiplier: item.selectedMultiplier
+                }))
+            };
+
+            processPaymentWithValidation(formData);
+        });
+    }
+
+    // Real-time validation on input
+    ['customerName', 'phoneNumber', 'paidAmount', 'paymentMethod', 'note'].forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.addEventListener('input', () => {
+                clearError(fieldId);
+                setTimeout(validatePaymentForm, 100); // Debounce
+            });
+            field.addEventListener('blur', validatePaymentForm);
+        }
+    });
+
+    // Calculate change amount
+    const paidAmountField = document.getElementById('paidAmount');
+    if (paidAmountField) {
+        paidAmountField.addEventListener('input', function() {
+            const paidAmount = parseFloat(this.value) || 0;
+            const totalAmount = getTotalAmount();
+            const change = Math.max(0, paidAmount - totalAmount);
+
+            const changeElement = document.getElementById('changeAmount');
+            if (changeElement) {
+                changeElement.textContent = change.toLocaleString('vi-VN');
+            }
+        });
+    }
+
+    // Update totals when prescription changes
+    const observer = new MutationObserver(() => {
+        const totalAmount = getTotalAmount();
+        const subtotalEl = document.getElementById('subtotal');
+        const totalAmountEl = document.getElementById('totalAmount');
+
+        if (subtotalEl) subtotalEl.textContent = totalAmount.toLocaleString('vi-VN');
+        if (totalAmountEl) totalAmountEl.textContent = totalAmount.toLocaleString('vi-VN');
+
+        validatePaymentForm();
+    });
+
+    const prescriptionTable = document.getElementById('prescription-items');
+    if (prescriptionTable) {
+        observer.observe(prescriptionTable, { childList: true, subtree: true });
+    }
+});
+
+function processPaymentWithValidation(paymentData) {
+    const payButton = document.getElementById('payButton');
+    if (payButton) {
+        payButton.disabled = true;
+        payButton.textContent = 'Đang xử lý...';
+    }
+
+    // Chuẩn bị dữ liệu InvoiceCreateRequest đầy đủ
+    const invoiceData = {
+        customerName: paymentData.customerName,
+        phoneNumber: paymentData.phoneNumber,
+        totalAmount: paymentData.totalAmount,
+        paymentMethod: paymentData.paymentMethod,
+        note: paymentData.note,
+        items: paymentData.items || []
+    };
+
+    fetch('/pharmacist/pos/api/invoices', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(invoiceData)
+    })
+    .then(async res => {
+        if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            throw new Error(errorData.error || errorData.message || 'Lỗi tạo hóa đơn');
+        }
+        return res.json();
+    })
+    .then(result => {
+        showAlert('success', `Thanh toán thành công! Mã hóa đơn: ${result.invoiceCode}`);
+
+        // Reset form
+        document.getElementById('paymentForm').reset();
+        prescriptionItems = [];
+        renderPrescription();
+        validatePaymentForm();
+
+        // Reset change amount
+        const changeElement = document.getElementById('changeAmount');
+        if (changeElement) {
+            changeElement.textContent = '0';
+        }
+    })
+    .catch(error => {
+        console.error('Payment error:', error);
+        showAlert('error', error.message || 'Thanh toán thất bại. Vui lòng thử lại.');
+    })
+    .finally(() => {
+        if (payButton) {
+            payButton.disabled = false;
+            validatePaymentForm();
+        }
+    });
+}
+
+// Add CSS for validation styles
+const validationStyles = `
+    <style>
+    .required { color: #dc3545; }
+    .is-invalid { border-color: #dc3545 !important; }
+    .invalid-feedback {
+        display: none;
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    .alert {
+        padding: 0.75rem 1.25rem;
+        margin-bottom: 1rem;
+        border: 1px solid transparent;
+        border-radius: 0.375rem;
+        transition: opacity 0.3s ease-in-out;
+    }
+    .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+    .alert-danger {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+    #payButton:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    </style>
+`;
+
+// Add styles to head
+document.head.insertAdjacentHTML('beforeend', validationStyles);
+
 // Initialize POS page
 document.addEventListener('DOMContentLoaded', () => {
   updatePaymentTotals();
