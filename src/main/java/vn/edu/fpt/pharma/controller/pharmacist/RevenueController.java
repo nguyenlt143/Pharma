@@ -200,12 +200,40 @@ public class RevenueController {
 
     @GetMapping("/all/shift")
     public ResponseEntity<DataTableResponse<RevenueShiftVM>> getAllRevenuesShift(HttpServletRequest request) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
-        Long userId = userDetails.getId();
-        DataTableRequest reqDto = DataTableRequest.fromParams(request.getParameterMap());
-        DataTableResponse<RevenueShiftVM> response = revenueService.getRevenueShiftSummary(reqDto, userId);
-        return ResponseEntity.ok(response);
+        DataTableRequest reqDto = null;
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+            Long userId = userDetails.getId();
+
+            log.info("Getting shift revenue data for user: {}", userId);
+
+            reqDto = DataTableRequest.fromParams(request.getParameterMap());
+            log.info("DataTable request: {}", reqDto);
+
+            DataTableResponse<RevenueShiftVM> response = revenueService.getRevenueShiftSummary(reqDto, userId);
+            log.info("Shift revenue response - Total records: {}, Filtered: {}",
+                    response.recordsTotal(), response.recordsFiltered());
+            log.info("Shift data size: {}", response.data().size());
+
+            if (response.data().isEmpty()) {
+                log.warn("No shift data found for user: {}", userId);
+            }
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error getting shift revenue data", e);
+            if (reqDto == null) {
+                reqDto = new DataTableRequest(1, 0, 10, "", "shiftName", "asc");
+            }
+            DataTableResponse<RevenueShiftVM> errorResponse = new DataTableResponse<>(
+                    reqDto.draw(),
+                    0,
+                    0,
+                    java.util.Collections.emptyList()
+            );
+            return ResponseEntity.ok(errorResponse);
+        }
     }
 
     @GetMapping("/all/shift/detail/view")

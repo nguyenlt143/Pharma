@@ -60,7 +60,18 @@ public class InvoiceServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
 
     @Override
     public InvoiceDetailVM getInvoiceDetail(Long invoiceId) {
+        // Check if invoice exists first
+        if (!repository.existsById(invoiceId)) {
+            throw new RuntimeException("Không tìm thấy hóa đơn với ID: " + invoiceId);
+        }
+
         InvoiceInfoVM info = repository.findInvoiceInfoById(invoiceId);
+
+        // Double check if query returned result
+        if (info == null) {
+            throw new RuntimeException("Không thể truy xuất thông tin hóa đơn ID: " + invoiceId);
+        }
+
         List<MedicineItemVM> listMedicine = invoiceDetailService.getListMedicine(invoiceId);
 
         return new InvoiceDetailVM(
@@ -78,9 +89,18 @@ public class InvoiceServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
     @Override
     @Transactional
     public Invoice createInvoice(InvoiceCreateRequest req) {
+        // Set default customer name if empty
+        String customerName = req.getCustomerName();
+        if (customerName == null || customerName.trim().isEmpty()) {
+            customerName = "Khách lẻ";
+        }
+
         Customer customer = null;
-        if(req.getPhoneNumber()!=null && !req.getPhoneNumber().isEmpty()){
-            customer = customerService.getOrCreate(req.getCustomerName(), req.getPhoneNumber());
+        // Only create customer if phone number is provided and not the default "Không có"
+        if(req.getPhoneNumber() != null &&
+           !req.getPhoneNumber().isEmpty() &&
+           !req.getPhoneNumber().equals("Không có")){
+            customer = customerService.getOrCreate(customerName, req.getPhoneNumber());
         }
         Invoice invoice = new Invoice();
         invoice.setInvoiceCode(generateInvoiceCode());

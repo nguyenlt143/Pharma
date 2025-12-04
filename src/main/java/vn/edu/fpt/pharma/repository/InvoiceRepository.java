@@ -204,19 +204,21 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     @Query(value = """
     SELECT
         s.name AS shiftName,
-        COUNT(i.id) AS orderCount,
-        SUM(CASE WHEN LOWER(i.payment_method) IN ('tiền mặt', 'cash') THEN i.total_price ELSE 0 END) AS cashTotal,
-        SUM(CASE WHEN LOWER(i.payment_method) IN ('chuyển khoản', 'transfer') THEN i.total_price ELSE 0 END) AS transferTotal,
-        SUM(i.total_price) AS totalRevenue
-    FROM invoices i
-    JOIN shift_works sw ON i.shift_work_id = sw.id
-    JOIN shift_assignments sa ON sw.assignment_id = sa.id
-    JOIN shifts s ON sa.shift_id = s.id
-    WHERE i.user_id = :userId
-      AND i.invoice_type = 'PAID'
-      AND i.deleted = 0
-      AND LOWER(i.payment_method) IN ('tiền mặt', 'cash', 'chuyển khoản', 'transfer')
-      AND DATE(sw.work_date) = DATE(NOW())
+        COALESCE(COUNT(i.id), 0) AS orderCount,
+        COALESCE(SUM(CASE WHEN LOWER(i.payment_method) IN ('tiền mặt', 'cash') THEN i.total_price ELSE 0 END), 0) AS cashTotal,
+        COALESCE(SUM(CASE WHEN LOWER(i.payment_method) IN ('chuyển khoản', 'transfer') THEN i.total_price ELSE 0 END), 0) AS transferTotal,
+        COALESCE(SUM(i.total_price), 0) AS totalRevenue
+    FROM shifts s
+    LEFT JOIN shift_assignments sa ON s.id = sa.shift_id AND sa.deleted = 0
+    LEFT JOIN shift_works sw ON sa.id = sw.assignment_id AND sw.deleted = 0 
+        AND DATE(sw.work_date) >= DATE_SUB(DATE(NOW()), INTERVAL 90 DAY)
+        AND sa.user_id = :userId
+    LEFT JOIN invoices i ON sw.id = i.shift_work_id 
+        AND i.user_id = :userId
+        AND i.invoice_type = 'PAID'
+        AND i.deleted = 0
+        AND LOWER(i.payment_method) IN ('tiền mặt', 'cash', 'chuyển khoản', 'transfer')
+    WHERE s.deleted = 0
     GROUP BY s.id, s.name, s.start_time
     ORDER BY s.start_time;
     """, nativeQuery = true)
@@ -229,13 +231,13 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
             SELECT\s
                 b.name AS branch_name,
                 b.address AS branch_address,
-                c.name AS customer_name,
-                c.phone AS customer_phone,
+                COALESCE(c.name, 'Khách lẻ') AS customer_name,
+                COALESCE(c.phone, 'Không có') AS customer_phone,
                 i.created_at,
                 i.total_price,
                 i.description
             FROM invoices i
-            JOIN customers c ON i.customer_id = c.id
+            LEFT JOIN customers c ON i.customer_id = c.id
             JOIN branchs b ON i.branch_id = b.id
             WHERE i.id = ?;
         """, nativeQuery = true)

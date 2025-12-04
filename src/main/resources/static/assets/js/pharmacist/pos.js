@@ -11,26 +11,54 @@ const notesTextarea = document.querySelector('.form-textarea');
 
 const resultContainer = document.querySelector('#medicine-list');
 
+// Check critical elements
+if (!searchInput) {
+    console.error('Search input element not found!');
+}
+if (!resultContainer) {
+    console.error('Result container element not found!');
+}
+
 let debounceTimer;
 
-searchInput.addEventListener('input', () => {
-  clearTimeout(debounceTimer);
+// Only add event listener if searchInput exists
+if (searchInput) {
+  searchInput.addEventListener('input', () => {
+  try {
+    console.log('Search input triggered');
+    clearTimeout(debounceTimer);
 
-  debounceTimer = setTimeout(() => {
-    const searchTerm = searchInput.value.trim();
+    debounceTimer = setTimeout(() => {
+      const searchTerm = searchInput.value.trim();
+      console.log('Search term:', searchTerm);
 
-    if (searchTerm.length === 0) {
-      resultContainer.innerHTML = "";
-      return;
-    }
+      if (searchTerm.length === 0) {
+        resultContainer.innerHTML = "";
+        return;
+      }
 
-    fetch(`/pharmacist/pos/api/search?keyword=${encodeURIComponent(searchTerm)}`)
-      .then(res => res.json())
-      .then(data => {
-        renderResults(data);
-      });
-  }, 300); // delay 300ms
-});
+      console.log('Fetching search results...');
+      fetch(`/pharmacist/pos/api/search?keyword=${encodeURIComponent(searchTerm)}`)
+        .then(res => {
+          console.log('Search API response status:', res.status);
+          return res.json();
+        })
+        .then(data => {
+          console.log('Search results:', data);
+          renderResults(data);
+        })
+        .catch(error => {
+          console.error('Search API error:', error);
+          resultContainer.innerHTML = '<div style="color: red; padding: 10px;">Lỗi tìm kiếm: ' + error.message + '</div>';
+        });
+    }, 300); // delay 300ms
+  } catch (error) {
+    console.error('Error in search input handler:', error);
+  }
+  });
+} else {
+  console.error('Cannot add search event listener - searchInput element not found');
+}
 
 function renderResults(medicines) {
     let html = "";
@@ -94,22 +122,42 @@ function addEventListenersToMedicineCards() {
                                         const expiryDate = inv.expiryDate ? new Date(inv.expiryDate).toLocaleDateString('vi-VN') : 'N/A';
                                         const salePrice = inv.salePrice ? inv.salePrice.toLocaleString('vi-VN') + ' VNĐ' : 'Chưa có giá';
                                         inventoryInfoHtml += `
-                                            <div class="inventory-item"
-                                            data-inventory-id="${inv.id}"
-                                            data-medicine-name="${medicineName}"
-                                            data-units='${JSON.stringify(variant.unitConversion)}'
-                                            data-strength="${variant.strength}"
-                                            data-base-unit-name="${variant.baseUnitName}"
-                                            data-variant-id="${variant.variantId}"
-                                            data-batch-number="${inv.batchNumber}"
-                                            data-expiry-date="${inv.expiryDate}"
-                                            data-sale-price="${inv.salePrice}"
-                                            data-max-quantity="${inv.quantity}"
-                                            style="margin-bottom: 10px; padding: 5px; background-color: #f9f9f9; border-radius: 4px; cursor: pointer;">
-                                                <strong>Số lô: ${inv.batchNumber || 'N/A'}</strong><br>
-                                                HSD: ${expiryDate}<br>
-                                                Tồn kho: <strong>${inv.quantity}</strong> ${variant.baseUnitName || ''}<br>
-                                                Giá bán: <strong style="color: #c0392b;">${inv.salePrice}</strong><br>
+                                            <div class="inventory-wrapper" style="margin-bottom: 10px; padding: 8px; background-color: #f9f9f9; border-radius: 4px;">
+                                                <div class="inventory-item"
+                                                data-inventory-id="${inv.id}"
+                                                data-medicine-name="${medicineName}"
+                                                data-units='${JSON.stringify(variant.unitConversion)}'
+                                                data-strength="${variant.strength}"
+                                                data-base-unit-name="${variant.baseUnitName}"
+                                                data-variant-id="${variant.variantId}"
+                                                data-batch-number="${inv.batchNumber}"
+                                                data-expiry-date="${inv.expiryDate}"
+                                                data-sale-price="${inv.salePrice}"
+                                                data-max-quantity="${inv.quantity}"
+                                                style="cursor: pointer; padding: 4px; border-radius: 2px;"
+                                                title="Click để thêm vào đơn thuốc">
+                                                    <strong>Số lô: ${inv.batchNumber || 'N/A'}</strong><br>
+                                                    HSD: ${expiryDate}<br>
+                                                    Tồn kho: <strong>${inv.quantity}</strong> ${variant.baseUnitName || ''}<br>
+                                                    Giá bán: <strong style="color: #c0392b;">${salePrice}</strong>
+                                                </div>
+                                                <div style="margin-top: 8px;">
+                                                    <button class="add-to-cart-btn"
+                                                            data-inventory-id="${inv.id}"
+                                                            data-medicine-name="${medicineName}"
+                                                            data-units='${JSON.stringify(variant.unitConversion)}'
+                                                            data-strength="${variant.strength}"
+                                                            data-base-unit-name="${variant.baseUnitName}"
+                                                            data-variant-id="${variant.variantId}"
+                                                            data-batch-number="${inv.batchNumber}"
+                                                            data-expiry-date="${inv.expiryDate}"
+                                                            data-sale-price="${inv.salePrice}"
+                                                            data-max-quantity="${inv.quantity}"
+                                                            style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 3px; font-size: 12px; cursor: pointer; width: 100%;"
+                                                            ${inv.quantity <= 0 ? 'disabled' : ''}>
+                                                        ${inv.quantity <= 0 ? 'Hết hàng' : 'Thêm vào đơn'}
+                                                    </button>
+                                                </div>
                                             </div>
                                         `;
                                     });
@@ -144,89 +192,152 @@ function addEventListenersToMedicineCards() {
 let prescriptionItems = [];
 
 function addInventoryItemClickListeners() {
-    const inventoryItems = document.querySelectorAll('.inventory-item');
-    inventoryItems.forEach(item => {
-        const medicineName = item.dataset.medicineName;
-        item.addEventListener('click', (e) => {
-            e.stopPropagation();
+    console.log('Setting up inventory item click listeners');
 
-            // Extract all data from data attributes
-            const medicineName = item.dataset.medicineName;
-            const unitConversions = JSON.parse(item.dataset.units || "[]");
-            const inventoryId = item.dataset.inventoryId;
-            const maxQuantity = parseInt(item.dataset.maxQuantity, 10);
-            const salePrice = parseFloat(item.dataset.salePrice);
+    // Remove existing event listeners to prevent duplicates
+    document.removeEventListener('click', handleInventoryClicks);
 
-            // Debug log to check what data we're getting
-            console.log('Clicked inventory item data:', {
-                inventoryId,
-                medicineName: item.dataset.medicineName,
-                strength: item.dataset.strength,
-                batchNumber: item.dataset.batchNumber,
-                expiryDate: item.dataset.expiryDate,
-                salePrice,
-                maxQuantity
-            });
+    // Add event delegation for inventory items and buttons
+    document.addEventListener('click', handleInventoryClicks);
+}
 
-            // Validate inventory data
-            if (!inventoryId) {
-                alert('Lỗi: Không tìm thấy thông tin inventory.');
-                console.error('Missing inventoryId in dataset:', item.dataset);
-                return;
-            }
+function handleInventoryClicks(e) {
+    // Handle add-to-cart button clicks
+    if (e.target.classList.contains('add-to-cart-btn')) {
+        e.stopPropagation();
+        e.preventDefault();
 
-            if (isNaN(maxQuantity) || maxQuantity <= 0) {
-                alert('Sản phẩm đã hết hàng.');
-                return;
-            }
+        console.log('Add to cart button clicked');
+        const button = e.target;
 
-            if (isNaN(salePrice) || salePrice <= 0) {
-                alert('Sản phẩm chưa có giá bán. Vui lòng cập nhật giá trước khi bán.');
-                return;
-            }
+        // Extract data from button's data attributes
+        const inventoryData = {
+            inventoryId: button.dataset.inventoryId,
+            medicineName: button.dataset.medicineName,
+            unitConversions: JSON.parse(button.dataset.units || "[]"),
+            maxQuantity: parseInt(button.dataset.maxQuantity, 10),
+            salePrice: parseFloat(button.dataset.salePrice),
+            strength: button.dataset.strength,
+            batchNumber: button.dataset.batchNumber,
+            expiryDate: button.dataset.expiryDate,
+            baseUnitName: button.dataset.baseUnitName
+        };
 
-            const existingItem = prescriptionItems.find(p => p.inventoryId === inventoryId);
+        addItemToPrescription(inventoryData, button);
+        return;
+    }
 
-            if (existingItem) {
-                // Validate quantity before increasing
-                if (existingItem.quantity < maxQuantity) {
-                    existingItem.quantity++;
-                } else {
-                    alert('Số lượng đã đạt tối đa tồn kho (' + maxQuantity + ').');
-                    return;
+    // Handle inventory-item div clicks (alternative way to add)
+    if (e.target.closest('.inventory-item')) {
+        const item = e.target.closest('.inventory-item');
+
+        // Don't trigger if click was on a button
+        if (e.target.tagName === 'BUTTON') return;
+
+        console.log('Inventory item clicked');
+
+        // Extract data from inventory item's data attributes
+        const inventoryData = {
+            inventoryId: item.dataset.inventoryId,
+            medicineName: item.dataset.medicineName,
+            unitConversions: JSON.parse(item.dataset.units || "[]"),
+            maxQuantity: parseInt(item.dataset.maxQuantity, 10),
+            salePrice: parseFloat(item.dataset.salePrice),
+            strength: item.dataset.strength,
+            batchNumber: item.dataset.batchNumber,
+            expiryDate: item.dataset.expiryDate,
+            baseUnitName: item.dataset.baseUnitName
+        };
+
+        addItemToPrescription(inventoryData, null);
+    }
+}
+
+function addItemToPrescription(inventoryData, button) {
+    try {
+        console.log('Adding item to prescription:', inventoryData);
+
+        // Validate inventory data
+        if (!inventoryData.inventoryId) {
+            alert('Lỗi: Không tìm thấy thông tin inventory.');
+            return;
+        }
+
+        if (isNaN(inventoryData.maxQuantity) || inventoryData.maxQuantity <= 0) {
+            alert('Sản phẩm đã hết hàng.');
+            return;
+        }
+
+        if (isNaN(inventoryData.salePrice) || inventoryData.salePrice <= 0) {
+            alert('Sản phẩm chưa có giá bán. Vui lòng cập nhật giá trước khi bán.');
+            return;
+        }
+
+        const existingItem = prescriptionItems.find(p => p.inventoryId === inventoryData.inventoryId);
+
+        if (existingItem) {
+            // Validate quantity before increasing
+            if (existingItem.quantity < inventoryData.maxQuantity) {
+                existingItem.quantity++;
+
+                // Visual feedback for button
+                if (button) {
+                    const originalText = button.textContent;
+                    button.textContent = 'Đã thêm!';
+                    button.style.background = '#17a2b8';
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.style.background = '#28a745';
+                    }, 1000);
                 }
             } else {
-                // Create new prescription item with all required data
-                const newItem = {
-                    inventoryId: inventoryId,
-                    medicineName: item.dataset.medicineName || 'N/A',
-                    strength: item.dataset.strength || '',
-                    dosageForm: item.dataset.dosageForm || 'N/A',
-                    baseUnitName: item.dataset.baseUnitName || 'Đơn vị',
-                    packageUnitName: item.dataset.packageUnitName || '',
-                    batchNumber: item.dataset.batchNumber || 'N/A',
-                    expiryDate: item.dataset.expiryDate || 'N/A',
-
-
-                    salePrice: salePrice,
-                    currentPrice: salePrice,
-                    unitPrice: salePrice,
-                    quantity: 1,
-
-                    maxQuantity: maxQuantity,
-                    baseStock: maxQuantity,
-
-                    selectedMultiplier: 1,
-                    units: unitConversions
-                };
-
-                console.log('Adding new item to prescription:', newItem);
-                prescriptionItems.push(newItem);
+                alert('Số lượng đã đạt tối đa tồn kho (' + inventoryData.maxQuantity + ').');
+                return;
             }
-            renderPrescription();
-        });
-    });
+        } else {
+            // Create new prescription item
+            const newItem = {
+                inventoryId: inventoryData.inventoryId,
+                medicineName: inventoryData.medicineName || 'N/A',
+                strength: inventoryData.strength || '',
+                dosageForm: 'N/A',
+                baseUnitName: inventoryData.baseUnitName || 'Đơn vị',
+                packageUnitName: '',
+                batchNumber: inventoryData.batchNumber || 'N/A',
+                expiryDate: inventoryData.expiryDate || 'N/A',
+                salePrice: inventoryData.salePrice,
+                currentPrice: inventoryData.salePrice,
+                unitPrice: inventoryData.salePrice,
+                quantity: 1,
+                maxQuantity: inventoryData.maxQuantity,
+                baseStock: inventoryData.maxQuantity,
+                selectedMultiplier: 1,
+                units: inventoryData.unitConversions
+            };
+
+            console.log('Adding new item to prescription:', newItem);
+            prescriptionItems.push(newItem);
+
+            // Visual feedback for button
+            if (button) {
+                const originalText = button.textContent;
+                button.textContent = 'Đã thêm!';
+                button.style.background = '#17a2b8';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '#28a745';
+                }, 1000);
+            }
+        }
+
+        renderPrescription();
+    } catch (error) {
+        console.error('Error adding item to prescription:', error);
+        alert('Có lỗi xảy ra khi thêm vào đơn: ' + error.message);
+    }
 }
+
+
 
 function getTotalAmount() {
     return prescriptionItems.reduce((sum, item) => {
@@ -553,7 +664,14 @@ function clearError(fieldId) {
 function clearInput(fieldId) {
     const field = document.getElementById(fieldId);
     if (field) {
-        field.value = '';
+        // Set default values for customer info fields
+        if (fieldId === 'customerName') {
+            field.value = 'Khách lẻ';
+        } else if (fieldId === 'phoneNumber') {
+            field.value = 'Không có';
+        } else {
+            field.value = '';
+        }
         clearError(fieldId);
         validatePaymentForm();
     }
@@ -635,17 +753,28 @@ function validateField(fieldId, rules) {
 function validatePaymentForm() {
     const totalAmount = getTotalAmount();
 
+    // Set default values if empty
+    const customerNameInput = document.getElementById('customerName');
+    const phoneNumberInput = document.getElementById('phoneNumber');
+
+    if (!customerNameInput.value.trim()) {
+        customerNameInput.value = 'Khách lẻ';
+    }
+
+    if (!phoneNumberInput.value.trim() || phoneNumberInput.value === 'Không có') {
+        phoneNumberInput.value = 'Không có';
+    }
+
     const validations = [
         validateField('customerName', {
-            required: true,
-            maxLength: 100,
-            requiredMessage: 'Tên khách hàng không được để trống'
+            required: false,
+            maxLength: 100
         }),
 
         validateField('phoneNumber', {
             required: false,
-            pattern: /^(0|\+84)[0-9]{9,10}$/,
-            patternMessage: 'Số điện thoại phải bắt đầu bằng 0 hoặc +84 và có 10-11 chữ số'
+            pattern: /^((0|\+84)[0-9]{9,10}|Không có)$/,
+            patternMessage: 'Số điện thoại phải bắt đầu bằng 0 hoặc +84 và có 10-11 chữ số, hoặc để "Không có"'
         }),
 
         validateField('paidAmount', {
@@ -707,10 +836,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Collect form data
+            // Collect form data with default values
+            let customerName = document.getElementById('customerName').value.trim();
+            let phoneNumber = document.getElementById('phoneNumber').value.trim();
+
+            // Ensure default values
+            if (!customerName) customerName = 'Khách lẻ';
+            if (!phoneNumber) phoneNumber = 'Không có';
+
             const formData = {
-                customerName: document.getElementById('customerName').value.trim(),
-                phoneNumber: document.getElementById('phoneNumber').value.trim(),
+                customerName: customerName,
+                phoneNumber: phoneNumber,
                 totalAmount: getTotalAmount(),
                 paymentMethod: document.getElementById('paymentMethod').value,
                 note: document.getElementById('note').value.trim(),
@@ -726,7 +862,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Real-time validation on input
+    // Real-time validation on input with default value handling
     ['customerName', 'phoneNumber', 'paidAmount', 'paymentMethod', 'note'].forEach(fieldId => {
         const field = document.getElementById(fieldId);
         if (field) {
@@ -734,9 +870,31 @@ document.addEventListener('DOMContentLoaded', function() {
                 clearError(fieldId);
                 setTimeout(validatePaymentForm, 100); // Debounce
             });
-            field.addEventListener('blur', validatePaymentForm);
+
+            field.addEventListener('blur', () => {
+                // Auto-fill default values if empty
+                if (fieldId === 'customerName' && !field.value.trim()) {
+                    field.value = 'Khách lẻ';
+                }
+                if (fieldId === 'phoneNumber' && !field.value.trim()) {
+                    field.value = 'Không có';
+                }
+                validatePaymentForm();
+            });
         }
     });
+
+    // Set initial default values
+    const customerNameInput = document.getElementById('customerName');
+    const phoneNumberInput = document.getElementById('phoneNumber');
+
+    if (customerNameInput && !customerNameInput.value.trim()) {
+        customerNameInput.value = 'Khách lẻ';
+    }
+
+    if (phoneNumberInput && !phoneNumberInput.value.trim()) {
+        phoneNumberInput.value = 'Không có';
+    }
 
     // Calculate change amount
     const paidAmountField = document.getElementById('paidAmount');
@@ -861,14 +1019,73 @@ const validationStyles = `
         opacity: 0.6;
         cursor: not-allowed;
     }
+    .add-to-cart-btn {
+        background: #28a745 !important;
+        color: white !important;
+        border: none !important;
+        padding: 6px 12px !important;
+        border-radius: 4px !important;
+        font-size: 12px !important;
+        font-weight: 500 !important;
+        cursor: pointer !important;
+        width: 100% !important;
+        transition: all 0.2s ease !important;
+        margin-top: 5px !important;
+    }
+    .add-to-cart-btn:hover:not(:disabled) {
+        background: #218838 !important;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .add-to-cart-btn:active {
+        transform: translateY(0);
+    }
+    .add-to-cart-btn:disabled {
+        background: #6c757d !important;
+        cursor: not-allowed !important;
+        opacity: 0.7 !important;
+    }
+    .inventory-item {
+        transition: all 0.2s ease !important;
+    }
+    .inventory-item:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+        transform: translateY(-1px);
+    }
     </style>
 `;
 
 // Add styles to head
 document.head.insertAdjacentHTML('beforeend', validationStyles);
 
+// Event delegation is now used instead of global functions
+
 // Initialize POS page
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('POS page DOMContentLoaded');
+
+  // Check if all critical elements are available
+  const criticalElements = {
+    searchInput: document.querySelector('.search-input'),
+    resultContainer: document.querySelector('#medicine-list')
+  };
+
+  console.log('Critical elements check:', criticalElements);
+
+  // Re-check elements if they weren't found during initial load
+  Object.keys(criticalElements).forEach(key => {
+    if (!criticalElements[key]) {
+      console.warn(`${key} not found on DOMContentLoaded`);
+    }
+  });
+
   updatePaymentTotals();
-  if (searchInput) searchInput.focus();
+
+  // Focus search input if available
+  if (criticalElements.searchInput) {
+    criticalElements.searchInput.focus();
+    console.log('Search input focused');
+  } else {
+    console.warn('Cannot focus search input - element not found');
+  }
 });

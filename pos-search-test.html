@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test POS Search</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .search-input { width: 300px; padding: 10px; border: 1px solid #ccc; }
+        #medicine-list { margin-top: 20px; }
+        .medicine-card {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        .medicine-card:hover { background-color: #f5f5f5; }
+        .inventory-item {
+            background: #f9f9f9;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+        .add-to-cart-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test POS Search Functionality</h1>
+
+    <div>
+        <input type="text" class="search-input" placeholder="Tìm kiếm thuốc..." />
+    </div>
+
+    <div id="medicine-list"></div>
+
+    <script>
+        console.log('Testing POS search functionality');
+
+        // Mock data
+        const mockMedicines = [
+            { id: 1, name: 'Paracetamol 500mg', activeIngredient: 'Paracetamol' },
+            { id: 2, name: 'Amoxicillin 250mg', activeIngredient: 'Amoxicillin' },
+            { id: 3, name: 'Ibuprofen 200mg', activeIngredient: 'Ibuprofen' }
+        ];
+
+        // DOM Elements
+        const searchInput = document.querySelector('.search-input');
+        const resultContainer = document.querySelector('#medicine-list');
+
+        console.log('Search input found:', !!searchInput);
+        console.log('Result container found:', !!resultContainer);
+
+        let debounceTimer;
+
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                try {
+                    console.log('Search input triggered');
+                    clearTimeout(debounceTimer);
+
+                    debounceTimer = setTimeout(() => {
+                        const searchTerm = searchInput.value.trim().toLowerCase();
+                        console.log('Search term:', searchTerm);
+
+                        if (searchTerm.length === 0) {
+                            resultContainer.innerHTML = "";
+                            return;
+                        }
+
+                        // Filter mock data
+                        const filteredMedicines = mockMedicines.filter(med =>
+                            med.name.toLowerCase().includes(searchTerm) ||
+                            med.activeIngredient.toLowerCase().includes(searchTerm)
+                        );
+
+                        console.log('Filtered results:', filteredMedicines);
+                        renderResults(filteredMedicines);
+                    }, 300);
+                } catch (error) {
+                    console.error('Error in search:', error);
+                }
+            });
+        }
+
+        function renderResults(medicines) {
+            console.log('Rendering results:', medicines);
+            let html = "";
+            medicines.forEach(medicine => {
+                html += `
+                    <div class="medicine-card" data-medicine-id="${medicine.id}">
+                        <h3>${medicine.name}</h3>
+                        <p>Hoạt chất: ${medicine.activeIngredient}</p>
+
+                        <div class="inventory-item"
+                             data-inventory-id="test-${medicine.id}"
+                             data-medicine-name="${medicine.name}"
+                             data-sale-price="15000"
+                             data-max-quantity="100">
+                            <strong>Số lô: TEST-${medicine.id}</strong><br>
+                            HSD: 31/12/2025<br>
+                            Tồn kho: <strong>100</strong> viên<br>
+                            Giá bán: <strong>15,000 VNĐ</strong>
+                            <button class="add-to-cart-btn" onclick="testAddToCart(this, event)">
+                                Thêm vào đơn
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            resultContainer.innerHTML = html;
+        }
+
+        function testAddToCart(button, event) {
+            try {
+                console.log('Test add to cart called');
+                if (event) {
+                    event.stopPropagation();
+                    event.preventDefault();
+                }
+
+                const inventoryItem = button.closest('.inventory-item');
+                const medicineName = inventoryItem.dataset.medicineName;
+
+                console.log('Adding to cart:', medicineName);
+
+                // Visual feedback
+                button.textContent = 'Đã thêm!';
+                button.style.background = '#17a2b8';
+                setTimeout(() => {
+                    button.textContent = 'Thêm vào đơn';
+                    button.style.background = '#28a745';
+                }, 1000);
+
+                alert('Đã thêm ' + medicineName + ' vào đơn!');
+            } catch (error) {
+                console.error('Error in test add to cart:', error);
+                alert('Lỗi: ' + error.message);
+            }
+        }
+
+        console.log('Test script loaded successfully');
+    </script>
+</body>
+</html>
+

@@ -99,16 +99,16 @@
                         <div class="customer-info">
                             <div class="form-group">
                                 <label class="form-label">
-                                    Tên khách hàng <span class="required">*</span>
+                                    Tên khách hàng
                                 </label>
                                 <div class="input-wrapper">
                                     <input type="text"
                                            class="form-input"
                                            id="customerName"
                                            name="customerName"
-                                           required
                                            maxlength="100"
-                                           placeholder="Nhập tên khách hàng">
+                                           value="Khách lẻ"
+                                           placeholder="Khách lẻ">
                                     <button type="button" class="clear-button" onclick="clearInput('customerName')">
                                         <span class="material-icons">close</span>
                                     </button>
@@ -125,7 +125,8 @@
                                            name="phoneNumber"
                                            pattern="^(0|\+84)[0-9]{9,10}$"
                                            title="Số điện thoại phải bắt đầu bằng 0 hoặc +84 và có 10-11 chữ số"
-                                           placeholder="Nhập số điện thoại">
+                                           placeholder="Không có"
+                                           value="Không có">
                                     <button type="button" class="clear-button" onclick="clearInput('phoneNumber')">
                                         <span class="material-icons">close</span>
                                     </button>
