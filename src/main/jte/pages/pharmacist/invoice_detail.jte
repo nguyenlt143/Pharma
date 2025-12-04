@@ -3,7 +3,7 @@
 @param vn.edu.fpt.pharma.config.CustomUserDetails user
 @param java.util.List<vn.edu.fpt.pharma.dto.invoice.MedicineItemVM> medicines
 
-@template.layouts.pharmacist(
+@template.layouts.layout_test(
     headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/invoice_detail.css">`,
     content = @`
     <main class="main-content">

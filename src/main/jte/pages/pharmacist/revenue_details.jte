@@ -2,7 +2,7 @@
 @param String success = null
 @param String error = null
 
-@template.layouts.pharmacist(
+@template.layouts.layout_test(
     headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/revenue_details.css">`,
     content = @`
     <main class="main-content">

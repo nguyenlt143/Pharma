@@ -1,6 +1,6 @@
 @param String keyword
 @param Boolean inShift
-@template.layouts.pharmacist(
+@template.layouts.layout_test(
     headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/pos.css">`,
     content = @`
     @if(!inShift)
