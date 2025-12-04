@@ -2,6 +2,11 @@ spring:
   application:
     name: pharma
 
+  web:
+    resources:
+      static-locations: classpath:/static/
+      add-mappings: true
+
   datasource:
     url: jdbc:mysql://localhost:3308/medicine?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: root
