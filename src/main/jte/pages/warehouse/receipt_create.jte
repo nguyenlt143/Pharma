@@ -76,7 +76,7 @@ content = @`
                             <th>NSX</th>
                             <th>HSD</th>
                             <th>Số lượng</th>
-                            <th>Giá nhập</th>
+                            <th>Giá nhập(VNĐ)</th>
                             <th></th>
                         </tr>
                         </thead>
