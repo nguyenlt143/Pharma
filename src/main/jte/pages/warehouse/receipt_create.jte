@@ -71,6 +71,7 @@ content = @`
                             <th>STT</th>
                             <th>Tên thuốc</th>
                             <th>ĐVT</th>
+                            <th>S.lg/Hộp</th>
                             <th>Hàm lượng</th>
                             <th>Số lô</th>
                             <th>NSX</th>
@@ -89,6 +90,7 @@ content = @`
                 <div class="total-section">
                     <span class="total-label">TỔNG SỐ TIỀN:</span>
                     <span class="total-amount" id="totalAmount">0</span>
+                    <span class="total-currency">VNĐ</span>
                 </div>
             </div>
         </section>

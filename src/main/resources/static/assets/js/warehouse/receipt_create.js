@@ -37,11 +37,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const row = document.createElement('tr');
         row.className = 'table-row';
         row.dataset.variantId = product.variantId;
+        row.dataset.quantityPerPackage = product.quantityPerPackage || '';
+
+        const qtyPerPackage = product.quantityPerPackage ? Math.round(product.quantityPerPackage) : 'N/A';
 
         row.innerHTML = `
             <td class="col-stt">${rowCount + 1}</td>
             <td class="col-medicine">${product.medicineName}</td>
             <td class="col-unit">${product.unit}</td>
+            <td class="col-qty-per-package">${qtyPerPackage}</td>
             <td class="col-concentration">${product.concentration}</td>
             <td class="col-batch">
                 <input type="text" class="batch-input" placeholder="Nhập số lô" required>
@@ -71,8 +75,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Lắng nghe thay đổi số lượng và giá
     productTableBody.addEventListener('input', function(e) {
-        if (e.target.classList.contains('quantity-input') ||
-            e.target.classList.contains('price-input')) {
+        if (e.target.classList.contains('quantity-input')) {
+            const row = e.target.closest('.table-row');
+            const quantityPerPackage = parseFloat(row.dataset.quantityPerPackage);
+            const quantity = parseFloat(e.target.value);
+
+            // Validate quantity divisibility
+            if (quantityPerPackage && quantity > 0) {
+                if (quantity % quantityPerPackage !== 0) {
+                    e.target.style.border = '2px solid red';
+                    e.target.title = `Số lượng phải chia hết cho số viên trong một hộp (${Math.round(quantityPerPackage)} viên/hộp)`;
+                } else {
+                    e.target.style.border = '';
+                    e.target.title = '';
+                }
+            }
+            calculateTotal();
+        }
+
+        if (e.target.classList.contains('price-input')) {
             calculateTotal();
         }
     });
@@ -167,6 +188,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 return false;
             }
 
+            // Validate quantity divisibility
+            const quantityPerPackage = parseFloat(row.dataset.quantityPerPackage);
+            const quantity = parseInt(qtyInput.value);
+            if (quantityPerPackage && quantity > 0) {
+                if (quantity % quantityPerPackage !== 0) {
+                    alert(`Số lượng nhập phải chia hết cho số viên trong một hộp (${Math.round(quantityPerPackage)} viên/hộp)`);
+                    qtyInput.focus();
+                    return false;
+                }
+            }
+
             if (!priceInput.value || parseFloat(priceInput.value) < 0) {
                 alert('Vui lòng nhập giá nhập hợp lệ');
                 priceInput.focus();
@@ -215,7 +247,9 @@ document.addEventListener('DOMContentLoaded', function() {
         })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Lỗi khi tạo phiếu nhập');
+                    return response.json().then(err => {
+                        throw new Error(err.message || 'Lỗi khi tạo phiếu nhập');
+                    });
                 }
                 return response.json();
             })
@@ -321,7 +355,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="modal-list-item" data-id="${medicine.id}" 
                              data-name="${medicine.medicineName}"
                              data-unit="${medicine.unit}"
-                             data-concentration="${medicine.concentration || ''}">
+                             data-concentration="${medicine.concentration || ''}"
+                             data-quantity-per-package="${medicine.quantityPerPackage || ''}">
                             <div class="item-name">${medicine.medicineName}</div>
                             <div class="item-info">ĐVT: ${medicine.unit} - Hàm lượng: ${medicine.concentration || 'N/A'}</div>
                         </div>
@@ -334,7 +369,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                 variantId: this.dataset.id,
                                 medicineName: this.dataset.name,
                                 unit: this.dataset.unit,
-                                concentration: this.dataset.concentration
+                                concentration: this.dataset.concentration,
+                                quantityPerPackage: this.dataset.quantityPerPackage
                             };
 
                             addProductRow(product);
