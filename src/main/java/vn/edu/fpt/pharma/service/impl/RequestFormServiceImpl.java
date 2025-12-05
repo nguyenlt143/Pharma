@@ -438,6 +438,8 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
 
     @Override
     public String createReturnRequest(Long branchId, vn.edu.fpt.pharma.dto.inventory.ReturnRequestDTO request) {
+        System.out.println("DEBUG createReturnRequest: note from DTO = " + request.getNote());
+        
         // Create RequestForm for RETURN
         RequestForm requestForm = RequestForm.builder()
                 .branchId(branchId)
@@ -447,6 +449,7 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
                 .build();
 
         RequestForm savedForm = repository.save(requestForm);
+        System.out.println("DEBUG createReturnRequest: saved form ID = " + savedForm.getId() + ", note = " + savedForm.getNote());
 
         // Create RequestDetails
         for (vn.edu.fpt.pharma.dto.inventory.ReturnRequestDTO.ReturnItemDTO item : request.getItems()) {
