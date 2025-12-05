@@ -1,46 +1,294 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Tab functionality
-    const tabs = document.querySelectorAll('.tab');
+    let currentFilters = {
+        type: '',
+        branchId: '',
+        status: '',
+        date: ''
+    };
 
-    tabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-            // Remove active class from all tabs
-            tabs.forEach(t => t.classList.remove('active'));
+    // Initialize dropdown default selections
+    function initializeDropdowns() {
+        // Set first item (Tất cả) as selected by default for branch filter
+        const branchItems = document.querySelectorAll('#branch-menu .dropdown-item');
+        if (branchItems.length > 0) {
+            branchItems[0].classList.add('selected');
+        }
 
-            // Add active class to clicked tab
-            this.classList.add('active');
+        // Set first item (Tất cả) as selected by default for status filter
+        const statusItems = document.querySelectorAll('#status-menu .dropdown-item');
+        if (statusItems.length > 0) {
+            statusItems[0].classList.add('selected');
+        }
+    }
 
-            // Update tab styles based on active state
-            updateTabStyles();
+    // Initialize on page load
+    initializeDropdowns();
+
+    // Function to clear all filters
+    function clearAllFilters() {
+        currentFilters = {
+            type: '',
+            branchId: '',
+            status: '',
+            date: ''
+        };
+
+        // Reset dropdown texts
+        document.getElementById('branch-filter').querySelector('.filter-text').textContent = 'Chi Nhánh';
+        document.getElementById('status-filter').querySelector('.filter-text').textContent = 'Trạng thái';
+        document.getElementById('date-filter').querySelector('.filter-text').textContent = 'Ngày';
+
+        // Clear date input
+        document.getElementById('date-input').value = '';
+
+        // Reset selected states
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            item.classList.remove('selected');
         });
-    });
 
-    function updateTabStyles() {
-        tabs.forEach(tab => {
-            const tabText = tab.querySelector('.tab-text');
-            if (tab.classList.contains('active')) {
-                tab.style.backgroundColor = '#F8F9FC';
-                tab.style.boxShadow = '0px 0px 4px rgba(0, 0, 0, 0.1)';
-                tabText.style.color = '#0D131C';
-            } else {
-                tab.style.backgroundColor = 'transparent';
-                tab.style.boxShadow = 'none';
-                tabText.style.color = '#49699C';
-            }
+        // Set default selections
+        initializeDropdowns();
+
+        // Refresh data
+        fetchRequests();
+    }
+
+    // Clear filters button event
+    const clearFiltersButton = document.getElementById('clear-filters');
+    if (clearFiltersButton) {
+        clearFiltersButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            clearAllFilters();
         });
     }
 
-    // Filter button functionality
-    const filterButtons = document.querySelectorAll('.filter-button');
-
-    filterButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const filterText = this.querySelector('.filter-text').textContent;
-            console.log(`Filter clicked: ${filterText}`);
-
-            // Add your filter logic here
-        });
+    // Add keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Escape key to close dropdowns
+        if (e.key === 'Escape') {
+            closeAllDropdowns();
+        }
+        // Ctrl+R to clear filters
+        if (e.ctrlKey && e.key === 'r') {
+            e.preventDefault();
+            clearAllFilters();
+        }
     });
+
+    // Branch filter dropdown
+    const branchFilter = document.getElementById('branch-filter');
+    const branchMenu = document.getElementById('branch-menu');
+
+    if (branchFilter && branchMenu) {
+        branchFilter.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isOpen = branchMenu.classList.contains('show');
+            closeAllDropdowns();
+
+            if (!isOpen) {
+                branchMenu.classList.add('show');
+                branchFilter.classList.add('open');
+            }
+        });
+
+        const branchItems = branchMenu.querySelectorAll('.dropdown-item');
+        branchItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.stopPropagation();
+
+                // Remove selected class from all items
+                branchItems.forEach(i => i.classList.remove('selected'));
+                // Add selected class to clicked item
+                this.classList.add('selected');
+
+                const value = this.getAttribute('data-value');
+                const text = this.textContent;
+                branchFilter.querySelector('.filter-text').textContent = text;
+                currentFilters.branchId = value;
+
+                branchMenu.classList.remove('show');
+                branchFilter.classList.remove('open');
+                fetchRequests();
+            });
+        });
+    }
+
+    // Status filter dropdown
+    const statusFilter = document.getElementById('status-filter');
+    const statusMenu = document.getElementById('status-menu');
+
+    if (statusFilter && statusMenu) {
+        statusFilter.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isOpen = statusMenu.classList.contains('show');
+            closeAllDropdowns();
+
+            if (!isOpen) {
+                statusMenu.classList.add('show');
+                statusFilter.classList.add('open');
+            }
+        });
+
+        const statusItems = statusMenu.querySelectorAll('.dropdown-item');
+        statusItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.stopPropagation();
+
+                // Remove selected class from all items
+                statusItems.forEach(i => i.classList.remove('selected'));
+                // Add selected class to clicked item
+                this.classList.add('selected');
+
+                const value = this.getAttribute('data-value');
+                const text = this.textContent;
+                statusFilter.querySelector('.filter-text').textContent = text;
+                currentFilters.status = value;
+
+                statusMenu.classList.remove('show');
+                statusFilter.classList.remove('open');
+                fetchRequests();
+            });
+        });
+    }
+
+    // Date filter
+    const dateFilter = document.getElementById('date-filter');
+    const dateInput = document.getElementById('date-input');
+
+    if (dateFilter && dateInput) {
+        dateFilter.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeAllDropdowns();
+            dateInput.style.opacity = '1';
+            dateInput.style.pointerEvents = 'auto';
+            dateInput.focus();
+            dateInput.click();
+        });
+
+        dateInput.addEventListener('change', function() {
+            const selectedDate = this.value;
+            if (selectedDate) {
+                // Format date for display (optional)
+                const formattedDate = new Date(selectedDate).toLocaleDateString('vi-VN');
+                dateFilter.querySelector('.filter-text').textContent = formattedDate;
+                currentFilters.date = selectedDate;
+                fetchRequests();
+            }
+            this.style.opacity = '0';
+            this.style.pointerEvents = 'none';
+        });
+
+        dateInput.addEventListener('blur', function() {
+            this.style.opacity = '0';
+            this.style.pointerEvents = 'none';
+        });
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function() {
+        closeAllDropdowns();
+    });
+
+    // Function to close all dropdowns
+    function closeAllDropdowns() {
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+            menu.classList.remove('show');
+        });
+        document.querySelectorAll('.filter-button').forEach(button => {
+            button.classList.remove('open');
+        });
+
+        // Also hide date input
+        if (dateInput) {
+            dateInput.style.opacity = '0';
+            dateInput.style.pointerEvents = 'none';
+        }
+    }
+
+    // Fetch requests from server
+    function fetchRequests() {
+        const params = new URLSearchParams();
+
+        if (currentFilters.type) {
+            params.append('type', currentFilters.type);
+        }
+        if (currentFilters.branchId) {
+            params.append('branchId', currentFilters.branchId);
+        }
+        if (currentFilters.status) {
+            params.append('status', currentFilters.status);
+        }
+        if (currentFilters.date) {
+            params.append('date', currentFilters.date);
+        }
+
+        fetch(`/warehouse/request/list/filter?${params.toString()}`)
+            .then(response => response.json())
+            .then(data => {
+                updateTable(data);
+            })
+            .catch(error => {
+                console.error('Error fetching requests:', error);
+            });
+    }
+
+    // Update table with new data
+    function updateTable(requests) {
+        const tbody = document.getElementById('request-tbody');
+
+        if (requests.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align: center;">Không có dữ liệu</td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = requests.map(request => {
+            const requestType = request.requestType === 'IMPORT' ? 'Nhập hàng' :
+                              request.requestType === 'RETURN' ? 'Trả hàng' : 'Không xác định';
+
+            let statusHtml = '';
+            if (request.requestStatus === 'REQUESTED') {
+                statusHtml = '<div class="status-button pending">Đang duyệt</div>';
+            } else if (request.requestStatus === 'CONFIRMED') {
+                statusHtml = '<div class="status-button approved">Chấp nhận</div>';
+            } else if (request.requestStatus === 'CANCELLED') {
+                statusHtml = '<div class="status-button rejected">Từ chối</div>';
+            } else {
+                statusHtml = '<div class="status-button undefined">Không xác định</div>';
+            }
+
+            return `
+                <tr>
+                    <td>${request.branchName}</td>
+                    <td>${request.createdAt}</td>
+                    <td>${requestType}</td>
+                    <td>${statusHtml}</td>
+                    <td>
+                        <a href="/warehouse/request/detail?id=${request.id}" class="detail-link">Xem Chi Tiết</a>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // Filter by date (client-side filtering for simplicity)
+    function filterByDate(selectedDate) {
+        const rows = document.querySelectorAll('#request-tbody tr');
+        rows.forEach(row => {
+            const dateCell = row.cells[1];
+            if (dateCell) {
+                const cellDate = dateCell.textContent.trim();
+                if (cellDate === selectedDate) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        });
+    }
 
     // Detail link functionality
     const detailLinks = document.querySelectorAll('.detail-link');

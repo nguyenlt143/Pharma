@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service;
 import vn.edu.fpt.pharma.base.BaseServiceImpl;
 import vn.edu.fpt.pharma.constant.BranchType;
 import vn.edu.fpt.pharma.constant.RequestType;
+import vn.edu.fpt.pharma.constant.MovementType;
+import vn.edu.fpt.pharma.constant.MovementStatus;
 import vn.edu.fpt.pharma.dto.requestform.RequestFormVM;
 import vn.edu.fpt.pharma.dto.warehouse.ExportCreateDTO;
 import vn.edu.fpt.pharma.dto.warehouse.RequestDetailVM;
@@ -32,13 +34,19 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     private final InventoryRepository inventoryRepository;
     private final MedicineVariantRepository medicineVariantRepository;
     private final PriceRepository priceRepository;
+    private final InventoryMovementRepository movementRepository;
+    private final InventoryMovementDetailRepository movementDetailRepository;
+    private final BatchRepository batchRepository;
 
     public RequestFormServiceImpl(RequestFormRepository repository, AuditService auditService,
                                    RequestDetailRepository requestDetailRepository,
                                    BranchRepository branchRepository,
                                    InventoryRepository inventoryRepository,
                                    MedicineVariantRepository medicineVariantRepository,
-                                   PriceRepository priceRepository) {
+                                   PriceRepository priceRepository,
+                                   InventoryMovementRepository movementRepository,
+                                   InventoryMovementDetailRepository movementDetailRepository,
+                                   BatchRepository batchRepository) {
         super(repository, auditService);
         this.repository = repository;
         this.requestDetailRepository = requestDetailRepository;
@@ -46,6 +54,9 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
         this.inventoryRepository = inventoryRepository;
         this.medicineVariantRepository = medicineVariantRepository;
         this.priceRepository = priceRepository;
+        this.movementRepository = movementRepository;
+        this.movementDetailRepository = movementDetailRepository;
+        this.batchRepository = batchRepository;
     }
 
     @Override
@@ -515,6 +526,85 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
         requestForm.setRequestStatus(vn.edu.fpt.pharma.constant.RequestStatus.CONFIRMED);
         repository.save(requestForm);
         log.info("Request {} has been confirmed", requestId);
+
+        // If this is a RETURN request, automatically create a BR_TO_WARE receipt
+        if (requestForm.getRequestType() == RequestType.RETURN) {
+            createBranchToWarehouseReceipt(requestForm);
+        }
+    }
+
+    private void createBranchToWarehouseReceipt(RequestForm requestForm) {
+        log.info("Creating BR_TO_WARE receipt for return request {}", requestForm.getId());
+
+        // Find warehouse branch (HEAD_QUARTER)
+        Branch warehouseBranch = branchRepository.findAll().stream()
+                .filter(b -> b.getBranchType() == BranchType.HEAD_QUARTER)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Warehouse branch not found"));
+
+        // Create InventoryMovement with DRAFT status
+        InventoryMovement movement = InventoryMovement.builder()
+                .movementType(MovementType.BR_TO_WARE)
+                .sourceBranchId(requestForm.getBranchId())
+                .destinationBranchId(warehouseBranch.getId())
+                .requestForm(requestForm)
+                .movementStatus(MovementStatus.DRAFT)
+                .totalMoney(0.0)
+                .build();
+
+        InventoryMovement savedMovement = movementRepository.save(movement);
+        log.info("Created BR_TO_WARE movement with ID: {}, status: DRAFT", savedMovement.getId());
+
+        // Get request details and create movement details
+        List<RequestDetail> requestDetails = requestDetailRepository.findByRequestFormId(requestForm.getId());
+
+        for (RequestDetail detail : requestDetails) {
+            MedicineVariant variant = medicineVariantRepository.findById(detail.getVariantId())
+                    .orElseThrow(() -> new RuntimeException("Variant not found: " + detail.getVariantId()));
+
+            // Find inventory items for this variant in the source branch
+            List<Inventory> branchInventories = inventoryRepository
+                    .findByBranchIdAndVariantId(requestForm.getBranchId(), detail.getVariantId());
+
+            Long remainingQty = detail.getQuantity();
+
+            // Create movement details for each batch (FIFO approach)
+            for (Inventory inventory : branchInventories) {
+                if (remainingQty <= 0) break;
+                if (inventory.getQuantity() <= 0) continue;
+
+                Long qtyToReturn = Math.min(remainingQty, inventory.getQuantity().longValue());
+
+                Batch batch = inventory.getBatch();
+                if (batch == null) {
+                    log.warn("Inventory {} has no batch, skipping", inventory.getId());
+                    continue;
+                }
+
+                // Create movement detail
+                InventoryMovementDetail movementDetail = InventoryMovementDetail.builder()
+                        .movement(savedMovement)
+                        .variant(variant)
+                        .batch(batch)
+                        .quantity(qtyToReturn)
+                        .price(0.0)
+                        .snapCost(inventory.getCostPrice())
+                        .build();
+
+                movementDetailRepository.save(movementDetail);
+                log.info("Created BR_TO_WARE detail: variant={}, batch={}, qty={}",
+                        variant.getId(), batch.getBatchCode(), qtyToReturn);
+
+                remainingQty -= qtyToReturn;
+            }
+
+            if (remainingQty > 0) {
+                log.warn("Could not fulfill full quantity for variant {}, remaining: {}",
+                        detail.getVariantId(), remainingQty);
+            }
+        }
+
+        log.info("Successfully created BR_TO_WARE receipt for return request {}", requestForm.getId());
     }
 
     @Override
@@ -529,5 +619,51 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
         requestForm.setRequestStatus(vn.edu.fpt.pharma.constant.RequestStatus.CANCELLED);
         repository.save(requestForm);
         log.info("Request {} has been cancelled", requestId);
+    }
+
+    @Override
+    public List<RequestList> getRequestList(String type, Long branchId, String status) {
+        return repository.findAll()
+                .stream()
+                .filter(request -> {
+                    // Filter by type
+                    if (type != null && !type.isEmpty()) {
+                        try {
+                            RequestType requestType = RequestType.valueOf(type);
+                            if (request.getRequestType() != requestType) {
+                                return false;
+                            }
+                        } catch (IllegalArgumentException e) {
+                            // Invalid type, skip filter
+                        }
+                    }
+
+                    // Filter by branch
+                    if (branchId != null && !request.getBranchId().equals(branchId)) {
+                        return false;
+                    }
+
+                    // Filter by status
+                    if (status != null && !status.isEmpty()) {
+                        try {
+                            vn.edu.fpt.pharma.constant.RequestStatus requestStatus =
+                                vn.edu.fpt.pharma.constant.RequestStatus.valueOf(status);
+                            if (request.getRequestStatus() != requestStatus) {
+                                return false;
+                            }
+                        } catch (IllegalArgumentException e) {
+                            // Invalid status, skip filter
+                        }
+                    }
+
+                    return true;
+                })
+                .sorted(Comparator.comparing(RequestForm::getCreatedAt,
+                        Comparator.nullsLast(Comparator.naturalOrder())).reversed())
+                .map(entity -> {
+                    String branchName = getBranchNameById(entity.getBranchId());
+                    return new RequestList(entity, branchName);
+                })
+                .toList();
     }
 }
