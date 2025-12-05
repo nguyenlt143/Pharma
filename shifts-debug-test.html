@@ -3,240 +3,318 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Shifts DataTable API</title>
+    <title>Shifts API Debug Test</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; max-width: 1200px; margin: 0 auto; }
-        .test-section { border: 1px solid #ddd; padding: 15px; margin: 15px 0; border-radius: 4px; }
-        .success { background: #d4edda; color: #155724; }
-        .error { background: #f8d7da; color: #721c24; }
-        .info { background: #d1ecf1; color: #0c5460; }
-        .btn { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
-        .btn:hover { background: #0056b3; }
-        .code-block { background: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace; white-space: pre-wrap; }
-        .table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .table th, .table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        .table th { background: #f8f9fa; }
-        #results { margin-top: 20px; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #2196F3;
+        }
+        .console-output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 3px 0;
+            border-bottom: 1px solid #333;
+        }
+        .log-info { color: #4FC3F7; }
+        .log-warn { color: #FFB74D; }
+        .log-error { color: #E57373; }
+        .log-success { color: #81C784; }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        table.dataTable {
+            margin-top: 20px !important;
+        }
     </style>
 </head>
 <body>
-    <h1>🔍 Test Shifts DataTable API</h1>
+    <div class="container">
+        <h1>🔍 Shifts API Debug Test</h1>
 
-    <div class="test-section info">
-        <h2>📋 Problem Analysis</h2>
-        <p><strong>Issue:</strong> shifts.jte không lấy được dữ liệu từ controller</p>
-        <p><strong>API Endpoint:</strong> <code>/pharmacist/all/shift</code></p>
-        <p><strong>Expected Response:</strong> DataTableResponse&lt;RevenueShiftVM&gt;</p>
-    </div>
-
-    <div class="test-section">
-        <h2>🧪 Test Cases</h2>
-        <button class="btn" onclick="testAPIEndpoint()">Test API Endpoint</button>
-        <button class="btn" onclick="testDataTableRequest()">Test DataTable Request</button>
-        <button class="btn" onclick="testErrorHandling()">Test Error Handling</button>
-        <button class="btn" onclick="testQueryStructure()">Test Query Structure</button>
-    </div>
-
-    <div id="results"></div>
-
-    <div class="test-section">
-        <h2>🔧 Fixes Applied</h2>
-
-        <h3>1. Query Improvements (InvoiceRepository.java)</h3>
-        <div class="code-block">
--- OLD Query (Only current day, INNER JOINs):
-SELECT s.name, COUNT(i.id), ...
-FROM invoices i
-JOIN shift_works sw ON ...
-JOIN shift_assignments sa ON ...
-JOIN shifts s ON ...
-WHERE ... AND DATE(sw.work_date) = DATE(NOW())
-
--- NEW Query (90 days, LEFT JOINs):
-SELECT s.name, COALESCE(COUNT(i.id), 0), ...
-FROM shifts s
-LEFT JOIN shift_assignments sa ON ...
-LEFT JOIN shift_works sw ON ... AND DATE(sw.work_date) >= DATE_SUB(DATE(NOW()), INTERVAL 90 DAY)
-LEFT JOIN invoices i ON ...
-WHERE s.deleted = 0
-GROUP BY s.id, s.name, s.start_time
+        <div class="test-section">
+            <h3>Test 1: Direct API Call</h3>
+            <button onclick="testDirectAPI()">Test API Endpoint</button>
+            <button onclick="clearConsole()">Clear Console</button>
+            <div id="console1" class="console-output"></div>
         </div>
 
-        <h3>2. Controller Error Handling</h3>
-        <div class="code-block">
-// Added proper error handling with fallback response
-try {
-    // ... normal processing
-    return ResponseEntity.ok(response);
-} catch (Exception e) {
-    log.error("Error getting shift revenue data", e);
-    // Return 200 with empty data instead of 400
-    return ResponseEntity.ok(emptyResponse);
-}
-        </div>
-
-        <h3>3. JavaScript Debug Enhancement (shifts.jte)</h3>
-        <div class="code-block">
-$('#shiftTable').DataTable({
-    ajax: {
-        url: '/pharmacist/all/shift',
-        error: function(xhr, error, thrown) {
-            console.error('DataTable Ajax Error:', error, thrown);
-            alert('Lỗi khi tải dữ liệu ca làm việc: ' + error);
-        },
-        success: function(data) {
-            console.log('DataTable data loaded successfully:', data);
-        }
-    },
-    // ... enhanced column rendering with null checks
-});
+        <div class="test-section">
+            <h3>Test 2: DataTables Integration</h3>
+            <button onclick="initDataTable()">Initialize DataTable</button>
+            <button onclick="reloadDataTable()">Reload DataTable</button>
+            <div id="console2" class="console-output"></div>
+            <table id="shiftTable" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Tên ca</th>
+                        <th>Tiền mặt</th>
+                        <th>Chuyển khoản</th>
+                        <th>Tổng doanh thu</th>
+                        <th>Số đơn hàng</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
         </div>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 
     <script>
-        let testResults = [];
+        let table = null;
 
-        function addResult(type, title, message, data = null) {
-            const resultsDiv = document.getElementById('results');
-            const resultEl = document.createElement('div');
-            resultEl.className = `test-section ${type}`;
+        function logToConsole(consoleId, message, type = 'info') {
+            const console = document.getElementById(consoleId);
+            const timestamp = new Date().toLocaleTimeString();
+            const logClass = `log-${type}`;
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${logClass}`;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            console.appendChild(logEntry);
+            console.scrollTop = console.scrollHeight;
 
-            let content = `<h3>${title}</h3><p>${message}</p>`;
-            if (data) {
-                content += `<div class="code-block">${JSON.stringify(data, null, 2)}</div>`;
-            }
-            resultEl.innerHTML = content;
-
-            resultsDiv.appendChild(resultEl);
-            testResults.push({type, title, message, data});
+            // Also log to browser console
+            console.log(`[${type.toUpperCase()}] ${message}`);
         }
 
-        function testAPIEndpoint() {
-            addResult('info', '🚀 Testing API Endpoint', 'Calling /pharmacist/all/shift...');
+        function clearConsole() {
+            document.getElementById('console1').innerHTML = '';
+            document.getElementById('console2').innerHTML = '';
+        }
 
-            // Simulate DataTable request parameters
-            const params = new URLSearchParams({
-                draw: '1',
-                start: '0',
-                length: '10',
-                'columns[0][data]': 'shiftName',
-                'columns[0][orderable]': 'true',
-                'order[0][column]': '0',
-                'order[0][dir]': 'asc'
-            });
+        function testDirectAPI() {
+            const consoleId = 'console1';
+            logToConsole(consoleId, '=== Starting Direct API Test ===', 'info');
+            logToConsole(consoleId, 'Calling /pharmacist/all/shift', 'info');
 
-            fetch(`/pharmacist/all/shift?${params}`, {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => {
-                console.log('Response status:', response.status);
-                return response.json();
-            })
-            .then(data => {
-                console.log('API Response:', data);
-                if (data && data.data) {
-                    addResult('success', '✅ API Test Successful',
-                        `API returned ${data.data.length} records. Total: ${data.recordsTotal}`, data);
+            $.ajax({
+                url: 'http://localhost:8080/pharmacist/all/shift',
+                type: 'GET',
+                data: {
+                    draw: 1,
+                    start: 0,
+                    length: 10,
+                    'order[0][column]': 0,
+                    'order[0][dir]': 'asc',
+                    'columns[0][data]': 'shiftName',
+                    'columns[0][name]': '',
+                    'columns[0][searchable]': true,
+                    'columns[0][orderable]': true,
+                    'columns[0][search][value]': '',
+                    'columns[0][search][regex]': false
+                },
+                beforeSend: function(xhr) {
+                    logToConsole(consoleId, 'Request sent...', 'info');
+                },
+                success: function(response) {
+                    logToConsole(consoleId, '✓ API call successful!', 'success');
+                    logToConsole(consoleId, `Response type: ${typeof response}`, 'info');
+                    logToConsole(consoleId, `Response structure: ${JSON.stringify(Object.keys(response))}`, 'info');
+                    logToConsole(consoleId, `Draw: ${response.draw}`, 'info');
+                    logToConsole(consoleId, `Records Total: ${response.recordsTotal}`, 'info');
+                    logToConsole(consoleId, `Records Filtered: ${response.recordsFiltered}`, 'info');
+                    logToConsole(consoleId, `Data array length: ${response.data ? response.data.length : 'null'}`, 'info');
 
-                    if (data.data.length === 0) {
-                        addResult('info', 'ℹ️ Empty Data',
-                            'API returned successfully but no shift data found. This could be expected if no shifts exist.');
+                    if (response.data && response.data.length > 0) {
+                        logToConsole(consoleId, `First record: ${JSON.stringify(response.data[0], null, 2)}`, 'success');
+                        logToConsole(consoleId, `First record keys: ${Object.keys(response.data[0]).join(', ')}`, 'info');
+
+                        response.data.forEach((item, index) => {
+                            logToConsole(consoleId,
+                                `Record ${index + 1}: ${item.shiftName} - Orders: ${item.orderCount}, Revenue: ${item.totalRevenue}`,
+                                'info');
+                        });
+                    } else {
+                        logToConsole(consoleId, '⚠ No data returned from API', 'warn');
                     }
-                } else {
-                    addResult('error', '❌ Unexpected Response', 'API response format is not as expected', data);
+
+                    logToConsole(consoleId, `Full response: ${JSON.stringify(response, null, 2)}`, 'info');
+                },
+                error: function(xhr, status, error) {
+                    logToConsole(consoleId, `✗ API call failed!`, 'error');
+                    logToConsole(consoleId, `Status: ${status}`, 'error');
+                    logToConsole(consoleId, `Error: ${error}`, 'error');
+                    logToConsole(consoleId, `Status Code: ${xhr.status}`, 'error');
+                    logToConsole(consoleId, `Response Text: ${xhr.responseText}`, 'error');
                 }
-            })
-            .catch(error => {
-                console.error('API Error:', error);
-                addResult('error', '❌ API Test Failed', `Error: ${error.message}`, {error: error.toString()});
             });
         }
 
-        function testDataTableRequest() {
-            addResult('info', '🔄 Testing DataTable Request Structure', 'Checking if request parameters are correct...');
+        function initDataTable() {
+            const consoleId = 'console2';
 
-            const mockDataTableParams = {
-                draw: 1,
-                start: 0,
-                length: 10,
+            if (table) {
+                logToConsole(consoleId, 'Destroying existing DataTable...', 'warn');
+                table.destroy();
+                $('#shiftTable tbody').empty();
+            }
+
+            logToConsole(consoleId, '=== Initializing DataTable ===', 'info');
+
+            table = $('#shiftTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: 'http://localhost:8080/pharmacist/all/shift',
+                    type: 'GET',
+                    dataSrc: function(json) {
+                        logToConsole(consoleId, '=== DataTables dataSrc function ===', 'info');
+                        logToConsole(consoleId, `Raw JSON: ${JSON.stringify(json)}`, 'info');
+                        logToConsole(consoleId, `Data array length: ${json.data ? json.data.length : 'null'}`, 'info');
+
+                        if (!json.data || json.data.length === 0) {
+                            logToConsole(consoleId, '⚠ No shift data received from server', 'warn');
+                        } else {
+                            logToConsole(consoleId, `✓ Received ${json.data.length} records`, 'success');
+                            logToConsole(consoleId, `First row: ${JSON.stringify(json.data[0])}`, 'info');
+                        }
+
+                        return json.data;
+                    },
+                    error: function(xhr, error, thrown) {
+                        logToConsole(consoleId, `✗ DataTable Ajax Error`, 'error');
+                        logToConsole(consoleId, `Error: ${error}`, 'error');
+                        logToConsole(consoleId, `Thrown: ${thrown}`, 'error');
+                        logToConsole(consoleId, `Status: ${xhr.status}`, 'error');
+                        logToConsole(consoleId, `Response: ${xhr.responseText}`, 'error');
+                    }
+                },
                 columns: [
-                    {data: 'shiftName', orderable: true},
-                    {data: 'cashTotal', orderable: true},
-                    {data: 'transferTotal', orderable: true},
-                    {data: 'totalRevenue', orderable: true},
-                    {data: 'orderCount', orderable: true},
-                    {data: 'shiftName', orderable: false}
+                    {
+                        data: 'shiftName',
+                        render: function(data, type, row) {
+                            logToConsole(consoleId, `Rendering shiftName: ${data}`, 'info');
+                            return data || 'N/A';
+                        }
+                    },
+                    {
+                        data: 'cashTotal',
+                        render: function(data, type, row) {
+                            if (data == null || data === undefined) return '0 ₫';
+                            return new Intl.NumberFormat('vi-VN', {
+                                style: 'currency',
+                                currency: 'VND'
+                            }).format(data);
+                        }
+                    },
+                    {
+                        data: 'transferTotal',
+                        render: function(data, type, row) {
+                            if (data == null || data === undefined) return '0 ₫';
+                            return new Intl.NumberFormat('vi-VN', {
+                                style: 'currency',
+                                currency: 'VND'
+                            }).format(data);
+                        }
+                    },
+                    {
+                        data: 'totalRevenue',
+                        render: function(data, type, row) {
+                            if (data == null || data === undefined) return '0 ₫';
+                            return new Intl.NumberFormat('vi-VN', {
+                                style: 'currency',
+                                currency: 'VND'
+                            }).format(data);
+                        }
+                    },
+                    {
+                        data: 'orderCount',
+                        render: function(data, type, row) {
+                            return data || 0;
+                        }
+                    },
+                    {
+                        data: 'shiftName',
+                        orderable: false,
+                        render: function(data, type, row) {
+                            if (data == null || data === undefined) {
+                                return '<span style="color: #999;">Không có dữ liệu</span>';
+                            }
+                            return '<a href="/pharmacist/all/shift/detail/view?shiftName=' +
+                                   encodeURIComponent(data) +
+                                   '" class="btn btn-sm btn-primary">Xem chi tiết</a>';
+                        }
+                    }
                 ],
-                order: [{column: 0, dir: 'asc'}]
-            };
-
-            addResult('success', '✅ DataTable Structure Valid',
-                'Request structure matches expected DataTableRequest format', mockDataTableParams);
-        }
-
-        function testErrorHandling() {
-            addResult('info', '🛡️ Testing Error Handling', 'Simulating error conditions...');
-
-            // Test with invalid parameters
-            fetch('/pharmacist/all/shift?invalid=true', {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/vi.json',
+                    processing: 'Đang tải dữ liệu ca làm việc...',
+                    emptyTable: 'Không có dữ liệu ca làm việc',
+                    error: 'Lỗi khi tải dữ liệu ca làm việc',
+                    zeroRecords: 'Không tìm thấy ca làm việc nào'
+                },
+                order: [[0, 'asc']],
+                pageLength: 10,
+                drawCallback: function(settings) {
+                    logToConsole(consoleId, `✓ DataTable draw completed. Displayed rows: ${settings.fnRecordsDisplay()}`, 'success');
+                },
+                initComplete: function(settings, json) {
+                    logToConsole(consoleId, '✓ DataTable initialization completed', 'success');
+                    if (json) {
+                        logToConsole(consoleId, `Initial data records: ${json.recordsTotal}`, 'info');
+                    }
                 }
-            })
-            .then(response => {
-                console.log('Error test response status:', response.status);
-                return response.json();
-            })
-            .then(data => {
-                if (response.status === 200) {
-                    addResult('success', '✅ Error Handling Works',
-                        'Controller returns 200 with empty data instead of throwing errors', data);
-                } else {
-                    addResult('info', 'ℹ️ Error Response', 'Controller returned error response', data);
-                }
-            })
-            .catch(error => {
-                addResult('info', 'ℹ️ Expected Error',
-                    'This error is expected when testing error conditions', {error: error.toString()});
             });
         }
 
-        function testQueryStructure() {
-            addResult('info', '🗄️ Query Structure Analysis', 'Analyzing the improved SQL query...');
-
-            const queryAnalysis = {
-                improvements: [
-                    'Changed from INNER JOIN to LEFT JOIN - allows shifts without invoices',
-                    'Added COALESCE for null values - prevents null in response',
-                    'Extended date range from 1 day to 90 days - more data available',
-                    'Starts from shifts table - ensures all shifts are considered'
-                ],
-                benefits: [
-                    'Will return shift data even if no invoices exist',
-                    'Handles null values gracefully',
-                    'Broader time range increases chance of finding data',
-                    'More robust query structure'
-                ],
-                expectedBehavior: 'Query should now return all shifts with 0 values for periods without invoices'
-            };
-
-            addResult('success', '✅ Query Structure Improved',
-                'The new query structure should resolve the empty data issue', queryAnalysis);
+        function reloadDataTable() {
+            if (table) {
+                logToConsole('console2', 'Reloading DataTable...', 'info');
+                table.ajax.reload();
+            } else {
+                logToConsole('console2', '⚠ DataTable not initialized yet', 'warn');
+            }
         }
 
-        // Auto-run basic test on load
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                addResult('info', '🚀 Automated Test Started',
-                    'Running automatic API test to check shifts data availability...');
-                testAPIEndpoint();
-            }, 1000);
+        // Auto-run tests on page load
+        $(document).ready(function() {
+            logToConsole('console1', '✓ jQuery loaded', 'success');
+            logToConsole('console1', '✓ DataTables loaded', 'success');
+            logToConsole('console1', 'Ready to test API', 'info');
+            logToConsole('console1', 'Click "Test API Endpoint" to start', 'info');
         });
     </script>
 </body>

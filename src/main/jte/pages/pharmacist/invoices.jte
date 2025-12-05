@@ -55,7 +55,12 @@
             },
             columns: [
                 { data: 'invoiceCode' },
-                { data: 'customerName' },
+                {
+                    data: 'customerName',
+                    render: function(data) {
+                        return data && data.trim() !== '' ? data : 'Khách lẻ';
+                    }
+                },
                 {
                     data: 'totalPrice',
                     render: function(data) {

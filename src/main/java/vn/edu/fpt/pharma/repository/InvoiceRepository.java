@@ -199,7 +199,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     List<Object[]> findRevenueByUser(@Param("userId") Long userId);
 
     // -----------------------------
-    // REVENUE BY USER — PER SHIFT
+    // REVENUE BY USER — PER SHIFT (CHI NHÁNH HIỆN TẠI)
     // -----------------------------
     @Query(value = """
     SELECT
@@ -209,11 +209,16 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
         COALESCE(SUM(CASE WHEN LOWER(i.payment_method) IN ('chuyển khoản', 'transfer') THEN i.total_price ELSE 0 END), 0) AS transferTotal,
         COALESCE(SUM(i.total_price), 0) AS totalRevenue
     FROM shifts s
-    LEFT JOIN shift_assignments sa ON s.id = sa.shift_id AND sa.deleted = 0
-    LEFT JOIN shift_works sw ON sa.id = sw.assignment_id AND sw.deleted = 0 
-        AND DATE(sw.work_date) >= DATE_SUB(DATE(NOW()), INTERVAL 90 DAY)
+    INNER JOIN shift_assignments sa ON s.id = sa.shift_id
+        AND sa.deleted = 0
         AND sa.user_id = :userId
-    LEFT JOIN invoices i ON sw.id = i.shift_work_id 
+    INNER JOIN users u ON sa.user_id = u.id
+        AND u.deleted = 0
+        AND u.branch_id = s.branch_id
+    LEFT JOIN shift_works sw ON sa.id = sw.assignment_id
+        AND sw.deleted = 0
+        AND DATE(sw.work_date) >= DATE_SUB(DATE(NOW()), INTERVAL 90 DAY)
+    LEFT JOIN invoices i ON sw.id = i.shift_work_id
         AND i.user_id = :userId
         AND i.invoice_type = 'PAID'
         AND i.deleted = 0

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Clear Input Function</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background: #f5f5f5;
+        }
+
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 600px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+        }
+
+        .form-input {
+            flex: 1;
+            padding: 10px 40px 10px 10px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .clear-button {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .clear-button:hover {
+            background: #cc0000;
+        }
+
+        .test-info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .expected-behavior {
+            background: #f1f8e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h2>🧪 Test Clear Input Function</h2>
+
+        <div class="test-info">
+            <strong>Test Instructions:</strong>
+            <ol>
+                <li>Type "Khách lẻ" in the customer name field</li>
+                <li>Type "Không có" in the phone number field</li>
+                <li>Click the X button to clear each field</li>
+                <li>Verify the fields are empty and placeholders show correctly</li>
+            </ol>
+        </div>
+
+        <form id="testForm">
+            <div class="form-group">
+                <label class="form-label">Tên khách hàng</label>
+                <div class="input-wrapper">
+                    <input type="text"
+                           class="form-input"
+                           id="customerName"
+                           name="customerName"
+                           placeholder="Nhập tên khách hàng (để trống = Khách lẻ)"
+                           value="">
+                    <button type="button" class="clear-button" onclick="clearInput('customerName')">
+                        ×
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Số điện thoại</label>
+                <div class="input-wrapper">
+                    <input type="tel"
+                           class="form-input"
+                           id="phoneNumber"
+                           name="phoneNumber"
+                           placeholder="Nhập số điện thoại (để trống = Không có)"
+                           value="">
+                    <button type="button" class="clear-button" onclick="clearInput('phoneNumber')">
+                        ×
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <div class="expected-behavior">
+            <strong>✅ Expected Behavior:</strong>
+            <ul>
+                <li>When clicking X button, field should become completely empty</li>
+                <li>Placeholder should change to show default will be used</li>
+                <li>No automatic filling of "Khách lẻ" or "Không có"</li>
+                <li>Focus should move to the cleared field</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Include the fixed clearInput function -->
+    <script>
+        // Clear input function (fixed version)
+        function clearInput(fieldId) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.value = '';
+                field.focus();
+
+                // Update placeholder to show what will be used if left empty
+                if (fieldId === 'customerName') {
+                    field.placeholder = 'Để trống sẽ dùng "Khách lẻ"';
+                } else if (fieldId === 'phoneNumber') {
+                    field.placeholder = 'Để trống sẽ dùng "Không có"';
+                }
+
+                console.log(`✅ Cleared field: ${fieldId}, value is now: "${field.value}"`);
+            }
+        }
+
+        // Test on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🧪 Clear Input Test Page Loaded');
+            console.log('📝 Instructions: Type default values and try clearing them');
+        });
+    </script>
+</body>
+</html>

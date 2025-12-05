@@ -71,11 +71,6 @@
             </ul>
         </nav>
 
-        <div class="sidebar-footer">
-            <button class="back-button">
-                <span class="material-icons">arrow_back</span>
-            </button>
-        </div>
     </aside>
 
     <!-- Main Content -->

@@ -107,8 +107,8 @@
                                            id="customerName"
                                            name="customerName"
                                            maxlength="100"
-                                           value="Khách lẻ"
-                                           placeholder="Khách lẻ">
+                                           value=""
+                                           placeholder="Nhập tên khách hàng (để trống = Khách lẻ)">
                                     <button type="button" class="clear-button" onclick="clearInput('customerName')">
                                         <span class="material-icons">close</span>
                                     </button>
@@ -125,8 +125,8 @@
                                            name="phoneNumber"
                                            pattern="^(0|\+84)[0-9]{9,10}$"
                                            title="Số điện thoại phải bắt đầu bằng 0 hoặc +84 và có 10-11 chữ số"
-                                           placeholder="Không có"
-                                           value="Không có">
+                                           placeholder="Nhập số điện thoại (để trống = Không có)"
+                                           value="">
                                     <button type="button" class="clear-button" onclick="clearInput('phoneNumber')">
                                         <span class="material-icons">close</span>
                                     </button>

@@ -49,32 +49,44 @@
     $(document).ready(function() {
         console.log('Initializing Shift DataTable...');
 
-        $('#shiftTable').DataTable({
+        const table = $('#shiftTable').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
                 url: '/pharmacist/all/shift',
                 type: 'GET',
+                dataSrc: function(json) {
+                    console.log('Raw JSON response:', json);
+                    console.log('Data array:', json.data);
+                    console.log('Records total:', json.recordsTotal);
+                    console.log('Records filtered:', json.recordsFiltered);
+
+                    if (!json.data || json.data.length === 0) {
+                        console.warn('No shift data received from server');
+                    } else {
+                        console.log('First row sample:', json.data[0]);
+                    }
+
+                    return json.data;
+                },
                 error: function(xhr, error, thrown) {
                     console.error('DataTable Ajax Error:', error, thrown);
                     console.error('Response:', xhr.responseText);
                     console.error('Status:', xhr.status);
                     alert('Lỗi khi tải dữ liệu ca làm việc: ' + error);
-                },
-                success: function(data) {
-                    console.log('DataTable data loaded successfully:', data);
                 }
             },
             columns: [
                 {
                     data: 'shiftName',
-                    title: 'Tên ca'
+                    render: function(data, type, row) {
+                        console.log('Row data:', row);
+                        return data || 'N/A';
+                    }
                 },
                 {
                     data: 'cashTotal',
-                    title: 'Tiền mặt',
                     render: function(data, type, row) {
-                        console.log('Rendering cashTotal:', data);
                         if (data == null || data === undefined) return '0 ₫';
                         return new Intl.NumberFormat('vi-VN', {
                             style: 'currency',
@@ -84,9 +96,7 @@
                 },
                 {
                     data: 'transferTotal',
-                    title: 'Chuyển khoản',
                     render: function(data, type, row) {
-                        console.log('Rendering transferTotal:', data);
                         if (data == null || data === undefined) return '0 ₫';
                         return new Intl.NumberFormat('vi-VN', {
                             style: 'currency',
@@ -96,9 +106,7 @@
                 },
                 {
                     data: 'totalRevenue',
-                    title: 'Tổng doanh thu',
                     render: function(data, type, row) {
-                        console.log('Rendering totalRevenue:', data);
                         if (data == null || data === undefined) return '0 ₫';
                         return new Intl.NumberFormat('vi-VN', {
                             style: 'currency',
@@ -108,18 +116,14 @@
                 },
                 {
                     data: 'orderCount',
-                    title: 'Số đơn hàng',
                     render: function(data, type, row) {
-                        console.log('Rendering orderCount:', data);
                         return data || 0;
                     }
                 },
                 {
                     data: 'shiftName',
-                    title: 'Hành động',
                     orderable: false,
                     render: function(data, type, row) {
-                        console.log('Rendering action for shift:', data);
                         if (data == null || data === undefined) {
                             return '<span class="text-muted">Không có dữ liệu</span>';
                         }
@@ -131,7 +135,8 @@
                 url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/vi.json',
                 processing: 'Đang tải dữ liệu ca làm việc...',
                 emptyTable: 'Không có dữ liệu ca làm việc',
-                error: 'Lỗi khi tải dữ liệu ca làm việc'
+                error: 'Lỗi khi tải dữ liệu ca làm việc',
+                zeroRecords: 'Không tìm thấy ca làm việc nào'
             },
             order: [[0, 'asc']],
             pageLength: 10,
@@ -142,6 +147,28 @@
             initComplete: function(settings, json) {
                 console.log('Shift DataTable initialization completed');
                 console.log('Initial data:', json);
+            }
+        });
+
+        // Fix: Sync thead and tbody width to make headers visible
+        table.on('draw', function () {
+            $('.dataTables_scrollHead table').width($('.dataTables_scrollBody table').width());
+        });
+
+        // Test direct API call
+        $.ajax({
+            url: '/pharmacist/all/shift',
+            type: 'GET',
+            data: {
+                draw: 1,
+                start: 0,
+                length: 10
+            },
+            success: function(response) {
+                console.log('Direct API test response:', response);
+            },
+            error: function(xhr, status, error) {
+                console.error('Direct API test failed:', error);
             }
         });
     });

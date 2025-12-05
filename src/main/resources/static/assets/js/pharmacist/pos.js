@@ -673,21 +673,7 @@ function clearError(fieldId) {
     }
 }
 
-function clearInput(fieldId) {
-    const field = document.getElementById(fieldId);
-    if (field) {
-        // Set default values for customer info fields
-        if (fieldId === 'customerName') {
-            field.value = 'Khách lẻ';
-        } else if (fieldId === 'phoneNumber') {
-            field.value = 'Không có';
-        } else {
-            field.value = '';
-        }
-        clearError(fieldId);
-        validatePaymentForm();
-    }
-}
+// Removed duplicate clearInput function - using the correct one below
 
 function showAlert(type, message) {
     const alertId = type === 'success' ? 'successAlert' : 'errorAlert';
@@ -763,20 +749,21 @@ function validateField(fieldId, rules) {
 }
 
 function validatePaymentForm() {
+    const hasItems = prescriptionItems.length > 0;
+    const payButton = document.getElementById('payButton');
+
+    // If no items, just disable button and return - don't validate
+    if (!hasItems) {
+        if (payButton) {
+            payButton.disabled = true;
+            payButton.textContent = 'Chưa có sản phẩm';
+        }
+        return false;
+    }
+
     const totalAmount = getTotalAmount();
 
-    // Set default values if empty
-    const customerNameInput = document.getElementById('customerName');
-    const phoneNumberInput = document.getElementById('phoneNumber');
-
-    if (!customerNameInput.value.trim()) {
-        customerNameInput.value = 'Khách lẻ';
-    }
-
-    if (!phoneNumberInput.value.trim() || phoneNumberInput.value === 'Không có') {
-        phoneNumberInput.value = 'Không có';
-    }
-
+    // Only validate when there are items
     const validations = [
         validateField('customerName', {
             required: false,
@@ -785,8 +772,8 @@ function validatePaymentForm() {
 
         validateField('phoneNumber', {
             required: false,
-            pattern: /^((0|\+84)[0-9]{9,10}|Không có)$/,
-            patternMessage: 'Số điện thoại phải bắt đầu bằng 0 hoặc +84 và có 10-11 chữ số, hoặc để "Không có"'
+            pattern: /^((0|\+84)[0-9]{9,10}|Không có|)$/,
+            patternMessage: 'Số điện thoại phải bắt đầu bằng 0 hoặc +84 và có 10-11 chữ số'
         }),
 
         validateField('paidAmount', {
@@ -809,10 +796,8 @@ function validatePaymentForm() {
     ];
 
     const isFormValid = validations.every(v => v);
-    const hasItems = prescriptionItems.length > 0;
 
     // Update pay button state
-    const payButton = document.getElementById('payButton');
     if (payButton) {
         payButton.disabled = !isFormValid || !hasItems;
 
@@ -826,6 +811,86 @@ function validatePaymentForm() {
     }
 
     return isFormValid && hasItems;
+}
+
+// ============ UTILITY FUNCTIONS ============
+
+// Clear input function called from HTML
+function clearInput(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (field) {
+        field.value = '';
+        field.focus();
+
+        // Update placeholder to show what will be used if left empty
+        if (fieldId === 'customerName') {
+            field.placeholder = 'Để trống sẽ dùng "Khách lẻ"';
+        } else if (fieldId === 'phoneNumber') {
+            field.placeholder = 'Để trống sẽ dùng "Không có"';
+        }
+
+        validatePaymentForm();
+    }
+}
+
+// Make clearInput available globally
+window.clearInput = clearInput;
+
+// Complete form reset function
+function resetPaymentFormCompletely() {
+    // Reset form fields
+    const form = document.getElementById('paymentForm');
+    if (form) {
+        form.reset();
+    }
+
+    // Clear all validation errors
+    const errorFields = ['customerName', 'phoneNumber', 'paidAmount', 'paymentMethod', 'note'];
+    errorFields.forEach(fieldId => {
+        clearError(fieldId);
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.classList.remove('is-invalid');
+        }
+    });
+
+    // Reset amount displays
+    const changeElement = document.getElementById('changeAmount');
+    if (changeElement) {
+        changeElement.textContent = '0';
+    }
+
+    const subtotalEl = document.getElementById('subtotal');
+    const totalAmountEl = document.getElementById('totalAmount');
+    const qrDisplayAmount = document.getElementById('qrDisplayAmount');
+
+    if (subtotalEl) subtotalEl.textContent = '0';
+    if (totalAmountEl) totalAmountEl.textContent = '0';
+    if (qrDisplayAmount) qrDisplayAmount.textContent = '0';
+
+    // Reset placeholders to original state
+    const customerNameInput = document.getElementById('customerName');
+    const phoneNumberInput = document.getElementById('phoneNumber');
+
+    if (customerNameInput) {
+        customerNameInput.placeholder = 'Nhập tên khách hàng (để trống = Khách lẻ)';
+    }
+    if (phoneNumberInput) {
+        phoneNumberInput.placeholder = 'Nhập số điện thoại (để trống = Không có)';
+    }
+
+    // Reset payment method
+    const paymentMethodSelect = document.getElementById('paymentMethod');
+    if (paymentMethodSelect) {
+        paymentMethodSelect.selectedIndex = 0;
+    }
+
+    // Reset pay button
+    const payButton = document.getElementById('payButton');
+    if (payButton) {
+        payButton.disabled = true;
+        payButton.textContent = 'Chưa có sản phẩm';
+    }
 }
 
 // ============ EVENT LISTENERS ============
@@ -848,11 +913,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Collect form data with default values
+            // Collect form data with default values only if truly empty
             let customerName = document.getElementById('customerName').value.trim();
             let phoneNumber = document.getElementById('phoneNumber').value.trim();
 
-            // Ensure default values
+            // Use default values only if user left fields completely empty
             if (!customerName) customerName = 'Khách lẻ';
             if (!phoneNumber) phoneNumber = 'Không có';
 
@@ -884,29 +949,11 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             field.addEventListener('blur', () => {
-                // Auto-fill default values if empty
-                if (fieldId === 'customerName' && !field.value.trim()) {
-                    field.value = 'Khách lẻ';
-                }
-                if (fieldId === 'phoneNumber' && !field.value.trim()) {
-                    field.value = 'Không có';
-                }
+                // Just validate, don't auto-fill default values
                 validatePaymentForm();
             });
         }
     });
-
-    // Set initial default values
-    const customerNameInput = document.getElementById('customerName');
-    const phoneNumberInput = document.getElementById('phoneNumber');
-
-    if (customerNameInput && !customerNameInput.value.trim()) {
-        customerNameInput.value = 'Khách lẻ';
-    }
-
-    if (phoneNumberInput && !phoneNumberInput.value.trim()) {
-        phoneNumberInput.value = 'Không có';
-    }
 
     // Calculate change amount
     const paidAmountField = document.getElementById('paidAmount');
@@ -975,16 +1022,15 @@ function processPaymentWithValidation(paymentData) {
     .then(result => {
         showAlert('success', `Thanh toán thành công! Mã hóa đơn: ${result.invoiceCode}`);
 
-        // Reset form
-        document.getElementById('paymentForm').reset();
+        // Complete form reset
+        resetPaymentFormCompletely();
         prescriptionItems = [];
         renderPrescription();
-        validatePaymentForm();
 
-        // Reset change amount
-        const changeElement = document.getElementById('changeAmount');
-        if (changeElement) {
-            changeElement.textContent = '0';
+        // Hide QR code section
+        const qrCodeSection = document.querySelector('#qrCodeSection');
+        if (qrCodeSection) {
+            qrCodeSection.style.display = 'none';
         }
     })
     .catch(error => {
@@ -993,8 +1039,8 @@ function processPaymentWithValidation(paymentData) {
     })
     .finally(() => {
         if (payButton) {
-            payButton.disabled = false;
-            validatePaymentForm();
+            payButton.disabled = true; // Keep disabled until user adds items again
+            payButton.textContent = 'Chưa có sản phẩm';
         }
     });
 }
