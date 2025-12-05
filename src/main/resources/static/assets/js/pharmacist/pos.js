@@ -6,8 +6,9 @@ const paymentButton = document.querySelector('.payment-button');
 const customerNameInput = document.querySelector('.customer-info .form-input');
 const phoneInput = document.querySelector('.customer-info .form-group:nth-child(2) .form-input');
 const paymentAmountInput = document.querySelector('.payment-details .form-input');
-const paymentMethodSelect = document.querySelector('.form-select');
+const paymentMethodSelect = document.querySelector('#paymentMethod');
 const notesTextarea = document.querySelector('.form-textarea');
+const qrCodeSection = document.querySelector('#qrCodeSection');
 
 const resultContainer = document.querySelector('#medicine-list');
 
@@ -17,6 +18,21 @@ if (!searchInput) {
 }
 if (!resultContainer) {
     console.error('Result container element not found!');
+}
+
+// Payment method change event listener
+if (paymentMethodSelect && qrCodeSection) {
+    paymentMethodSelect.addEventListener('change', function() {
+        const selectedMethod = this.value;
+
+        if (selectedMethod === 'transfer') {
+            qrCodeSection.style.display = 'block';
+            // Generate QR code with payment amount
+            updateQRCode();
+        } else {
+            qrCodeSection.style.display = 'none';
+        }
+    });
 }
 
 let debounceTimer;
@@ -406,6 +422,9 @@ function renderPrescription() {
 
     // Add event listeners for new elements
     addPrescriptionActionListeners();
+
+    // Update payment totals and QR code
+    updatePaymentTotals();
 }
 
 function addPrescriptionActionListeners() {
@@ -609,14 +628,7 @@ function clearPaymentForm() {
   }
 }
 
-function updatePaymentTotals() {
-  const totalAmountElements = document.querySelectorAll('.total-amount, .payment-value');
-  totalAmountElements.forEach(element => {
-    if (element.textContent === '') {
-      element.textContent = '0.00';
-    }
-  });
-}
+// This function is defined later with QR code functionality
 
 // Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
@@ -1089,3 +1101,87 @@ document.addEventListener('DOMContentLoaded', () => {
     console.warn('Cannot focus search input - element not found');
   }
 });
+
+// Function to update QR code with payment amount
+function updateQRCode() {
+    const totalAmount = getTotalAmount();
+    const qrCodeImage = document.getElementById('qrCodeImage');
+    const qrDisplayAmount = document.getElementById('qrDisplayAmount');
+    const qrAccountNumber = document.getElementById('qrAccountNumber');
+    const qrInvoiceCode = document.getElementById('qrInvoiceCode');
+
+    if (totalAmount > 0) {
+        // Format amount for display
+        const formattedAmount = totalAmount.toLocaleString('vi-VN');
+
+        // Update the amount display in QR section
+        if (qrDisplayAmount) {
+            qrDisplayAmount.textContent = formattedAmount;
+        }
+
+        // Generate invoice code for addInfo
+        const invoiceCode = generateInvoiceCode();
+
+        // VietQR configuration - có thể cấu hình từ backend
+        const bankCode = 'VCB'; // Vietcombank
+        const accountNumber = '0123456789'; // Số tài khoản thật
+        const amount = Math.round(totalAmount); // Làm tròn số tiền
+        const addInfo = invoiceCode; // Sử dụng mã hóa đơn làm ghi chú
+
+        // Update bank info display
+        if (qrAccountNumber) {
+            qrAccountNumber.textContent = accountNumber;
+        }
+        if (qrInvoiceCode) {
+            qrInvoiceCode.textContent = invoiceCode;
+        }
+
+        // Generate VietQR URL
+        const vietQRUrl = `https://img.vietqr.io/${bankCode}/${accountNumber}?amount=${amount}&addInfo=${encodeURIComponent(addInfo)}`;
+
+        // Update QR code image
+        if (qrCodeImage) {
+            qrCodeImage.src = vietQRUrl;
+            qrCodeImage.onerror = function() {
+                // Fallback to placeholder if VietQR fails
+                console.warn('VietQR API failed, using placeholder');
+                this.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNTAgNTBIMTUwVjE1MEg1MFY1MFoiIGZpbGw9ImJsYWNrIi8+CjxyZWN0IHg9IjcwIiB5PSI3MCIgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4=";
+            };
+        }
+
+        console.log('VietQR URL generated:', vietQRUrl);
+        console.log('Bank:', bankCode, 'Account:', accountNumber, 'Amount:', amount, 'Note:', addInfo);
+    }
+}
+
+// Generate unique invoice code
+function generateInvoiceCode() {
+    const now = new Date();
+    const year = now.getFullYear().toString().slice(-2);
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+
+    return `HD${year}${month}${day}${hours}${minutes}${seconds}`;
+}
+
+// Update QR code when total amount changes
+function updatePaymentTotals() {
+    const totalAmount = getTotalAmount();
+    const subtotalEl = document.getElementById('subtotal');
+    const totalAmountEl = document.getElementById('totalAmount');
+
+    if (subtotalEl) subtotalEl.textContent = totalAmount.toLocaleString('vi-VN');
+    if (totalAmountEl) totalAmountEl.textContent = totalAmount.toLocaleString('vi-VN');
+
+    // Update QR code if transfer method is selected
+    const currentPaymentMethod = document.querySelector('#paymentMethod');
+    if (currentPaymentMethod && currentPaymentMethod.value === 'transfer') {
+        updateQRCode();
+    }
+
+    validatePaymentForm();
+}
+

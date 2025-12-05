@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Test - Payment</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .payment-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-select {
+            width: 100%;
+            height: 40px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .required {
+            color: #dc3545;
+        }
+
+        /* QR Code Section Styles */
+        .qr-code-section {
+            margin: 16px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border: 2px dashed #94a3b8;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .qr-header {
+            margin-bottom: 20px;
+        }
+
+        .qr-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .qr-subtitle {
+            font-size: 14px;
+            color: #64748b;
+            margin: 0;
+        }
+
+        .qr-code-container {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .qr-placeholder {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e2e8f0;
+        }
+
+        .qr-code-img {
+            width: 200px;
+            height: 200px;
+            border-radius: 8px;
+        }
+
+        .qr-instructions {
+            margin-top: 20px;
+        }
+
+        .instruction-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .instruction-list li {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #475569;
+            padding: 8px 16px;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid #22c55e;
+        }
+
+        .instruction-list li .material-icons {
+            color: #22c55e;
+            font-size: 18px;
+        }
+
+        .total-display {
+            margin-top: 20px;
+            padding: 10px;
+            background: #e3f2fd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .amount-input {
+            width: 100%;
+            height: 40px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-section">
+        <h2>Test QR Code Payment Integration</h2>
+
+        <div class="form-group">
+            <label class="form-label">
+                Số tiền thanh toán (VNĐ)
+            </label>
+            <input type="number" class="amount-input" id="totalAmount" placeholder="Nhập số tiền..." value="50000">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">
+                Phương thức thanh toán <span class="required">*</span>
+            </label>
+            <select class="form-select" id="paymentMethod" name="paymentMethod" required>
+                <option value="">-- Chọn phương thức --</option>
+                <option value="cash">Tiền mặt</option>
+                <option value="transfer">Chuyển khoản</option>
+            </select>
+        </div>
+
+        <!-- QR Code Section for Bank Transfer -->
+        <div id="qrCodeSection" class="qr-code-section">
+            <div class="qr-header">
+                <h4 class="qr-title">Vui lòng quét mã QR bên dưới để thanh toán</h4>
+                <p class="qr-subtitle">Số tiền và nội dung chuyển khoản đã được điền sẵn, bạn không cần nhập lại.</p>
+            </div>
+
+            <div class="qr-code-container">
+                <div class="qr-placeholder">
+                    <img id="qrCodeImage"
+                         src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNTAgNTBIMTUwVjE1MEg1MFY1MFoiIGZpbGw9ImJsYWNrIi8+CjxyZWN0IHg9IjcwIiB5PSI3MCIgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4="
+                         alt="QR Code"
+                         class="qr-code-img">
+                </div>
+            </div>
+
+            <div class="qr-instructions">
+                <ul class="instruction-list">
+                    <li>
+                        <span class="material-icons">check_circle</span>
+                        Hệ thống tự điền đúng số tiền
+                    </li>
+                    <li>
+                        <span class="material-icons">check_circle</span>
+                        Không cần nhập nội dung hay số tài khoản
+                    </li>
+                    <li>
+                        <span class="material-icons">check_circle</span>
+                        Chỉ cần quét và xác nhận trên ứng dụng ngân hàng
+                    </li>
+                </ul>
+            </div>
+
+            <div class="total-display">
+                <strong>Tổng tiền: <span id="displayAmount">0</span> VNĐ</strong>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const paymentMethodSelect = document.getElementById('paymentMethod');
+            const qrCodeSection = document.getElementById('qrCodeSection');
+            const totalAmountInput = document.getElementById('totalAmount');
+            const displayAmountSpan = document.getElementById('displayAmount');
+
+            function updateQRCode() {
+                const amount = parseFloat(totalAmountInput.value) || 0;
+                const formattedAmount = amount.toLocaleString('vi-VN');
+                displayAmountSpan.textContent = formattedAmount;
+
+                console.log('QR Code updated for amount:', formattedAmount);
+            }
+
+            // Payment method change event listener
+            if (paymentMethodSelect && qrCodeSection) {
+                paymentMethodSelect.addEventListener('change', function() {
+                    const selectedMethod = this.value;
+
+                    if (selectedMethod === 'transfer') {
+                        qrCodeSection.style.display = 'block';
+                        updateQRCode();
+                    } else {
+                        qrCodeSection.style.display = 'none';
+                    }
+                });
+            }
+
+            // Amount change event listener
+            if (totalAmountInput) {
+                totalAmountInput.addEventListener('input', function() {
+                    if (paymentMethodSelect.value === 'transfer') {
+                        updateQRCode();
+                    }
+                });
+            }
+
+            console.log('QR Code test page initialized');
+        });
+    </script>
+</body>
+</html>
