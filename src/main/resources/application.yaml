@@ -15,7 +15,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: false
     properties:
       hibernate:
@@ -48,10 +48,9 @@ logging:
   level:
     root: INFO
     org.springframework.web: DEBUG
-    org.thymeleaf: TRACE
-    gg.jte: TRACE
-    org.hibernate.type.descriptor.sql:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+    org.thymeleaf: INFO
+    gg.jte: INFO
 
-    org.hibernate.SQL: debug
-    org.hibernate.orm.jdbc.bind: trace
 

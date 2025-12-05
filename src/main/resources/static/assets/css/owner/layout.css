@@ -1,8 +1,14 @@
 /* Owner Layout Styles */
 
+html, body {
+    overflow-x: auto;
+    min-width: 1280px;
+}
+
 .app-container {
     display: flex;
     min-height: 100vh;
+    min-width: 1280px;
     font-family: 'Inter', sans-serif;
 }
 
@@ -115,4 +121,5 @@
     padding: 24px;
     background-color: #F9FAFB;
     min-height: 100vh;
+    min-width: 994px;
 }

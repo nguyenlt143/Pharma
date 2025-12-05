@@ -37,13 +37,31 @@ body {
 
 .main {
     flex: 1;
-    padding: 2rem; /* 32px */
+    padding: 2rem 1rem; /* 32px top/bottom, 16px left/right on mobile */
+    background: var(--background-light);
+}
+
+@media (min-width: 640px) {
+    .main {
+        padding-left: 1.5rem; /* 24px */
+        padding-right: 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .main {
+        padding-left: 2rem; /* 32px */
+        padding-right: 2rem;
+    }
 }
 
 .main-container {
     max-width: 80rem; /* 1280px */
+    width: 100%;
     margin-left: auto;
     margin-right: auto;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 /* Page header */
@@ -94,7 +112,3 @@ body {
 .text-center { text-align: center; }
 .hidden { display: none; }
 
-/* Responsive header alignment */
-@media (min-width: 640px) {
-    .page-header { flex-direction: row; }
-}

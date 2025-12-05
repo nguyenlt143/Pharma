@@ -103,11 +103,7 @@ html,body { margin:0; padding:0; font-family: Inter, "Helvetica Neue", Arial, sa
 .mi-container { padding:20px 28px 60px; max-width:1200px; margin:0 auto; }
 
 /* KPI cards */
-.mi-kpis { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:18px; }
-
-@media (min-width: 1400px) {
-    .mi-kpis { grid-template-columns:repeat(6,1fr); }
-}
+.mi-kpis { display:grid; grid-template-columns:repeat(6,1fr); gap:16px; margin-bottom:18px; }
 .kpi-card {
     background:#fff; border:1px solid #e6eef6; border-radius:8px;
     padding:14px; min-height:94px; display:flex; flex-direction:column; justify-content:space-between;

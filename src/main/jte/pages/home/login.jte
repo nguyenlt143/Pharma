@@ -38,13 +38,13 @@
 
             @if(error != null)
                 <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-6" role="alert">
-                    <p class="font-medium">Invalid username or password</p>
+                    <p class="font-medium">Sai tài khoản hoặc mật khẩu</p>
                 </div>
             @endif
 
             @if(logout != null)
                 <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg mb-6" role="alert">
-                    <p class="font-medium">You have been logged out successfully</p>
+                    <p class="font-medium">Đăng xuất thành công</p>
                 </div>
             @endif
 

@@ -86,9 +86,7 @@ body {
 }
 
 /* Main Content */
-.main {
-    padding: 24px;
-}
+/* .main styles are inherited from base.css */
 
 /* Breadcrumb */
 .breadcrumb {
@@ -155,7 +153,7 @@ body {
 
 .kpi-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 16px;
 }
 

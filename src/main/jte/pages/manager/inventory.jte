@@ -4,160 +4,161 @@
     `,
     content = @`
         <main class="main">
-            <div class="breadcrumb">
-                <span>Báo Cáo</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2"/></svg>
-                <span>Kho - Báo cáo quản lý</span>
-            </div>
-
-            <div class="page-header">
-                <h2 class="page-title">Quản lý kho - Báo cáo</h2>
-
-            </div>
-
-            <section class="kpi-row mi-kpis">
-                <div class="kpi-card card">
-                    <div class="kpi-title">Tổng số mặt hàng</div>
-                    <div class="kpi-value" id="totalItems">
-                        <div class="spinner"></div>
-                    </div>
-                    <div class="kpi-sub">Đang tồn kho</div>
+            <div class="main-container">
+                <div class="breadcrumb">
+                    <span>Báo Cáo</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2"/></svg>
+                    <span>Kho - Báo cáo quản lý</span>
                 </div>
 
-                <div class="kpi-card card warn">
-                    <div class="kpi-title">Sắp hết hàng</div>
-                    <div class="kpi-value" id="lowStock">
-                        <div class="spinner"></div>
-                    </div>
-                    <div class="kpi-sub">Cần bổ sung</div>
+                <div class="page-header">
+                    <h2 class="page-title">Quản lý kho - Báo cáo</h2>
                 </div>
 
-                <div class="kpi-card card">
-                    <div class="kpi-title">Hết hàng</div>
-                    <div class="kpi-value" id="outOfStock">
-                        <div class="spinner"></div>
+                <section class="kpi-row mi-kpis">
+                    <div class="kpi-card card">
+                        <div class="kpi-title">Tổng số mặt hàng</div>
+                        <div class="kpi-value" id="totalItems">
+                            <div class="spinner"></div>
+                        </div>
+                        <div class="kpi-sub">Đang tồn kho</div>
                     </div>
-                    <div class="kpi-sub">Không có trong kho</div>
-                </div>
 
-                <div class="kpi-card card">
-                    <div class="kpi-title">Tổng giá trị</div>
-                    <div class="kpi-value" id="totalValue">
-                        <div class="spinner"></div>
+                    <div class="kpi-card card warn">
+                        <div class="kpi-title">Sắp hết hàng</div>
+                        <div class="kpi-value" id="lowStock">
+                            <div class="spinner"></div>
+                        </div>
+                        <div class="kpi-sub">Cần bổ sung</div>
                     </div>
-                    <div class="kpi-sub">Giá trị tồn kho</div>
-                </div>
 
-                <div class="kpi-card card">
-                    <div class="kpi-title">Sắp hết hạn</div>
-                    <div class="kpi-value" id="nearExpiry">
-                        <div class="spinner"></div>
+                    <div class="kpi-card card">
+                        <div class="kpi-title">Hết hàng</div>
+                        <div class="kpi-value" id="outOfStock">
+                            <div class="spinner"></div>
+                        </div>
+                        <div class="kpi-sub">Không có trong kho</div>
                     </div>
-                    <div class="kpi-sub">Trong 30 ngày</div>
-                </div>
 
-                <div class="kpi-card card">
-                    <div class="kpi-title">Đã hết hạn</div>
-                    <div class="kpi-value" id="expired">
-                        <div class="spinner"></div>
+                    <div class="kpi-card card">
+                        <div class="kpi-title">Tổng giá trị</div>
+                        <div class="kpi-value" id="totalValue">
+                            <div class="spinner"></div>
+                        </div>
+                        <div class="kpi-sub">Giá trị tồn kho</div>
                     </div>
-                    <div class="kpi-sub">Cần xử lý</div>
-                </div>
-            </section>
 
-            <section class="mi-filters">
-                <label>
-                    <span>Danh mục:</span>
-                    <select id="categoryFilter" class="form-select">
-                        <option value="">Tất cả</option>
-                    </select>
-                </label>
-                <label>
-                    <span>Trạng thái:</span>
-                    <select id="statusFilter" class="form-select">
-                        <option value="">Tất cả</option>
-                        <option value="active">Hoạt động</option>
-                        <option value="near-expiry">Sắp hết hạn</option>
-                        <option value="expired">Đã hết hạn</option>
-                        <option value="out-of-stock">Hết hàng</option>
-                    </select>
-                </label>
-            </section>
+                    <div class="kpi-card card">
+                        <div class="kpi-title">Sắp hết hạn</div>
+                        <div class="kpi-value" id="nearExpiry">
+                            <div class="spinner"></div>
+                        </div>
+                        <div class="kpi-sub">Trong 30 ngày</div>
+                    </div>
 
-            <section class="mi-charts">
-                <div class="chart-card card">
-                    <div class="chart-header">
-                        <h3>Thống kê tồn kho theo danh mục</h3>
+                    <div class="kpi-card card">
+                        <div class="kpi-title">Đã hết hạn</div>
+                        <div class="kpi-value" id="expired">
+                            <div class="spinner"></div>
+                        </div>
+                        <div class="kpi-sub">Cần xử lý</div>
                     </div>
-                    <canvas id="categoryChart" aria-label="Biểu đồ danh mục" role="img" style="max-height: 240px;"></canvas>
-                    <div class="empty-chart hidden" id="categoryChartEmpty">
-                        <p style="color: #6B7280; padding: 40px; text-align: center;">Không có dữ liệu</p>
-                    </div>
-                </div>
+                </section>
 
-                <div class="chart-card card donut-card">
-                    <div class="chart-header"><h3>Tỷ trọng giá trị</h3></div>
-                    <canvas id="categoryDonut" aria-label="Tỷ trọng danh mục" role="img" style="max-height: 200px;"></canvas>
-                    <ul id="donutLegend" class="donut-legend"></ul>
-                    <div class="empty-chart hidden" id="donutChartEmpty">
-                        <p style="color: #6B7280; padding: 40px; text-align: center;">Không có dữ liệu</p>
-                    </div>
-                </div>
-            </section>
-
-            <section class="mi-activity">
-                <div class="activity-header">
-                    <h3>Tồn kho hiện tại</h3>
-                    <div class="flex gap-2">
-                        <input type="search" id="searchInventory" class="form-input" placeholder="Tìm kiếm theo tên, hoạt chất, hàm lượng..." style="width: 350px;">
-                        <button id="searchBtn" class="btn btn-outline">
-                            <span class="material-icons" style="font-size: 18px;">search</span>
-                            Tìm
-                        </button>
-                    </div>
-                </div>
-
-                <div class="table-container">
-                    <table class="activity-table table">
-                        <thead>
-                        <tr>
-                            <th>Tên thuốc</th>
-                            <th>Hoạt chất</th>
-                            <th>Hàm lượng</th>
-                            <th>Dạng bào chế</th>
-                            <th>Lô sản xuất</th>
-                            <th>Số lượng</th>
-                            <th>Đơn vị</th>
-                            <th>Hạn dùng</th>
-                            <th>Trạng thái</th>
-                        </tr>
-                        </thead>
-                        <tbody id="inventoryTableBody">
-                            <tr>
-                                <td colspan="9" style="text-align: center; padding: 40px;">
-                                    <div class="spinner"></div>
-                                    <p style="margin-top: 12px; color: #6B7280;">Đang tải dữ liệu...</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="pagination-container">
-                    <div class="pagination-controls">
-                        <button id="prev-page" disabled>&laquo; Trước</button>
-                        <span id="page-info">Trang 1 / 1</span>
-                        <button id="next-page" disabled>Sau &raquo;</button>
-                    </div>
-                    <div class="records-per-page">
-                        <label for="records-per-page">Số bản ghi:</label>
-                        <select id="records-per-page" class="form-select">
-                            <option value="10">10</option>
-                            <option value="25" selected>25</option>
-                            <option value="50">50</option>
+                <section class="mi-filters">
+                    <label>
+                        <span>Danh mục:</span>
+                        <select id="categoryFilter" class="form-select">
+                            <option value="">Tất cả</option>
                         </select>
+                    </label>
+                    <label>
+                        <span>Trạng thái:</span>
+                        <select id="statusFilter" class="form-select">
+                            <option value="">Tất cả</option>
+                            <option value="active">Hoạt động</option>
+                            <option value="near-expiry">Sắp hết hạn</option>
+                            <option value="expired">Đã hết hạn</option>
+                            <option value="out-of-stock">Hết hàng</option>
+                        </select>
+                    </label>
+                </section>
+
+                <section class="mi-charts">
+                    <div class="chart-card card">
+                        <div class="chart-header">
+                            <h3>Thống kê tồn kho theo danh mục</h3>
+                        </div>
+                        <canvas id="categoryChart" aria-label="Biểu đồ danh mục" role="img" style="max-height: 240px;"></canvas>
+                        <div class="empty-chart hidden" id="categoryChartEmpty">
+                            <p style="color: #6B7280; padding: 40px; text-align: center;">Không có dữ liệu</p>
+                        </div>
                     </div>
-                </div>
-            </section>
+
+                    <div class="chart-card card donut-card">
+                        <div class="chart-header"><h3>Tỷ trọng giá trị</h3></div>
+                        <canvas id="categoryDonut" aria-label="Tỷ trọng danh mục" role="img" style="max-height: 200px;"></canvas>
+                        <ul id="donutLegend" class="donut-legend"></ul>
+                        <div class="empty-chart hidden" id="donutChartEmpty">
+                            <p style="color: #6B7280; padding: 40px; text-align: center;">Không có dữ liệu</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mi-activity">
+                    <div class="activity-header">
+                        <h3>Tồn kho hiện tại</h3>
+                        <div class="flex gap-2">
+                            <input type="search" id="searchInventory" class="form-input" placeholder="Tìm kiếm theo tên, hoạt chất, hàm lượng..." style="width: 350px;">
+                            <button id="searchBtn" class="btn btn-outline">
+                                <span class="material-icons" style="font-size: 18px;">search</span>
+                                Tìm
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="activity-table table">
+                            <thead>
+                            <tr>
+                                <th>Tên thuốc</th>
+                                <th>Hoạt chất</th>
+                                <th>Hàm lượng</th>
+                                <th>Dạng bào chế</th>
+                                <th>Lô sản xuất</th>
+                                <th>Số lượng</th>
+                                <th>Đơn vị</th>
+                                <th>Hạn dùng</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                            </thead>
+                            <tbody id="inventoryTableBody">
+                                <tr>
+                                    <td colspan="9" style="text-align: center; padding: 40px;">
+                                        <div class="spinner"></div>
+                                        <p style="margin-top: 12px; color: #6B7280;">Đang tải dữ liệu...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination-container">
+                        <div class="pagination-controls">
+                            <button id="prev-page" disabled>&laquo; Trước</button>
+                            <span id="page-info">Trang 1 / 1</span>
+                            <button id="next-page" disabled>Sau &raquo;</button>
+                        </div>
+                        <div class="records-per-page">
+                            <label for="records-per-page">Số bản ghi:</label>
+                            <select id="records-per-page" class="form-select">
+                                <option value="10">10</option>
+                                <option value="25" selected>25</option>
+                                <option value="50">50</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+            </div>
         </main>
     `,
     pageScript = @`
