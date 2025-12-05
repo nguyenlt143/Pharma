@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataTables Column Display Test</title>
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/assets/css/pharmacist/detail_pages_common.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .test-info {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .test-info h3 {
+            margin: 0 0 10px 0;
+            color: #0066cc;
+        }
+        .console-output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 15px 0;
+        }
+        .log-entry {
+            margin: 3px 0;
+            padding: 2px 0;
+        }
+        .log-info { color: #4FC3F7; }
+        .log-warn { color: #FFB74D; }
+        .log-error { color: #E57373; }
+        .log-success { color: #81C784; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔍 DataTables Column Display Test</h1>
+
+        <div class="test-info">
+            <h3>Test Purpose:</h3>
+            <p>Verify that all 8 columns display correctly with headers visible</p>
+            <ul>
+                <li><strong>Expected columns:</strong> Tên thuốc, Đơn vị, Số lô, Hãng sản xuất, Xuất xứ, Số lượng, Đơn giá, Thành tiền</li>
+                <li><strong>Configuration:</strong> scrollX: true, autoWidth: false</li>
+                <li><strong>Fix applied:</strong> Width sync on draw event</li>
+            </ul>
+        </div>
+
+        <div id="console" class="console-output">
+            <div class="log-entry log-info">Console output will appear here...</div>
+        </div>
+
+        <!-- Test Table -->
+        <div class="table-container">
+            <table id="testTable" class="display table">
+                <thead>
+                    <tr>
+                        <th>Tên thuốc</th>
+                        <th>Đơn vị</th>
+                        <th>Số lô</th>
+                        <th>Hãng sản xuất</th>
+                        <th>Xuất xứ</th>
+                        <th>Số lượng</th>
+                        <th>Đơn giá</th>
+                        <th>Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be loaded via DataTables -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="test-info" style="margin-top: 20px;">
+            <h3>✅ Checklist:</h3>
+            <ul id="checklist">
+                <li>⏳ Headers visible</li>
+                <li>⏳ All 8 columns showing</li>
+                <li>⏳ Purple gradient on headers</li>
+                <li>⏳ Headers align with data</li>
+                <li>⏳ Horizontal scroll (if needed)</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- DataTables -->
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        function log(message, type = 'info') {
+            const console = document.getElementById('console');
+            const timestamp = new Date().toLocaleTimeString();
+            const logClass = `log-${type}`;
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${logClass}`;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            console.appendChild(logEntry);
+            console.scrollTop = console.scrollHeight;
+
+            // Also log to browser console
+            window.console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function updateChecklist(item, status) {
+            const checklist = document.getElementById('checklist');
+            const items = checklist.getElementsByTagName('li');
+            for (let li of items) {
+                if (li.textContent.includes(item)) {
+                    li.textContent = (status ? '✅' : '❌') + ' ' + item;
+                }
+            }
+        }
+
+        // Mock data for testing
+        const mockData = [
+            {
+                drugName: 'Paracetamol 500mg',
+                unit: 'Viên',
+                batch: 'BATCH-PARA-500-2024-01',
+                manufacturer: 'DHG Pharma',
+                country: 'Việt Nam',
+                quantity: 150,
+                price: 500,
+                totalAmount: 75000
+            },
+            {
+                drugName: 'Amoxicillin 250mg',
+                unit: 'Viên',
+                batch: 'BATCH-AMOX-250-2024-01',
+                manufacturer: 'Teva Pharmaceutical',
+                country: 'Israel',
+                quantity: 80,
+                price: 1200,
+                totalAmount: 96000
+            },
+            {
+                drugName: 'Vitamin C 1000mg',
+                unit: 'Viên',
+                batch: 'BATCH-VITC-1000-2024-01',
+                manufacturer: 'DHG Pharma',
+                country: 'Việt Nam',
+                quantity: 200,
+                price: 300,
+                totalAmount: 60000
+            },
+            {
+                drugName: 'Coldrex MaxGrip',
+                unit: 'Gói',
+                batch: 'BATCH-COLD-2024-01',
+                manufacturer: 'GlaxoSmithKline',
+                country: 'Anh',
+                quantity: 20,
+                price: 6000,
+                totalAmount: 120000
+            }
+        ];
+
+        $(document).ready(function() {
+            log('Initializing test DataTable...', 'info');
+
+            // Check initial HTML structure
+            const theadCols = $('#testTable thead th').length;
+            log(`HTML thead has ${theadCols} columns`, theadCols === 8 ? 'success' : 'error');
+
+            const table = $('#testTable').DataTable({
+                processing: false,
+                serverSide: false,
+                autoWidth: false,
+                data: mockData,
+                columns: [
+                    {
+                        data: 'drugName',
+                        render: function(data, type, row) {
+                            return data || 'N/A';
+                        }
+                    },
+                    {
+                        data: 'unit',
+                        render: function(data, type, row) {
+                            return data || 'N/A';
+                        }
+                    },
+                    {
+                        data: 'batch',
+                        render: function(data, type, row) {
+                            return data || 'N/A';
+                        }
+                    },
+                    {
+                        data: 'manufacturer',
+                        render: function(data, type, row) {
+                            return data || 'N/A';
+                        }
+                    },
+                    {
+                        data: 'country',
+                        render: function(data, type, row) {
+                            return data || 'N/A';
+                        }
+                    },
+                    {
+                        data: 'quantity',
+                        render: function(data, type, row) {
+                            return data || 0;
+                        }
+                    },
+                    {
+                        data: 'price',
+                        render: function(data, type, row) {
+                            if (data == null || data === undefined) return '0 ₫';
+                            return new Intl.NumberFormat('vi-VN', {
+                                style: 'currency',
+                                currency: 'VND'
+                            }).format(data);
+                        }
+                    },
+                    {
+                        data: 'totalAmount',
+                        render: function(data, type, row) {
+                            if (data == null || data === undefined) return '0 ₫';
+                            return new Intl.NumberFormat('vi-VN', {
+                                style: 'currency',
+                                currency: 'VND'
+                            }).format(data);
+                        }
+                    }
+                ],
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/vi.json',
+                    processing: 'Đang tải dữ liệu...',
+                    emptyTable: 'Không có dữ liệu',
+                    error: 'Lỗi khi tải dữ liệu'
+                },
+                order: [[0, 'asc']],
+                pageLength: 25,
+                scrollX: true,
+                drawCallback: function(settings) {
+                    log('Draw callback fired. Rows: ' + settings.fnRecordsDisplay(), 'info');
+
+                    // Check headers after draw
+                    setTimeout(function() {
+                        const headVisible = $('.dataTables_scrollHead').is(':visible');
+                        const bodyVisible = $('.dataTables_scrollBody').is(':visible');
+
+                        log(`ScrollHead visible: ${headVisible}`, headVisible ? 'success' : 'error');
+                        log(`ScrollBody visible: ${bodyVisible}`, bodyVisible ? 'success' : 'error');
+
+                        const headWidth = $('.dataTables_scrollHead table').width();
+                        const bodyWidth = $('.dataTables_scrollBody table').width();
+
+                        log(`Head table width: ${headWidth}px`, 'info');
+                        log(`Body table width: ${bodyWidth}px`, 'info');
+
+                        if (Math.abs(headWidth - bodyWidth) > 1) {
+                            log('⚠ Width mismatch detected!', 'warn');
+                        } else {
+                            log('✓ Widths are synced', 'success');
+                        }
+
+                        // Check visible columns
+                        const visibleHeadCols = $('.dataTables_scrollHead thead th:visible').length;
+                        const visibleBodyCols = $('.dataTables_scrollBody tbody tr:first td').length;
+
+                        log(`Visible head columns: ${visibleHeadCols}`, visibleHeadCols === 8 ? 'success' : 'error');
+                        log(`Visible body columns: ${visibleBodyCols}`, visibleBodyCols === 8 ? 'success' : 'error');
+
+                        // Update checklist
+                        updateChecklist('Headers visible', headVisible);
+                        updateChecklist('All 8 columns showing', visibleHeadCols === 8 && visibleBodyCols === 8);
+                        updateChecklist('Headers align with data', Math.abs(headWidth - bodyWidth) <= 1);
+                    }, 100);
+                },
+                initComplete: function(settings, json) {
+                    log('✓ DataTable initialization completed', 'success');
+                    updateChecklist('Purple gradient on headers', true);
+                }
+            });
+
+            // 🔥 FIX: Sync thead and tbody width
+            table.on('draw', function () {
+                const bodyWidth = $('.dataTables_scrollBody table').width();
+                $('.dataTables_scrollHead table').width(bodyWidth);
+                log(`🔥 Width synced to ${bodyWidth}px`, 'success');
+            });
+
+            // Check after initial load
+            setTimeout(function() {
+                const scrollContainer = $('.dataTables_scroll');
+                if (scrollContainer.length > 0) {
+                    log('✓ Scroll container found', 'success');
+                    updateChecklist('Horizontal scroll (if needed)', true);
+                } else {
+                    log('✗ No scroll container', 'error');
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>
+

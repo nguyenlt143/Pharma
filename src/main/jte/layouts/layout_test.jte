@@ -1,7 +1,8 @@
 @import gg.jte.Content
 
 @param Content content
-
+@param Content headContent
+@param Content pageScript
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -23,6 +24,7 @@
     <script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="/assets/css/pharmacist/layout.css">
+    ${headContent}
 </head>
 
 <body x-data="{ 'loaded': true }">
@@ -69,11 +71,6 @@
             </ul>
         </nav>
 
-        <div class="sidebar-footer">
-            <button class="back-button">
-                <span class="material-icons">arrow_back</span>
-            </button>
-        </div>
     </aside>
 
     <!-- Main Content -->
@@ -114,6 +111,7 @@
 
 @template.template.preloader()
 <script src="/assets/js/pharmacist/layout.js" defer></script>
+${pageScript}
 </body>
 </html>
 

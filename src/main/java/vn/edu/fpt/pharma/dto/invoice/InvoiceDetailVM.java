@@ -9,9 +9,9 @@ public record InvoiceDetailVM(
     String branchAddress,
     String customerName,
     String customerPhone,
-    LocalDateTime invoiceDate,
-    BigDecimal totalAmount,
-    String note,
+    LocalDateTime createdAt,    // Changed from invoiceDate
+    BigDecimal totalPrice,     // Changed from totalAmount
+    String description,        // Changed from note
     List<MedicineItemVM> medicines
 ){
 }

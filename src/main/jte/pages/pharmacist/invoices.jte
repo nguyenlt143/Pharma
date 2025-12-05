@@ -1,93 +1,93 @@
+@param String success = null
 @param String error = null
-@param String message = null
 
-@template.layouts.layout_test(content = @`
-    @if(error != null)
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            ${error}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+@template.layouts.layout_test(
+    headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/invoices.css">`,
+    content = @`
+    <main class="main-content">
+        <div class="content-wrapper">
+            <!-- Page Header -->
+            <header class="page-header">
+                <h1 class="page-title">Danh sách Hóa đơn</h1>
+            </header>
+
+            <!-- Alert Messages -->
+            @if(success != null)
+                <div class="alert alert-success" role="alert">
+                    ${success}
+                </div>
+            @endif
+            @if(error != null)
+                <div class="alert alert-danger" role="alert">
+                    ${error}
+                </div>
+            @endif
+
+            <!-- Invoice Table -->
+            <div class="table-container">
+                <table id="invoiceTable" class="display table">
+                    <thead>
+                        <tr>
+                            <th>Mã hóa đơn</th>
+                            <th>Khách hàng</th>
+                            <th>Tổng tiền</th>
+                            <th>Ngày tạo</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be loaded via DataTables -->
+                    </tbody>
+                </table>
+            </div>
         </div>
-    @endif
-    @if(message != null)
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
-    <table id="invoiceTable" class="table table-striped">
-        <thead>
-        <tr>
-            <th>Mã hoá đơn</th>
-            <th>Khách hàng</th>
-            <th>Ngày bán hàng</th>
-            <th>Tổng tiền</th>
-            <th>Phương thức thanh toán</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-
+    </main>
+    `,
+    pageScript = @`
     <script>
-        $(document).ready(function () {
-            const table = $('#invoiceTable').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: {
-                    url: '/pharmacist/invoices/all',
-                    type: 'GET',
-                    dataSrc: 'data'
-                },
-                columns: [
-                    {data: 'invoiceCode', title: 'Mã hoá đơn'},
-                    {data: 'customerName', title: 'Tên khách hàng'},
-                    {
-                      data: 'createdAt',
-                      title: 'Ngày bán hàng',
-                      render: function (data, type, row) {
-                        return '<span>' + (data ? dayjs(data).format("YYYY/MM/DD HH:mm") : '') + '</span>'
-                        }
-                    },
-                    {data: 'totalPrice', title: 'Tổng tiền'},
-                    {data: 'paymentMethod', title: 'Phương thức thanh toán'},
-                    {
-                        data: null,
-                        orderable: false,
-                        searchable: false,
-                        render: function (data, type, row) {
-                        return '' +
-                                '<button class="btn btn-sm btn-outline-primary me-2 view-btn" data-id="' + row.id + '">' +
-                                '<i class="bi bi-eye"></i>Xem chi tiết</button>'
-                        }
+    $(document).ready(function() {
+        $('#invoiceTable').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: '/pharmacist/invoices/all',
+                type: 'GET'
+            },
+            columns: [
+                { data: 'invoiceCode' },
+                {
+                    data: 'customerName',
+                    render: function(data) {
+                        return data && data.trim() !== '' ? data : 'Khách lẻ';
                     }
-                ],
-                paging: true,
-                searching: true,
-                ordering: true,
-                pageLength: 5,
-                scrollCollapse: true,
-                scrollY: '65vh',
-                order: [[0, "asc"]],
-                language: {
-                    search: "Tìm kiếm:",
-                    lengthMenu: "Hiển thị _MENU_ dòng",
-                    info: "Hiển thị _START_ đến _END_ trong tổng _TOTAL_ kết quả",
-                    infoFiltered: "",
-                    paginate: {
-                        first: "Đầu",
-                        last: "Cuối",
-                        next: "Sau",
-                        previous: "Trước"
-                    },
-                    processing: "Đang tải dữ liệu..."
+                },
+                {
+                    data: 'totalPrice',
+                    render: function(data) {
+                        return new Intl.NumberFormat('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND'
+                        }).format(data);
+                    }
+                },
+                {
+                    data: 'createdAt',
+                    render: function(data) {
+                        return new Date(data).toLocaleString('vi-VN');
+                    }
+                },
+                {
+                    data: 'id',
+                    render: function(data) {
+                        return '<a href="/pharmacist/invoices/detail?invoiceId=' + data + '" class="btn btn-sm btn-primary">Xem chi tiết</a>';
+                    }
                 }
-            });
+            ],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/vi.json'
+            }
         });
-
-        $('#invoiceTable').on('click', '.view-btn', function () {
-            const id = $(this).data('id');
-            window.location.href = '/pharmacist/invoices/detail?invoiceId=' + id;
-        });
+    });
     </script>
-`)
+    `
+)

@@ -1,0 +1,110 @@
+/* Copy base styles from revenues.css */
+@import url('revenues.css');
+
+/* Shifts specific styling */
+.page-title {
+    color: #6f42c1;
+    border-left: 4px solid #6f42c1;
+    padding-left: 15px;
+}
+
+/* Shift time styling */
+.shift-time {
+    font-family: 'Courier New', monospace;
+    background: #f8f9fa;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+/* Shift status indicators */
+.shift-active {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.shift-inactive {
+    color: #6c757d;
+}
+
+.shift-completed {
+    color: #17a2b8;
+}
+
+/* Shift performance metrics */
+.performance-high {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+}
+
+.performance-medium {
+    background: linear-gradient(135deg, #ffc107, #fd7e14);
+    color: white;
+}
+
+.performance-low {
+    background: linear-gradient(135deg, #dc3545, #e83e8c);
+    color: white;
+}
+
+/* Shift cards for summary */
+.shift-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.shift-card {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.shift-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.shift-card h3 {
+    margin: 0 0 10px 0;
+    color: #6f42c1;
+    font-size: 18px;
+}
+
+.shift-card .time-range {
+    color: #6c757d;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.shift-card .metrics {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.shift-card .revenue {
+    font-size: 20px;
+    font-weight: 700;
+    color: #28a745;
+}
+
+.shift-card .orders {
+    font-size: 14px;
+    color: #17a2b8;
+}
+
+/* Table column alignment for shifts */
+.table th:nth-child(3),
+.table td:nth-child(3) {
+    text-align: right;
+}
+
+.table th:nth-child(4),
+.table td:nth-child(4) {
+    text-align: center;
+}

@@ -1,13 +1,16 @@
 package vn.edu.fpt.pharma.controller.pharmacist;
 
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.pharma.config.CustomUserDetails;
@@ -15,11 +18,10 @@ import vn.edu.fpt.pharma.dto.invoice.InvoiceCreateRequest;
 import vn.edu.fpt.pharma.dto.medicine.MedicineSearchDTO;
 import vn.edu.fpt.pharma.dto.medicine.VariantInventoryDTO;
 import vn.edu.fpt.pharma.dto.shifts.ShiftSummaryVM;
+import vn.edu.fpt.pharma.dto.user.ProfileUpdateRequest;
 import vn.edu.fpt.pharma.dto.user.ProfileVM;
-import vn.edu.fpt.pharma.entity.Branch;
 import vn.edu.fpt.pharma.entity.Invoice;
 import vn.edu.fpt.pharma.entity.User;
-import vn.edu.fpt.pharma.repository.BranchRepository;
 import vn.edu.fpt.pharma.service.*;
 
 import java.time.DayOfWeek;
@@ -35,7 +37,6 @@ public class PharmacistController {
     private final UserService userService;
     private final MedicineVariantService medicineVariantService;
     private final MedicineService medicineService;
-    private final BranchRepository branchRepository;
     private final ShiftWorkService shiftWorkService;
     private final ShiftService shiftService;
     private final InvoiceService invoiceService;
@@ -68,15 +69,21 @@ public class PharmacistController {
     }
 
     @PostMapping("/pos/api/invoices")
-    public ResponseEntity<?> createInvoice(@RequestBody InvoiceCreateRequest req) {
+    @Transactional
+    public ResponseEntity<?> createInvoice(@Valid @RequestBody InvoiceCreateRequest req) {
+        try {
+            Invoice invoice = invoiceService.createInvoice(req);
 
-        Invoice invoice = invoiceService.createInvoice(req);
-
-        return ResponseEntity.ok(Map.of(
-                "id", invoice.getId(),
-                "invoiceCode", invoice.getInvoiceCode(),
-                "message", "Thanh toán thành công"
-        ));
+            return ResponseEntity.ok(Map.of(
+                    "id", invoice.getId(),
+                    "invoiceCode", invoice.getInvoiceCode(),
+                    "message", "Thanh toán thành công"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "error", e.getMessage()
+            ));
+        }
     }
 
     @GetMapping("/work")
@@ -117,17 +124,73 @@ public class PharmacistController {
         Long userId = userDetails.getId();
         User user = userService.findById(userId);
         ProfileVM profileVM = new ProfileVM(user);
+
+        // Tạo form object để binding
+        ProfileUpdateRequest profileUpdateRequest = new ProfileUpdateRequest();
+        profileUpdateRequest.setFullName(user.getFullName());
+        profileUpdateRequest.setPhone(user.getPhoneNumber());
+        profileUpdateRequest.setEmail(user.getEmail());
+
         model.addAttribute("profile", profileVM);
+        model.addAttribute("profileUpdateRequest", profileUpdateRequest);
+        model.addAttribute("success", null);
+        model.addAttribute("error", null);
+
+        // Pre-populate display values để tránh complex expressions trong JTE
+        model.addAttribute("displayFullName", user.getFullName());
+        model.addAttribute("displayEmail", user.getEmail());
+        model.addAttribute("displayPhone", user.getPhoneNumber());
+
         return "pages/profile/profile";
     }
 
     @PostMapping("/profile/update")
-    public String update(@ModelAttribute ProfileVM profileVM,  RedirectAttributes redirectAttributes) {
+    @Transactional
+    public String update(@Valid @ModelAttribute("profileUpdateRequest") ProfileUpdateRequest profileUpdateRequest,
+                        BindingResult bindingResult,
+                        Model model) {
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
         Long userId = userDetails.getId();
-        userService.updateProfile(userId, profileVM);
-        redirectAttributes.addFlashAttribute("success", "Cập nhật thành công!");
-        return "redirect:/pharmacist/profile";
+        User user = userService.findById(userId);
+        ProfileVM profileVM = new ProfileVM(user);
+
+        model.addAttribute("profile", profileVM);
+        model.addAttribute("profileUpdateRequest", profileUpdateRequest);
+
+        // Pre-populate display values
+        model.addAttribute("displayFullName", profileUpdateRequest.getFullName() != null ? profileUpdateRequest.getFullName() : user.getFullName());
+        model.addAttribute("displayEmail", profileUpdateRequest.getEmail() != null ? profileUpdateRequest.getEmail() : user.getEmail());
+        model.addAttribute("displayPhone", profileUpdateRequest.getPhone() != null ? profileUpdateRequest.getPhone() : user.getPhoneNumber());
+
+        if (bindingResult.hasErrors()) {
+            // Nếu có lỗi validation, quay lại trang profile với thông báo lỗi
+            model.addAttribute("error", "Vui lòng kiểm tra lại thông tin đã nhập");
+            model.addAttribute("success", null);
+            return "pages/profile/profile";
+        }
+
+        try {
+            userService.updateProfile(userId, profileUpdateRequest);
+            model.addAttribute("success", "Cập nhật thành công!");
+            model.addAttribute("error", null);
+
+            // Cập nhật lại ProfileVM và display values với dữ liệu mới
+            User updatedUser = userService.findById(userId);
+            ProfileVM updatedProfileVM = new ProfileVM(updatedUser);
+            model.addAttribute("profile", updatedProfileVM);
+
+            // Update display values với dữ liệu mới
+            model.addAttribute("displayFullName", updatedUser.getFullName());
+            model.addAttribute("displayEmail", updatedUser.getEmail());
+            model.addAttribute("displayPhone", updatedUser.getPhoneNumber());
+
+        } catch (Exception e) {
+            model.addAttribute("error", "Cập nhật thất bại: " + e.getMessage());
+            model.addAttribute("success", null);
+        }
+
+        return "pages/profile/profile";
     }
 }

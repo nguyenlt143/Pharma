@@ -552,6 +552,110 @@
   background-color: #312E81;
 }
 
+/* QR Code Section Styles */
+.qr-code-section {
+  margin: 16px 0;
+  padding: 20px;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border: 2px dashed #94a3b8;
+  border-radius: 12px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.qr-header {
+  margin-bottom: 20px;
+}
+
+.qr-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.qr-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+.qr-code-container {
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.qr-placeholder {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e2e8f0;
+}
+
+.qr-code-img {
+  width: 200px;
+  height: 200px;
+  border-radius: 8px;
+}
+
+.qr-instructions {
+  margin-top: 20px;
+}
+
+.instruction-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.instruction-list li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #475569;
+  padding: 8px 16px;
+  background: rgba(34, 197, 94, 0.1);
+  border-radius: 8px;
+  border-left: 4px solid #22c55e;
+}
+
+.instruction-list li .material-icons {
+  color: #22c55e;
+  font-size: 18px;
+}
+
+@media (max-width: 768px) {
+  .qr-code-section {
+    padding: 16px;
+    margin: 12px 0;
+  }
+
+  .qr-title {
+    font-size: 16px;
+  }
+
+  .qr-subtitle {
+    font-size: 13px;
+  }
+
+  .qr-code-img {
+    width: 160px;
+    height: 160px;
+  }
+
+  .instruction-list li {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+}
+
 /* Additional responsive adjustments */
 @media (max-width: 480px) {
   .app-container {

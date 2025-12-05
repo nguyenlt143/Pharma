@@ -4,7 +4,7 @@
 @param java.time.LocalDate start
 @param java.time.LocalDate end
 
-@template.layouts.pharmacist(
+@template.layouts.layout_test(
 headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/work_schedule.css">`,
 content = @`
     <!-- Main Content Area -->
