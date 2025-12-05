@@ -27,6 +27,7 @@ public class ViewModelMethodTest {
             MedicineItemVM medicine = new MedicineItemVM(
                 "Paracetamol",
                 "500mg",
+                "Viên",
                 15000.0,
                 2L
             );
@@ -64,6 +65,7 @@ public class ViewModelMethodTest {
             MedicineItemVM medicine = new MedicineItemVM(
                 "Amoxicillin",
                 "250mg",
+                "Viên",
                 25000.0,
                 1L
             );
@@ -72,6 +74,7 @@ public class ViewModelMethodTest {
             System.out.println("🧪 Testing MedicineItemVM methods:");
             System.out.println("  ✅ medicineName(): " + medicine.medicineName());
             System.out.println("  ✅ strength(): " + medicine.strength());
+            System.out.println("  ✅ unitName(): " + medicine.unitName());
             System.out.println("  ✅ unitPrice(): " + medicine.unitPrice());
             System.out.println("  ✅ quantity(): " + medicine.quantity());
 

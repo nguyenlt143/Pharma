@@ -14,9 +14,10 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, Lo
 
     @Query(value = """
         SELECT
-            CONCAT(m.name, ' ', mv.strength) AS name,
-            u.name AS unit,
-            idt.price AS price,
+            m.name AS medicineName,
+            mv.strength AS strength,
+            u.name AS unitName,
+            idt.price AS unitPrice,
             idt.quantity AS quantity
         FROM invoice_details idt
         JOIN inventory inv ON idt.inventory_id = inv.id

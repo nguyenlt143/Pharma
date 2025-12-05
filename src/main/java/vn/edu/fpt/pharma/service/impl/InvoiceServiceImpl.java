@@ -146,7 +146,13 @@ public class InvoiceServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
             Long realQty = (long) (itemReq.getQuantity() * itemReq.getSelectedMultiplier());
 
             if (inventory.getQuantity() < realQty) {
-                throw new InsufficientInventoryException("Tồn kho không đủ cho sản phẩm: " + inventory.getId());
+                throw new InsufficientInventoryException(
+                    String.format("Tồn kho không đủ cho thuốc '%s' (Số lô: %s). Còn lại: %d, yêu cầu: %d",
+                        inventory.getVariant().getMedicine().getName(),
+                        inventory.getBatch().getBatchCode(),
+                        inventory.getQuantity(),
+                        realQty)
+                );
             }
 
             inventories.add(inventory);
@@ -172,7 +178,9 @@ public class InvoiceServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
             detail.setInvoice(invoice);
             detail.setInventory(inventory);
             detail.setQuantity(itemReq.getQuantity());
-            detail.setPrice(itemReq.getUnitPrice());
+            // unitPrice from frontend is already multiplied by selectedMultiplier
+            // price should be total for this line item: unitPrice * quantity
+            detail.setPrice(itemReq.getUnitPrice() * itemReq.getQuantity());
             details.add(detail);
         }
 

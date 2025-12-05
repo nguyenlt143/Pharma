@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Conversion Migration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .info-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            color: #555;
+        }
+
+        .info-box li {
+            margin: 5px 0;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 20px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        #result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            display: block;
+        }
+
+        #result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            display: block;
+        }
+
+        #result.loading {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+            display: none;
+        }
+
+        #result.loading .spinner {
+            display: block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .warning strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Unit Conversion Migration</h1>
+        <p class="subtitle">Migrate all MedicineVariant to UnitConversion</p>
+
+        <div class="info-box">
+            <h3>📋 Chức năng</h3>
+            <ul>
+                <li>Lấy tất cả MedicineVariant từ database</li>
+                <li>Tạo 2 UnitConversion cho mỗi variant:
+                    <ul>
+                        <li>(variant_id, baseUnitId, 1.0)</li>
+                        <li>(variant_id, packageUnitId, quantityPerPackage)</li>
+                    </ul>
+                </li>
+                <li>Tự động bỏ qua nếu đã tồn tại (không duplicate)</li>
+            </ul>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ Lưu ý:</strong>
+            Chỉ cần chạy migration này MỘT LẦN duy nhất khi deploy lần đầu.
+            Sau đó, UnitConversion sẽ tự động được tạo khi tạo/update variant.
+        </div>
+
+        <button id="migrateBtn" onclick="runMigration()">
+            ▶️ Chạy Migration
+        </button>
+
+        <div id="result">
+            <div class="spinner"></div>
+            <p id="resultMessage"></p>
+        </div>
+    </div>
+
+    <script>
+        async function runMigration() {
+            const btn = document.getElementById('migrateBtn');
+            const result = document.getElementById('result');
+            const message = document.getElementById('resultMessage');
+
+            // Disable button
+            btn.disabled = true;
+            btn.textContent = '⏳ Đang xử lý...';
+
+            // Show loading
+            result.className = 'loading';
+            message.textContent = 'Đang migrate dữ liệu... Vui lòng đợi.';
+
+            try {
+                const response = await fetch('/api/admin/accounts/unit-conversion-migration', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    result.className = 'success';
+                    message.innerHTML = `
+                        <strong>✅ Thành công!</strong><br>
+                        ${data.message}<br><br>
+                        <small>Xem console của server để biết chi tiết.</small>
+                    `;
+                    btn.textContent = '✓ Migration hoàn tất';
+                } else {
+                    result.className = 'error';
+                    message.innerHTML = `
+                        <strong>❌ Lỗi!</strong><br>
+                        ${data.message}
+                    `;
+                    btn.disabled = false;
+                    btn.textContent = '🔄 Thử lại';
+                }
+            } catch (error) {
+                result.className = 'error';
+
+                if (error.message.includes('Failed to fetch')) {
+                    message.innerHTML = `
+                        <strong>❌ Không thể kết nối!</strong><br>
+                        Vui lòng kiểm tra:<br>
+                        • Server có đang chạy không?<br>
+                        • Bạn đã đăng nhập với quyền ADMIN chưa?<br>
+                        • URL có đúng không? (http://localhost:8080)
+                    `;
+                } else {
+                    message.innerHTML = `
+                        <strong>❌ Lỗi!</strong><br>
+                        ${error.message}
+                    `;
+                }
+
+                btn.disabled = false;
+                btn.textContent = '🔄 Thử lại';
+            }
+        }
+
+        // Auto-detect if user is logged in
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('/api/admin/accounts', {
+                    method: 'GET'
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    const result = document.getElementById('result');
+                    const message = document.getElementById('resultMessage');
+                    result.className = 'error';
+                    message.innerHTML = `
+                        <strong>⚠️ Chưa đăng nhập!</strong><br>
+                        Vui lòng <a href="/login">đăng nhập</a> với tài khoản ADMIN để sử dụng chức năng này.
+                    `;
+                    document.getElementById('migrateBtn').disabled = true;
+                }
+            } catch (e) {
+                console.log('Could not check auth status:', e);
+            }
+        });
+    </script>
+</body>
+</html>
+
