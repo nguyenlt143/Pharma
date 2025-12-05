@@ -134,7 +134,7 @@ public class InvoiceServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
         invoice.setDescription(req.getNote());
         invoice.setUserId(userContext.getUserId());
         invoice.setBranchId(userContext.getBranchId());
-        invoice.setShiftWorkId(userContext.getShiftWorkId()); // Will return null if not in shift
+        invoice.setShiftWorkId(userContext.getShiftWorkId());
         invoice.setInvoiceType(InvoiceType.PAID);
 
         // Validate inventory first before starting transaction
@@ -172,8 +172,7 @@ public class InvoiceServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
             detail.setInvoice(invoice);
             detail.setInventory(inventory);
             detail.setQuantity(itemReq.getQuantity());
-            detail.setPrice(itemReq.getUnitPrice() * itemReq.getSelectedMultiplier());
-
+            detail.setPrice(itemReq.getUnitPrice());
             details.add(detail);
         }
 
