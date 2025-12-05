@@ -123,8 +123,7 @@
                                            class="form-input"
                                            id="phoneNumber"
                                            name="phoneNumber"
-                                           pattern="^(0|\+84)[0-9]{9,10}$"
-                                           title="Số điện thoại phải bắt đầu bằng 0 hoặc +84 và có 10-11 chữ số"
+                                           title="Nhập số điện thoại hợp lệ (0xxxxxxxxx hoặc +84xxxxxxxxx) hoặc để trống"
                                            placeholder="Nhập số điện thoại (để trống = Không có)"
                                            value="">
                                     <button type="button" class="clear-button" onclick="clearInput('phoneNumber')">

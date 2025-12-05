@@ -11,7 +11,6 @@ public class InvoiceCreateRequest {
     @Size(max = 100, message = "Tên khách hàng không được vượt quá 100 ký tự")
     private String customerName;
 
-    @Pattern(regexp = "^((0|\\+84)[0-9]{9,10}|Không có)$", message = "Số điện thoại không hợp lệ")
     private String phoneNumber;
 
     @NotNull(message = "Tổng tiền không được để trống")

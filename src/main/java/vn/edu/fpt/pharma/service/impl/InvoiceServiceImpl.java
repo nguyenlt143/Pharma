@@ -15,11 +15,11 @@ import vn.edu.fpt.pharma.entity.Customer;
 import vn.edu.fpt.pharma.entity.Inventory;
 import vn.edu.fpt.pharma.entity.Invoice;
 import vn.edu.fpt.pharma.entity.InvoiceDetail;
+import vn.edu.fpt.pharma.exception.InsufficientInventoryException;
 import vn.edu.fpt.pharma.repository.InventoryRepository;
 import vn.edu.fpt.pharma.repository.InvoiceDetailRepository;
 import vn.edu.fpt.pharma.repository.InvoiceRepository;
 import vn.edu.fpt.pharma.service.*;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -87,7 +87,6 @@ public class InvoiceServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
     }
 
     @Override
-    @Transactional
     public Invoice createInvoice(InvoiceCreateRequest req) {
         // Set default customer name if empty
         String customerName = req.getCustomerName();
@@ -95,13 +94,38 @@ public class InvoiceServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
             customerName = "Khách lẻ";
         }
 
-        Customer customer = null;
-        // Only create customer if phone number is provided and not the default "Không có"
-        if(req.getPhoneNumber() != null &&
-           !req.getPhoneNumber().isEmpty() &&
-           !req.getPhoneNumber().equals("Không có")){
-            customer = customerService.getOrCreate(customerName, req.getPhoneNumber());
+        // Validate and set default phone number if empty
+        String phoneNumber = req.getPhoneNumber();
+        if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
+            phoneNumber = "Không có";
         }
+
+        // Validate phone number format if not empty and not default
+        if (!phoneNumber.equals("Không có") && !phoneNumber.trim().isEmpty()) {
+            if (!phoneNumber.matches("^(0|\\+84)[0-9]{9,10}$")) {
+                throw new RuntimeException("Số điện thoại không đúng định dạng");
+            }
+        }
+
+        // Create customer BEFORE transaction to avoid rollback conflicts
+        Customer customer = null;
+        if (!phoneNumber.equals("Không có")) {
+            try {
+                customer = customerService.getOrCreate(customerName, phoneNumber);
+            } catch (Exception e) {
+                // Log and continue without customer if creation fails
+                System.err.println("Warning: Could not create customer: " + e.getMessage());
+                customer = null;
+            }
+        }
+
+        // Now start the main transaction for invoice creation
+        return createInvoiceTransaction(req, customer);
+
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    private Invoice createInvoiceTransaction(InvoiceCreateRequest req, Customer customer) {
         Invoice invoice = new Invoice();
         invoice.setInvoiceCode(generateInvoiceCode());
         invoice.setCustomer(customer);
@@ -110,20 +134,40 @@ public class InvoiceServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
         invoice.setDescription(req.getNote());
         invoice.setUserId(userContext.getUserId());
         invoice.setBranchId(userContext.getBranchId());
-        invoice.setShiftWorkId(userContext.getShiftWorkId());
+        invoice.setShiftWorkId(userContext.getShiftWorkId()); // Will return null if not in shift
         invoice.setInvoiceType(InvoiceType.PAID);
 
-        invoice = repository.save(invoice);
-        List<InvoiceDetail> details = new ArrayList<>();
-        for (InvoiceItemRequest itemReq : req.getItems()){
+        // Validate inventory first before starting transaction
+        List<Inventory> inventories = new ArrayList<>();
+        List<Long> realQuantities = new ArrayList<>();
+
+        for (InvoiceItemRequest itemReq : req.getItems()) {
             Inventory inventory = inventoryService.findById(itemReq.getInventoryId());
             Long realQty = (long) (itemReq.getQuantity() * itemReq.getSelectedMultiplier());
-            if(inventory.getQuantity() < realQty){
-                throw new RuntimeException("Tồn kho không đủ");
+
+            if (inventory.getQuantity() < realQty) {
+                throw new InsufficientInventoryException("Tồn kho không đủ cho sản phẩm: " + inventory.getId());
             }
+
+            inventories.add(inventory);
+            realQuantities.add(realQty);
+        }
+
+        // Save invoice first
+        invoice = repository.save(invoice);
+
+        // Process inventory and details
+        List<InvoiceDetail> details = new ArrayList<>();
+        for (int i = 0; i < req.getItems().size(); i++) {
+            InvoiceItemRequest itemReq = req.getItems().get(i);
+            Inventory inventory = inventories.get(i);
+            Long realQty = realQuantities.get(i);
+
+            // Update inventory quantity
             inventory.setQuantity(inventory.getQuantity() - realQty);
             inventoryRepository.save(inventory);
 
+            // Create invoice detail
             InvoiceDetail detail = new InvoiceDetail();
             detail.setInvoice(invoice);
             detail.setInventory(inventory);
@@ -131,18 +175,20 @@ public class InvoiceServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
             detail.setPrice(itemReq.getUnitPrice() * itemReq.getSelectedMultiplier());
 
             details.add(detail);
-            invoiceDetailRepository.save(detail);
         }
+
+        // Batch save details
+        invoiceDetailRepository.saveAll(details);
         invoice.setDetails(details);
 
         return invoice;
     }
 
     @Override
-    public String generateInvoiceCode() {
+    public synchronized String generateInvoiceCode() {
         String date = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
         Long maxId = repository.findMaxInvoiceId();
-        long next = maxId + 1;
+        long next = (maxId != null ? maxId : 0) + 1;
         // Format: INV-20250201-000123
         return "INV-" + date + "-" + String.format("%06d", next);
     }

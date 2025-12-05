@@ -517,41 +517,7 @@ clearButtons.forEach(button => {
   });
 });
 
-// Payment functionality
-if (paymentButton) {
-  paymentButton.addEventListener('click', () => {
-    const customerName = customerNameInput.value.trim();
-    const phoneNumber = phoneInput.value.trim();
-    const paymentAmount = parseFloat(paymentAmountInput.value.trim()) || 0;
-    const paymentMethod = paymentMethodSelect.value;
-    const note= notesTextarea.value.trim();
-
-        const totalAmount = getTotalAmount();
-
-        if (prescriptionItems.length === 0) {
-            alert("Chưa có sản phẩm nào trong đơn!");
-            return;
-        }
-
-        if (paymentAmount < totalAmount) {
-            alert(`Khách trả thiếu tiền! Cần ${totalAmount.toLocaleString('vi-VN')} VNĐ`);
-            return;
-        }
-
-    const paymentData = {
-      customerName,
-      phoneNumber,
-      paymentAmount,
-      totalAmount,
-      change: paymentAmount - totalAmount,
-      paymentMethod,
-      note,
-      items: prescriptionItems
-    };
-
-    processPayment(paymentData);
-  });
-}
+// OLD PAYMENT FUNCTIONALITY REMOVED - Now handled by form submission with proper validation
 
 // F8 focus payment input
 document.addEventListener('keydown', (e) => {
@@ -693,6 +659,26 @@ function showAlert(type, message) {
     }
 }
 
+function validatePhoneNumber(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (!field) return true;
+
+    const value = field.value.trim();
+    clearError(fieldId);
+
+    // Nếu để trống thì không validate - sẽ dùng "Không có"
+    if (!value) return true;
+
+    // Chỉ validate khi người dùng thực sự nhập số điện thoại
+    const phonePattern = /^(0|\+84)[0-9]{9,10}$/;
+    if (!phonePattern.test(value)) {
+        showError(fieldId, 'Số điện thoại phải bắt đầu bằng 0 hoặc +84 và có 10-11 chữ số');
+        return false;
+    }
+
+    return true;
+}
+
 function validateField(fieldId, rules) {
     const field = document.getElementById(fieldId);
     if (!field) return true;
@@ -770,11 +756,7 @@ function validatePaymentForm() {
             maxLength: 100
         }),
 
-        validateField('phoneNumber', {
-            required: false,
-            pattern: /^((0|\+84)[0-9]{9,10}|Không có|)$/,
-            patternMessage: 'Số điện thoại phải bắt đầu bằng 0 hoặc +84 và có 10-11 chữ số'
-        }),
+        validatePhoneNumber('phoneNumber'),
 
         validateField('paidAmount', {
             required: true,
