@@ -72,15 +72,30 @@ public class InvoiceController {
         }
 
         try {
-            InvoiceDetailVM invoiceDetailVM = invoiceService.getInvoiceDetail(invoiceId);
+            // Verify user access to this invoice
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+
+            InvoiceDetailVM invoiceDetailVM = invoiceService.getInvoiceDetail(invoiceId);
+
+            // Check if invoice was found
+            if (invoiceDetailVM == null) {
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy hóa đơn với ID: " + invoiceId);
+                return "redirect:/pharmacist/invoices";
+            }
+
+            // Check if customer info is properly handled
+            log.info("Invoice detail retrieved - Customer: {}, Phone: {}",
+                    invoiceDetailVM.customerName(), invoiceDetailVM.customerPhone());
+
             model.addAttribute("user", userDetails);
             model.addAttribute("invoice", invoiceDetailVM);
             model.addAttribute("medicines", invoiceDetailVM.medicines());
             return "pages/pharmacist/invoice_detail";
+
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Không tìm thấy hóa đơn: " + e.getMessage());
+            log.error("Error retrieving invoice detail for ID: {}", invoiceId, e);
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi xem chi tiết hóa đơn: " + e.getMessage());
             return "redirect:/pharmacist/invoices";
         }
     }

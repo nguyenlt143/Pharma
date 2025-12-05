@@ -62,10 +62,14 @@ public class UserContextImpl implements UserContext {
 
     @Override
     public Long getShiftWorkId() {
-        Long userId = getUserId();
-        Long branchId = getBranchId();
-
-        return shiftWorkService.getCurrentShiftWorkId(userId, branchId);
+        try {
+            Long userId = getUserId();
+            Long branchId = getBranchId();
+            return shiftWorkService.getCurrentShiftWorkId(userId, branchId);
+        } catch (Exception e) {
+            // Return null if user is not in active shift instead of throwing exception
+            return null;
+        }
     }
 
 }

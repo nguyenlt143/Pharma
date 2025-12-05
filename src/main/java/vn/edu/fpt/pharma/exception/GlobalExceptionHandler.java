@@ -77,6 +77,20 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Xử lý InsufficientInventoryException
+     */
+    @ExceptionHandler(InsufficientInventoryException.class)
+    public ResponseEntity<Map<String, Object>> handleInsufficientInventoryException(InsufficientInventoryException ex) {
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("timestamp", LocalDateTime.now());
+        errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
+        errorResponse.put("error", "Insufficient Inventory");
+        errorResponse.put("message", ex.getMessage() != null ? ex.getMessage() : "Tồn kho không đủ");
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    /**
      * Xử lý các Exception chung khác
      */
     @ExceptionHandler(Exception.class)

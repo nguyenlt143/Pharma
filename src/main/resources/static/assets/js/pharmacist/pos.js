@@ -6,31 +6,75 @@ const paymentButton = document.querySelector('.payment-button');
 const customerNameInput = document.querySelector('.customer-info .form-input');
 const phoneInput = document.querySelector('.customer-info .form-group:nth-child(2) .form-input');
 const paymentAmountInput = document.querySelector('.payment-details .form-input');
-const paymentMethodSelect = document.querySelector('.form-select');
+const paymentMethodSelect = document.querySelector('#paymentMethod');
 const notesTextarea = document.querySelector('.form-textarea');
+const qrCodeSection = document.querySelector('#qrCodeSection');
 
 const resultContainer = document.querySelector('#medicine-list');
 
+// Check critical elements
+if (!searchInput) {
+    console.error('Search input element not found!');
+}
+if (!resultContainer) {
+    console.error('Result container element not found!');
+}
+
+// Payment method change event listener
+if (paymentMethodSelect && qrCodeSection) {
+    paymentMethodSelect.addEventListener('change', function() {
+        const selectedMethod = this.value;
+
+        if (selectedMethod === 'transfer') {
+            qrCodeSection.style.display = 'block';
+            // Generate QR code with payment amount
+            updateQRCode();
+        } else {
+            qrCodeSection.style.display = 'none';
+        }
+    });
+}
+
 let debounceTimer;
 
-searchInput.addEventListener('input', () => {
-  clearTimeout(debounceTimer);
+// Only add event listener if searchInput exists
+if (searchInput) {
+  searchInput.addEventListener('input', () => {
+  try {
+    console.log('Search input triggered');
+    clearTimeout(debounceTimer);
 
-  debounceTimer = setTimeout(() => {
-    const searchTerm = searchInput.value.trim();
+    debounceTimer = setTimeout(() => {
+      const searchTerm = searchInput.value.trim();
+      console.log('Search term:', searchTerm);
 
-    if (searchTerm.length === 0) {
-      resultContainer.innerHTML = "";
-      return;
-    }
+      if (searchTerm.length === 0) {
+        resultContainer.innerHTML = "";
+        return;
+      }
 
-    fetch(`/pharmacist/pos/api/search?keyword=${encodeURIComponent(searchTerm)}`)
-      .then(res => res.json())
-      .then(data => {
-        renderResults(data);
-      });
-  }, 300); // delay 300ms
-});
+      console.log('Fetching search results...');
+      fetch(`/pharmacist/pos/api/search?keyword=${encodeURIComponent(searchTerm)}`)
+        .then(res => {
+          console.log('Search API response status:', res.status);
+          return res.json();
+        })
+        .then(data => {
+          console.log('Search results:', data);
+          renderResults(data);
+        })
+        .catch(error => {
+          console.error('Search API error:', error);
+          resultContainer.innerHTML = '<div style="color: red; padding: 10px;">Lỗi tìm kiếm: ' + error.message + '</div>';
+        });
+    }, 300); // delay 300ms
+  } catch (error) {
+    console.error('Error in search input handler:', error);
+  }
+  });
+} else {
+  console.error('Cannot add search event listener - searchInput element not found');
+}
 
 function renderResults(medicines) {
     let html = "";
@@ -94,22 +138,42 @@ function addEventListenersToMedicineCards() {
                                         const expiryDate = inv.expiryDate ? new Date(inv.expiryDate).toLocaleDateString('vi-VN') : 'N/A';
                                         const salePrice = inv.salePrice ? inv.salePrice.toLocaleString('vi-VN') + ' VNĐ' : 'Chưa có giá';
                                         inventoryInfoHtml += `
-                                            <div class="inventory-item"
-                                            data-inventory-id="${inv.id}"
-                                            data-medicine-name="${medicineName}"
-                                            data-units='${JSON.stringify(variant.unitConversion)}'
-                                            data-strength="${variant.strength}"
-                                            data-base-unit-name="${variant.baseUnitName}"
-                                            data-variant-id="${variant.variantId}"
-                                            data-batch-number="${inv.batchNumber}"
-                                            data-expiry-date="${inv.expiryDate}"
-                                            data-sale-price="${inv.salePrice}"
-                                            data-max-quantity="${inv.quantity}"
-                                            style="margin-bottom: 10px; padding: 5px; background-color: #f9f9f9; border-radius: 4px; cursor: pointer;">
-                                                <strong>Số lô: ${inv.batchNumber || 'N/A'}</strong><br>
-                                                HSD: ${expiryDate}<br>
-                                                Tồn kho: <strong>${inv.quantity}</strong> ${variant.baseUnitName || ''}<br>
-                                                Giá bán: <strong style="color: #c0392b;">${inv.salePrice}</strong><br>
+                                            <div class="inventory-wrapper" style="margin-bottom: 10px; padding: 8px; background-color: #f9f9f9; border-radius: 4px;">
+                                                <div class="inventory-item"
+                                                data-inventory-id="${inv.id}"
+                                                data-medicine-name="${medicineName}"
+                                                data-units='${JSON.stringify(variant.unitConversion)}'
+                                                data-strength="${variant.strength}"
+                                                data-base-unit-name="${variant.baseUnitName}"
+                                                data-variant-id="${variant.variantId}"
+                                                data-batch-number="${inv.batchNumber}"
+                                                data-expiry-date="${inv.expiryDate}"
+                                                data-sale-price="${inv.salePrice}"
+                                                data-max-quantity="${inv.quantity}"
+                                                style="cursor: pointer; padding: 4px; border-radius: 2px;"
+                                                title="Click để thêm vào đơn thuốc">
+                                                    <strong>Số lô: ${inv.batchNumber || 'N/A'}</strong><br>
+                                                    HSD: ${expiryDate}<br>
+                                                    Tồn kho: <strong>${inv.quantity}</strong> ${variant.baseUnitName || ''}<br>
+                                                    Giá bán: <strong style="color: #c0392b;">${salePrice}</strong>
+                                                </div>
+                                                <div style="margin-top: 8px;">
+                                                    <button class="add-to-cart-btn"
+                                                            data-inventory-id="${inv.id}"
+                                                            data-medicine-name="${medicineName}"
+                                                            data-units='${JSON.stringify(variant.unitConversion)}'
+                                                            data-strength="${variant.strength}"
+                                                            data-base-unit-name="${variant.baseUnitName}"
+                                                            data-variant-id="${variant.variantId}"
+                                                            data-batch-number="${inv.batchNumber}"
+                                                            data-expiry-date="${inv.expiryDate}"
+                                                            data-sale-price="${inv.salePrice}"
+                                                            data-max-quantity="${inv.quantity}"
+                                                            style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 3px; font-size: 12px; cursor: pointer; width: 100%;"
+                                                            ${inv.quantity <= 0 ? 'disabled' : ''}>
+                                                        ${inv.quantity <= 0 ? 'Hết hàng' : 'Thêm vào đơn'}
+                                                    </button>
+                                                </div>
                                             </div>
                                         `;
                                     });
@@ -144,89 +208,152 @@ function addEventListenersToMedicineCards() {
 let prescriptionItems = [];
 
 function addInventoryItemClickListeners() {
-    const inventoryItems = document.querySelectorAll('.inventory-item');
-    inventoryItems.forEach(item => {
-        const medicineName = item.dataset.medicineName;
-        item.addEventListener('click', (e) => {
-            e.stopPropagation();
+    console.log('Setting up inventory item click listeners');
 
-            // Extract all data from data attributes
-            const medicineName = item.dataset.medicineName;
-            const unitConversions = JSON.parse(item.dataset.units || "[]");
-            const inventoryId = item.dataset.inventoryId;
-            const maxQuantity = parseInt(item.dataset.maxQuantity, 10);
-            const salePrice = parseFloat(item.dataset.salePrice);
+    // Remove existing event listeners to prevent duplicates
+    document.removeEventListener('click', handleInventoryClicks);
 
-            // Debug log to check what data we're getting
-            console.log('Clicked inventory item data:', {
-                inventoryId,
-                medicineName: item.dataset.medicineName,
-                strength: item.dataset.strength,
-                batchNumber: item.dataset.batchNumber,
-                expiryDate: item.dataset.expiryDate,
-                salePrice,
-                maxQuantity
-            });
+    // Add event delegation for inventory items and buttons
+    document.addEventListener('click', handleInventoryClicks);
+}
 
-            // Validate inventory data
-            if (!inventoryId) {
-                alert('Lỗi: Không tìm thấy thông tin inventory.');
-                console.error('Missing inventoryId in dataset:', item.dataset);
-                return;
-            }
+function handleInventoryClicks(e) {
+    // Handle add-to-cart button clicks
+    if (e.target.classList.contains('add-to-cart-btn')) {
+        e.stopPropagation();
+        e.preventDefault();
 
-            if (isNaN(maxQuantity) || maxQuantity <= 0) {
-                alert('Sản phẩm đã hết hàng.');
-                return;
-            }
+        console.log('Add to cart button clicked');
+        const button = e.target;
 
-            if (isNaN(salePrice) || salePrice <= 0) {
-                alert('Sản phẩm chưa có giá bán. Vui lòng cập nhật giá trước khi bán.');
-                return;
-            }
+        // Extract data from button's data attributes
+        const inventoryData = {
+            inventoryId: button.dataset.inventoryId,
+            medicineName: button.dataset.medicineName,
+            unitConversions: JSON.parse(button.dataset.units || "[]"),
+            maxQuantity: parseInt(button.dataset.maxQuantity, 10),
+            salePrice: parseFloat(button.dataset.salePrice),
+            strength: button.dataset.strength,
+            batchNumber: button.dataset.batchNumber,
+            expiryDate: button.dataset.expiryDate,
+            baseUnitName: button.dataset.baseUnitName
+        };
 
-            const existingItem = prescriptionItems.find(p => p.inventoryId === inventoryId);
+        addItemToPrescription(inventoryData, button);
+        return;
+    }
 
-            if (existingItem) {
-                // Validate quantity before increasing
-                if (existingItem.quantity < maxQuantity) {
-                    existingItem.quantity++;
-                } else {
-                    alert('Số lượng đã đạt tối đa tồn kho (' + maxQuantity + ').');
-                    return;
+    // Handle inventory-item div clicks (alternative way to add)
+    if (e.target.closest('.inventory-item')) {
+        const item = e.target.closest('.inventory-item');
+
+        // Don't trigger if click was on a button
+        if (e.target.tagName === 'BUTTON') return;
+
+        console.log('Inventory item clicked');
+
+        // Extract data from inventory item's data attributes
+        const inventoryData = {
+            inventoryId: item.dataset.inventoryId,
+            medicineName: item.dataset.medicineName,
+            unitConversions: JSON.parse(item.dataset.units || "[]"),
+            maxQuantity: parseInt(item.dataset.maxQuantity, 10),
+            salePrice: parseFloat(item.dataset.salePrice),
+            strength: item.dataset.strength,
+            batchNumber: item.dataset.batchNumber,
+            expiryDate: item.dataset.expiryDate,
+            baseUnitName: item.dataset.baseUnitName
+        };
+
+        addItemToPrescription(inventoryData, null);
+    }
+}
+
+function addItemToPrescription(inventoryData, button) {
+    try {
+        console.log('Adding item to prescription:', inventoryData);
+
+        // Validate inventory data
+        if (!inventoryData.inventoryId) {
+            alert('Lỗi: Không tìm thấy thông tin inventory.');
+            return;
+        }
+
+        if (isNaN(inventoryData.maxQuantity) || inventoryData.maxQuantity <= 0) {
+            alert('Sản phẩm đã hết hàng.');
+            return;
+        }
+
+        if (isNaN(inventoryData.salePrice) || inventoryData.salePrice <= 0) {
+            alert('Sản phẩm chưa có giá bán. Vui lòng cập nhật giá trước khi bán.');
+            return;
+        }
+
+        const existingItem = prescriptionItems.find(p => p.inventoryId === inventoryData.inventoryId);
+
+        if (existingItem) {
+            // Validate quantity before increasing
+            if (existingItem.quantity < inventoryData.maxQuantity) {
+                existingItem.quantity++;
+
+                // Visual feedback for button
+                if (button) {
+                    const originalText = button.textContent;
+                    button.textContent = 'Đã thêm!';
+                    button.style.background = '#17a2b8';
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.style.background = '#28a745';
+                    }, 1000);
                 }
             } else {
-                // Create new prescription item with all required data
-                const newItem = {
-                    inventoryId: inventoryId,
-                    medicineName: item.dataset.medicineName || 'N/A',
-                    strength: item.dataset.strength || '',
-                    dosageForm: item.dataset.dosageForm || 'N/A',
-                    baseUnitName: item.dataset.baseUnitName || 'Đơn vị',
-                    packageUnitName: item.dataset.packageUnitName || '',
-                    batchNumber: item.dataset.batchNumber || 'N/A',
-                    expiryDate: item.dataset.expiryDate || 'N/A',
-
-
-                    salePrice: salePrice,
-                    currentPrice: salePrice,
-                    unitPrice: salePrice,
-                    quantity: 1,
-
-                    maxQuantity: maxQuantity,
-                    baseStock: maxQuantity,
-
-                    selectedMultiplier: 1,
-                    units: unitConversions
-                };
-
-                console.log('Adding new item to prescription:', newItem);
-                prescriptionItems.push(newItem);
+                alert('Số lượng đã đạt tối đa tồn kho (' + inventoryData.maxQuantity + ').');
+                return;
             }
-            renderPrescription();
-        });
-    });
+        } else {
+            // Create new prescription item
+            const newItem = {
+                inventoryId: inventoryData.inventoryId,
+                medicineName: inventoryData.medicineName || 'N/A',
+                strength: inventoryData.strength || '',
+                dosageForm: 'N/A',
+                baseUnitName: inventoryData.baseUnitName || 'Đơn vị',
+                packageUnitName: '',
+                batchNumber: inventoryData.batchNumber || 'N/A',
+                expiryDate: inventoryData.expiryDate || 'N/A',
+                salePrice: inventoryData.salePrice,
+                currentPrice: inventoryData.salePrice,
+                unitPrice: inventoryData.salePrice,
+                quantity: 1,
+                maxQuantity: inventoryData.maxQuantity,
+                baseStock: inventoryData.maxQuantity,
+                selectedMultiplier: 1,
+                units: inventoryData.unitConversions
+            };
+
+            console.log('Adding new item to prescription:', newItem);
+            prescriptionItems.push(newItem);
+
+            // Visual feedback for button
+            if (button) {
+                const originalText = button.textContent;
+                button.textContent = 'Đã thêm!';
+                button.style.background = '#17a2b8';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '#28a745';
+                }, 1000);
+            }
+        }
+
+        renderPrescription();
+    } catch (error) {
+        console.error('Error adding item to prescription:', error);
+        alert('Có lỗi xảy ra khi thêm vào đơn: ' + error.message);
+    }
 }
+
+
 
 function getTotalAmount() {
     return prescriptionItems.reduce((sum, item) => {
@@ -295,6 +422,9 @@ function renderPrescription() {
 
     // Add event listeners for new elements
     addPrescriptionActionListeners();
+
+    // Update payment totals and QR code
+    updatePaymentTotals();
 }
 
 function addPrescriptionActionListeners() {
@@ -387,41 +517,7 @@ clearButtons.forEach(button => {
   });
 });
 
-// Payment functionality
-if (paymentButton) {
-  paymentButton.addEventListener('click', () => {
-    const customerName = customerNameInput.value.trim();
-    const phoneNumber = phoneInput.value.trim();
-    const paymentAmount = parseFloat(paymentAmountInput.value.trim()) || 0;
-    const paymentMethod = paymentMethodSelect.value;
-    const note= notesTextarea.value.trim();
-
-        const totalAmount = getTotalAmount();
-
-        if (prescriptionItems.length === 0) {
-            alert("Chưa có sản phẩm nào trong đơn!");
-            return;
-        }
-
-        if (paymentAmount < totalAmount) {
-            alert(`Khách trả thiếu tiền! Cần ${totalAmount.toLocaleString('vi-VN')} VNĐ`);
-            return;
-        }
-
-    const paymentData = {
-      customerName,
-      phoneNumber,
-      paymentAmount,
-      totalAmount,
-      change: paymentAmount - totalAmount,
-      paymentMethod,
-      note,
-      items: prescriptionItems
-    };
-
-    processPayment(paymentData);
-  });
-}
+// OLD PAYMENT FUNCTIONALITY REMOVED - Now handled by form submission with proper validation
 
 // F8 focus payment input
 document.addEventListener('keydown', (e) => {
@@ -498,14 +594,7 @@ function clearPaymentForm() {
   }
 }
 
-function updatePaymentTotals() {
-  const totalAmountElements = document.querySelectorAll('.total-amount, .payment-value');
-  totalAmountElements.forEach(element => {
-    if (element.textContent === '') {
-      element.textContent = '0.00';
-    }
-  });
-}
+// This function is defined later with QR code functionality
 
 // Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
@@ -550,14 +639,7 @@ function clearError(fieldId) {
     }
 }
 
-function clearInput(fieldId) {
-    const field = document.getElementById(fieldId);
-    if (field) {
-        field.value = '';
-        clearError(fieldId);
-        validatePaymentForm();
-    }
-}
+// Removed duplicate clearInput function - using the correct one below
 
 function showAlert(type, message) {
     const alertId = type === 'success' ? 'successAlert' : 'errorAlert';
@@ -575,6 +657,26 @@ function showAlert(type, message) {
             alert.style.display = 'none';
         }, 5000);
     }
+}
+
+function validatePhoneNumber(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (!field) return true;
+
+    const value = field.value.trim();
+    clearError(fieldId);
+
+    // Nếu để trống thì không validate - sẽ dùng "Không có"
+    if (!value) return true;
+
+    // Chỉ validate khi người dùng thực sự nhập số điện thoại
+    const phonePattern = /^(0|\+84)[0-9]{9,10}$/;
+    if (!phonePattern.test(value)) {
+        showError(fieldId, 'Số điện thoại phải bắt đầu bằng 0 hoặc +84 và có 10-11 chữ số');
+        return false;
+    }
+
+    return true;
 }
 
 function validateField(fieldId, rules) {
@@ -633,20 +735,28 @@ function validateField(fieldId, rules) {
 }
 
 function validatePaymentForm() {
+    const hasItems = prescriptionItems.length > 0;
+    const payButton = document.getElementById('payButton');
+
+    // If no items, just disable button and return - don't validate
+    if (!hasItems) {
+        if (payButton) {
+            payButton.disabled = true;
+            payButton.textContent = 'Chưa có sản phẩm';
+        }
+        return false;
+    }
+
     const totalAmount = getTotalAmount();
 
+    // Only validate when there are items
     const validations = [
         validateField('customerName', {
-            required: true,
-            maxLength: 100,
-            requiredMessage: 'Tên khách hàng không được để trống'
+            required: false,
+            maxLength: 100
         }),
 
-        validateField('phoneNumber', {
-            required: false,
-            pattern: /^(0|\+84)[0-9]{9,10}$/,
-            patternMessage: 'Số điện thoại phải bắt đầu bằng 0 hoặc +84 và có 10-11 chữ số'
-        }),
+        validatePhoneNumber('phoneNumber'),
 
         validateField('paidAmount', {
             required: true,
@@ -668,10 +778,8 @@ function validatePaymentForm() {
     ];
 
     const isFormValid = validations.every(v => v);
-    const hasItems = prescriptionItems.length > 0;
 
     // Update pay button state
-    const payButton = document.getElementById('payButton');
     if (payButton) {
         payButton.disabled = !isFormValid || !hasItems;
 
@@ -685,6 +793,86 @@ function validatePaymentForm() {
     }
 
     return isFormValid && hasItems;
+}
+
+// ============ UTILITY FUNCTIONS ============
+
+// Clear input function called from HTML
+function clearInput(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (field) {
+        field.value = '';
+        field.focus();
+
+        // Update placeholder to show what will be used if left empty
+        if (fieldId === 'customerName') {
+            field.placeholder = 'Để trống sẽ dùng "Khách lẻ"';
+        } else if (fieldId === 'phoneNumber') {
+            field.placeholder = 'Để trống sẽ dùng "Không có"';
+        }
+
+        validatePaymentForm();
+    }
+}
+
+// Make clearInput available globally
+window.clearInput = clearInput;
+
+// Complete form reset function
+function resetPaymentFormCompletely() {
+    // Reset form fields
+    const form = document.getElementById('paymentForm');
+    if (form) {
+        form.reset();
+    }
+
+    // Clear all validation errors
+    const errorFields = ['customerName', 'phoneNumber', 'paidAmount', 'paymentMethod', 'note'];
+    errorFields.forEach(fieldId => {
+        clearError(fieldId);
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.classList.remove('is-invalid');
+        }
+    });
+
+    // Reset amount displays
+    const changeElement = document.getElementById('changeAmount');
+    if (changeElement) {
+        changeElement.textContent = '0';
+    }
+
+    const subtotalEl = document.getElementById('subtotal');
+    const totalAmountEl = document.getElementById('totalAmount');
+    const qrDisplayAmount = document.getElementById('qrDisplayAmount');
+
+    if (subtotalEl) subtotalEl.textContent = '0';
+    if (totalAmountEl) totalAmountEl.textContent = '0';
+    if (qrDisplayAmount) qrDisplayAmount.textContent = '0';
+
+    // Reset placeholders to original state
+    const customerNameInput = document.getElementById('customerName');
+    const phoneNumberInput = document.getElementById('phoneNumber');
+
+    if (customerNameInput) {
+        customerNameInput.placeholder = 'Nhập tên khách hàng (để trống = Khách lẻ)';
+    }
+    if (phoneNumberInput) {
+        phoneNumberInput.placeholder = 'Nhập số điện thoại (để trống = Không có)';
+    }
+
+    // Reset payment method
+    const paymentMethodSelect = document.getElementById('paymentMethod');
+    if (paymentMethodSelect) {
+        paymentMethodSelect.selectedIndex = 0;
+    }
+
+    // Reset pay button
+    const payButton = document.getElementById('payButton');
+    if (payButton) {
+        payButton.disabled = true;
+        payButton.textContent = 'Chưa có sản phẩm';
+    }
 }
 
 // ============ EVENT LISTENERS ============
@@ -707,10 +895,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Collect form data
+            // Collect form data with default values only if truly empty
+            let customerName = document.getElementById('customerName').value.trim();
+            let phoneNumber = document.getElementById('phoneNumber').value.trim();
+
+            // Use default values only if user left fields completely empty
+            if (!customerName) customerName = 'Khách lẻ';
+            if (!phoneNumber) phoneNumber = 'Không có';
+
             const formData = {
-                customerName: document.getElementById('customerName').value.trim(),
-                phoneNumber: document.getElementById('phoneNumber').value.trim(),
+                customerName: customerName,
+                phoneNumber: phoneNumber,
                 totalAmount: getTotalAmount(),
                 paymentMethod: document.getElementById('paymentMethod').value,
                 note: document.getElementById('note').value.trim(),
@@ -726,7 +921,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Real-time validation on input
+    // Real-time validation on input with default value handling
     ['customerName', 'phoneNumber', 'paidAmount', 'paymentMethod', 'note'].forEach(fieldId => {
         const field = document.getElementById(fieldId);
         if (field) {
@@ -734,7 +929,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 clearError(fieldId);
                 setTimeout(validatePaymentForm, 100); // Debounce
             });
-            field.addEventListener('blur', validatePaymentForm);
+
+            field.addEventListener('blur', () => {
+                // Just validate, don't auto-fill default values
+                validatePaymentForm();
+            });
         }
     });
 
@@ -805,16 +1004,15 @@ function processPaymentWithValidation(paymentData) {
     .then(result => {
         showAlert('success', `Thanh toán thành công! Mã hóa đơn: ${result.invoiceCode}`);
 
-        // Reset form
-        document.getElementById('paymentForm').reset();
+        // Complete form reset
+        resetPaymentFormCompletely();
         prescriptionItems = [];
         renderPrescription();
-        validatePaymentForm();
 
-        // Reset change amount
-        const changeElement = document.getElementById('changeAmount');
-        if (changeElement) {
-            changeElement.textContent = '0';
+        // Hide QR code section
+        const qrCodeSection = document.querySelector('#qrCodeSection');
+        if (qrCodeSection) {
+            qrCodeSection.style.display = 'none';
         }
     })
     .catch(error => {
@@ -823,8 +1021,8 @@ function processPaymentWithValidation(paymentData) {
     })
     .finally(() => {
         if (payButton) {
-            payButton.disabled = false;
-            validatePaymentForm();
+            payButton.disabled = true; // Keep disabled until user adds items again
+            payButton.textContent = 'Chưa có sản phẩm';
         }
     });
 }
@@ -861,14 +1059,157 @@ const validationStyles = `
         opacity: 0.6;
         cursor: not-allowed;
     }
+    .add-to-cart-btn {
+        background: #28a745 !important;
+        color: white !important;
+        border: none !important;
+        padding: 6px 12px !important;
+        border-radius: 4px !important;
+        font-size: 12px !important;
+        font-weight: 500 !important;
+        cursor: pointer !important;
+        width: 100% !important;
+        transition: all 0.2s ease !important;
+        margin-top: 5px !important;
+    }
+    .add-to-cart-btn:hover:not(:disabled) {
+        background: #218838 !important;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .add-to-cart-btn:active {
+        transform: translateY(0);
+    }
+    .add-to-cart-btn:disabled {
+        background: #6c757d !important;
+        cursor: not-allowed !important;
+        opacity: 0.7 !important;
+    }
+    .inventory-item {
+        transition: all 0.2s ease !important;
+    }
+    .inventory-item:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+        transform: translateY(-1px);
+    }
     </style>
 `;
 
 // Add styles to head
 document.head.insertAdjacentHTML('beforeend', validationStyles);
 
+// Event delegation is now used instead of global functions
+
 // Initialize POS page
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('POS page DOMContentLoaded');
+
+  // Check if all critical elements are available
+  const criticalElements = {
+    searchInput: document.querySelector('.search-input'),
+    resultContainer: document.querySelector('#medicine-list')
+  };
+
+  console.log('Critical elements check:', criticalElements);
+
+  // Re-check elements if they weren't found during initial load
+  Object.keys(criticalElements).forEach(key => {
+    if (!criticalElements[key]) {
+      console.warn(`${key} not found on DOMContentLoaded`);
+    }
+  });
+
   updatePaymentTotals();
-  if (searchInput) searchInput.focus();
+
+  // Focus search input if available
+  if (criticalElements.searchInput) {
+    criticalElements.searchInput.focus();
+    console.log('Search input focused');
+  } else {
+    console.warn('Cannot focus search input - element not found');
+  }
 });
+
+// Function to update QR code with payment amount
+function updateQRCode() {
+    const totalAmount = getTotalAmount();
+    const qrCodeImage = document.getElementById('qrCodeImage');
+    const qrDisplayAmount = document.getElementById('qrDisplayAmount');
+    const qrAccountNumber = document.getElementById('qrAccountNumber');
+    const qrInvoiceCode = document.getElementById('qrInvoiceCode');
+
+    if (totalAmount > 0) {
+        // Format amount for display
+        const formattedAmount = totalAmount.toLocaleString('vi-VN');
+
+        // Update the amount display in QR section
+        if (qrDisplayAmount) {
+            qrDisplayAmount.textContent = formattedAmount;
+        }
+
+        // Generate invoice code for addInfo
+        const invoiceCode = generateInvoiceCode();
+
+        // VietQR configuration - có thể cấu hình từ backend
+        const bankCode = 'VCB'; // Vietcombank
+        const accountNumber = '0123456789'; // Số tài khoản thật
+        const amount = Math.round(totalAmount); // Làm tròn số tiền
+        const addInfo = invoiceCode; // Sử dụng mã hóa đơn làm ghi chú
+
+        // Update bank info display
+        if (qrAccountNumber) {
+            qrAccountNumber.textContent = accountNumber;
+        }
+        if (qrInvoiceCode) {
+            qrInvoiceCode.textContent = invoiceCode;
+        }
+
+        // Generate VietQR URL
+        const vietQRUrl = `https://img.vietqr.io/${bankCode}/${accountNumber}?amount=${amount}&addInfo=${encodeURIComponent(addInfo)}`;
+
+        // Update QR code image
+        if (qrCodeImage) {
+            qrCodeImage.src = vietQRUrl;
+            qrCodeImage.onerror = function() {
+                // Fallback to placeholder if VietQR fails
+                console.warn('VietQR API failed, using placeholder');
+                this.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNTAgNTBIMTUwVjE1MEg1MFY1MFoiIGZpbGw9ImJsYWNrIi8+CjxyZWN0IHg9IjcwIiB5PSI3MCIgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4=";
+            };
+        }
+
+        console.log('VietQR URL generated:', vietQRUrl);
+        console.log('Bank:', bankCode, 'Account:', accountNumber, 'Amount:', amount, 'Note:', addInfo);
+    }
+}
+
+// Generate unique invoice code
+function generateInvoiceCode() {
+    const now = new Date();
+    const year = now.getFullYear().toString().slice(-2);
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+
+    return `HD${year}${month}${day}${hours}${minutes}${seconds}`;
+}
+
+// Update QR code when total amount changes
+function updatePaymentTotals() {
+    const totalAmount = getTotalAmount();
+    const subtotalEl = document.getElementById('subtotal');
+    const totalAmountEl = document.getElementById('totalAmount');
+
+    if (subtotalEl) subtotalEl.textContent = totalAmount.toLocaleString('vi-VN');
+    if (totalAmountEl) totalAmountEl.textContent = totalAmount.toLocaleString('vi-VN');
+
+    // Update QR code if transfer method is selected
+    const currentPaymentMethod = document.querySelector('#paymentMethod');
+    if (currentPaymentMethod && currentPaymentMethod.value === 'transfer') {
+        updateQRCode();
+    }
+
+    validatePaymentForm();
+}
+

@@ -128,7 +128,7 @@ class InvoiceServiceImplTest {
             when(infoVM.getDescription()).thenReturn("Test invoice");
 
             List<MedicineItemVM> medicines = List.of(
-                    new MedicineItemVM("Medicine A", "500mg", 5000.0, 10L)
+                    new MedicineItemVM("Medicine A", "500mg", "Viên", 5000.0, 10L)
             );
 
             when(invoiceRepository.findInvoiceInfoById(1L)).thenReturn(infoVM);
