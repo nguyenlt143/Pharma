@@ -53,6 +53,7 @@
                 url: '/pharmacist/invoices/all',
                 type: 'GET'
             },
+            order: [[3, 'desc']], // Sắp xếp theo cột "Ngày tạo" (index 3) giảm dần (mới nhất trước)
             columns: [
                 { data: 'invoiceCode' },
                 {

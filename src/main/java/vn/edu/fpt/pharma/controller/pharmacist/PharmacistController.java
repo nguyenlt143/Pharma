@@ -8,13 +8,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.pharma.config.CustomUserDetails;
 import vn.edu.fpt.pharma.dto.invoice.InvoiceCreateRequest;
+import java.util.Map;
 import vn.edu.fpt.pharma.dto.medicine.MedicineSearchDTO;
 import vn.edu.fpt.pharma.dto.medicine.VariantInventoryDTO;
 import vn.edu.fpt.pharma.dto.shifts.ShiftSummaryVM;
@@ -27,7 +27,6 @@ import vn.edu.fpt.pharma.service.*;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/pharmacist")
@@ -69,21 +68,14 @@ public class PharmacistController {
     }
 
     @PostMapping("/pos/api/invoices")
-    @Transactional
     public ResponseEntity<?> createInvoice(@Valid @RequestBody InvoiceCreateRequest req) {
-        try {
-            Invoice invoice = invoiceService.createInvoice(req);
+        Invoice invoice = invoiceService.createInvoice(req);
 
-            return ResponseEntity.ok(Map.of(
-                    "id", invoice.getId(),
-                    "invoiceCode", invoice.getInvoiceCode(),
-                    "message", "Thanh toán thành công"
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "error", e.getMessage()
-            ));
-        }
+        return ResponseEntity.ok(Map.of(
+                "id", invoice.getId(),
+                "invoiceCode", invoice.getInvoiceCode(),
+                "message", "Thanh toán thành công"
+        ));
     }
 
     @GetMapping("/work")
@@ -145,7 +137,6 @@ public class PharmacistController {
     }
 
     @PostMapping("/profile/update")
-    @Transactional
     public String update(@Valid @ModelAttribute("profileUpdateRequest") ProfileUpdateRequest profileUpdateRequest,
                         BindingResult bindingResult,
                         Model model) {
