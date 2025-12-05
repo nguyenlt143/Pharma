@@ -20,7 +20,7 @@ function renderSelected() {
                 </td>
                 <td class="px-3 py-2 text-center font-semibold text-blue-600">${it.system}</td>
                 <td class="px-3 py-2 text-center">
-                    <input type="number" min="0" max="${it.system}" value="${it.counted}" class="counted-input w-24 px-2 py-1 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 text-center" title="Không được vượt quá số tồn kho" />
+                    <input type="number" min="0" value="${it.counted}" class="counted-input w-24 px-2 py-1 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 text-center" title="Nhập số lượng thực tế" />
                 </td>
                 <td class="px-3 py-2 text-center ${diffClass}">${diff}</td>
                 <td class="px-3 py-2 text-center">
@@ -32,19 +32,38 @@ function renderSelected() {
         `);
 
         row.find('.counted-input').on('input', function() {
-            let val = parseInt($(this).val());
-            if (isNaN(val) || val < 0) {
+            let val = $(this).val();
+            
+            // Chỉ cho phép số dương
+            if (val === '' || val === null) {
                 val = 0;
-                $(this).val(0);
+            } else {
+                val = parseInt(val);
+                if (isNaN(val) || val < 0) {
+                    val = 0;
+                }
             }
-            // Validate: không được vượt quá số tồn hệ thống
-            if (val > it.system) {
-                alert(`Số lượng kiểm không được vượt quá số tồn hệ thống (${it.system})`);
-                val = it.system;
-                $(this).val(val);
-            }
+            
+            $(this).val(val);
             it.counted = val;
-            renderSelected();
+            
+            // Cập nhật số chênh lệch ngay lập tức
+            const diff = val - it.system;
+            const diffTd = row.find('td').eq(3);
+            
+            // Xóa class cũ
+            diffTd.removeClass('text-gray-600 text-green-600 text-red-600 font-semibold');
+            
+            // Thêm class mới
+            if (diff === 0) {
+                diffTd.addClass('text-gray-600');
+            } else if (diff > 0) {
+                diffTd.addClass('text-green-600 font-semibold');
+            } else {
+                diffTd.addClass('text-red-600 font-semibold');
+            }
+            
+            diffTd.text(diff);
         });
 
         row.find('.remove-btn').on('click', function() {

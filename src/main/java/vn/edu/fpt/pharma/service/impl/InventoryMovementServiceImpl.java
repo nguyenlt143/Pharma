@@ -452,14 +452,25 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
     @Override
     @Transactional(readOnly = true)
     public List<vn.edu.fpt.pharma.dto.inventory.ConfirmImportVM> getConfirmImportList(Long branchId) {
+        // Find warehouse branch (HEAD_QUARTER)
+        Long warehouseId = branchRepository.findAll().stream()
+                .filter(b -> b.getBranchType() == BranchType.HEAD_QUARTER)
+                .map(Branch::getId)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Warehouse branch not found"));
+
         // Get all movements WARE_TO_BR that are SHIPPED (waiting for branch to receive)
-        // Using JOIN FETCH to avoid LazyInitializationException
+        // Chỉ show phiếu từ warehouse đến chi nhánh hiện tại (branchId)
         List<InventoryMovement> movements = movementRepository
                 .findAllWithDetailsByTypeAndBranchAndStatus(
                         MovementType.WARE_TO_BR,
                         branchId,
                         MovementStatus.SHIPPED
-                );
+                )
+                .stream()
+                .filter(m -> m.getSourceBranchId() != null && m.getSourceBranchId().equals(warehouseId)) // Warehouse
+                .filter(m -> m.getDestinationBranchId() != null && m.getDestinationBranchId().equals(branchId)) // Chi nhánh hiện tại
+                .collect(Collectors.toList());
 
         // Sort by createdAt DESC
         return movements.stream()

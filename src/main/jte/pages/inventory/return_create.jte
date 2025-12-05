@@ -235,7 +235,7 @@ $(document).on('click', '.add-medicine-btn', function() {
         strength: row.data('strength') || '',
         unit: row.data('unit') || '',
         availableQty: row.data('available-qty'),
-        quantity: 1
+        quantity: row.data('available-qty')
     };
 
     selectedItems.set(key, item);
