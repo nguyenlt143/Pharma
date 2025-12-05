@@ -54,13 +54,13 @@ content = @`
         <section class="product-section">
             <div class="product-container">
                 <div class="search-add-row">
-                    <div class="search-wrapper">
-                        <span class="material-icons search-icon">search</span>
-                        <input type="text" class="search-input" placeholder="Tìm kiếm thuốc">
-                    </div>
+<%--                    <div class="search-wrapper">--%>
+<%--                        <span class="material-icons search-icon">search</span>--%>
+<%--                        <input type="text" class="search-input" placeholder="Tìm kiếm thuốc">--%>
+<%--                    </div>--%>
                     <button class="add-button" type="button" id="btnAddFromCatalog">
                         <span class="material-icons">add</span>
-                        <span>THÊM VÀO TỪ DANH MỤC (F7)</span>
+                        <span>THÊM THUỐC VÀO DANH SÁCH (F7)</span>
                     </button>
                 </div>
 
