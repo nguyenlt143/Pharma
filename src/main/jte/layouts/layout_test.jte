@@ -70,48 +70,42 @@
                 </li>
             </ul>
         </nav>
-
     </aside>
 
     <!-- Main Content -->
     <main class="main-content">
-        <!-- Header -->
-        <header class="main-header">
-            <div class="header-left">
-                <h2 class="branch-name">NHÀ THUỐC HÀ NỘI</h2>
-            </div>
-
-            <div class="header-right">
-                <div class="date-info">
-                    <span class="date-text">01/01/2200</span>
-                </div>
-
-                <div class="user-info">
-                    <span class="material-icons user-icon">account_circle</span>
-                    <span class="user-name">nhan vien a</span>
-                    <button class="user-dropdown" type="button">
-                        <span class="material-icons">arrow_drop_down</span>
-                    </button>
-
-                    <div class="dropdown-menu">
-                        <a href="/pharmacist/profile">Thông tin cá nhân</a>
-                        <a href="/logout">Đăng xuất</a>
-                    </div>
-                </div>
-            </div>
-        </header>
-
         <!-- Content Area -->
         <div class="content-area">
             ${content}
         </div>
     </main>
-
 </div>
 
-@template.template.preloader()
-<script src="/assets/js/pharmacist/layout.js" defer></script>
 ${pageScript}
+
+<script>
+    // Active nav link highlighting
+    document.addEventListener('DOMContentLoaded', function() {
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        let bestMatch = null;
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            const href = link.getAttribute('href');
+            if (href && currentPath.startsWith(href)) {
+                if (!bestMatch || href.length > bestMatch.getAttribute('href').length) {
+                    bestMatch = link;
+                }
+            }
+        });
+
+        if (bestMatch) {
+            bestMatch.classList.add('active');
+        }
+    });
+</script>
+<script src="/assets/js/pharmacist/layout.js" defer></script>
 </body>
 </html>
 

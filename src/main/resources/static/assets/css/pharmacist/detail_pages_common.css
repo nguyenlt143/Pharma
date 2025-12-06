@@ -1,18 +1,18 @@
-/* Copy base styles from shifts.css */
-@import url('shifts.css');
+/* Import common styles */
+@import url('common.css');
 
-/* Shift Details specific styling */
+/* Detail Pages specific styling */
 .page-title {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
 .shift-badge {
-    background: #6f42c1;
+    background: #8B5CF6;
     color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
     font-size: 12px;
     font-weight: 500;
 }
@@ -36,21 +36,21 @@
 
 /* Time display styling */
 .time-display {
-    background: #f8f9fa;
-    padding: 2px 6px;
-    border-radius: 3px;
+    background: var(--gray-100);
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
     font-size: 12px;
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--border-light);
 }
 
 .time-start {
-    color: #28a745;
-    border-color: #28a745;
+    color: var(--success);
+    border-color: var(--success);
 }
 
 .time-end {
-    color: #dc3545;
-    border-color: #dc3545;
+    color: var(--danger);
+    border-color: var(--danger);
 }
 
 /* Shift performance indicators */
@@ -59,36 +59,37 @@
 }
 
 .shift-row.high-performance {
-    background: rgba(40, 167, 69, 0.05);
+    background: rgba(16, 185, 129, 0.05);
 }
 
 .shift-row.medium-performance {
-    background: rgba(255, 193, 7, 0.05);
+    background: rgba(245, 158, 11, 0.05);
 }
 
 .shift-row.low-performance {
-    background: rgba(220, 53, 69, 0.05);
+    background: rgba(239, 68, 68, 0.05);
 }
 
 /* Shift duration info */
 .shift-info {
-    background: #e7f3ff;
-    border: 1px solid #b3d9ff;
-    border-radius: 4px;
-    padding: 15px;
-    margin-bottom: 20px;
+    background: var(--primary-light);
+    border: 1px solid #93C5FD;
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-bottom: 24px;
 }
 
 .shift-info h4 {
-    margin: 0 0 10px 0;
-    color: #0066cc;
+    margin: 0 0 12px 0;
+    color: var(--primary);
     font-size: 16px;
+    font-weight: 600;
 }
 
 .shift-info .info-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
+    gap: 16px;
 }
 
 .shift-info .info-item {
@@ -97,8 +98,10 @@
 
 .shift-info .info-label {
     font-size: 12px;
-    color: #6c757d;
+    color: var(--text-secondary);
     text-transform: uppercase;
+    font-weight: 500;
+}
     margin-bottom: 5px;
 }
 
