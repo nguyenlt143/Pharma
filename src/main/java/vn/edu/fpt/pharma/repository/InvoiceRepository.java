@@ -202,30 +202,31 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     // REVENUE BY USER — PER SHIFT (CHI NHÁNH HIỆN TẠI)
     // -----------------------------
     @Query(value = """
-    SELECT
-        s.name AS shiftName,
-        COALESCE(COUNT(i.id), 0) AS orderCount,
-        COALESCE(SUM(CASE WHEN LOWER(i.payment_method) IN ('tiền mặt', 'cash') THEN i.total_price ELSE 0 END), 0) AS cashTotal,
-        COALESCE(SUM(CASE WHEN LOWER(i.payment_method) IN ('chuyển khoản', 'transfer') THEN i.total_price ELSE 0 END), 0) AS transferTotal,
-        COALESCE(SUM(i.total_price), 0) AS totalRevenue
-    FROM shifts s
-    INNER JOIN shift_assignments sa ON s.id = sa.shift_id
-        AND sa.deleted = 0
-        AND sa.user_id = :userId
-    INNER JOIN users u ON sa.user_id = u.id
-        AND u.deleted = 0
-        AND u.branch_id = s.branch_id
-    LEFT JOIN shift_works sw ON sa.id = sw.assignment_id
-        AND sw.deleted = 0
-        AND DATE(sw.work_date) >= DATE_SUB(DATE(NOW()), INTERVAL 90 DAY)
-    LEFT JOIN invoices i ON sw.id = i.shift_work_id
-        AND i.user_id = :userId
-        AND i.invoice_type = 'PAID'
-        AND i.deleted = 0
-        AND LOWER(i.payment_method) IN ('tiền mặt', 'cash', 'chuyển khoản', 'transfer')
-    WHERE s.deleted = 0
-    GROUP BY s.id, s.name, s.start_time
-    ORDER BY s.start_time;
+        SELECT
+            s.name AS shiftName,
+            COALESCE(COUNT(i.id), 0) AS orderCount,
+            COALESCE(SUM(CASE WHEN LOWER(i.payment_method) IN ('tiền mặt', 'cash') THEN i.total_price ELSE 0 END), 0) AS cashTotal,
+            COALESCE(SUM(CASE WHEN LOWER(i.payment_method) IN ('chuyển khoản', 'transfer') THEN i.total_price ELSE 0 END), 0) AS transferTotal,
+            COALESCE(SUM(i.total_price), 0) AS totalRevenue
+        FROM shifts s
+        INNER JOIN shift_assignments sa ON s.id = sa.shift_id
+            AND sa.deleted = 0
+            AND sa.user_id = 6
+        INNER JOIN users u ON sa.user_id = u.id
+            AND u.deleted = 0
+            AND u.branch_id = s.branch_id
+        INNER JOIN shift_works sw ON sa.id = sw.assignment_id
+            AND sw.deleted = 0
+            AND DATE(CONVERT_TZ(sw.work_date, '+00:00', '+07:00'))
+                = DATE(CONVERT_TZ(NOW(), '+00:00', '+07:00'))
+        INNER JOIN invoices i ON sw.id = i.shift_work_id
+            AND i.user_id = 6
+            AND i.invoice_type = 'PAID'
+            AND i.deleted = 0
+            AND LOWER(i.payment_method) IN ('tiền mặt', 'cash', 'chuyển khoản', 'transfer')
+        WHERE s.deleted = 0
+        GROUP BY s.id, s.name, s.start_time
+        ORDER BY s.start_time;
     """, nativeQuery = true)
     List<Object[]> findRevenueShiftByUser(@Param("userId") Long userId);
 

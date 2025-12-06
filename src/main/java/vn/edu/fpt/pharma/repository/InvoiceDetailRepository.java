@@ -102,7 +102,8 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, Lo
             WHERE
                 sa.user_id = :userId
                 AND s.name = :shiftName \s
-                AND DATE(sw.work_date) = DATE(NOW())
+                AND DATE(CONVERT_TZ(sw.work_date, '+00:00', '+07:00'))
+                        = DATE(CONVERT_TZ(NOW(), '+00:00', '+07:00'))
             GROUP BY
                 name,
                 unit,
