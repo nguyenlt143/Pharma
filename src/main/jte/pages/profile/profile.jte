@@ -9,27 +9,26 @@
 @template.layouts.layout_test(
 headContent = @`<link rel="stylesheet" href="/assets/css/profile/profile.css">`,
 content = @`
-    <main class="main-content">
-        <div class="content-wrapper">
-            <!-- Page Header -->
-            <header class="page-header">
-                <h1 class="page-title">Hồ sơ Nhân viên</h1>
-            </header>
+    <div class="content-wrapper">
+        <!-- Page Header -->
+        <header class="page-header">
+            <h1 class="page-title">Hồ sơ Nhân viên</h1>
+        </header>
 
-            <!-- Alert Messages -->
-            @if(success != null)
-                <div class="alert alert-success" role="alert">
-                    ${success}
-                </div>
-            @endif
-            @if(error != null)
-                <div class="alert alert-danger" role="alert">
-                    ${error}
-                </div>
-            @endif
+        <!-- Alert Messages -->
+        @if(success != null)
+            <div class="alert alert-success" role="alert">
+                ${success}
+            </div>
+        @endif
+        @if(error != null)
+            <div class="alert alert-danger" role="alert">
+                ${error}
+            </div>
+        @endif
 
-            <!-- Content Grid -->
-            <div class="content-grid">
+        <!-- Content Grid -->
+        <div class="content-grid">
                 <!-- Left Column - Profile Card -->
                 <div class="left-column">
                     <!-- Profile Card -->
@@ -153,7 +152,6 @@ content = @`
                 </div>
             </div>
         </div>
-    </main>
 `,
 pageScript = @`
 <script>
