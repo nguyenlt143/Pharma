@@ -25,19 +25,11 @@
                     </div>
 
                     <div class="kpi-card card warn">
-                        <div class="kpi-title">Sắp hết hàng</div>
+                        <div class="kpi-title">Cần bổ sung</div>
                         <div class="kpi-value" id="lowStock">
                             <div class="spinner"></div>
                         </div>
-                        <div class="kpi-sub">Cần bổ sung</div>
-                    </div>
-
-                    <div class="kpi-card card">
-                        <div class="kpi-title">Hết hàng</div>
-                        <div class="kpi-value" id="outOfStock">
-                            <div class="spinner"></div>
-                        </div>
-                        <div class="kpi-sub">Không có trong kho</div>
+                        <div class="kpi-sub">Hết hoặc sắp hết hàng</div>
                     </div>
 
                     <div class="kpi-card card">
@@ -77,6 +69,7 @@
                         <select id="statusFilter" class="form-select">
                             <option value="">Tất cả</option>
                             <option value="active">Hoạt động</option>
+                            <option value="low-stock">Sắp hết hàng</option>
                             <option value="near-expiry">Sắp hết hạn</option>
                             <option value="expired">Đã hết hạn</option>
                             <option value="out-of-stock">Hết hàng</option>
