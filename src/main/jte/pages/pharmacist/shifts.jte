@@ -4,45 +4,43 @@
 @template.layouts.layout_test(
     headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/shifts.css">`,
     content = @`
-    <main class="main-content">
-        <div class="content-wrapper">
-            <!-- Page Header -->
-            <header class="page-header">
-                <h1 class="page-title">Báo cáo Ca làm việc</h1>
-            </header>
+    <div class="content-wrapper">
+        <!-- Page Header -->
+        <header class="page-header">
+            <h1 class="page-title">Báo cáo Ca làm việc</h1>
+        </header>
 
-            <!-- Alert Messages -->
-            @if(success != null)
-                <div class="alert alert-success" role="alert">
-                    ${success}
-                </div>
-            @endif
-            @if(error != null)
-                <div class="alert alert-danger" role="alert">
-                    ${error}
-                </div>
-            @endif
+        <!-- Alert Messages -->
+        @if(success != null)
+            <div class="alert alert-success" role="alert">
+                ${success}
+            </div>
+        @endif
+        @if(error != null)
+            <div class="alert alert-danger" role="alert">
+                ${error}
+            </div>
+        @endif
 
-            <!-- Shift Table -->
-            <div class="table-container">
-                <table id="shiftTable" class="display table">
-                    <thead>
-                        <tr>
-                            <th>Tên ca</th>
-                            <th>Tiền mặt</th>
-                            <th>Chuyển khoản</th>
-                            <th>Tổng doanh thu</th>
-                            <th>Số đơn hàng</th>
-                            <th>Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Data will be loaded via DataTables -->
-                    </tbody>
+        <!-- Shift Table -->
+        <div class="table-container">
+            <table id="shiftTable" class="display table">
+                <thead>
+                    <tr>
+                        <th>Tên ca</th>
+                        <th>Tiền mặt</th>
+                        <th>Chuyển khoản</th>
+                        <th>Tổng doanh thu</th>
+                        <th>Số đơn hàng</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be loaded via DataTables -->
+                </tbody>
                 </table>
             </div>
         </div>
-    </main>
     `,
     pageScript = @`
     <script>

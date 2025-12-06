@@ -6,7 +6,7 @@
 @param String displayEmail
 @param String displayPhone
 
-@template.layouts.pharmacist(
+@template.layouts.layout_test(
 headContent = @`<link rel="stylesheet" href="/assets/css/profile/profile.css">`,
 content = @`
     <main class="main-content">

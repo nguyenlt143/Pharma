@@ -6,39 +6,38 @@
 @template.layouts.layout_test(
     headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/invoice_detail.css">`,
     content = @`
-    <main class="main-content">
-        <div class="content-wrapper">
-            <!-- Page Header -->
-            <header class="page-header">
-                <h1 class="page-title">Chi tiết Hóa đơn</h1>
-                <div class="page-actions">
-                    <a href="/pharmacist/invoices" class="btn btn-secondary">← Quay lại</a>
-                </div>
-            </header>
-
-            <!-- Invoice Info -->
-            <div class="invoice-info">
-                <div class="info-section">
-                    <h3>Thông tin chi nhánh</h3>
-                    <p><strong>Tên:</strong> ${invoice.branchName()}</p>
-                    <p><strong>Địa chỉ:</strong> ${invoice.branchAddress()}</p>
-                </div>
-
-                <div class="info-section">
-                    <h3>Thông tin khách hàng</h3>
-                    <p><strong>Tên:</strong> ${invoice.customerName()}</p>
-                    <p><strong>Số điện thoại:</strong> ${invoice.customerPhone()}</p>
-                </div>
-
-                <div class="info-section">
-                    <h3>Thông tin hóa đơn</h3>
-                    <p><strong>Ngày tạo:</strong> ${invoice.createdAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))}</p>
-                    <p><strong>Tổng tiền:</strong> ${String.format("%,.0f", invoice.totalPrice())} VNĐ</p>
-                    @if(invoice.description() != null && !invoice.description().isEmpty())
-                        <p><strong>Ghi chú:</strong> ${invoice.description()}</p>
-                    @endif
-                </div>
+    <div class="content-wrapper">
+        <!-- Page Header -->
+        <header class="page-header">
+            <h1 class="page-title">Chi tiết Hóa đơn</h1>
+            <div class="page-actions">
+                <a href="/pharmacist/invoices" class="btn btn-secondary">← Quay lại</a>
             </div>
+        </header>
+
+        <!-- Invoice Info -->
+        <div class="invoice-info">
+            <div class="info-section">
+                <h3>Thông tin chi nhánh</h3>
+                <p><strong>Tên:</strong> ${invoice.branchName()}</p>
+                <p><strong>Địa chỉ:</strong> ${invoice.branchAddress()}</p>
+            </div>
+
+            <div class="info-section">
+                <h3>Thông tin khách hàng</h3>
+                <p><strong>Tên:</strong> ${invoice.customerName()}</p>
+                <p><strong>Số điện thoại:</strong> ${invoice.customerPhone()}</p>
+            </div>
+
+            <div class="info-section">
+                <h3>Thông tin hóa đơn</h3>
+                <p><strong>Ngày tạo:</strong> ${invoice.createdAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))}</p>
+                <p><strong>Tổng tiền:</strong> ${String.format("%,.0f", invoice.totalPrice())} VNĐ</p>
+                @if(invoice.description() != null && !invoice.description().isEmpty())
+                    <p><strong>Ghi chú:</strong> ${invoice.description()}</p>
+                @endif
+            </div>
+        </div>
 
             <!-- Medicine List -->
             <div class="medicine-list">

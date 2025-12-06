@@ -5,40 +5,39 @@
 @template.layouts.layout_test(
     headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/detail_pages_common.css">`,
     content = @`
-    <main class="main-content">
-        <div class="content-wrapper">
-            <!-- Page Header -->
-            <header class="page-header">
-                <h1 class="page-title">Chi tiết Doanh thu - ${period}</h1>
-                <div class="page-actions">
-                    <a href="/pharmacist/revenues" class="btn btn-secondary">← Quay lại</a>
-                </div>
-            </header>
+    <div class="content-wrapper">
+        <!-- Page Header -->
+        <header class="page-header">
+            <h1 class="page-title">Chi tiết Doanh thu - ${period}</h1>
+            <div class="page-actions">
+                <a href="/pharmacist/revenues" class="btn btn-secondary">← Quay lại</a>
+            </div>
+        </header>
 
-            <!-- Alert Messages -->
-            @if(success != null)
-                <div class="alert alert-success" role="alert">
-                    ${success}
-                </div>
-            @endif
-            @if(error != null)
-                <div class="alert alert-danger" role="alert">
-                    ${error}
-                </div>
-            @endif
+        <!-- Alert Messages -->
+        @if(success != null)
+            <div class="alert alert-success" role="alert">
+                ${success}
+            </div>
+        @endif
+        @if(error != null)
+            <div class="alert alert-danger" role="alert">
+                ${error}
+            </div>
+        @endif
 
-            <!-- Revenue Detail Table -->
-            <div class="table-container">
-                <table id="revenueDetailTable" class="display table">
-                    <thead>
-                        <tr>
-                            <th>Tên thuốc</th>
-                            <th>Đơn vị</th>
-                            <th>Số lô</th>
-                            <th>Hãng sản xuất</th>
-                            <th>Xuất xứ</th>
-                            <th>Số lượng</th>
-                            <th>Đơn giá</th>
+        <!-- Revenue Detail Table -->
+        <div class="table-container">
+            <table id="revenueDetailTable" class="display table">
+                <thead>
+                    <tr>
+                        <th>Tên thuốc</th>
+                        <th>Đơn vị</th>
+                        <th>Số lô</th>
+                        <th>Hãng sản xuất</th>
+                        <th>Xuất xứ</th>
+                        <th>Số lượng</th>
+                        <th>Đơn giá</th>
                             <th>Thành tiền</th>
                         </tr>
                     </thead>

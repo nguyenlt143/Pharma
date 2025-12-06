@@ -8,16 +8,15 @@
 headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/work_schedule.css">`,
 content = @`
     <!-- Main Content Area -->
-    <main class="main-content">
-        <div class="content-card">
-            <div class="card-header">
-                <h2 class="card-title">
-                    <span class="material-icons title-icon">menu</span>
-                    Lịch làm việc
-                </h2>
-            </div>
+    <div class="content-card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <span class="material-icons title-icon">menu</span>
+                Lịch làm việc
+            </h2>
+        </div>
 
-            <div class="schedule-card">
+        <div class="schedule-card">
                 <div class="schedule-controls">
                     <div class="control-group">
                         <label class="control-label">YEAR</label>
@@ -69,9 +68,7 @@ content = @`
                     </div>
                 </div>
             </div>
-
         </div>
-    </main>
 `,
 pageScript = @` <script src="/assets/js/pharmacist/work_schedule.js" defer></script>`
 )

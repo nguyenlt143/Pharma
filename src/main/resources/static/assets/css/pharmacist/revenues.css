@@ -2,28 +2,25 @@
 @import url('common.css');
 
 /* Revenue Page Styles */
-.main-content {
-    padding: 24px 0;
-}
 
 .content-wrapper {
     max-width: 100%;
     width: 100%;
     margin: 0;
-    padding: 0 24px;
+    padding: 16px;
 }
 
 .page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
     border-bottom: 2px solid var(--border-light);
 }
 
 .page-title {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 600;
     color: var(--text-primary);
     margin: 0;

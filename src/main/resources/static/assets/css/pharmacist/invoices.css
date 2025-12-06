@@ -2,28 +2,25 @@
 @import url('common.css');
 
 /* Invoice List Page Styles */
-.main-content {
-    padding: 24px 0;
-}
 
 .content-wrapper {
     max-width: 100%;
     width: 100%;
     margin: 0;
-    padding: 0 24px;
+    padding: 16px;
 }
 
 .page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
     border-bottom: 2px solid var(--border-light);
 }
 
 .page-title {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 600;
     color: var(--text-primary);
     margin: 0;
@@ -36,16 +33,35 @@
 
 /* Table Container - Extended from common */
 .table-container {
-    margin-bottom: 24px;
+    margin-bottom: 0;
+    width: 100%;
 }
 
 /* DataTable Invoice Specific Optimization */
 #invoiceTable_wrapper {
     width: 100% !important;
+    padding: 0 !important;
 }
 
 #invoiceTable {
     width: 100% !important;
+    margin: 0 !important;
+}
+
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter {
+    margin-bottom: 12px;
+}
+
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+    margin-top: 12px;
+}
+
+/* Reduce padding in table cells */
+#invoiceTable thead th,
+#invoiceTable tbody td {
+    padding: 10px 12px;
 }
 
 /* Responsive */
@@ -56,11 +72,11 @@
         gap: 10px;
     }
 
-    .table-container {
-        overflow-x: auto;
+    .content-wrapper {
+        padding: 12px;
     }
 
-    .dataTables_wrapper {
-        padding: 10px;
+    .table-container {
+        overflow-x: auto;
     }
 }

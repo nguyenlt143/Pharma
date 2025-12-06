@@ -23,7 +23,6 @@
     <script src="https://cdn.datatables.net/2.3.4/js/dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="/assets/css/pharmacist/layout.css">
     ${headContent}
 </head>
 
@@ -33,43 +32,55 @@
     <!-- Sidebar -->
     <aside class="sidebar">
         <header class="sidebar-header">
-            <h1 class="sidebar-title">PharmSystem</h1>
+            <h1 class="sidebar-title">PharmaSys</h1>
+            <p class="sidebar-subtitle">Dược sĩ</p>
         </header>
 
         <nav class="sidebar-nav">
             <ul class="nav-list">
                 <li class="nav-item">
                     <a href="/pharmacist/pos" class="nav-link">
-                        <span class="nav-icon material-icons">shopping_cart</span>
+                        <span class="material-icons nav-icon">shopping_cart</span>
                         <span class="nav-text">Bán hàng</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="/pharmacist/invoices" class="nav-link">
-                        <span class="nav-icon material-icons">receipt_long</span>
-                        <span class="nav-text">Quản lý danh sách đơn thuốc</span>
+                        <span class="material-icons nav-icon">receipt_long</span>
+                        <span class="nav-text">Danh sách đơn thuốc</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="/pharmacist/shifts" class="nav-link">
-                        <span class="nav-icon material-icons">bar_chart</span>
+                        <span class="material-icons nav-icon">bar_chart</span>
                         <span class="nav-text">Tổng kết ca</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="/pharmacist/work" class="nav-link">
-                        <span class="nav-icon material-icons">summarize</span>
+                        <span class="material-icons nav-icon">schedule</span>
                         <span class="nav-text">Lịch làm việc</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="/pharmacist/revenues" class="nav-link">
-                        <span class="nav-icon material-icons">event_note</span>
-                        <span class="nav-text">Báo cao danh thu</span>
+                        <span class="material-icons nav-icon">assessment</span>
+                        <span class="nav-text">Báo cáo doanh thu</span>
                     </a>
                 </li>
             </ul>
         </nav>
+
+        <div class="sidebar-footer">
+            <a href="/pharmacist/profile" class="logout-link">
+                <span class="material-icons">person</span>
+                <span>Thông tin cá nhân</span>
+            </a>
+            <a href="/logout" class="logout-link">
+                <span class="material-icons">logout</span>
+                <span>Đăng xuất</span>
+            </a>
+        </div>
     </aside>
 
     <!-- Main Content -->
@@ -108,4 +119,3 @@ ${pageScript}
 <script src="/assets/js/pharmacist/layout.js" defer></script>
 </body>
 </html>
-
