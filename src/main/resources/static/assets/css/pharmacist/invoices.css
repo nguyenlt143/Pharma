@@ -1,11 +1,13 @@
 /* Invoice List Page Styles */
 .main-content {
-    padding: 20px;
+    padding: 10px 0;
 }
 
 .content-wrapper {
-    max-width: 1200px;
-    margin: 0 auto;
+    max-width: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0 20px;
 }
 
 .page-header {
@@ -56,6 +58,8 @@
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     overflow: hidden;
+    width: 100%;
+    margin: 0;
 }
 
 .table {
@@ -133,7 +137,7 @@
 
 /* DataTables customization */
 .dataTables_wrapper {
-    padding: 20px;
+    padding: 0;
 }
 
 .dataTables_filter {
@@ -179,6 +183,48 @@
     background: #007bff;
     color: white;
     border-color: #007bff;
+}
+
+/* DataTable Full Width Optimization */
+#invoiceTable_wrapper {
+    width: 100% !important;
+}
+
+#invoiceTable {
+    width: 100% !important;
+    table-layout: auto;
+}
+
+.dataTables_scroll {
+    width: 100% !important;
+}
+
+.dataTables_scrollBody {
+    width: 100% !important;
+}
+
+/* Remove extra margins and paddings */
+.dataTables_length,
+.dataTables_filter,
+.dataTables_info,
+.dataTables_paginate {
+    margin: 0;
+}
+
+.dataTables_length {
+    margin-bottom: 15px;
+}
+
+.dataTables_filter {
+    margin-bottom: 15px;
+}
+
+.dataTables_info {
+    margin-top: 15px;
+}
+
+.dataTables_paginate {
+    margin-top: 15px;
 }
 
 /* Responsive */

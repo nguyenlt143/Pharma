@@ -161,7 +161,7 @@ public class AdminAccountApiController {
      */
     @PostMapping("/unit-conversion-migration")
     public ResponseEntity<?> migrateUnitConversions() {
-        //Invoke-WebRequest -Uri "http://localhost:8080/api/admin/accounts/unit-conversion-migration" -Method POST
+        //http://localhost:8080/migration.html
 
         try {
             System.out.println("\n🚀 Bắt đầu quá trình migrate UnitConversions...\n");
