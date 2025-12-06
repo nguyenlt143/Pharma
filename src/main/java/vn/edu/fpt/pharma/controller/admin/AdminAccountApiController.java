@@ -9,6 +9,7 @@ import vn.edu.fpt.pharma.dto.manager.UserRequest;
 import vn.edu.fpt.pharma.entity.Branch;
 import vn.edu.fpt.pharma.repository.BranchRepository;
 import vn.edu.fpt.pharma.service.UserService;
+import vn.edu.fpt.pharma.service.MedicineVariantService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +22,7 @@ public class AdminAccountApiController {
 
     private final UserService userService;
     private final BranchRepository branchRepository;
+    private final MedicineVariantService medicineVariantService;
 
     // Get all high-level accounts (OWNER, MANAGER, WAREHOUSE only)
     @GetMapping
@@ -148,6 +150,35 @@ public class AdminAccountApiController {
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             return ResponseEntity.status(400).body("Lỗi khi xóa chi nhánh: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Migrate all MedicineVariant to UnitConversion
+     * POST /api/admin/accounts/unit-conversion-migration
+     *
+     * Chạy một lần duy nhất để tạo UnitConversion cho tất cả MedicineVariant hiện có
+     */
+    @PostMapping("/unit-conversion-migration")
+    public ResponseEntity<?> migrateUnitConversions() {
+        //Invoke-WebRequest -Uri "http://localhost:8080/api/admin/accounts/unit-conversion-migration" -Method POST
+
+        try {
+            System.out.println("\n🚀 Bắt đầu quá trình migrate UnitConversions...\n");
+
+            medicineVariantService.migrateAllVariantsToUnitConversions();
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "✅ Migration hoàn tất! Tất cả MedicineVariant đã được xử lý. Xem console để biết chi tiết.");
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "❌ Lỗi trong quá trình migration: " + e.getMessage());
+
+            return ResponseEntity.status(500).body(errorResponse);
         }
     }
 }

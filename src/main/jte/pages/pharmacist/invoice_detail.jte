@@ -48,6 +48,7 @@
                         <tr>
                             <th>STT</th>
                             <th>Tên thuốc</th>
+                            <th>KĐG</th>
                             <th>Số lượng</th>
                             <th>Đơn giá</th>
                             <th>Thành tiền</th>
@@ -58,7 +59,8 @@
                             !{var medicine = medicines.get(i);}
                             <tr>
                                 <td>${i + 1}</td>
-                                <td>${medicine.medicineName()}</td>
+                                <td>${medicine.medicineName()} ${medicine.strength()} </td>
+                                <td>${medicine.unitName()}</td>
                                 <td>${medicine.quantity()}</td>
                                 <td>${String.format("%,.0f", medicine.unitPrice())} VNĐ</td>
                                 <td>${String.format("%,.0f", medicine.unitPrice() * medicine.quantity())} VNĐ</td>

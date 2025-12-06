@@ -24,14 +24,14 @@
             <li class="px-4 py-2 rounded-md ${active == "import" ? "bg-blue-600" : "hover:bg-gray-700"}">
                 <a href="/inventory/import/list" class="flex items-center gap-2">
                     <span class="material-icons-outlined">inventory_2</span>
-                    <span>Nhập kho</span>
+                    <span>Yêu cầu nhập hàng</span>
                 </a>
             </li>
 
             <li class="px-4 py-2 rounded-md ${active == "confirm" ? "bg-blue-600" : "hover:bg-gray-700"}">
                 <a href="/inventory/confirm/list" class="flex items-center gap-2">
                     <span class="material-icons-outlined">check_circle</span>
-                    <span>Xác nhận nhập hàng</span>
+                    <span>Danh sách nhập kho</span>
                 </a>
             </li>
 
@@ -68,7 +68,7 @@
             </div>
             <div class="flex-1">
                 <p class="text-sm font-semibold">Người dùng</p>
-                <p class="text-xs text-gray-400">Inventory</p>
+                <p class="text-xs text-gray-400">Inventory Manager</p>
             </div>
         </div>
         <form action="/logout" method="post" class="w-full">

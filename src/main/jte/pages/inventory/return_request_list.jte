@@ -90,7 +90,13 @@
                                         </span>
                                     @endif
                                 </td>
-                                <td class="px-4 py-3 text-sm text-gray-600">${item.getNote()}</td>
+                                <td class="px-4 py-3 text-sm text-gray-600">
+                                    @if(item.getNote() != null && !item.getNote().isEmpty())
+                                        ${item.getNote()}
+                                    @else
+                                        <span class="text-gray-400 italic">Không có ghi chú</span>
+                                    @endif
+                                </td>
                                 <td class="px-4 py-3 text-center">
                                     <a href="/inventory/return/detail/${item.getId()}" class="text-blue-600 hover:text-blue-800 font-medium text-sm">
                                         Xem chi tiết

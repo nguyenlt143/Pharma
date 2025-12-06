@@ -25,10 +25,11 @@ public class InvoiceDetailServiceImpl extends BaseServiceImpl<InvoiceDetail, Lon
 
         return rows.stream()
                 .map(r -> new MedicineItemVM(
-                        r[0] != null ? r[0].toString() : "",
-                        r[1] != null ? r[1].toString() : "",
-                        r[2] != null ? ((Number) r[2]).doubleValue() : 0.0,
-                        r[3] != null ? ((Number) r[3]).longValue() : 0L
+                        r[0] != null ? r[0].toString() : "",                    // medicineName
+                        r[1] != null ? r[1].toString() : "",                    // strength
+                        r[2] != null ? r[2].toString() : "",                    // unitName
+                        r[3] != null ? ((Number) r[3]).doubleValue() : 0.0,     // unitPrice
+                        r[4] != null ? ((Number) r[4]).longValue() : 0L         // quantity
                 ))
                 .collect(Collectors.toList());
     }

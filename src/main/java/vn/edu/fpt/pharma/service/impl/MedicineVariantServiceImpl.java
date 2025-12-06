@@ -79,7 +79,10 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
 
         MedicineVariant saved = repository.save(variant);
 
-        // Save unit conversions if provided
+        // Automatically create unit conversions from baseUnit and packageUnit
+        createUnitConversionsFromVariant(saved);
+
+        // Save additional unit conversions if provided
         if (request.getUnitConversions() != null && !request.getUnitConversions().isEmpty()) {
             saveUnitConversions(saved, request.getUnitConversions());
         }
@@ -126,17 +129,51 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
         if (request.getUses() != null) variant.setUses(request.getUses());
         if (request.getPrescription_require() != null) variant.setPrescription_require(request.getPrescription_require());
         
+        // Check if base unit or package unit changed
+        boolean unitsChanged = false;
+        if (request.getBaseUnitId() != null && !variant.getBaseUnitId().equals(baseUnit)) {
+            unitsChanged = true;
+        }
+        if (request.getPackageUnitId() != null && !variant.getPackageUnitId().equals(packageUnit)) {
+            unitsChanged = true;
+        }
+        if (request.getQuantityPerPackage() != null &&
+            !request.getQuantityPerPackage().equals(variant.getQuantityPerPackage())) {
+            unitsChanged = true;
+        }
+
         variant.setMedicine(medicine);
         variant.setBaseUnitId(baseUnit);
         variant.setPackageUnitId(packageUnit);
 
         MedicineVariant updated = repository.save(variant);
 
-        // Update unit conversions if provided
+        // If units changed, recreate unit conversions
+        if (unitsChanged) {
+            // Delete old conversions for base and package units
+            List<UnitConversion> existingConversions = unitConversionRepository.findByVariantIdId(id);
+            for (UnitConversion uc : existingConversions) {
+                if (uc.getUnitId().equals(variant.getBaseUnitId()) ||
+                    uc.getUnitId().equals(variant.getPackageUnitId())) {
+                    unitConversionRepository.delete(uc);
+                }
+            }
+
+            // Create new unit conversions from updated units
+            createUnitConversionsFromVariant(updated);
+        }
+
+        // Update additional unit conversions if provided
         if (request.getUnitConversions() != null) {
-            // Delete existing conversions
-            unitConversionRepository.deleteByVariantIdId(id);
-            // Save new conversions
+            // Delete existing additional conversions (not base/package)
+            List<UnitConversion> existingConversions = unitConversionRepository.findByVariantIdId(id);
+            for (UnitConversion uc : existingConversions) {
+                if (!uc.getUnitId().equals(variant.getBaseUnitId()) &&
+                    !uc.getUnitId().equals(variant.getPackageUnitId())) {
+                    unitConversionRepository.delete(uc);
+                }
+            }
+            // Save new additional conversions
             saveUnitConversions(updated, request.getUnitConversions());
         }
 
@@ -267,6 +304,94 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                     );
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void createUnitConversionsFromVariant(MedicineVariant variant) {
+        if (variant == null) {
+            throw new IllegalArgumentException("MedicineVariant không được để trống");
+        }
+
+        // Get existing conversions for this variant
+        List<UnitConversion> existingConversions = unitConversionRepository.findByVariantIdId(variant.getId());
+
+        // Create conversion for base unit (multiplier = 1)
+        if (variant.getBaseUnitId() != null) {
+            // Check if conversion already exists for this variant and base unit
+            boolean baseUnitExists = existingConversions.stream()
+                    .anyMatch(uc -> uc.getUnitId().equals(variant.getBaseUnitId()));
+
+            if (!baseUnitExists) {
+                UnitConversion baseConversion = UnitConversion.builder()
+                        .variantId(variant)
+                        .unitId(variant.getBaseUnitId())
+                        .multiplier(1.0)
+                        .build();
+                unitConversionRepository.save(baseConversion);
+            }
+        }
+
+        // Create conversion for package unit (multiplier = quantityPerPackage)
+        if (variant.getPackageUnitId() != null && variant.getQuantityPerPackage() != null) {
+            // Check if conversion already exists for this variant and package unit
+            boolean packageUnitExists = existingConversions.stream()
+                    .anyMatch(uc -> uc.getUnitId().equals(variant.getPackageUnitId()));
+
+            if (!packageUnitExists) {
+                UnitConversion packageConversion = UnitConversion.builder()
+                        .variantId(variant)
+                        .unitId(variant.getPackageUnitId())
+                        .multiplier(variant.getQuantityPerPackage())
+                        .build();
+                unitConversionRepository.save(packageConversion);
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    public void migrateAllVariantsToUnitConversions() {
+        // Get all medicine variants
+        List<MedicineVariant> allVariants = repository.findAll();
+
+        int totalVariants = allVariants.size();
+        int processedCount = 0;
+        int createdCount = 0;
+
+        System.out.println("========================================");
+        System.out.println("Bắt đầu migrate " + totalVariants + " MedicineVariant sang UnitConversion...");
+        System.out.println("========================================");
+
+        for (MedicineVariant variant : allVariants) {
+            try {
+                // Get existing conversions count before
+                int beforeCount = unitConversionRepository.findByVariantIdId(variant.getId()).size();
+
+                // Create unit conversions
+                createUnitConversionsFromVariant(variant);
+
+                // Get existing conversions count after
+                int afterCount = unitConversionRepository.findByVariantIdId(variant.getId()).size();
+                int newConversions = afterCount - beforeCount;
+
+                processedCount++;
+                createdCount += newConversions;
+
+                if (newConversions > 0) {
+                    System.out.println("✓ Variant ID " + variant.getId() +
+                                     " [" + variant.getMedicine().getName() + "]: " +
+                                     newConversions + " unit conversion(s) được tạo");
+                }
+            } catch (Exception e) {
+                System.err.println("✗ Lỗi xử lý variant ID " + variant.getId() + ": " + e.getMessage());
+            }
+        }
+
+        System.out.println("========================================");
+        System.out.println("Hoàn thành! Đã xử lý: " + processedCount + "/" + totalVariants + " variants");
+        System.out.println("Tổng số unit conversions được tạo: " + createdCount);
+        System.out.println("========================================");
     }
 }
 

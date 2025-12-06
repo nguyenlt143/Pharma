@@ -5,7 +5,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Xác nhận nhập hàng</title>
+    <title>Danh sách nhập kho</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 </head>
@@ -18,7 +18,7 @@
     <!-- Main -->
     <main class="flex-1 p-6 overflow-y-auto">
         <header class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold">XÁC NHẬN NHẬP HÀNG</h2>
+            <h2 class="text-2xl font-bold">DANH SÁCH NHẬP KHO</h2>
             <div class="flex items-center gap-2 text-sm text-gray-600">
                 <span class="material-icons-outlined text-base">check_circle</span>
                 <span>Tổng: @if(confirmImports != null)${confirmImports.size()}@endif đơn</span>

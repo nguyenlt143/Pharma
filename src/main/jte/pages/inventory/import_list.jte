@@ -4,7 +4,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Danh sách phiếu nhập</title>
+    <title>Yêu cầu nhập hàng</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 </head>
@@ -17,7 +17,7 @@
     <!-- Main -->
     <main class="flex-1 p-6 overflow-y-auto">
         <header class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold">LỊCH SỬ PHIẾU NHẬP</h2>
+            <h2 class="text-2xl font-bold">YÊU CẦU NHẬP HÀNG</h2>
             <div class="flex items-center gap-2 text-sm text-gray-600">
                 <span class="material-icons-outlined text-base">inventory_2</span>
                 <span>Tổng: @if(imports != null)${imports.size()}@endif phiếu</span>
