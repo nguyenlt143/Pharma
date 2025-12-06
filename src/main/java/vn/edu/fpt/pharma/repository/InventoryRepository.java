@@ -38,7 +38,8 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>, Jpa
             COALESCE(u.name, '') as unit,
             COALESCE(c.name, '') as categoryName,
             c.id as categoryId,
-            i.branch_id as branchId
+            i.branch_id as branchId,
+            i.min_stock as minStock
         FROM inventory i
         LEFT JOIN batches b ON i.batch_id = b.id
         LEFT JOIN medicine_variant mv ON i.variant_id = mv.id
@@ -98,8 +99,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>, Jpa
         FROM inventory i 
         WHERE i.branch_id = :branchId 
           AND i.deleted = false 
-          AND i.quantity <= COALESCE(i.min_stock, 10)
-          AND i.quantity > 0
+          AND i.quantity < COALESCE(i.min_stock, 1000)
         """, nativeQuery = true)
     int countLowStockItems(@Param("branchId") Long branchId);
 
@@ -148,8 +148,8 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>, Jpa
           AND i.deleted = false 
           AND i.quantity > 0
           AND (
-              (:checkExpired = true AND b.expiry_date < CURRENT_DATE) OR
-              (:checkExpired = false AND :daysThreshold IS NOT NULL AND b.expiry_date <= DATEADD('DAY', :daysThreshold, CURRENT_DATE) AND b.expiry_date >= CURRENT_DATE)
+              (:checkExpired = true AND b.expiry_date < CURDATE()) OR
+              (:checkExpired = false AND :daysThreshold IS NOT NULL AND b.expiry_date <= DATE_ADD(CURDATE(), INTERVAL :daysThreshold DAY) AND b.expiry_date >= CURDATE())
           )
         """, nativeQuery = true)
     int countItemsByExpiry(@Param("branchId") Long branchId, @Param("daysThreshold") Integer daysThreshold, @Param("checkExpired") boolean checkExpired);

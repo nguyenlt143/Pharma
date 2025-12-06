@@ -57,14 +57,45 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Fetching summary from:', API_BASE);
             const response = await fetch(API_BASE);
             if (!response.ok) {
+                console.error(`Failed to fetch summary: ${response.status} ${response.statusText}`);
                 throw new Error(`Failed to fetch summary: ${response.status} ${response.statusText}`);
             }
             const data = await response.json();
             console.log('Summary data received:', data);
-            return data;
+
+            // Validate data structure
+            if (!data || typeof data !== 'object') {
+                console.error('Invalid summary data received:', data);
+                return {
+                    totalItems: 0,
+                    lowStock: 0,
+                    totalValue: 0.0,
+                    nearExpiry: 0,
+                    expired: 0,
+                    lastUpdated: new Date().toISOString()
+                };
+            }
+
+            // Ensure all required fields exist with default values
+            return {
+                totalItems: data.totalItems || 0,
+                lowStock: data.lowStock || 0,
+                totalValue: data.totalValue || 0.0,
+                nearExpiry: data.nearExpiry || 0,
+                expired: data.expired || 0,
+                lastUpdated: data.lastUpdated || new Date().toISOString()
+            };
         } catch (error) {
             console.error('Error fetching summary:', error);
-            throw error;
+            // Return default values instead of throwing
+            return {
+                totalItems: 0,
+                lowStock: 0,
+                totalValue: 0.0,
+                nearExpiry: 0,
+                expired: 0,
+                lastUpdated: new Date().toISOString()
+            };
         }
     };
 
@@ -185,40 +216,57 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update UI
     // =========================
     const updateKPIs = (data) => {
+        console.log('Updating KPIs with data:', data);
+
+        if (!data || typeof data !== 'object') {
+            console.error('Invalid data passed to updateKPIs:', data);
+            data = {
+                totalItems: 0,
+                lowStock: 0,
+                totalValue: 0.0,
+                nearExpiry: 0,
+                expired: 0
+            };
+        }
+
         // Total Items
         const totalItemsEl = document.getElementById('totalItems');
         if (totalItemsEl) {
-            totalItemsEl.textContent = formatNumber(data.totalItems || 0);
+            const value = data.totalItems !== undefined && data.totalItems !== null ? data.totalItems : 0;
+            totalItemsEl.textContent = formatNumber(value);
+            console.log('Updated totalItems:', value);
         }
 
-        // Low Stock
+        // Low Stock (now includes both low stock and out of stock)
         const lowStockEl = document.getElementById('lowStock');
         if (lowStockEl) {
-            lowStockEl.textContent = formatNumber(data.lowStock || 0);
-        }
-
-        // Out of Stock
-        const outOfStockEl = document.getElementById('outOfStock');
-        if (outOfStockEl) {
-            outOfStockEl.textContent = formatNumber(data.outOfStock || 0);
+            const value = data.lowStock !== undefined && data.lowStock !== null ? data.lowStock : 0;
+            lowStockEl.textContent = formatNumber(value);
+            console.log('Updated lowStock:', value);
         }
 
         // Total Value
         const totalValueEl = document.getElementById('totalValue');
         if (totalValueEl) {
-            totalValueEl.textContent = formatCurrency(data.totalValue || 0);
+            const value = data.totalValue !== undefined && data.totalValue !== null ? data.totalValue : 0;
+            totalValueEl.textContent = formatCurrency(value);
+            console.log('Updated totalValue:', value);
         }
 
         // Near Expiry
         const nearExpiryEl = document.getElementById('nearExpiry');
         if (nearExpiryEl) {
-            nearExpiryEl.textContent = formatNumber(data.nearExpiry || 0);
+            const value = data.nearExpiry !== undefined && data.nearExpiry !== null ? data.nearExpiry : 0;
+            nearExpiryEl.textContent = formatNumber(value);
+            console.log('Updated nearExpiry:', value);
         }
 
         // Expired
         const expiredEl = document.getElementById('expired');
         if (expiredEl) {
-            expiredEl.textContent = formatNumber(data.expired || 0);
+            const value = data.expired !== undefined && data.expired !== null ? data.expired : 0;
+            expiredEl.textContent = formatNumber(value);
+            console.log('Updated expired:', value);
         }
 
         // Update Alerts (no-op when alert widgets are removed)
@@ -421,6 +469,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 (statusFilter === 'active' && itemStatus === 'Hoạt động') ||
                 (statusFilter === 'near-expiry' && itemStatus === 'Sắp hết hạn') ||
                 (statusFilter === 'expired' && itemStatus === 'Đã hết hạn') ||
+                (statusFilter === 'low-stock' && itemStatus === 'Sắp hết hàng') ||
                 (statusFilter === 'out-of-stock' && itemStatus === 'Hết hàng');
 
             return matchesQuery && matchesCategory && matchesStatus;
@@ -431,10 +480,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const determineStatus = (item) => {
+        // Check if out of stock
         if (!item.quantity || item.quantity <= 0) {
             return 'Hết hàng';
         }
 
+        // Check expiry date first (higher priority)
         if (item.expiryDate) {
             try {
                 const expiry = new Date(item.expiryDate);
@@ -452,6 +503,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // Check if low stock (quantity < minStock or < 1000 if minStock is not set)
+        const minStockThreshold = item.minStock || 1000;
+        if (item.quantity < minStockThreshold) {
+            return 'Sắp hết hàng';
+        }
+
         return 'Hoạt động';
     };
 
@@ -461,6 +518,7 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'Hết hàng':
                 return 'badge-danger';
             case 'Sắp hết hạn':
+            case 'Sắp hết hàng':
                 return 'badge-warning';
             case 'Hoạt động':
                 return 'badge-success';
@@ -527,7 +585,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error loading data:', error);
 
             // Show error in KPIs
-            ['totalItems', 'lowStock', 'outOfStock', 'totalValue', 'nearExpiry', 'expired'].forEach(id => {
+            ['totalItems', 'lowStock', 'totalValue', 'nearExpiry', 'expired'].forEach(id => {
                 showError(id, '-');
             });
         }

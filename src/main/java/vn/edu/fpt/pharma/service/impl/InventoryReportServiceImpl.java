@@ -22,32 +22,59 @@ public class InventoryReportServiceImpl implements InventoryReportService {
         Map<String, Object> summary = new HashMap<>();
 
         try {
-            // Get inventory statistics
+            // Validate branchId
+            if (branchId == null) {
+                System.err.println("Error in getInventorySummary: branchId is null");
+                summary.put("totalItems", 0);
+                summary.put("lowStock", 0);
+                summary.put("totalValue", 0.0);
+                summary.put("nearExpiry", 0);
+                summary.put("expired", 0);
+                summary.put("lastUpdated", java.time.LocalDateTime.now());
+                return summary;
+            }
+
+            // Get inventory statistics with detailed logging
+            System.out.println("Fetching inventory summary for branchId: " + branchId);
+
             int totalItems = inventoryRepository.countTotalItems(branchId);
+            System.out.println("Total items: " + totalItems);
+
             int lowStock = inventoryRepository.countLowStockItems(branchId);
-            int outOfStock = inventoryRepository.countOutOfStockItems(branchId);
+            System.out.println("Low stock items: " + lowStock);
+
             Double totalValue = inventoryRepository.calculateTotalValue(branchId);
+            System.out.println("Total value: " + totalValue);
+
             int nearExpiry = inventoryRepository.countNearExpiryItems(branchId);
+            System.out.println("Near expiry items: " + nearExpiry);
+
             int expired = inventoryRepository.countExpiredItems(branchId);
+            System.out.println("Expired items: " + expired);
 
             // Build summary
             summary.put("totalItems", totalItems);
             summary.put("lowStock", lowStock);
-            summary.put("outOfStock", outOfStock);
             summary.put("totalValue", totalValue != null ? totalValue : 0.0);
             summary.put("nearExpiry", nearExpiry);
             summary.put("expired", expired);
             summary.put("lastUpdated", java.time.LocalDateTime.now());
 
+            System.out.println("Summary generated successfully: " + summary);
+
         } catch (Exception e) {
+            // Log detailed error information
+            System.err.println("Error in getInventorySummary for branchId " + branchId + ": " + e.getMessage());
+            e.printStackTrace();
+
             // Return empty data on error
             summary.put("totalItems", 0);
             summary.put("lowStock", 0);
-            summary.put("outOfStock", 0);
             summary.put("totalValue", 0.0);
             summary.put("nearExpiry", 0);
             summary.put("expired", 0);
-            summary.put("error", e.getMessage());
+            summary.put("lastUpdated", java.time.LocalDateTime.now());
+            // Note: Not including error message in response to avoid exposing internal details to frontend
         }
 
         return summary;
@@ -184,6 +211,7 @@ public class InventoryReportServiceImpl implements InventoryReportService {
                 item.put("unit", row[11] != null ? row[11].toString() : "");
                 item.put("categoryName", row[12] != null ? row[12].toString() : "");
                 item.put("categoryId", row[13] != null ? ((Number) row[13]).longValue() : null);
+                item.put("minStock", row[14] != null ? ((Number) row[14]).longValue() : null);
 
                 result.add(item);
             }
