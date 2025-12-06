@@ -130,11 +130,24 @@
                 }
             ],
             language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/vi.json',
                 processing: 'Đang tải dữ liệu ca làm việc...',
+                search: 'Tìm kiếm:',
+                lengthMenu: 'Hiển thị _MENU_ bản ghi',
+                info: 'Hiển thị _START_ đến _END_ của _TOTAL_ bản ghi',
+                infoEmpty: 'Hiển thị 0 đến 0 của 0 bản ghi',
+                infoFiltered: '(được lọc từ _MAX_ bản ghi)',
                 emptyTable: 'Không có dữ liệu ca làm việc',
-                error: 'Lỗi khi tải dữ liệu ca làm việc',
-                zeroRecords: 'Không tìm thấy ca làm việc nào'
+                zeroRecords: 'Không tìm thấy ca làm việc nào',
+                paginate: {
+                    first: 'Đầu tiên',
+                    last: 'Cuối cùng',
+                    next: 'Tiếp theo',
+                    previous: 'Trước đó'
+                },
+                aria: {
+                    sortAscending: ': sắp xếp tăng dần',
+                    sortDescending: ': sắp xếp giảm dần'
+                }
             },
             order: [[0, 'asc']],
             pageLength: 10,
