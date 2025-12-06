@@ -316,6 +316,10 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
         // Get existing conversions for this variant
         List<UnitConversion> existingConversions = unitConversionRepository.findByVariantIdId(variant.getId());
 
+        // Check if baseUnitId and packageUnitId are the same
+        boolean isSameUnit = variant.getBaseUnitId() != null && variant.getPackageUnitId() != null &&
+                             variant.getBaseUnitId().getId().equals(variant.getPackageUnitId().getId());
+
         // Create conversion for base unit (multiplier = 1)
         if (variant.getBaseUnitId() != null) {
             // Check if conversion already exists for this variant and base unit
@@ -332,8 +336,8 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
             }
         }
 
-        // Create conversion for package unit (multiplier = quantityPerPackage)
-        if (variant.getPackageUnitId() != null && variant.getQuantityPerPackage() != null) {
+        // Create conversion for package unit only if it's different from base unit
+        if (variant.getPackageUnitId() != null && variant.getQuantityPerPackage() != null && !isSameUnit) {
             // Check if conversion already exists for this variant and package unit
             boolean packageUnitExists = existingConversions.stream()
                     .anyMatch(uc -> uc.getUnitId().equals(variant.getPackageUnitId()));

@@ -108,3 +108,63 @@
 .table td:nth-child(4) {
     text-align: center;
 }
+
+/* Additional DataTable optimizations for Shifts */
+#shiftsTable_wrapper {
+    width: 100% !important;
+}
+
+#shiftsTable {
+    width: 100% !important;
+    table-layout: auto;
+}
+
+/* Override any container constraints */
+.shift-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+/* Ensure full width utilization */
+.content-wrapper,
+.main-content {
+    width: 100%;
+}
+
+/* Fix for DataTable column widths */
+.dataTables_scrollHead table,
+.dataTables_scrollBody table {
+    width: 100% !important;
+}
+
+/* Sync header and body widths */
+.dataTables_scrollHead {
+    overflow: hidden !important;
+}
+
+.dataTables_scrollBody {
+    overflow: auto !important;
+}
+
+/* Remove any conflicting margins */
+.shift-card,
+.table-container {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/* Responsive adjustments */
+@media (min-width: 1200px) {
+    .content-wrapper {
+        padding: 0 30px;
+    }
+}
+
+@media (min-width: 1400px) {
+    .content-wrapper {
+        padding: 0 40px;
+    }
+}
