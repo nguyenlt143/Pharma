@@ -27,4 +27,6 @@ public class InvoiceDetail extends BaseEntity<Long> {
     private Long quantity;
 
     private Double price;
+
+    private Double multiplier;
 }

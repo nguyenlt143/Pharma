@@ -177,10 +177,9 @@ public class InvoiceServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
             InvoiceDetail detail = new InvoiceDetail();
             detail.setInvoice(invoice);
             detail.setInventory(inventory);
-            detail.setQuantity(itemReq.getQuantity());
-            // unitPrice from frontend is already multiplied by selectedMultiplier
-            // price should be total for this line item: unitPrice * quantity
-            detail.setPrice(itemReq.getUnitPrice() * itemReq.getQuantity());
+            detail.setQuantity((long) (itemReq.getQuantity()*itemReq.getSelectedMultiplier()));
+            detail.setPrice(itemReq.getUnitPrice()/itemReq.getSelectedMultiplier());
+            detail.setMultiplier(itemReq.getSelectedMultiplier());
             details.add(detail);
         }
 

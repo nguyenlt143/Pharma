@@ -13,21 +13,20 @@ import java.util.Optional;
 public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, Long>, JpaSpecificationExecutor<InvoiceDetail> {
 
     @Query(value = """
-        SELECT
-            m.name AS medicineName,
-            mv.strength AS strength,
-            u.name AS unitName,
-            idt.price AS unitPrice,
-            idt.quantity AS quantity
-        FROM invoice_details idt
-        JOIN inventory inv ON idt.inventory_id = inv.id
-        JOIN prices p ON inv.variant_id = p.variant_id
-        JOIN medicine_variant mv ON inv.variant_id = mv.id
-        JOIN medicines m ON mv.medicine_id = m.id
-        LEFT JOIN unit_conversions uc
-            ON inv.variant_id = uc.variant_id
-            AND uc.multiplier = (idt.price / p.sale_price)
-        LEFT JOIN units u ON uc.unit_id = u.id
+    SELECT
+        m.name AS medicineName,
+        mv.strength AS strength,
+        u.name AS unitName,
+        (idt.price * uc.multiplier) AS unitPrice,
+        (idt.quantity / uc.multiplier) AS quantity
+    FROM invoice_details idt
+    JOIN inventory inv ON idt.inventory_id = inv.id
+    JOIN medicine_variant mv ON inv.variant_id = mv.id
+    JOIN medicines m ON mv.medicine_id = m.id
+    LEFT JOIN unit_conversions uc
+        ON inv.variant_id = uc.variant_id
+        AND uc.multiplier = idt.multiplier
+    LEFT JOIN units u ON uc.unit_id = u.id
         WHERE idt.invoice_id = :id
 """, nativeQuery = true)
     List<Object[]> findByInvoiceId(@Param("id") long id);
@@ -39,8 +38,8 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, Lo
         COALESCE(b.batch_code, 'unknow') AS batch,
         COALESCE(m.manufacturer, 'unknow') AS manufacturer,
         COALESCE(m.country, 'unknow') AS country,
-        COALESCE(SUM(idt.quantity), 0) AS quantity,
-        COALESCE(idt.price, 0) AS price,
+        COALESCE(SUM(idt.quantity) / uc.multiplier, 0) AS quantity,
+        COALESCE(idt.price * uc.multiplier, 0) AS unitPrice,
         COALESCE(SUM(idt.quantity * idt.price), 0) AS total_amount
     FROM invoice_details idt
     JOIN invoices iv ON idt.invoice_id = iv.id
@@ -51,7 +50,7 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, Lo
     LEFT JOIN batches b ON inv.batch_id = b.id
     LEFT JOIN unit_conversions uc
         ON inv.variant_id = uc.variant_id
-        AND uc.multiplier = (idt.price / p.sale_price)
+        AND uc.multiplier = idt.multiplier
     LEFT JOIN units u ON uc.unit_id = u.id
     LEFT JOIN shift_works sw ON iv.shift_work_id = sw.id
     LEFT JOIN shift_assignments sa ON sw.assignment_id = sa.id
@@ -65,9 +64,10 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, Lo
         batch,
         manufacturer,
         country,
-        idt.price
+        idt.price,
+        uc.multiplier
     ORDER BY
-        name, price;
+        name, unitPrice;
     """, nativeQuery = true)
     List<Object[]> getMedicineRevenueByMonth(
             @Param("userId") Long userId,
@@ -76,43 +76,44 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, Lo
     );
 
     @Query(value = """
-            SELECT
-                COALESCE(CONCAT(m.name, ' ', mv.strength), 'unknow') AS name,
-                COALESCE(u.name, 'unknow') AS unit,
-                COALESCE(b.batch_code, 'unknow') AS batch,
-                COALESCE(m.manufacturer, 'unknow') AS manufacturer,
-                COALESCE(m.country, 'unknow') AS country,
-                COALESCE(SUM(idt.quantity), 0) AS quantity,
-                COALESCE(idt.price, 0) AS price,
-                COALESCE(SUM(idt.quantity * idt.price), 0) AS total_amount
-            FROM invoice_details idt
-            JOIN invoices iv ON idt.invoice_id = iv.id
-            LEFT JOIN inventory inv ON idt.inventory_id = inv.id
-            LEFT JOIN prices p ON inv.variant_id = p.variant_id
-            LEFT JOIN medicine_variant mv ON inv.variant_id = mv.id
-            LEFT JOIN medicines m ON mv.medicine_id = m.id
-            LEFT JOIN batches b ON inv.batch_id = b.id
-            LEFT JOIN unit_conversions uc
-                ON inv.variant_id = uc.variant_id
-                AND ROUND(uc.multiplier, 4) = ROUND(idt.price / p.sale_price, 4)\s
-            LEFT JOIN units u ON uc.unit_id = u.id
-            LEFT JOIN shift_works sw ON iv.shift_work_id = sw.id
-            LEFT JOIN shift_assignments sa ON sw.assignment_id = sa.id
-            LEFT JOIN shifts s ON sa.shift_id = s.id
-            WHERE
-                sa.user_id = :userId
-                AND s.name = :shiftName \s
-                AND DATE(CONVERT_TZ(sw.work_date, '+00:00', '+07:00'))
-                        = DATE(CONVERT_TZ(NOW(), '+00:00', '+07:00'))
-            GROUP BY
-                name,
-                unit,
-                batch,
-                manufacturer,
-                country,
-                idt.price
-            ORDER BY\s
-                name, idt.price;
+        SELECT
+            COALESCE(CONCAT(m.name, ' ', mv.strength), 'unknow') AS name,
+            COALESCE(u.name, 'unknow') AS unit,
+            COALESCE(b.batch_code, 'unknow') AS batch,
+            COALESCE(m.manufacturer, 'unknow') AS manufacturer,
+            COALESCE(m.country, 'unknow') AS country,
+            COALESCE(SUM(idt.quantity) / uc.multiplier, 0) AS quantity,
+            COALESCE(idt.price * uc.multiplier, 0) AS unitPrice,
+            COALESCE(SUM(idt.quantity * idt.price), 0) AS total_amount
+        FROM invoice_details idt
+        JOIN invoices iv ON idt.invoice_id = iv.id
+        LEFT JOIN inventory inv ON idt.inventory_id = inv.id
+        LEFT JOIN prices p ON inv.variant_id = p.variant_id
+        LEFT JOIN medicine_variant mv ON inv.variant_id = mv.id
+        LEFT JOIN medicines m ON mv.medicine_id = m.id
+        LEFT JOIN batches b ON inv.batch_id = b.id
+        LEFT JOIN unit_conversions uc
+            ON inv.variant_id = uc.variant_id
+            AND uc.multiplier = idt.multiplier
+        LEFT JOIN units u ON uc.unit_id = u.id
+        LEFT JOIN shift_works sw ON iv.shift_work_id = sw.id
+        LEFT JOIN shift_assignments sa ON sw.assignment_id = sa.id
+        LEFT JOIN shifts s ON sa.shift_id = s.id
+        WHERE
+            sa.user_id = :userId
+            AND s.name = :shiftName
+            AND DATE(CONVERT_TZ(sw.work_date, '+00:00', '+07:00'))
+                = DATE(CONVERT_TZ(NOW(), '+00:00', '+07:00'))
+        GROUP BY
+            name,
+            unit,
+            batch,
+            manufacturer,
+            country,
+            idt.price,
+            uc.multiplier
+        ORDER BY
+            name, unitPrice;
     """, nativeQuery = true)
     List<Object[]> getMedicineRevenueByShift(
             @Param("userId") Long userId,
