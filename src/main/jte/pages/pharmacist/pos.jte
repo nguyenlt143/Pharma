@@ -85,7 +85,6 @@
             <div class="payment-section">
                 <div class="payment-header">
                     <h3 class="section-title">Thanh toán</h3>
-                    <span class="payment-time">10/08/2022 09:55</span>
                 </div>
 
                 <div class="payment-content">

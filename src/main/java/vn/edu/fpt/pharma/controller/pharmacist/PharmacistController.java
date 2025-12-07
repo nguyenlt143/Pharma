@@ -3,6 +3,7 @@ package vn.edu.fpt.pharma.controller.pharmacist;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.pharma.config.CustomUserDetails;
 import vn.edu.fpt.pharma.dto.invoice.InvoiceCreateRequest;
 import java.util.Map;
@@ -28,6 +28,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 
+@Slf4j
 @Controller
 @RequestMapping("/pharmacist")
 @RequiredArgsConstructor
@@ -141,29 +142,45 @@ public class PharmacistController {
                         BindingResult bindingResult,
                         Model model) {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
-        Long userId = userDetails.getId();
-        User user = userService.findById(userId);
-        ProfileVM profileVM = new ProfileVM(user);
-
-        model.addAttribute("profile", profileVM);
-        model.addAttribute("profileUpdateRequest", profileUpdateRequest);
-
-        // Pre-populate display values
-        model.addAttribute("displayFullName", profileUpdateRequest.getFullName() != null ? profileUpdateRequest.getFullName() : user.getFullName());
-        model.addAttribute("displayEmail", profileUpdateRequest.getEmail() != null ? profileUpdateRequest.getEmail() : user.getEmail());
-        model.addAttribute("displayPhone", profileUpdateRequest.getPhone() != null ? profileUpdateRequest.getPhone() : user.getPhoneNumber());
-
-        if (bindingResult.hasErrors()) {
-            // Nếu có lỗi validation, quay lại trang profile với thông báo lỗi
-            model.addAttribute("error", "Vui lòng kiểm tra lại thông tin đã nhập");
-            model.addAttribute("success", null);
-            return "pages/profile/profile";
-        }
-
         try {
+            log.info("=== Profile Update Request ===");
+            log.info("Full Name: {}", profileUpdateRequest.getFullName());
+            log.info("Email: {}", profileUpdateRequest.getEmail());
+            log.info("Phone: {}", profileUpdateRequest.getPhone());
+            log.info("Password provided: {}", profileUpdateRequest.getPassword() != null && !profileUpdateRequest.getPassword().isEmpty());
+            log.info("Current Password provided: {}", profileUpdateRequest.getCurrentPassword() != null && !profileUpdateRequest.getCurrentPassword().isEmpty());
+            log.info("Avatar Data length: {}", profileUpdateRequest.getAvatarData() != null ? profileUpdateRequest.getAvatarData().length() : 0);
+
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+            Long userId = userDetails.getId();
+            User user = userService.findById(userId);
+            ProfileVM profileVM = new ProfileVM(user);
+
+            model.addAttribute("profile", profileVM);
+            model.addAttribute("profileUpdateRequest", profileUpdateRequest);
+
+            // Pre-populate display values
+            model.addAttribute("displayFullName", profileUpdateRequest.getFullName() != null ? profileUpdateRequest.getFullName() : user.getFullName());
+            model.addAttribute("displayEmail", profileUpdateRequest.getEmail() != null ? profileUpdateRequest.getEmail() : user.getEmail());
+            model.addAttribute("displayPhone", profileUpdateRequest.getPhone() != null ? profileUpdateRequest.getPhone() : user.getPhoneNumber());
+
+            if (bindingResult.hasErrors()) {
+                log.error("Validation errors: {}", bindingResult.getAllErrors());
+                // Get first specific error instead of generic message
+                String errorMessage = bindingResult.getAllErrors().stream()
+                        .findFirst()
+                        .map(error -> error.getDefaultMessage())
+                        .orElse("Có lỗi xảy ra, vui lòng kiểm tra lại");
+                model.addAttribute("error", errorMessage);
+                model.addAttribute("success", null);
+                return "pages/profile/profile";
+            }
+
+            log.info("Calling userService.updateProfile...");
             userService.updateProfile(userId, profileUpdateRequest);
+            log.info("Update successful!");
+
             model.addAttribute("success", "Cập nhật thành công!");
             model.addAttribute("error", null);
 
@@ -178,8 +195,21 @@ public class PharmacistController {
             model.addAttribute("displayPhone", updatedUser.getPhoneNumber());
 
         } catch (Exception e) {
+            log.error("Error updating profile: ", e);
             model.addAttribute("error", "Cập nhật thất bại: " + e.getMessage());
             model.addAttribute("success", null);
+
+            // Re-populate form
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+            Long userId = userDetails.getId();
+            User user = userService.findById(userId);
+            ProfileVM profileVM = new ProfileVM(user);
+
+            model.addAttribute("profile", profileVM);
+            model.addAttribute("displayFullName", profileUpdateRequest.getFullName());
+            model.addAttribute("displayEmail", profileUpdateRequest.getEmail());
+            model.addAttribute("displayPhone", profileUpdateRequest.getPhone());
         }
 
         return "pages/profile/profile";

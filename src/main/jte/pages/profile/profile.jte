@@ -35,10 +35,29 @@ content = @`
                     <div class="profile-card">
                         <div class="profile-avatar-section">
                             <div class="profile-avatar">
-                                <img src="https://static.codia.ai/image/2025-10-28/Ot4EUiUOos.png" alt="Profile Avatar" class="avatar-image">
+                                @if(profile.avatarUrl() != null && !profile.avatarUrl().isEmpty())
+                                    <img src="${profile.avatarUrl()}"
+                                         alt="Profile Avatar"
+                                         class="avatar-image"
+                                         id="avatarPreview">
+                                @else
+                                    <img src="https://static.codia.ai/image/2025-10-28/Ot4EUiUOos.png"
+                                         alt="Profile Avatar"
+                                         class="avatar-image"
+                                         id="avatarPreview">
+                                @endif
                             </div>
                             <div class="profile-info">
                                 <h2 class="profile-name">${profile.fullName()}</h2>
+                                <div class="avatar-upload-wrapper">
+                                    <label for="avatarUpload" class="avatar-upload-btn">
+                                        📷 Thay đổi ảnh
+                                    </label>
+                                    <input type="file"
+                                           id="avatarUpload"
+                                           accept="image/jpeg,image/png,image/jpg,image/gif"
+                                           style="display: none;">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -73,7 +92,10 @@ content = @`
 
                         <!-- Form Content -->
                         <div class="form-content">
-                            <form class="edit-form" id="editForm" action="/pharmacist/profile/update" method="post" novalidate>
+                            <form class="edit-form" id="editForm" action="/pharmacist/profile/update" method="post">
+                                <!-- Hidden field for avatar (base64 compressed) -->
+                                <input type="hidden" id="avatarData" name="avatarData">
+
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="fullName" class="form-label">
@@ -154,72 +176,7 @@ content = @`
         </div>
 `,
 pageScript = @`
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('editForm');
-    const passwordField = document.getElementById('password');
-    const confirmPasswordField = document.getElementById('confirmPassword');
-
-    // Validate password confirmation on input
-    function validatePasswordMatch() {
-        if (passwordField.value && confirmPasswordField.value) {
-            if (passwordField.value !== confirmPasswordField.value) {
-                confirmPasswordField.setCustomValidity('Mật khẩu xác nhận không khớp');
-            } else {
-                confirmPasswordField.setCustomValidity('');
-            }
-        }
-    }
-
-    passwordField.addEventListener('input', validatePasswordMatch);
-    confirmPasswordField.addEventListener('input', validatePasswordMatch);
-
-    // Form submission validation
-    form.addEventListener('submit', function(e) {
-        if (!form.checkValidity()) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        form.classList.add('was-validated');
-    });
-
-    // Auto-hide alerts after 5 seconds
-    const alerts = document.querySelectorAll('.alert');
-    alerts.forEach(alert => {
-        setTimeout(() => {
-            alert.style.opacity = '0';
-            setTimeout(() => alert.remove(), 300);
-        }, 5000);
-    });
-});
-</script>
-<style>
-.required { color: #dc3545; }
-.is-invalid { border-color: #dc3545; }
-.invalid-feedback {
-    display: block;
-    color: #dc3545;
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
-}
-.alert {
-    padding: 0.75rem 1.25rem;
-    margin-bottom: 1rem;
-    border: 1px solid transparent;
-    border-radius: 0.375rem;
-    transition: opacity 0.3s ease-in-out;
-}
-.alert-success {
-    color: #155724;
-    background-color: #d4edda;
-    border-color: #c3e6cb;
-}
-.alert-danger {
-    color: #721c24;
-    background-color: #f8d7da;
-    border-color: #f5c6cb;
-}
-</style>
+<script src="/assets/js/profile/profile.js"></script>
 `
 )
 

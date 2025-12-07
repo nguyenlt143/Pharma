@@ -122,6 +122,7 @@
             order: [[0, 'desc']],
             pageLength: 10,
             responsive: true,
+            searching: false,
             drawCallback: function(settings) {
                 console.log('DataTable draw completed. Rows:', settings.fnRecordsDisplay());
 

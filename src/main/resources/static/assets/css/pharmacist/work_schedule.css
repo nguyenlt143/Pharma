@@ -6,34 +6,15 @@
 
 /* Main Content */
 .content-card {
-  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
-  border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
-  padding: 28px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
   margin: 20px;
   border: 1px solid #e5e7eb;
-  position: relative;
-  overflow: hidden;
-}
-
-.content-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #4338ca 0%, #7c3aed 50%, #4338ca 100%);
-  background-size: 200% 100%;
-  animation: gradient-shift 3s ease infinite;
-}
-
-@keyframes gradient-shift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
 }
 
 .card-header {
@@ -45,43 +26,33 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
   color: #1f2937;
   line-height: 32px;
 }
 
 .title-icon {
-  font-size: 28px;
+  font-size: 26px;
   color: #4338ca;
-  background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
-  padding: 8px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(67, 56, 202, 0.2);
 }
 
 /* Schedule Card */
 .schedule-card {
   background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  border: 2px solid #e5e7eb;
-  transition: all 0.3s ease;
-}
-
-.schedule-card:hover {
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 6px 16px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
+  border: 1px solid #e5e7eb;
 }
 
 .schedule-controls {
-  background: linear-gradient(135deg, #4338ca 0%, #5b21b6 100%);
-  padding: 20px 24px;
+  background: #4338ca;
+  padding: 18px 24px;
   display: flex;
   align-items: center;
   gap: 24px;
-  border-bottom: 3px solid #3730a3;
+  border-bottom: 2px solid #3730a3;
 }
 
 .control-group {
@@ -100,18 +71,17 @@
 }
 
 .control-select {
-  background: rgba(255, 255, 255, 0.15);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 8px;
   color: #ffffff;
-  padding: 10px 16px;
+  padding: 8px 14px;
   font-size: 14px;
   font-weight: 600;
   line-height: 20px;
   min-width: 80px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
 }
 
 .week-select {
@@ -119,16 +89,14 @@
 }
 
 .control-select:hover {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.5);
-  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.6);
 }
 
 .control-select:focus {
   outline: none;
   border-color: #ffffff;
   background: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 
 .control-select option {
@@ -161,8 +129,8 @@
 
 .table-header {
   display: flex;
-  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: #6b7280;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: relative;
   z-index: 2;
 }
@@ -198,7 +166,7 @@
 
 .header-cell.empty-cell {
   min-width: 240px;
-  background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+  background: #4b5563;
   font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.5px;
@@ -222,8 +190,7 @@
 }
 
 .table-row:hover {
-  background: linear-gradient(90deg, rgba(67, 56, 202, 0.03) 0%, transparent 100%);
-  box-shadow: inset 4px 0 0 #4338ca;
+  background: #f0f4ff;
 }
 
 .table-row:last-child {
@@ -235,7 +202,7 @@
 }
 
 .table-row:nth-child(even):hover {
-  background: linear-gradient(90deg, rgba(67, 56, 202, 0.05) 0%, #f9fafb 100%);
+  background: #f0f4ff;
 }
 
 .row-label {
@@ -246,27 +213,8 @@
   color: #1f2937;
   display: flex;
   align-items: center;
-  background: linear-gradient(90deg, #f9fafb 0%, #ffffff 100%);
+  background: #f9fafb;
   border-right: 2px solid #e5e7eb;
-  position: relative;
-}
-
-.row-label::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 4px;
-  height: 50%;
-  background: linear-gradient(to bottom, #4338ca 0%, #7c3aed 100%);
-  border-radius: 0 4px 4px 0;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.table-row:hover .row-label::before {
-  opacity: 1;
 }
 
 .table-cell {
@@ -286,34 +234,17 @@
 }
 
 .table-cell:hover {
-  background: rgba(67, 56, 202, 0.05);
+  background: rgba(67, 56, 202, 0.03);
 }
 
 .check-icon {
-  font-size: 32px;
+  font-size: 28px;
   color: #22c55e;
-  animation: check-pop 0.3s ease;
-  filter: drop-shadow(0 2px 4px rgba(34, 197, 94, 0.3));
   transition: all 0.2s ease;
 }
 
 .check-icon:hover {
-  transform: scale(1.2) rotate(10deg);
-  filter: drop-shadow(0 4px 8px rgba(34, 197, 94, 0.4));
-}
-
-@keyframes check-pop {
-  0% {
-    transform: scale(0);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.2);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+  transform: scale(1.1);
 }
 
 .empty-cell {
@@ -329,30 +260,27 @@
 }
 
 .return-button {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: #ef4444;
   color: #ffffff;
   border: none;
-  border-radius: 10px;
-  padding: 12px 24px;
+  border-radius: 8px;
+  padding: 10px 20px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  transition: all 0.2s ease;
 }
 
 .return-button:hover {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+  background: #dc2626;
+  transform: translateY(-1px);
 }
 
 .return-button:active {
   transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
 }
 
 .return-button .material-icons {

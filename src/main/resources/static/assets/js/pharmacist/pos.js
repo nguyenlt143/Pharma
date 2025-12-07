@@ -327,17 +327,17 @@ function addItemToPrescription(inventoryData, button) {
 
         // Validate inventory data
         if (!inventoryData.inventoryId) {
-            alert('Lỗi: Không tìm thấy thông tin inventory.');
+            showToast('Lỗi', 'Không tìm thấy thông tin sản phẩm', 'error');
             return;
         }
 
         if (isNaN(inventoryData.maxQuantity) || inventoryData.maxQuantity <= 0) {
-            alert('Sản phẩm đã hết hàng.');
+            showToast('Hết hàng', 'Sản phẩm đã hết hàng', 'error');
             return;
         }
 
         if (isNaN(inventoryData.salePrice) || inventoryData.salePrice <= 0) {
-            alert('Sản phẩm chưa có giá bán. Vui lòng cập nhật giá trước khi bán.');
+            showToast('Chưa có giá', 'Sản phẩm chưa có giá bán. Vui lòng cập nhật giá trước khi bán', 'warning');
             return;
         }
 
@@ -359,7 +359,12 @@ function addItemToPrescription(inventoryData, button) {
                     }, 1000);
                 }
             } else {
-                alert('Số lượng đã đạt tối đa tồn kho (' + inventoryData.maxQuantity + ').');
+                showToast(
+                    'Vượt quá tồn kho',
+                    `Số lượng đã đạt tối đa: ${inventoryData.maxQuantity} ${inventoryData.baseUnitName || 'đơn vị'}`,
+                    'warning',
+                    3000
+                );
                 return;
             }
         } else {
@@ -549,7 +554,7 @@ function addPrescriptionActionListeners() {
                 // Validate input is a valid number
                 if (isNaN(newQuantity)) {
                     e.target.classList.add('error');
-                    alert('Vui lòng nhập số lượng hợp lệ.');
+                    showToast('Lỗi nhập liệu', 'Vui lòng nhập số lượng hợp lệ', 'error', 2500);
                     e.target.value = item.quantity;
                     setTimeout(() => e.target.classList.remove('error'), 2000);
                     return;
@@ -558,7 +563,12 @@ function addPrescriptionActionListeners() {
                 // Validate quantity does not exceed max stock
                 if (newQuantity > item.maxQuantity) {
                     e.target.classList.add('error');
-                    alert(`Số lượng vượt quá tồn kho. Tồn kho hiện tại: ${item.maxQuantity}`);
+                    showToast(
+                        'Vượt quá tồn kho',
+                        `Số lượng tối đa: ${item.maxQuantity} ${item.baseUnitName || 'đơn vị'}`,
+                        'warning',
+                        3000
+                    );
                     newQuantity = item.maxQuantity;
                     e.target.value = newQuantity;
                     setTimeout(() => e.target.classList.remove('error'), 2000);
@@ -567,7 +577,7 @@ function addPrescriptionActionListeners() {
                 // Validate quantity is at least 1
                 if (newQuantity < 1) {
                     e.target.classList.add('error');
-                    alert('Số lượng phải lớn hơn 0.');
+                    showToast('Lỗi nhập liệu', 'Số lượng phải lớn hơn 0', 'error', 2500);
                     newQuantity = 1;
                     e.target.value = newQuantity;
                     setTimeout(() => e.target.classList.remove('error'), 2000);
@@ -1007,7 +1017,79 @@ function resetPaymentFormCompletely() {
     }
 }
 
-// ============ EVENT LISTENERS ============
+// ========================================
+// CUSTOM TOAST NOTIFICATION FUNCTION
+// ========================================
+
+/**
+ * Show custom toast notification
+ * @param {string} title - Toast title
+ * @param {string} message - Toast message
+ * @param {string} type - Toast type: 'success', 'error', 'warning', 'info'
+ * @param {number} duration - Duration in milliseconds (default: 3000)
+ */
+function showToast(title, message, type = 'info', duration = 3000) {
+    // Remove existing toasts
+    const existingToasts = document.querySelectorAll('.custom-toast');
+    existingToasts.forEach(toast => toast.remove());
+
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `custom-toast ${type}`;
+
+    // Icon based on type
+    const icons = {
+        success: '✅',
+        error: '❌',
+        warning: '⚠️',
+        info: 'ℹ️'
+    };
+
+    toast.innerHTML = `
+        <div class="custom-toast-icon">${icons[type]}</div>
+        <div class="custom-toast-content">
+            <div class="custom-toast-title">${title}</div>
+            <div class="custom-toast-message">${message}</div>
+        </div>
+        <button class="custom-toast-close">×</button>
+        <div class="custom-toast-progress" style="color: ${getProgressColor(type)}"></div>
+    `;
+
+    // Append to body
+    document.body.appendChild(toast);
+
+    // Trigger animation
+    setTimeout(() => toast.classList.add('show'), 10);
+
+    // Close button functionality
+    const closeBtn = toast.querySelector('.custom-toast-close');
+    closeBtn.addEventListener('click', () => {
+        toast.classList.add('hide');
+        setTimeout(() => toast.remove(), 300);
+    });
+
+    // Auto remove after duration
+    setTimeout(() => {
+        if (document.body.contains(toast)) {
+            toast.classList.add('hide');
+            setTimeout(() => toast.remove(), 300);
+        }
+    }, duration);
+}
+
+function getProgressColor(type) {
+    const colors = {
+        success: '#10B981',
+        error: '#EF4444',
+        warning: '#F59E0B',
+        info: '#3B82F6'
+    };
+    return colors[type] || colors.info;
+}
+
+// ========================================
+// END CUSTOM TOAST FUNCTION
+// ========================================
 
 // Initialize validation on page load
 document.addEventListener('DOMContentLoaded', function() {

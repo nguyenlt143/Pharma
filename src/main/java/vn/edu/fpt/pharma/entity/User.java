@@ -27,5 +27,6 @@ public class User extends BaseEntity<Long> {
     private Long branchId;
     private String phoneNumber;
     private String email;
+    @Column(columnDefinition = "LONGTEXT")
     private String imageUrl;
 }

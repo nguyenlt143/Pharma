@@ -17,10 +17,18 @@ public class ProfileUpdateRequest {
     @Size(max = 100, message = "Email không được vượt quá 100 ký tự")
     private String email;
 
-    @Size(min = 6, max = 100, message = "Mật khẩu phải từ 6-100 ký tự")
+    // Current password (optional - only required when changing password)
+    private String currentPassword;
+
+    // New password (optional - only if changing password)
+    // Note: No @Size validation here because we want to allow empty string when user doesn't change password
+    // Frontend JS validates length when user actually enters a password
     private String password;
 
     private String confirmPassword;
+
+    // Avatar data as base64 string
+    private String avatarData;
 
     @AssertTrue(message = "Mật khẩu xác nhận không khớp")
     public boolean isPasswordMatching() {

@@ -34,8 +34,9 @@
     <!-- Sidebar -->
     <aside class="sidebar">
         <header class="sidebar-header">
-            <h1 class="sidebar-title">PharmaSys</h1>
-            <p class="sidebar-subtitle">Dược sĩ</p>
+            <h1 class="sidebar-title">
+                PharmaSys
+            </h1>
         </header>
 
         <nav class="sidebar-nav">
@@ -86,6 +87,7 @@
         <!-- Header -->
         <header class="main-header">
             <div class="header-left">
+                <span class="material-icons">local_pharmacy</span>
                 <span class="greeting-text">Xin Chào, <strong>${userName}</strong></span>
                 <span class="header-divider">|</span>
                 <span class="header-date">

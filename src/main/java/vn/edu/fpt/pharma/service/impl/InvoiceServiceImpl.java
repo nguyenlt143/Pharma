@@ -54,8 +54,69 @@ public class InvoiceServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
     }
 
     public DataTableResponse<Invoice> findAllInvoices(DataTableRequest request, Long userId) {
+        // Xử lý tìm kiếm "Khách lẻ" - nếu search value khớp với bất kỳ phần nào của "khách lẻ"
+        String searchValue = request.searchValue();
+        if (searchValue != null && !searchValue.trim().isEmpty()) {
+            String searchLower = searchValue.trim().toLowerCase()
+                .replace("á", "a")
+                .replace("ă", "a")
+                .replace("â", "a")
+                .replace("é", "e")
+                .replace("ê", "e")
+                .replace("ế", "e")
+                .replace("ề", "e")
+                .replace("ệ", "e")
+                .replace("ỉ", "i")
+                .replace("í", "i")
+                .replace("ó", "o")
+                .replace("ô", "o")
+                .replace("ơ", "o")
+                .replace("ú", "u")
+                .replace("ư", "u")
+                .replace("ý", "y");
+
+            String khachLe = "khach le";
+
+            // Kiểm tra nếu "khach le" chứa search value (tìm từng phần)
+            // Ví dụ: "kh" -> có trong "khach", "ach" -> có trong "khach", "le" -> có trong "le"
+            if (khachLe.contains(searchLower)) {
+                // Tìm các invoice không có customer hoặc customer name rỗng
+                DataTableResponse<Invoice> invoices = findInvoicesWithoutCustomer(request, userId);
+                return invoices.transform(auditService::addAuditInfo);
+            }
+        }
+
         DataTableResponse<Invoice> invoices = findAllForDataTable(request, List.of("invoiceCode", "customer.name"),  userId);
         return invoices.transform(auditService::addAuditInfo);
+    }
+
+    private DataTableResponse<Invoice> findInvoicesWithoutCustomer(DataTableRequest request, Long userId) {
+        // Tạo một request mới với search value rỗng
+        DataTableRequest modifiedRequest = new DataTableRequest(
+            request.draw(),
+            request.start(),
+            request.length(),
+            "", // Xóa search value
+            request.orderColumn(),
+            request.orderDir()
+        );
+
+        // Lấy tất cả invoices của user
+        DataTableResponse<Invoice> response = findAllForDataTable(modifiedRequest, List.of("invoiceCode"),  userId);
+
+        // Filter chỉ lấy các invoice có customer null hoặc name rỗng
+        List<Invoice> filteredData = response.data().stream()
+            .filter(invoice -> invoice.getCustomer() == null ||
+                              invoice.getCustomer().getName() == null ||
+                              invoice.getCustomer().getName().trim().isEmpty())
+            .toList();
+
+        return new DataTableResponse<>(
+            request.draw(),
+            response.recordsTotal(),
+            filteredData.size(),
+            filteredData
+        );
     }
 
     @Override

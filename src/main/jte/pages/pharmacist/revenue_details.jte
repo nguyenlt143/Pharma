@@ -271,6 +271,7 @@
             order: [[0, 'asc']],
             pageLength: 25,
             scrollX: true,
+            searching: false,
             drawCallback: function(settings) {
                 console.log('Revenue Detail DataTable draw completed. Rows:', settings.fnRecordsDisplay());
             },

@@ -227,9 +227,45 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // Only verify current password if user wants to change password
+        if (profileUpdateRequest.getPassword() != null && !profileUpdateRequest.getPassword().isBlank()) {
+            // Validate password length
+            if (profileUpdateRequest.getPassword().length() < 6) {
+                throw new RuntimeException("Mật khẩu mới phải có ít nhất 6 ký tự");
+            }
+            if (profileUpdateRequest.getPassword().length() > 100) {
+                throw new RuntimeException("Mật khẩu mới không được vượt quá 100 ký tự");
+            }
+
+            // Verify current password when changing password
+            if (profileUpdateRequest.getCurrentPassword() == null || profileUpdateRequest.getCurrentPassword().isBlank()) {
+                throw new RuntimeException("Vui lòng nhập mật khẩu hiện tại để đổi mật khẩu mới");
+            }
+            if (!passwordEncoder.matches(profileUpdateRequest.getCurrentPassword(), user.getPassword())) {
+                throw new RuntimeException("Mật khẩu hiện tại không đúng");
+            }
+        }
+
+        // Validate email uniqueness
+        if (userRepository.existsByEmailIgnoreCaseAndIdNot(profileUpdateRequest.getEmail(), id)) {
+            throw new RuntimeException("Email đã được sử dụng bởi người dùng khác");
+        }
+
+        // Validate phone uniqueness (if provided)
+        if (profileUpdateRequest.getPhone() != null && !profileUpdateRequest.getPhone().trim().isEmpty()) {
+            if (userRepository.existsByPhoneNumberAndIdNot(profileUpdateRequest.getPhone(), id)) {
+                throw new RuntimeException("Số điện thoại đã được sử dụng bởi người dùng khác");
+            }
+        }
+
         user.setFullName(profileUpdateRequest.getFullName());
         user.setPhoneNumber(profileUpdateRequest.getPhone());
         user.setEmail(profileUpdateRequest.getEmail());
+
+        // Update avatar if provided
+        if (profileUpdateRequest.getAvatarData() != null && !profileUpdateRequest.getAvatarData().isEmpty()) {
+            user.setImageUrl(profileUpdateRequest.getAvatarData());
+        }
 
         // Chỉ cập nhật mật khẩu nếu được cung cấp
         if (profileUpdateRequest.getPassword() != null && !profileUpdateRequest.getPassword().isBlank()) {
