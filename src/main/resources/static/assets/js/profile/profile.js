@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const fullNameField = document.getElementById('fullName');
     const emailField = document.getElementById('email');
     const phoneField = document.getElementById('phone');
+    const currentPasswordField = document.getElementById('currentPassword');
     const passwordField = document.getElementById('password');
     const confirmPasswordField = document.getElementById('confirmPassword');
 
@@ -172,6 +173,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 return null;
             }
         },
+        currentPassword: {
+            validate: (value) => {
+                // Current password is required only if user wants to change password
+                const newPassword = passwordField ? passwordField.value : '';
+                if (!newPassword || newPassword.trim() === '') {
+                    // User is not changing password, current password not required
+                    return null;
+                }
+                // User wants to change password, must provide current password
+                if (!value || value.trim() === '') {
+                    return 'Vui lòng nhập mật khẩu hiện tại để đổi mật khẩu';
+                }
+                if (value.length < 6) {
+                    return 'Mật khẩu phải có ít nhất 6 ký tự';
+                }
+                return null;
+            }
+        },
         password: {
             validate: (value) => {
                 // Password is optional (for change password)
@@ -286,13 +305,15 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!validateField(emailField)) isValid = false;
 
         // Validate optional fields only if they have value
-        if (phoneField.value.trim() !== '') {
+        if (phoneField && phoneField.value.trim() !== '') {
             if (!validateField(phoneField)) isValid = false;
         }
 
-        if (passwordField.value.trim() !== '') {
+        // If user wants to change password, validate current password and new passwords
+        if (passwordField && passwordField.value.trim() !== '') {
+            if (currentPasswordField && !validateField(currentPasswordField)) isValid = false;
             if (!validateField(passwordField)) isValid = false;
-            if (!validateField(confirmPasswordField)) isValid = false;
+            if (confirmPasswordField && !validateField(confirmPasswordField)) isValid = false;
         }
 
         return isValid;
@@ -335,16 +356,40 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    if (currentPasswordField) {
+        currentPasswordField.addEventListener('input', function() {
+            // Validate current password if new password is provided
+            if (passwordField && passwordField.value.trim() !== '') {
+                validateField(this);
+            } else {
+                clearValidation(this);
+            }
+        });
+
+        currentPasswordField.addEventListener('blur', function() {
+            // Validate current password if new password is provided
+            if (passwordField && passwordField.value.trim() !== '') {
+                validateField(this);
+            }
+        });
+    }
+
     if (passwordField) {
         passwordField.addEventListener('input', function() {
             if (this.value.trim() !== '') {
                 validateField(this);
-                // Also validate confirm password if it has value
+                // Also validate current password and confirm password if they have values
+                if (currentPasswordField) {
+                    validateField(currentPasswordField);
+                }
                 if (confirmPasswordField && confirmPasswordField.value.trim() !== '') {
                     validateField(confirmPasswordField);
                 }
             } else {
                 clearValidation(this);
+                if (currentPasswordField) {
+                    clearValidation(currentPasswordField);
+                }
                 if (confirmPasswordField) {
                     clearValidation(confirmPasswordField);
                 }
@@ -414,13 +459,14 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
 
             // Clear all validation states
-            [fullNameField, emailField, phoneField, passwordField, confirmPasswordField].forEach(field => {
+            [fullNameField, emailField, phoneField, currentPasswordField, passwordField, confirmPasswordField].forEach(field => {
                 if (field) {
                     clearValidation(field);
                 }
             });
 
             // Reset password fields
+            if (currentPasswordField) currentPasswordField.value = '';
             if (passwordField) passwordField.value = '';
             if (confirmPasswordField) confirmPasswordField.value = '';
         });

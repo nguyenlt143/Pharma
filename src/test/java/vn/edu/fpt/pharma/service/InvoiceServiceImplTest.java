@@ -79,7 +79,7 @@ class InvoiceServiceImplTest {
                 .quantity(100L)
                 .costPrice(5000.0)
                 .build();
-        inventory.setId(1L);
+        inventory.setId(1L);wwwwwwwwwwwwwww
 
         invoice = Invoice.builder()
                 .invoiceCode("INV-20251202-000001")
