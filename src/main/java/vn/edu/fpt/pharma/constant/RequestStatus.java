@@ -1,6 +1,7 @@
 package vn.edu.fpt.pharma.constant;
 
-public enum RequestStatus {
+public enum
+RequestStatus {
     REQUESTED,
     CONFIRMED,
     RECEIVED,

@@ -73,10 +73,33 @@ public class InventoryController {
 
 
     @GetMapping("/import/create")
-    public String importCreate(Model model) {
+    public String importCreate(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long branchId = userDetails.getUser().getBranchId();
+        
         // Load medicines from warehouse (branch_id = 1)
-        List<InventoryMedicineVM> medicines = inventoryService.getInventoryMedicinesByBranch(1L);
-        model.addAttribute("medicines", medicines);
+        List<InventoryMedicineVM> warehouseMedicines = inventoryService.getInventoryMedicinesByBranch(1L);
+        
+        // Load branch inventory to get current stock
+        List<InventoryMedicineVM> branchMedicines = inventoryService.getInventoryMedicinesByBranch(branchId);
+        
+        // Create a map of branchStock by variantId for quick lookup
+        Map<Long, Long> branchStockMap = new java.util.HashMap<>();
+        for (InventoryMedicineVM bm : branchMedicines) {
+            branchStockMap.merge(bm.getVariantId(), bm.getQuantity(), Long::sum);
+        }
+        
+        // Add branchStock to warehouse medicines
+        for (InventoryMedicineVM wm : warehouseMedicines) {
+            // Store branch stock in a new field (we'll use quantity for warehouse, and add branchStock)
+            Long branchStock = branchStockMap.getOrDefault(wm.getVariantId(), 0L);
+            // We need to pass branchStock to the view - use a map or extend DTO
+            wm.setBranchId(branchId); // Store branchId
+            // Store branchStock in categoryName temporarily (or create new field)
+            wm.setCategoryName(branchStock.toString()); // Temporary hack
+        }
+        
+        model.addAttribute("medicines", warehouseMedicines);
+        model.addAttribute("branchId", branchId);
         return "pages/inventory/import_create";
     }
 

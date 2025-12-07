@@ -33,7 +33,7 @@
             <div class="mb-4 flex gap-4">
                 <div class="relative w-80">
                     <span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
-                    <input id="warehouseMedicineSearch" type="text" placeholder="Tìm theo tên / hoạt chất / mã lô" class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
+                    <input id="warehouseMedicineSearch" type="text" placeholder="Tìm theo tên / hoạt chất" class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
                 </div>
             </div>
             <div class="overflow-x-auto max-h-96 border rounded">
@@ -43,8 +43,7 @@
                             <th class="px-3 py-2 text-left">Tên thuốc</th>
                             <th class="px-3 py-2 text-left">Hoạt chất</th>
                             <th class="px-3 py-2 text-left">Hàm lượng</th>
-                            <th class="px-3 py-2">Lô / HSD</th>
-                            <th class="px-3 py-2 text-center">Tồn kho tổng</th>
+                            <th class="px-3 py-2 text-center">Tồn kho chi nhánh</th>
                             <th class="px-3 py-2 text-center">Thao tác</th>
                         </tr>
                     </thead>
@@ -59,9 +58,7 @@
                                     data-strength="@if(m.getStrength() != null)${m.getStrength()}@endif"
                                     data-dosage-form="@if(m.getDosageForm() != null)${m.getDosageForm()}@endif"
                                     data-manufacturer="@if(m.getManufacturer() != null)${m.getManufacturer()}@endif"
-                                    data-batch-code="@if(m.getBatchCode() != null)${m.getBatchCode()}@endif"
-                                    data-expiry-date="@if(m.getExpiryDate() != null)${m.getExpiryDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}@endif"
-                                    data-stock="${m.getQuantity()}"
+                                    data-branch-stock="@if(m.getCategoryName() != null)${m.getCategoryName()}@else0@endif"
                                     data-unit="@if(m.getUnit() != null)${m.getUnit()}@endif">
                                     <td class="px-3 py-2">
                                         <div class="font-medium text-gray-900">${m.getMedicineName()}</div>
@@ -69,15 +66,9 @@
                                     </td>
                                     <td class="px-3 py-2 text-xs">@if(m.getActiveIngredient() != null)${m.getActiveIngredient()}@else-@endif</td>
                                     <td class="px-3 py-2 text-xs">@if(m.getStrength() != null)${m.getStrength()}@else-@endif</td>
-                                    <td class="px-3 py-2 text-xs">
-                                        @if(m.getBatchCode() != null)
-                                            <span class="font-mono bg-gray-100 px-1 py-0.5 rounded">${m.getBatchCode()}</span>
-                                        @endif
-                                        @if(m.getExpiryDate() != null)
-                                            <span class="ml-1 ${m.getExpiryDate().isBefore(java.time.LocalDate.now().plusMonths(6)) ? "text-red-600 font-semibold" : "text-gray-600"}">${m.getExpiryDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}</span>
-                                        @endif
+                                    <td class="px-3 py-2 text-center font-semibold text-blue-600">
+                                        @if(m.getCategoryName() != null)${m.getCategoryName()}@else0@endif @if(m.getUnit() != null)${m.getUnit()}@endif
                                     </td>
-                                    <td class="px-3 py-2 text-center font-semibold text-blue-600">${m.getQuantity()} @if(m.getUnit() != null)${m.getUnit()}@endif</td>
                                     <td class="px-3 py-2 text-center">
                                         <button class="add-medicine-btn text-sm text-blue-600 hover:text-blue-800 font-medium" type="button">
                                             <span class="material-icons-outlined text-base align-middle">add_circle</span>
@@ -87,7 +78,7 @@
                                 </tr>
                             @endfor
                         @else
-                            <tr><td colspan="6" class="px-3 py-6 text-center text-gray-500">Không có thuốc trong kho tổng</td></tr>
+                            <tr><td colspan="5" class="px-3 py-6 text-center text-gray-500">Không có thuốc trong kho tổng</td></tr>
                         @endif
                     </tbody>
                 </table>
@@ -102,19 +93,18 @@
                 <table class="w-full text-sm">
                     <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
                         <tr>
-                            <th class="px-3 py-2 text-left">STT</th>
-                            <th class="px-3 py-2 text-left">Tên thuốc</th>
-                            <th class="px-3 py-2 text-left">Hoạt chất</th>
-                            <th class="px-3 py-2 text-left">Hàm lượng</th>
-                            <th class="px-3 py-2">Lô / HSD</th>
-                            <th class="px-3 py-2 text-center">Tồn kho tổng</th>
-                            <th class="px-3 py-2 text-center">Số lượng yêu cầu</th>
-                            <th class="px-3 py-2 text-center">Xóa</th>
+                            <th class="px-4 py-3 text-left">STT</th>
+                            <th class="px-4 py-3 text-left">Tên thuốc</th>
+                            <th class="px-4 py-3 text-left">Hoạt chất</th>
+                            <th class="px-4 py-3 text-left">Hàm lượng</th>
+                            <th class="px-4 py-3 text-center">Tồn kho chi nhánh</th>
+                            <th class="px-4 py-3 text-center">Số lượng yêu cầu</th>
+                            <th class="px-4 py-3 text-center">Xóa</th>
                         </tr>
                     </thead>
                     <tbody id="selectedMedicinesList" class="divide-y">
                         <tr id="emptyRow">
-                            <td colspan="8" class="px-3 py-6 text-center text-gray-500">
+                            <td colspan="7" class="px-4 py-6 text-center text-gray-500">
                                 Chưa có thuốc nào được chọn. Vui lòng chọn thuốc từ danh sách bên trên.
                             </td>
                         </tr>
@@ -162,36 +152,38 @@
     try {
         const items = JSON.parse(raw);
         if (!Array.isArray(items) || items.length === 0) return;
+        
         const tbody = document.getElementById('selectedMedicinesList');
         const emptyRow = document.getElementById('emptyRow');
         if (emptyRow) emptyRow.remove();
+        
         let index = 1;
         items.forEach(function(it){
             const tr = document.createElement('tr');
             const quantity = (typeof it.quantity === 'number' && it.quantity > 0) ? it.quantity : 1;
-            const available = (typeof it.availableQty === 'number') ? it.availableQty : 0;
-            const batchIdAttr = (it.batchId != null) ? ' data-batch-id="' + it.batchId + '"' : '';
-            const rowHtml = ''
-                + '<td class="px-3 py-2 text-center">' + (index++) + '</td>'
-                + '<td class="px-3 py-2 font-medium">' + (it.medicineName || '') + '</td>'
-                + '<td class="px-3 py-2 text-xs">' + (it.activeIngredient || '-') + '</td>'
-                + '<td class="px-3 py-2 text-xs">' + (it.strength || '-') + '</td>'
-                + '<td class="px-3 py-2 text-xs">' + (it.batchCode || '-') + '</td>'
-                + '<td class="px-3 py-2 text-center font-semibold">' + available + '</td>'
-                + '<td class="px-3 py-2 text-center">'
-                +   '<input type="number" class="qty-input w-20 border border-gray-300 rounded px-2 py-1 text-center"'
-                +   ' value="' + quantity + '" min="1" max="' + available + '"'
-                +   ' data-variant-id="' + it.variantId + '"' + batchIdAttr + ' />'
+            
+            const branchStock = (typeof it.branchStock === 'number') ? it.branchStock : 0;
+            const unit = it.unit || '';
+            
+            tr.innerHTML = ''
+                + '<td class="px-4 py-3 text-center">' + (index++) + '</td>'
+                + '<td class="px-4 py-3 font-medium">' + (it.medicineName || '') + '</td>'
+                + '<td class="px-4 py-3 text-sm">' + (it.activeIngredient || '-') + '</td>'
+                + '<td class="px-4 py-3 text-sm">' + (it.strength || '-') + '</td>'
+                + '<td class="px-4 py-3 text-center font-semibold text-blue-600">' + branchStock + ' ' + unit + '</td>'
+                + '<td class="px-4 py-3 text-center">'
+                +   '<input type="number" class="qty-input border border-gray-300 rounded px-2 py-1 text-center w-24"'
+                +   ' value="' + quantity + '" min="1" data-variant-id="' + it.variantId + '" />'
                 + '</td>'
-                + '<td class="px-3 py-2 text-center">'
-                +   '<button type="button" class="remove-btn text-red-600 hover:text-red-800" title="Xóa">'
+                + '<td class="px-4 py-3 text-center">'
+                +   '<button type="button" class="remove-btn text-red-600 hover:text-red-800">'
                 +     '<span class="material-icons-outlined text-sm">delete</span>'
                 +   '</button>'
                 + '</td>';
-            tr.innerHTML = rowHtml;
+            
             tbody.appendChild(tr);
         });
-        // Clear session storage after preload
+        
         sessionStorage.removeItem('preselectedImportItems');
     } catch (e) {
         console.error('Failed to preload import items', e);

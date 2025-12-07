@@ -174,23 +174,9 @@ $(document).ready(function() {
             data: JSON.stringify(payload),
             success: function(response) {
                 if (response.success) {
-                    if (response.hasShortage && response.shortageItems.length > 0) {
-                        // Có thiếu hụt - hỏi người dùng có muốn tạo phiếu trả không
-                        const confirmMsg = `Kiểm kho hoàn tất!\n\nPhát hiện ${response.shortageItems.length} loại thuốc bị thiếu.\nBạn có muốn tạo phiếu trả hàng cho số thuốc thiếu không?`;
-
-                        if (confirm(confirmMsg)) {
-                            // Lưu shortage data vào sessionStorage và chuyển sang trang tạo phiếu trả
-                            sessionStorage.setItem('shortageData', JSON.stringify(response.shortageItems));
-                            window.location.href = '/inventory/return/create';
-                        } else {
-                            // Không tạo phiếu trả, quay về danh sách kiểm kho
-                            window.location.href = '/inventory/check';
-                        }
-                    } else {
-                        // Không có thiếu hụt
-                        alert('Kiểm kho thành công! Không phát hiện thiếu hụt.');
-                        window.location.href = '/inventory/check';
-                    }
+                    // Kiểm kho thành công
+                    alert('Kiểm kho thành công!');
+                    window.location.href = '/inventory/check';
                 }
             },
             error: function(xhr) {

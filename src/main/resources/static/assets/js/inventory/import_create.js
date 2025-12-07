@@ -32,9 +32,7 @@ function addMedicineFromRow($row) {
         strength: $row.data('strength'),
         dosageForm: $row.data('dosage-form'),
         manufacturer: $row.data('manufacturer'),
-        batchCode: $row.data('batch-code'),
-        expiryDate: $row.data('expiry-date'),
-        currentStock: $row.data('stock'),
+        branchStock: $row.data('branch-stock'),
         unit: $row.data('unit'),
         requestQuantity: 1
     };
@@ -61,7 +59,7 @@ function renderSelectedMedicines() {
     if (selectedMedicines.length === 0) {
         $tbody.append(`
             <tr id="emptyRow">
-                <td colspan="8" class="px-3 py-6 text-center text-gray-500">
+                <td colspan="7" class="px-4 py-6 text-center text-gray-500">
                     Chưa có thuốc nào được chọn. Vui lòng chọn thuốc từ danh sách bên trên.
                 </td>
             </tr>
@@ -70,40 +68,30 @@ function renderSelectedMedicines() {
     }
 
     selectedMedicines.forEach((medicine, index) => {
-        const isExpiringSoon = medicine.expiryDate && isExpiringWarning(medicine.expiryDate);
-
+        const branchStock = medicine.branchStock || 0;
+        const unit = medicine.unit || '';
+        
         const $row = $(`
             <tr class="hover:bg-gray-50">
-                <td class="px-3 py-2">${index + 1}</td>
-                <td class="px-3 py-2">
-                    <div class="font-medium text-gray-900">${medicine.medicineName}</div>
-                    <div class="text-xs text-gray-500">${medicine.dosageForm || ''}</div>
+                <td class="px-4 py-3 text-center">${index + 1}</td>
+                <td class="px-4 py-3 font-medium">${medicine.medicineName}</td>
+                <td class="px-4 py-3 text-sm">${medicine.activeIngredient || '-'}</td>
+                <td class="px-4 py-3 text-sm">${medicine.strength || '-'}</td>
+                <td class="px-4 py-3 text-center font-semibold text-blue-600">${branchStock} ${unit}</td>
+                <td class="px-4 py-3 text-center">
+                    <input 
+                        type="number" 
+                        class="qty-input border border-gray-300 rounded px-2 py-1 text-center w-24"
+                        min="1"
+                        value="${medicine.requestQuantity}"
+                        data-index="${index}">
                 </td>
-                <td class="px-3 py-2 text-xs">${medicine.activeIngredient || '-'}</td>
-                <td class="px-3 py-2 text-xs">${medicine.strength || '-'}</td>
-                <td class="px-3 py-2 text-xs">
-                    ${medicine.batchCode ? `<span class="font-mono bg-gray-100 px-1 py-0.5 rounded">${medicine.batchCode}</span>` : ''}
-                    ${medicine.expiryDate ? `<span class="ml-1 ${isExpiringSoon ? 'text-red-600 font-semibold' : 'text-gray-600'}">${medicine.expiryDate}</span>` : ''}
-                </td>
-                <td class="px-3 py-2 text-center font-semibold text-blue-600">${medicine.currentStock} ${medicine.unit}</td>
-                <td class="px-3 py-2">
-                    <div class="flex items-center justify-center gap-2">
-                        <input 
-                            type="number" 
-                            class="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
-                            min="1"
-                            max="${medicine.currentStock}"
-                            value="${medicine.requestQuantity}"
-                            data-index="${index}">
-                        <span class="text-xs text-gray-600">${medicine.unit}</span>
-                    </div>
-                </td>
-                <td class="px-3 py-2 text-center">
+                <td class="px-4 py-3 text-center">
                     <button 
                         class="text-red-600 hover:text-red-800 remove-btn"
                         data-index="${index}"
                         title="Xóa">
-                        <span class="material-icons-outlined text-base">delete</span>
+                        <span class="material-icons-outlined text-sm">delete</span>
                     </button>
                 </td>
             </tr>
@@ -112,15 +100,10 @@ function renderSelectedMedicines() {
         // Handle quantity change
         $row.find('input[type="number"]').on('change', function() {
             const newQuantity = parseInt($(this).val());
-            const max = parseInt($(this).attr('max'));
 
             if (isNaN(newQuantity) || newQuantity < 1) {
                 $(this).val(1);
                 selectedMedicines[index].requestQuantity = 1;
-            } else if (newQuantity > max) {
-                $(this).val(max);
-                selectedMedicines[index].requestQuantity = max;
-                alert(`Số lượng không được vượt quá tồn kho (${max})`);
             } else {
                 selectedMedicines[index].requestQuantity = newQuantity;
             }

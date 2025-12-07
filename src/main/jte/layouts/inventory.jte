@@ -2,7 +2,7 @@
 
 <aside class="w-64 bg-[#0F172A] text-white flex flex-col">
     <div class="p-4 border-b border-gray-700">
-        <h1 class="text-xl font-bold">QUẢN LÝ NHÀ THUỐC</h1>
+        <h1 class="text-xl font-bold">PharmaSys</h1>
     </div>
 
     <nav class="flex-1 mt-4">
