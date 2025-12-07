@@ -3,7 +3,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentFilters = {
         type: '',
         branchId: '',
-        status: ''
+        status: '',
+        date: ''
     };
 
     // Tab switching functionality
@@ -84,10 +85,22 @@ document.addEventListener('DOMContentLoaded', function() {
         dateInput.addEventListener('change', function() {
             const selectedDate = this.value;
             if (selectedDate) {
-                dateFilter.querySelector('.filter-text').textContent = selectedDate;
-                filterByDate(selectedDate);
+                // Format date for display
+                const formattedDate = new Date(selectedDate).toLocaleDateString('vi-VN');
+                dateFilter.querySelector('.filter-text').textContent = formattedDate;
+                currentFilters.date = selectedDate;
+                fetchReceipts();
             }
             this.style.display = 'none';
+        });
+    }
+
+    // Clear filters button event
+    const clearFiltersButton = document.getElementById('clear-filters');
+    if (clearFiltersButton) {
+        clearFiltersButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            clearAllFilters();
         });
     }
 
@@ -119,6 +132,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (currentFilters.status) {
             params.append('status', currentFilters.status);
+        }
+        if (currentFilters.date) {
+            params.append('date', currentFilters.date);
         }
 
         fetch(`/warehouse/receipt-list/filter?${params.toString()}`)
@@ -159,20 +175,29 @@ document.addEventListener('DOMContentLoaded', function() {
         `).join('');
     }
 
-    // Filter by date (client-side for now)
-    function filterByDate(selectedDate) {
-        const rows = document.querySelectorAll('#receipt-tbody .table-row');
-        rows.forEach(row => {
-            const dateCell = row.querySelector('.date-cell');
-            if (dateCell) {
-                const rowDate = dateCell.textContent.trim();
-                if (rowDate === selectedDate || selectedDate === '') {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            }
-        });
+    // Clear all filters function
+    function clearAllFilters() {
+        currentFilters = {
+            type: '',
+            branchId: '',
+            status: '',
+            date: ''
+        };
+
+        // Reset dropdown texts
+        document.getElementById('branch-filter').querySelector('.filter-text').textContent = 'Chi Nhánh';
+        document.getElementById('status-filter').querySelector('.filter-text').textContent = 'Trạng thái';
+        document.getElementById('date-filter').querySelector('.filter-text').textContent = 'Ngày';
+
+        // Clear date input
+        document.getElementById('date-input').value = '';
+
+        // Reset tab to first one
+        tabs.forEach(t => t.classList.remove('active'));
+        tabs[0].classList.add('active');
+
+        // Refresh data
+        fetchReceipts();
     }
 });
 

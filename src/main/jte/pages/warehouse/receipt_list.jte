@@ -84,7 +84,7 @@ content = @`
                         <span class="filter-text">Ngày</span>
                         <img src="https://static.codia.ai/image/2025-11-05/qVXHNi7hnA.png" alt="Dropdown" class="filter-icon">
                     </button>
-                    <input type="date" id="date-input" class="date-input" style="display:none;">
+                    <input type="date" id="date-input" class="date-input">
                 </div>
 
                 <div class="filter-dropdown">
@@ -101,6 +101,10 @@ content = @`
                         <div class="dropdown-item" data-value="CLOSED">Hoàn tất</div>
                     </div>
                 </div>
+
+                <button class="clear-filters-button" id="clear-filters">
+                    <span>Xóa bộ lọc</span>
+                </button>
             </div>
         </section>
 

@@ -84,6 +84,9 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>, Jpa
     @Query("SELECT i FROM Inventory i WHERE i.branch.id = :branchId AND i.variant.id = :variantId AND i.batch.id = :batchId AND i.deleted = false")
     Optional<Inventory> findByBranchIdAndVariantIdAndBatchId(@Param("branchId") Long branchId, @Param("variantId") Long variantId, @Param("batchId") Long batchId);
 
+    @Query("SELECT i FROM Inventory i WHERE i.branch.id = :branchId AND i.variant.id = :variantId AND i.deleted = false AND i.quantity > 0 ORDER BY i.batch.expiryDate")
+    List<Inventory> findByBranchIdAndVariantId(@Param("branchId") Long branchId, @Param("variantId") Long variantId);
+
     // Inventory Report Queries
     @Query(value = """
         SELECT COUNT(DISTINCT i.variant_id) 

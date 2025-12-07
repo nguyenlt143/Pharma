@@ -57,6 +57,21 @@ public class WarehouseReceiptServiceImpl implements WarehouseReceiptService {
             MedicineVariant variant = variantRepository.findById(detailReq.getVariantId())
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy biến thể thuốc"));
 
+            // VALIDATION 1: Kiểm tra số lô đã tồn tại chưa
+            if (batchRepository.existsByVariantIdAndBatchCode(variant.getId(), detailReq.getBatchCode())) {
+                throw new RuntimeException("Số lô " + detailReq.getBatchCode() + " đã tồn tại cho thuốc "
+                    + variant.getMedicine().getName() + ". Vui lòng kiểm tra lại.");
+            }
+
+            // VALIDATION 2: Kiểm tra số lượng phải chia hết cho số viên trong một hộp
+            if (variant.getQuantityPerPackage() != null && variant.getQuantityPerPackage() > 0) {
+                double remainder = detailReq.getQuantity() % variant.getQuantityPerPackage();
+                if (remainder != 0) {
+                    throw new RuntimeException("Số lượng nhập của thuốc " + variant.getMedicine().getName()
+                        + " phải chia hết cho số viên trong một hộp (" + variant.getQuantityPerPackage().intValue() + " viên/hộp).");
+                }
+            }
+
             // Parse dates
             LocalDate mfgDate = LocalDate.parse(detailReq.getManufactureDate());
             LocalDate expiryDate = LocalDate.parse(detailReq.getExpiryDate());
