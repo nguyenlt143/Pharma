@@ -387,6 +387,11 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
         }
 
         return forms.stream()
+                .sorted((f1, f2) -> {
+                    if (f1.getCreatedAt() == null) return 1;
+                    if (f2.getCreatedAt() == null) return -1;
+                    return f2.getCreatedAt().compareTo(f1.getCreatedAt()); // mới nhất trước
+                })
                 .map(form -> vn.edu.fpt.pharma.dto.inventory.ReturnRequestVM.from(
                         form,
                         countMap.getOrDefault(form.getId(), 0L)

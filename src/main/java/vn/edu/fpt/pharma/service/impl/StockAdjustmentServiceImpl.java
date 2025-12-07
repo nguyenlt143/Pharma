@@ -56,9 +56,6 @@ public class StockAdjustmentServiceImpl extends BaseServiceImpl<StockAdjustment,
             throw new IllegalArgumentException("Danh sách kiểm kho trống");
         }
 
-        // Collect items with shortage for auto-creating return request
-        List<vn.edu.fpt.pharma.dto.inventory.ReturnRequestDTO.ReturnItemDTO> shortageItems = new java.util.ArrayList<>();
-
         // Loop through each item and create a stock adjustment
         for (var item : request.getItems()) {
             Inventory inv = inventoryRepository.findById(item.getInventoryId())
@@ -94,35 +91,9 @@ public class StockAdjustmentServiceImpl extends BaseServiceImpl<StockAdjustment,
                     .build();
             stockAdjustmentRepository.save(adj);
 
-            // Nếu có chênh lệch âm (thiếu hụt), thêm vào danh sách trả
-            if (diff < 0) {
-                Long shortage = Math.abs(diff);
-                vn.edu.fpt.pharma.dto.inventory.ReturnRequestDTO.ReturnItemDTO returnItem = 
-                    new vn.edu.fpt.pharma.dto.inventory.ReturnRequestDTO.ReturnItemDTO();
-                returnItem.setVariantId(item.getVariantId());
-                returnItem.setQuantity(shortage.intValue());
-                returnItem.setInventoryId(item.getInventoryId());
-                returnItem.setBatchId(item.getBatchId());
-                shortageItems.add(returnItem);
-            }
-        }
-
-        // Tự động tạo phiếu trả hàng nếu có chênh lệch thiếu hụt
-        if (!shortageItems.isEmpty()) {
-            vn.edu.fpt.pharma.dto.inventory.ReturnRequestDTO returnRequest = 
-                new vn.edu.fpt.pharma.dto.inventory.ReturnRequestDTO();
-            returnRequest.setItems(shortageItems);
-            returnRequest.setNote("KIỂM KHO: Số lượng hàng bị thiếu sót");
-            returnRequest.setBranchId(branchId);
-            
-            System.out.println("DEBUG: Creating return request with note: " + returnRequest.getNote());
-            
-            try {
-                String returnCode = requestFormService.createReturnRequest(branchId, returnRequest);
-                System.out.println("DEBUG: Return request created successfully: " + returnCode);
-            } catch (Exception e) {
-                throw new RuntimeException("Lỗi tạo phiếu trả hàng tự động: " + e.getMessage(), e);
-            }
+            // Cập nhật inventory với số lượng mới
+            inv.setQuantity(after);
+            inventoryRepository.save(inv);
         }
     }
 }

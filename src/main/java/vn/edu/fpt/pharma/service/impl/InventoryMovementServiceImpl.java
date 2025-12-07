@@ -459,17 +459,14 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Warehouse branch not found"));
 
-        // Get all movements WARE_TO_BR that are SHIPPED (waiting for branch to receive)
-        // Chỉ show phiếu từ warehouse đến chi nhánh hiện tại (branchId)
-        List<InventoryMovement> movements = movementRepository
-                .findAllWithDetailsByTypeAndBranchAndStatus(
-                        MovementType.WARE_TO_BR,
-                        branchId,
-                        MovementStatus.SHIPPED
-                )
+        // Get all movements WARE_TO_BR (không filter status ở đây, sẽ filter sau)
+        // Query tất cả để lấy cả SHIPPED và RECEIVED
+        List<InventoryMovement> movements = movementRepository.findAll()
                 .stream()
+                .filter(m -> m.getMovementType() == MovementType.WARE_TO_BR) // WARE_TO_BR
                 .filter(m -> m.getSourceBranchId() != null && m.getSourceBranchId().equals(warehouseId)) // Warehouse
                 .filter(m -> m.getDestinationBranchId() != null && m.getDestinationBranchId().equals(branchId)) // Chi nhánh hiện tại
+                .filter(m -> m.getMovementStatus() == MovementStatus.SHIPPED || m.getMovementStatus() == MovementStatus.RECEIVED) // SHIPPED hoặc RECEIVED
                 .collect(Collectors.toList());
 
         // Sort by createdAt DESC
