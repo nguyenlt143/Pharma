@@ -173,8 +173,8 @@ function submitImportRequest() {
         data: JSON.stringify(requestData),
         success: function(response) {
             if (response.success) {
-                alert('Tạo phiếu yêu cầu nhập kho thành công!\nMã phiếu: ' + response.code + '\nPhiếu sẽ được gửi đến kho tổng để xác nhận.');
-                window.location.href = '/inventory/import/list';
+                // Redirect to success page with code (URL encode to handle # character)
+                window.location.href = '/inventory/import/success/' + encodeURIComponent(response.code);
             } else {
                 alert('Có lỗi: ' + (response.message || 'Unknown error'));
                 $submitBtn.prop('disabled', false).html('<span class="material-icons-outlined">check_circle</span> Hoàn tất và gửi yêu cầu');

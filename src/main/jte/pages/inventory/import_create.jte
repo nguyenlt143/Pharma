@@ -33,7 +33,7 @@
             <div class="mb-4 flex gap-4">
                 <div class="relative w-80">
                     <span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
-                    <input id="warehouseMedicineSearch" type="text" placeholder="Tìm theo tên / hoạt chất" class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
+                    <input id="warehouseMedicineSearch" type="text" placeholder="Tìm theo tên / hoạt chất" maxlength="150" class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
                 </div>
             </div>
             <div class="overflow-x-auto max-h-96 border rounded">
@@ -115,10 +115,11 @@
             <!-- Note and Submit -->
             <div class="mt-6 space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Ghi chú</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Ghi chú (tối đa 300 ký tự)</label>
                     <textarea
                         id="importNote"
                         rows="3"
+                        maxlength="300"
                         class="w-full border border-gray-300 rounded-md p-3 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Nhập ghi chú cho phiếu nhập (không bắt buộc)"></textarea>
                 </div>

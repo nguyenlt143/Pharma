@@ -29,7 +29,7 @@
             <div class="mb-4 flex gap-4">
                 <div class="relative w-80">
                     <span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
-                    <input id="inventoryCheckSearch" type="text" placeholder="Tìm theo tên / hoạt chất / mã lô" class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
+                    <input id="inventoryCheckSearch" type="text" placeholder="Tìm theo tên / hoạt chất / mã lô" maxlength="150" class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
                 </div>
                 <button id="addAllButton" class="px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 flex items-center gap-1">
                     <span class="material-icons-outlined">playlist_add</span> Thêm tất cả

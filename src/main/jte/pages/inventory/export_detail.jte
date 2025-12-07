@@ -59,15 +59,15 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark mb-1" for="reason">Lý do xuất</label>
-                        <input class="w-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-md shadow-sm p-2 focus:ring-primary focus:border-primary" id="reason" name="reason" placeholder="Ví dụ: Trả hàng cận date, cấp phát cho tủ trực" type="text"/>
+                        <label class="block text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark mb-1" for="reason">Lý do xuất (tối đa 300 ký tự)</label>
+                        <input class="w-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-md shadow-sm p-2 focus:ring-primary focus:border-primary" id="reason" name="reason" placeholder="Ví dụ: Trả hàng cận date, cấp phát cho tủ trực" maxlength="300" type="text"/>
                     </div>
                 </div>
                 <div class="mt-8">
                     <h3 class="text-lg font-semibold text-text-light dark:text-text-dark mb-4">Danh sách sản phẩm</h3>
                     <div class="relative">
                         <span class="material-icons-outlined absolute top-2.5 left-3 text-text-secondary-light dark:text-text-secondary-dark">search</span>
-                        <input class="w-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-md shadow-sm pl-10 p-2 mb-4 focus:ring-primary focus:border-primary" placeholder="Tìm kiếm thuốc theo tên hoặc mã..." type="text"/>
+                        <input class="w-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-md shadow-sm pl-10 p-2 mb-4 focus:ring-primary focus:border-primary" placeholder="Tìm kiếm thuốc theo tên hoặc mã..." maxlength="150" type="text"/>
                     </div>
                     <div class="border border-border-light dark:border-border-dark rounded-lg overflow-hidden">
                         <table class="w-full">

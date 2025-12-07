@@ -1,6 +1,7 @@
 package vn.edu.fpt.pharma.controller.inventory;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,6 +25,7 @@ import vn.edu.fpt.pharma.service.RequestFormService;
 import vn.edu.fpt.pharma.service.StockAdjustmentService;
 import vn.edu.fpt.pharma.service.InventoryService;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/inventory")
@@ -127,11 +129,33 @@ public class InventoryController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         try {
+            log.info("=== START submitImportRequest ===");
+            log.info("Note: {}", request.getNote());
+            log.info("Items count: {}", request.getItems() != null ? request.getItems().size() : "null");
+            
+            if (request.getItems() != null) {
+                for (int i = 0; i < request.getItems().size(); i++) {
+                    var item = request.getItems().get(i);
+                    log.info("Item[{}]: variantId={}, batchId={}, quantity={}", 
+                            i, item.getVariantId(), item.getBatchId(), item.getQuantity());
+                }
+            }
+            
             Long branchId = userDetails.getUser().getBranchId();
+            log.info("User branchId: {}", branchId);
+            
             String requestCode = requestFormService.createImportRequest(branchId, request);
+            log.info("Successfully created request: {}", requestCode);
+            
             return ResponseEntity.ok(java.util.Map.of("success", true, "code", requestCode));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(java.util.Map.of("success", false, "message", e.getMessage()));
+            log.error("=== ERROR in submitImportRequest ===", e);
+            log.error("Exception type: {}", e.getClass().getName());
+            log.error("Message: {}", e.getMessage());
+            if (e.getCause() != null) {
+                log.error("Cause: {}", e.getCause().getMessage());
+            }
+            return ResponseEntity.status(500).body(java.util.Map.of("success", false, "message", "Có lỗi xảy ra: " + e.getMessage()));
         }
     }
 

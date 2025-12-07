@@ -58,7 +58,7 @@
                 <div class="flex items-center gap-4">
                     <div class="relative">
                         <span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary-light">search</span>
-                        <input type="text" placeholder="Tìm kiếm thuốc..." class="pl-10 pr-4 py-2 border border-border-light dark:border-border-dark rounded-md bg-card-light dark:bg-card-dark focus:outline-none focus:ring-2 focus:ring-primary" />
+                        <input type="text" placeholder="Tìm kiếm thuốc..." maxlength="150" class="pl-10 pr-4 py-2 border border-border-light dark:border-border-dark rounded-md bg-card-light dark:bg-card-dark focus:outline-none focus:ring-2 focus:ring-primary" />
                     </div>
                     <button class="flex items-center gap-2 px-4 py-2 border border-border-light dark:border-border-dark rounded-md hover:bg-gray-50 dark:hover:bg-slate-700">
                         <span class="material-icons-outlined">filter_alt</span>Bộ lọc

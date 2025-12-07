@@ -275,6 +275,10 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
 
         // Create RequestDetails
         for (vn.edu.fpt.pharma.dto.inventory.ImportRequestDTO.ImportItemDTO item : request.getItems()) {
+            if (item.getVariantId() == null || item.getQuantity() == null || item.getQuantity() <= 0) {
+                log.warn("Skipping invalid item: variantId={}, quantity={}", item.getVariantId(), item.getQuantity());
+                continue;
+            }
             vn.edu.fpt.pharma.entity.RequestDetail detail = vn.edu.fpt.pharma.entity.RequestDetail.builder()
                     .requestForm(savedForm)
                     .variantId(item.getVariantId())
