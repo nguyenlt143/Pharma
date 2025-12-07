@@ -388,7 +388,9 @@ function renderPrescription() {
                 </div>
             </td>
             <td>
-                <select class="unit-select" data-inventory-id="${item.inventoryId}">
+                <select class="unit-select"
+                        data-inventory-id="${item.inventoryId}"
+                        title="Chọn đơn vị bán hàng">
                     ${item.units.map(u => `
                     <option value="${u.multiplier}"
                             data-unit="${u.unitName}"
@@ -399,12 +401,21 @@ function renderPrescription() {
                 </select>
             </td>
             <td>
-                <input type="number" class="quantity-input" value="${item.quantity}" min="1" max="${item.maxQuantity}" data-inventory-id="${item.inventoryId}" style="width: 60px; padding: 4px;">
+                <input type="number"
+                       class="quantity-input"
+                       value="${item.quantity}"
+                       min="1"
+                       max="${item.maxQuantity}"
+                       data-inventory-id="${item.inventoryId}"
+                       title="Tồn kho: ${item.maxQuantity}"
+                       placeholder="SL">
             </td>
             <td class="text-right">${item.currentPrice.toLocaleString('vi-VN')}</td>
             <td class="text-right">${itemTotal.toLocaleString('vi-VN')}</td>
-            <td>
-                    <button class="delete-item-btn" data-index="${index}" style="color:red;">🗑</button>
+            <td class="text-center">
+                    <button class="delete-item-btn"
+                            data-index="${index}"
+                            title="Xóa sản phẩm">🗑</button>
             </td>
         `;
         prescriptionBody.appendChild(row);
@@ -425,6 +436,25 @@ function renderPrescription() {
 
     // Update payment totals and QR code
     updatePaymentTotals();
+
+    // Update Clear All button state
+    updateClearAllButtonState();
+}
+
+// Function to update Clear All button state
+function updateClearAllButtonState() {
+    const clearAllBtn = document.getElementById('clearAllBtn');
+    if (clearAllBtn) {
+        if (prescriptionItems.length === 0) {
+            clearAllBtn.disabled = true;
+            clearAllBtn.style.opacity = '0.5';
+            clearAllBtn.style.cursor = 'not-allowed';
+        } else {
+            clearAllBtn.disabled = false;
+            clearAllBtn.style.opacity = '1';
+            clearAllBtn.style.cursor = 'pointer';
+        }
+    }
 }
 
 function addPrescriptionActionListeners() {
@@ -461,39 +491,45 @@ function addPrescriptionActionListeners() {
             const item = prescriptionItems.find(p => p.inventoryId === inventoryId);
 
             if (item) {
+                // Remove any previous error/success classes
+                e.target.classList.remove('error', 'success');
+
                 // Validate input is a valid number
                 if (isNaN(newQuantity)) {
+                    e.target.classList.add('error');
                     alert('Vui lòng nhập số lượng hợp lệ.');
                     e.target.value = item.quantity;
+                    setTimeout(() => e.target.classList.remove('error'), 2000);
                     return;
                 }
 
                 // Validate quantity does not exceed max stock
                 if (newQuantity > item.maxQuantity) {
+                    e.target.classList.add('error');
                     alert(`Số lượng vượt quá tồn kho. Tồn kho hiện tại: ${item.maxQuantity}`);
                     newQuantity = item.maxQuantity;
                     e.target.value = newQuantity;
+                    setTimeout(() => e.target.classList.remove('error'), 2000);
                 }
 
                 // Validate quantity is at least 1
                 if (newQuantity < 1) {
+                    e.target.classList.add('error');
                     alert('Số lượng phải lớn hơn 0.');
                     newQuantity = 1;
                     e.target.value = newQuantity;
+                    setTimeout(() => e.target.classList.remove('error'), 2000);
+                }
+
+                // If validation passed, show success feedback
+                if (newQuantity >= 1 && newQuantity <= item.maxQuantity) {
+                    e.target.classList.add('success');
+                    setTimeout(() => e.target.classList.remove('success'), 1000);
                 }
 
                 item.quantity = newQuantity;
                 renderPrescription();
             }
-        });
-
-        document.querySelectorAll('.delete-item-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const index = parseInt(e.target.dataset.index);
-
-                prescriptionItems.splice(index, 1);
-                renderPrescription();
-            });
         });
 
         // Prevent entering invalid characters
@@ -502,6 +538,33 @@ function addPrescriptionActionListeners() {
             if (e.key && !/[0-9]/.test(e.key) && e.key !== 'Enter' && e.key !== 'Backspace') {
                 e.preventDefault();
             }
+        });
+
+        // Add input event for real-time validation feedback
+        input.addEventListener('input', (e) => {
+            const value = e.target.value;
+            const inventoryId = e.target.dataset.inventoryId;
+            const item = prescriptionItems.find(p => p.inventoryId === inventoryId);
+
+            if (item) {
+                e.target.classList.remove('error', 'success');
+
+                const numValue = parseInt(value, 10);
+                if (value && (isNaN(numValue) || numValue < 1 || numValue > item.maxQuantity)) {
+                    e.target.classList.add('error');
+                }
+            }
+        });
+    });
+
+    // Delete item buttons
+    document.querySelectorAll('.delete-item-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const index = parseInt(e.target.dataset.index);
+
+            // Remove item without confirmation
+            prescriptionItems.splice(index, 1);
+            renderPrescription();
         });
     });
 }
@@ -516,6 +579,23 @@ clearButtons.forEach(button => {
     }
   });
 });
+
+// Clear All Button - Xóa tất cả sản phẩm trong đơn thuốc
+const clearAllBtn = document.getElementById('clearAllBtn');
+if (clearAllBtn) {
+    clearAllBtn.addEventListener('click', () => {
+        if (prescriptionItems.length === 0) {
+            return;
+        }
+
+        // Clear all items without confirmation
+        prescriptionItems.length = 0;
+        renderPrescription();
+
+        // Show notification (optional)
+        console.log('Đã xóa tất cả sản phẩm trong đơn thuốc');
+    });
+}
 
 // OLD PAYMENT FUNCTIONALITY REMOVED - Now handled by form submission with proper validation
 
@@ -1213,3 +1293,11 @@ function updatePaymentTotals() {
     validatePaymentForm();
 }
 
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Clear All button state
+    updateClearAllButtonState();
+
+    // Initialize other components if needed
+    console.log('POS system initialized');
+});
