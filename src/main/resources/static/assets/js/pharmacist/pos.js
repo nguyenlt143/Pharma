@@ -1102,6 +1102,83 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Function to show beautiful success popup
+function showSuccessPopup(data) {
+    // Create popup HTML
+    const popupHTML = `
+        <div class="success-popup-overlay" id="successPopupOverlay">
+            <div class="success-popup">
+                <div class="success-popup-icon">
+                    <div class="success-checkmark">
+                        <div class="check-icon">
+                            <span class="icon-line line-tip"></span>
+                            <span class="icon-line line-long"></span>
+                            <div class="icon-circle"></div>
+                            <div class="icon-fix"></div>
+                        </div>
+                    </div>
+                </div>
+                <h2 class="success-popup-title">${data.title}</h2>
+                <div class="success-popup-content">
+                    <div class="success-info-row">
+                        <span class="success-label">Mã hóa đơn:</span>
+                        <span class="success-value invoice-code">${data.invoiceCode}</span>
+                    </div>
+                    <div class="success-info-row">
+                        <span class="success-label">Tổng tiền:</span>
+                        <span class="success-value amount">${data.totalAmount.toLocaleString('vi-VN')} VNĐ</span>
+                    </div>
+                    <div class="success-info-row">
+                        <span class="success-label">Phương thức:</span>
+                        <span class="success-value">${getPaymentMethodText(data.paymentMethod)}</span>
+                    </div>
+                </div>
+                <button class="success-popup-button" onclick="closeSuccessPopup()">
+                    <span class="material-icons">check_circle</span>
+                    Hoàn tất
+                </button>
+            </div>
+        </div>
+    `;
+
+    // Add to body
+    document.body.insertAdjacentHTML('beforeend', popupHTML);
+
+    // Trigger animation
+    setTimeout(() => {
+        document.getElementById('successPopupOverlay').classList.add('show');
+    }, 10);
+
+    // Auto close after 5 seconds
+    setTimeout(() => {
+        closeSuccessPopup();
+    }, 5000);
+}
+
+// Function to get payment method text in Vietnamese
+function getPaymentMethodText(method) {
+    const methods = {
+        'cash': 'Tiền mặt',
+        'transfer': 'Chuyển khoản',
+        'card': 'Thẻ'
+    };
+    return methods[method.toLowerCase()] || method;
+}
+
+// Function to close success popup
+function closeSuccessPopup() {
+    const overlay = document.getElementById('successPopupOverlay');
+    if (overlay) {
+        overlay.classList.remove('show');
+        setTimeout(() => {
+            overlay.remove();
+        }, 300);
+    }
+}
+
+// Make closeSuccessPopup available globally
+window.closeSuccessPopup = closeSuccessPopup;
+
 function processPaymentWithValidation(paymentData) {
     const payButton = document.getElementById('payButton');
     if (payButton) {
@@ -1134,7 +1211,13 @@ function processPaymentWithValidation(paymentData) {
         return res.json();
     })
     .then(result => {
-        showAlert('success', `Thanh toán thành công! Mã hóa đơn: ${result.invoiceCode}`);
+        // Show beautiful success popup
+        showSuccessPopup({
+            title: 'Thanh toán thành công!',
+            invoiceCode: result.invoiceCode,
+            totalAmount: paymentData.totalAmount,
+            paymentMethod: paymentData.paymentMethod
+        });
 
         // Complete form reset
         resetPaymentFormCompletely();
@@ -1223,6 +1306,115 @@ const validationStyles = `
     .inventory-item:hover {
         box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
         transform: translateY(-1px);
+    }
+    .success-popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+    .success-popup-overlay.show {
+        opacity: 1;
+        pointer-events: all;
+    }
+    .success-popup {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        max-width: 400px;
+        width: 100%;
+        text-align: center;
+        position: relative;
+        transform: translateY(-30px);
+        transition: transform 0.3s ease;
+    }
+    .success-popup-icon {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 15px;
+    }
+    .success-checkmark {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+    .check-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 24px;
+        height: 24px;
+        transform: translate(-50%, -50%);
+        border: 4px solid white;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    .icon-line {
+        position: absolute;
+        background: white;
+    }
+    .line-tip {
+        width: 10px;
+        height: 10px;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%) rotate(45deg);
+    }
+    .line-long {
+        width: 4px;
+        height: 18px;
+        top: 14px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    .icon-circle {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 4px solid #28a745;
+        top: 0;
+        left: 0;
+        animation: scale-in 0.4s ease forwards;
+    }
+    .icon-fix {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: #28a745;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        animation: pulse 1.2s infinite;
+    }
+    @keyframes scale-in {
+        from {
+            transform: translate(-50%, -50%) scale(0);
+        }
+        to {
+            transform: translate(-50%, -50%) scale(1);
+        }
+    }
+    @keyframes pulse {
+        0% {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        50% {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+        100% {
+            transform: translate(-50%, -50%) scale(1);
+        }
     }
     </style>
 `;
