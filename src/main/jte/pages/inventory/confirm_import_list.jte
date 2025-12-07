@@ -30,7 +30,7 @@
                 <div class="flex items-center gap-4">
                     <div class="relative">
                         <span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
-                        <input id="searchInput" type="text" placeholder="Tìm theo mã phiếu, ghi chú..." class="pl-10 pr-4 py-2 w-96 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
+                        <input id="searchInput" type="text" placeholder="Tìm theo mã phiếu, ghi chú..." maxlength="150" class="pl-10 pr-4 py-2 w-96 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
                     </div>
                 </div>
                 <div></div>

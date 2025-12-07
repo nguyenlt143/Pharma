@@ -28,7 +28,7 @@
                 <div class="flex items-center gap-4">
                     <div class="relative">
                         <span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
-                        <input id="searchInput" class="pl-10 pr-4 py-2 w-96 border border-gray-300 bg-white rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="Tìm theo mã phiếu, ghi chú..." type="text"/>
+                        <input id="searchInput" class="pl-10 pr-4 py-2 w-96 border border-gray-300 bg-white rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="Tìm theo mã phiếu, ghi chú..." maxlength="150" type="text"/>
                     </div>
                 </div>
                 <button class="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md flex items-center gap-2">
