@@ -185,9 +185,16 @@ function addEventListenersToMedicineCards() {
                                 detailsHtml += `<tr>${variantInfoHtml}${inventoryInfoHtml}</tr>`;
                             });
                             detailsHtml += '</tbody></table>';
+                            detailsHtml += '</div>'; // Close variant-table-wrapper
                         }
                         detailsContainer.innerHTML = detailsHtml;
                         detailsContainer.style.display = 'block';
+
+                        // Auto-scroll to ensure the card is visible
+                        // Use longer timeout to ensure DOM is fully rendered with correct heights
+                        setTimeout(() => {
+                            ensureCardVisible(card);
+                        }, 300); // Increased to 300ms for better rendering
 
                         // Add event listeners to inventory items
                         addInventoryItemClickListeners();
@@ -196,10 +203,55 @@ function addEventListenersToMedicineCards() {
                         console.error('Error fetching variant details:', error);
                         detailsContainer.innerHTML = '<p style="color: red;">Không thể tải chi tiết thuốc.</p>';
                         detailsContainer.style.display = 'block';
+
+                        // Auto-scroll even on error
+                        setTimeout(() => {
+                            ensureCardVisible(card);
+                        }, 300);
                     });
             } else {
                 detailsContainer.style.display = 'none';
             }
+        });
+    });
+}
+
+// Function to ensure expanded card is fully visible in the viewport
+function ensureCardVisible(card) {
+    const medicineList = document.querySelector('.medicine-list');
+    if (!medicineList || !card) {
+        console.warn('ensureCardVisible: medicineList or card not found');
+        return;
+    }
+
+    // Use double requestAnimationFrame to ensure DOM is fully updated
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            // Force layout recalculation
+            const cardTop = card.offsetTop;
+            const cardHeight = card.offsetHeight;
+            const listScrollTop = medicineList.scrollTop;
+            const listScrollHeight = medicineList.scrollHeight;
+
+            console.log('Scroll Debug:', {
+                cardTop,
+                cardHeight,
+                listScrollTop,
+                listScrollHeight,
+                cardElement: card.querySelector('.medicine-name')?.textContent
+            });
+
+            // Always scroll card to near top of viewport
+            // This ensures user can see the card header and scroll down to see all content
+            const targetScrollTop = Math.max(0, cardTop - 30); // 30px from top
+
+            console.log('Scrolling to:', targetScrollTop, 'from:', listScrollTop);
+
+            // Scroll to target position
+            medicineList.scrollTo({
+                top: targetScrollTop,
+                behavior: 'smooth'
+            });
         });
     });
 }

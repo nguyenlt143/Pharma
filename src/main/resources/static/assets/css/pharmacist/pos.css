@@ -143,6 +143,7 @@
   max-height: 1019px;
   overflow-y: auto;
   padding-right: 8px;
+  padding-bottom: 200px; /* Large extra space for last card expansion - increased from 40px */
 }
 
 /* Scrollbar styling */
@@ -208,6 +209,9 @@
   margin-top: 14px;
   padding-top: 14px;
   border-top: 1.5px solid #E5E7EB;
+  /* No max-height - let it expand fully */
+  display: block;
+  position: relative;
 }
 
 .variant-details h4 {
@@ -215,6 +219,39 @@
   font-weight: 600;
   color: #111827;
   margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.variant-details h4::before {
+  content: '📦';
+  font-size: 18px;
+}
+
+/* Wrapper for variant table to handle overflow */
+.variant-table-wrapper {
+  overflow-x: auto;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.variant-table-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.variant-table-wrapper::-webkit-scrollbar-track {
+  background: #F1F5F9;
+  border-radius: 3px;
+}
+
+.variant-table-wrapper::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
+}
+
+.variant-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
 }
 
 .variant-table {
