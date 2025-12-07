@@ -8,7 +8,8 @@ public record ProfileVM(
         String email,
         String password,
         String confirmPassword,
-        String role
+        String role,
+        String avatarUrl
 ) {
     public ProfileVM(User user) {
         this(
@@ -17,7 +18,8 @@ public record ProfileVM(
                 user.getEmail(),
                 "",
                 "",
-                user.getRole() != null ? user.getRole().getName() : null
+                user.getRole() != null ? user.getRole().getName() : null,
+                user.getImageUrl()
         );
     }
 }
