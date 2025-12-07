@@ -581,8 +581,19 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
                 .orElseThrow(() -> new RuntimeException("Warehouse branch not found"));
 
         // 3. Create InventoryMovement with SHIPPED status (đã gửi)
+        // Determine movement type from DTO or default to BR_TO_WARE
+        MovementType movementType;
+        try {
+            movementType = dto.getMovementType() != null ? 
+                MovementType.valueOf(dto.getMovementType()) : 
+                MovementType.BR_TO_WARE;
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid movement type: {}, using BR_TO_WARE", dto.getMovementType());
+            movementType = MovementType.BR_TO_WARE;
+        }
+
         InventoryMovement movement = InventoryMovement.builder()
-                .movementType(MovementType.BR_TO_WARE)
+                .movementType(movementType)
                 .sourceBranchId(sourceBranch.getId())
                 .destinationBranchId(warehouseBranch.getId())
                 .movementStatus(MovementStatus.SHIPPED)

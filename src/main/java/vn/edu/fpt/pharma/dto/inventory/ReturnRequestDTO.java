@@ -11,6 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ReturnRequestDTO {
     private Long branchId;
+    private String movementType;
     private String note;
     private List<ReturnItemDTO> items;
     // ID of created RequestForm (set after creation)
