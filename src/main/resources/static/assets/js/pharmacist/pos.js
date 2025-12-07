@@ -21,16 +21,16 @@ if (!resultContainer) {
 }
 
 // Payment method change event listener
-if (paymentMethodSelect && qrCodeSection) {
+if (paymentMethodSelect) {
     paymentMethodSelect.addEventListener('change', function() {
         const selectedMethod = this.value;
 
         if (selectedMethod === 'transfer') {
-            qrCodeSection.style.display = 'block';
-            // Generate QR code with payment amount
-            updateQRCode();
+            // Show QR popup instead of inline section
+            showQRCodePopup();
         } else {
-            qrCodeSection.style.display = 'none';
+            // Close QR popup if open
+            closeQRCodePopup();
         }
     });
 }
@@ -1101,6 +1101,131 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(prescriptionTable, { childList: true, subtree: true });
     }
 });
+
+// ============ QR CODE POPUP FUNCTIONS ============
+
+// Function to show QR code popup for transfer payment
+function showQRCodePopup() {
+    const totalAmount = getTotalAmount();
+
+    if (totalAmount <= 0) {
+        alert('Vui lòng thêm sản phẩm vào đơn hàng trước');
+        return;
+    }
+
+    // Generate invoice code
+    const invoiceCode = generateInvoiceCode();
+    const formattedAmount = totalAmount.toLocaleString('vi-VN');
+
+    // Bank configuration
+    const bankCode = 'VCB';
+    const accountNumber = '0123456789';
+    const amount = Math.round(totalAmount);
+    const addInfo = invoiceCode;
+
+    // Generate VietQR URL
+    const vietQRUrl = `https://img.vietqr.io/${bankCode}/${accountNumber}?amount=${amount}&addInfo=${encodeURIComponent(addInfo)}`;
+
+    // Create popup HTML
+    const popupHTML = `
+        <div class="qr-popup-overlay" id="qrPopupOverlay">
+            <div class="qr-popup">
+                <div class="qr-popup-header">
+                    <h2 class="qr-popup-title">
+                        <span class="material-icons">qr_code_2</span>
+                        Quét mã QR để thanh toán
+                    </h2>
+                    <button class="qr-popup-close" onclick="closeQRCodePopup()">
+                        <span class="material-icons">close</span>
+                    </button>
+                </div>
+
+                <div class="qr-popup-content">
+                    <div class="qr-code-display">
+                        <img src="${vietQRUrl}"
+                             alt="QR Code"
+                             class="qr-code-image"
+                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNTAgNTBIMTUwVjE1MEg1MFY1MFoiIGZpbGw9ImJsYWNrIi8+CjxyZWN0IHg9IjcwIiB5PSI3MCIgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4='">
+                    </div>
+
+                    <div class="qr-info-section">
+                        <div class="qr-info-row">
+                            <span class="qr-info-label">Ngân hàng:</span>
+                            <span class="qr-info-value">Vietcombank (VCB)</span>
+                        </div>
+                        <div class="qr-info-row">
+                            <span class="qr-info-label">Số tài khoản:</span>
+                            <span class="qr-info-value">${accountNumber}</span>
+                        </div>
+                        <div class="qr-info-row highlight">
+                            <span class="qr-info-label">Số tiền:</span>
+                            <span class="qr-info-value amount">${formattedAmount} VNĐ</span>
+                        </div>
+                        <div class="qr-info-row">
+                            <span class="qr-info-label">Nội dung:</span>
+                            <span class="qr-info-value code">${invoiceCode}</span>
+                        </div>
+                    </div>
+
+                    <div class="qr-instructions">
+                        <div class="qr-instruction-title">
+                            <span class="material-icons">info</span>
+                            Hướng dẫn thanh toán
+                        </div>
+                        <ul class="qr-instruction-list">
+                            <li>
+                                <span class="material-icons">check_circle</span>
+                                Mở ứng dụng ngân hàng trên điện thoại
+                            </li>
+                            <li>
+                                <span class="material-icons">check_circle</span>
+                                Chọn tính năng quét mã QR
+                            </li>
+                            <li>
+                                <span class="material-icons">check_circle</span>
+                                Quét mã QR bên trên
+                            </li>
+                            <li>
+                                <span class="material-icons">check_circle</span>
+                                Kiểm tra thông tin và xác nhận
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="qr-popup-footer">
+                    <button class="qr-popup-button secondary" onclick="closeQRCodePopup()">
+                        Đóng
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Add to body
+    document.body.insertAdjacentHTML('beforeend', popupHTML);
+
+    // Trigger animation
+    setTimeout(() => {
+        document.getElementById('qrPopupOverlay').classList.add('show');
+    }, 10);
+}
+
+// Function to close QR code popup
+function closeQRCodePopup() {
+    const overlay = document.getElementById('qrPopupOverlay');
+    if (overlay) {
+        overlay.classList.remove('show');
+        setTimeout(() => {
+            overlay.remove();
+        }, 300);
+    }
+}
+
+// Make closeQRCodePopup available globally
+window.closeQRCodePopup = closeQRCodePopup;
+
+// ============ SUCCESS POPUP FUNCTIONS ============
 
 // Function to show beautiful success popup
 function showSuccessPopup(data) {
