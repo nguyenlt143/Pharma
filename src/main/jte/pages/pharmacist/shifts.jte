@@ -152,6 +152,7 @@
             order: [[0, 'asc']],
             pageLength: 10,
             responsive: true,
+            searching: false,
             drawCallback: function(settings) {
                 console.log('Shift DataTable draw completed. Rows:', settings.fnRecordsDisplay());
             },
