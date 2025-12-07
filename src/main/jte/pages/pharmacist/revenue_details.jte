@@ -3,7 +3,10 @@
 @param String error = null
 
 @template.layouts.layout_test(
-    headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/detail_pages_common.css">`,
+    headContent = @`
+        <link rel="stylesheet" href="/assets/css/pharmacist/datatable_enhanced.css">
+        <link rel="stylesheet" href="/assets/css/pharmacist/detail_pages_common.css">
+    `,
     content = @`
     <div class="content-wrapper">
         <!-- Page Header -->
@@ -47,7 +50,6 @@
                 </table>
             </div>
         </div>
-    </main>
     `,
     pageScript = @`
     <script>

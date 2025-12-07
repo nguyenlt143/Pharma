@@ -4,7 +4,10 @@
 @param java.util.List<vn.edu.fpt.pharma.dto.invoice.MedicineItemVM> medicines
 
 @template.layouts.layout_test(
-    headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/invoice_detail.css">`,
+    headContent = @`
+        <link rel="stylesheet" href="/assets/css/pharmacist/datatable_enhanced.css">
+        <link rel="stylesheet" href="/assets/css/pharmacist/invoice_detail.css">
+    `,
     content = @`
     <div class="content-wrapper">
         <!-- Page Header -->
@@ -69,7 +72,6 @@
                 </table>
             </div>
         </div>
-    </main>
     `,
     pageScript = @``
 )

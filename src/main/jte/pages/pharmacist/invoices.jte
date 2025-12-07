@@ -2,7 +2,10 @@
 @param String error = null
 
 @template.layouts.layout_test(
-    headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/invoices.css">`,
+    headContent = @`
+        <link rel="stylesheet" href="/assets/css/pharmacist/datatable_enhanced.css">
+        <link rel="stylesheet" href="/assets/css/pharmacist/invoices.css">
+    `,
     content = @`
     <div class="content-wrapper">
         <!-- Page Header -->

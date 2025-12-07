@@ -26,6 +26,8 @@ body {
     height: 100vh;
     left: 0;
     top: 0;
+    z-index: 1000;
+    overflow-y: auto;
 }
 
 .sidebar-header {
@@ -123,18 +125,21 @@ body {
 /* Main Content Styles */
 .main-content {
     flex: 1;
-    margin-left: 300px;
+    margin-left: 286px;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
     background-color: #F9FAFB;
     padding: 0;
+    width: calc(100% - 286px);
+    position: relative;
 }
 
 .content-area {
     flex: 1;
     padding: 24px;
     overflow-y: auto;
+    overflow-x: auto;
 }
 
 /* ========================================
@@ -153,6 +158,10 @@ body {
     flex-shrink: 0;
     border-bottom: 1px solid #E5E7EB;
     z-index: 100;
+    position: sticky;
+    top: 0;
+    width: 100%;
+    min-width: fit-content;
 }
 
 .header-left {
@@ -293,7 +302,11 @@ body {
     font-size: 13px;
     color: #64748B;
     box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
-    position: relative;
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    min-width: fit-content;
+    z-index: 100;
 }
 
 .main-footer::before {
