@@ -4,6 +4,27 @@
   box-sizing: border-box;
 }
 
+/* Sidebar icon fix for pos.jte */
+.sidebar-title {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  height: 32px !important;
+  line-height: 1 !important;
+}
+
+.sidebar-title .material-icons {
+  width: 32px !important;
+  height: 32px !important;
+  font-size: 32px !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
 /* Main Content Styles */
 .main-content {
   flex: 1;
@@ -143,6 +164,7 @@
   max-height: 1019px;
   overflow-y: auto;
   padding-right: 8px;
+  padding-top: 16px; /* Space between search box and first result */
   padding-bottom: 200px; /* Large extra space for last card expansion - increased from 40px */
 }
 
