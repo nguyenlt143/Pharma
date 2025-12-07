@@ -170,8 +170,25 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
                                     ? detail.getQuantity().intValue()
                                     : 0;
 
-                                // Use 4-parameter constructor for warehouse (backward compatible)
-                                return new ReceiptDetailVM(medicineName, concentration, unit, quantity);
+                                // Get batch information
+                                String batchCode = detail.getBatch() != null && detail.getBatch().getBatchCode() != null
+                                    ? detail.getBatch().getBatchCode()
+                                    : "N/A";
+                                java.time.LocalDate mfgDate = detail.getBatch() != null
+                                    ? detail.getBatch().getMfgDate()
+                                    : null;
+                                java.time.LocalDate expiryDate = detail.getBatch() != null
+                                    ? detail.getBatch().getExpiryDate()
+                                    : null;
+
+                                // Get import price
+                                Double importPrice = detail.getPrice() != null
+                                    ? detail.getPrice()
+                                    : 0.0;
+
+                                // Use full constructor with batch info and price
+                                return new ReceiptDetailVM(medicineName, concentration, unit, quantity,
+                                        batchCode, mfgDate, expiryDate, importPrice);
                             })
                             .collect(Collectors.toList());
                 })

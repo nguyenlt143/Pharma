@@ -131,6 +131,8 @@ class InvoiceServiceImplTest {
                     new MedicineItemVM("Medicine A", "500mg", "Viên", 5000.0, 10L)
             );
 
+            // Mock existsById check (implementation checks this first)
+            when(invoiceRepository.existsById(1L)).thenReturn(true);
             when(invoiceRepository.findInvoiceInfoById(1L)).thenReturn(infoVM);
             when(invoiceDetailService.getListMedicine(1L)).thenReturn(medicines);
 
@@ -143,8 +145,43 @@ class InvoiceServiceImplTest {
             assertThat(result.customerName()).isEqualTo("John Doe");
             assertThat(result.totalPrice()).isEqualTo(java.math.BigDecimal.valueOf(50000.0));
             assertThat(result.medicines()).hasSize(1);
+            verify(invoiceRepository).existsById(1L);
             verify(invoiceRepository).findInvoiceInfoById(1L);
             verify(invoiceDetailService).getListMedicine(1L);
+        }
+
+        @Test
+        @DisplayName("Should throw exception when invoice not found")
+        void shouldThrowExceptionWhenInvoiceNotFound() {
+            // Arrange
+            when(invoiceRepository.existsById(999L)).thenReturn(false);
+
+            // Act & Assert
+            assertThatThrownBy(() -> invoiceService.getInvoiceDetail(999L))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("Không tìm thấy hóa đơn với ID: 999");
+
+            // Verify that findInvoiceInfoById is never called when invoice doesn't exist
+            verify(invoiceRepository).existsById(999L);
+            verify(invoiceRepository, never()).findInvoiceInfoById(anyLong());
+            verify(invoiceDetailService, never()).getListMedicine(anyLong());
+        }
+
+        @Test
+        @DisplayName("Should throw exception when invoice info cannot be retrieved")
+        void shouldThrowExceptionWhenInvoiceInfoNull() {
+            // Arrange
+            when(invoiceRepository.existsById(1L)).thenReturn(true);
+            when(invoiceRepository.findInvoiceInfoById(1L)).thenReturn(null);
+
+            // Act & Assert
+            assertThatThrownBy(() -> invoiceService.getInvoiceDetail(1L))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("Không thể truy xuất thông tin hóa đơn ID: 1");
+
+            verify(invoiceRepository).existsById(1L);
+            verify(invoiceRepository).findInvoiceInfoById(1L);
+            verify(invoiceDetailService, never()).getListMedicine(anyLong());
         }
     }
 
@@ -178,7 +215,7 @@ class InvoiceServiceImplTest {
             when(invoiceRepository.save(any(Invoice.class))).thenReturn(invoice);
             when(inventoryService.findById(1L)).thenReturn(inventory);
             when(inventoryRepository.save(any(Inventory.class))).thenReturn(inventory);
-            when(invoiceDetailRepository.save(any(InvoiceDetail.class))).thenReturn(new InvoiceDetail());
+            when(invoiceDetailRepository.saveAll(anyList())).thenReturn(List.of(new InvoiceDetail()));
 
             // Act
             Invoice result = invoiceService.createInvoice(request);
@@ -189,7 +226,7 @@ class InvoiceServiceImplTest {
             verify(customerService).getOrCreate("John Doe", "0123456789");
             verify(invoiceRepository).save(any(Invoice.class));
             verify(inventoryRepository).save(any(Inventory.class));
-            verify(invoiceDetailRepository).save(any(InvoiceDetail.class));
+            verify(invoiceDetailRepository).saveAll(anyList());
         }
 
         @Test
@@ -216,7 +253,7 @@ class InvoiceServiceImplTest {
             when(invoiceRepository.save(any(Invoice.class))).thenReturn(invoice);
             when(inventoryService.findById(1L)).thenReturn(inventory);
             when(inventoryRepository.save(any(Inventory.class))).thenReturn(inventory);
-            when(invoiceDetailRepository.save(any(InvoiceDetail.class))).thenReturn(new InvoiceDetail());
+            when(invoiceDetailRepository.saveAll(anyList())).thenReturn(List.of(new InvoiceDetail()));
 
             // Act
             Invoice result = invoiceService.createInvoice(request);
@@ -242,9 +279,21 @@ class InvoiceServiceImplTest {
             item.setUnitPrice(5000.0);
             request.setItems(List.of(item));
 
+            // Create proper mocks for inventory with variant, medicine, and batch
+            var medicine = mock(vn.edu.fpt.pharma.entity.Medicine.class);
+            when(medicine.getName()).thenReturn("Test Medicine");
+
+            var variant = mock(vn.edu.fpt.pharma.entity.MedicineVariant.class);
+            when(variant.getMedicine()).thenReturn(medicine);
+
+            var batch = mock(vn.edu.fpt.pharma.entity.Batch.class);
+            when(batch.getBatchCode()).thenReturn("BATCH001");
+
             Inventory lowInventory = Inventory.builder()
                     .quantity(50L)
                     .build();
+            lowInventory.setVariant(variant);
+            lowInventory.setBatch(batch);
 
             when(userContext.getUserId()).thenReturn(1L);
             when(userContext.getBranchId()).thenReturn(1L);
@@ -259,7 +308,7 @@ class InvoiceServiceImplTest {
                     .hasMessageContaining("Tồn kho không đủ");
 
             verify(inventoryRepository, never()).save(any(Inventory.class));
-            verify(invoiceDetailRepository, never()).save(any(InvoiceDetail.class));
+            verify(invoiceDetailRepository, never()).saveAll(anyList());
         }
 
         @Test
@@ -283,8 +332,8 @@ class InvoiceServiceImplTest {
             when(invoiceRepository.findMaxInvoiceId()).thenReturn(0L);
             when(invoiceRepository.save(any(Invoice.class))).thenReturn(invoice);
             when(inventoryService.findById(1L)).thenReturn(inventory);
-            when(inventoryRepository.save(any(Inventory.class))).thenReturn(inventory);
-            when(invoiceDetailRepository.save(any(InvoiceDetail.class))).thenReturn(new InvoiceDetail());
+            when(inventoryRepository.save(any(Inventory.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            when(invoiceDetailRepository.saveAll(anyList())).thenReturn(List.of(new InvoiceDetail()));
 
             // Act
             invoiceService.createInvoice(request);
@@ -329,16 +378,22 @@ class InvoiceServiceImplTest {
             when(invoiceRepository.save(any(Invoice.class))).thenReturn(invoice);
             when(inventoryService.findById(1L)).thenReturn(inventory);
             when(inventoryService.findById(2L)).thenReturn(inventory2);
-            when(inventoryRepository.save(any(Inventory.class))).thenReturn(inventory);
-            when(invoiceDetailRepository.save(any(InvoiceDetail.class))).thenReturn(new InvoiceDetail());
+            when(inventoryRepository.save(any(Inventory.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            when(invoiceDetailRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
 
             // Act
             Invoice result = invoiceService.createInvoice(request);
 
             // Assert
             assertThat(result).isNotNull();
+
+            // Verify inventories were saved (called twice in loop - once per item)
             verify(inventoryRepository, times(2)).save(any(Inventory.class));
-            verify(invoiceDetailRepository, times(2)).save(any(InvoiceDetail.class));
+
+            // Verify invoice details were saved (called once with a list of 2 items)
+            ArgumentCaptor<List<InvoiceDetail>> detailCaptor = ArgumentCaptor.forClass(List.class);
+            verify(invoiceDetailRepository).saveAll(detailCaptor.capture());
+            assertThat(detailCaptor.getValue()).hasSize(2);
         }
     }
 

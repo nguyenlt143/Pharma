@@ -9,32 +9,39 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import vn.edu.fpt.pharma.dto.warehouse.RequestList;
+import vn.edu.fpt.pharma.entity.Branch;
 import vn.edu.fpt.pharma.service.RequestFormService;
+import vn.edu.fpt.pharma.service.BranchService;
 
 @Controller
 @RequestMapping("/warehouse/request")
 public class RequestListController {
     private final RequestFormService requestFormService;
+    private final BranchService branchService;
 
-    public RequestListController(RequestFormService requestFormService) {
+    public RequestListController(RequestFormService requestFormService, BranchService branchService) {
         this.requestFormService = requestFormService;
+        this.branchService = branchService;
     }
 
     @GetMapping("/list")
     public String listAll(Model model) {
         model.addAttribute("requests", requestFormService.getAllRequestForms());
+        model.addAttribute("branches", branchService.findAll());
         return "pages/warehouse/request_list";
     }
 
     @GetMapping("/list/import")
     public String listImport(Model model) {
         model.addAttribute("requests", requestFormService.getImportRequests());
+        model.addAttribute("branches", branchService.findAll());
         return "pages/warehouse/request_list";
     }
 
     @GetMapping("/list/return")
     public String listReturn(Model model) {
         model.addAttribute("requests", requestFormService.getReturnRequests());
+        model.addAttribute("branches", branchService.findAll());
         return "pages/warehouse/request_list";
     }
 
@@ -56,5 +63,15 @@ public class RequestListController {
     public ResponseEntity<Void> cancelRequest(@PathVariable Long id) {
         requestFormService.cancelRequest(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/list/filter")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public java.util.List<RequestList> filterRequests(
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) Long branchId,
+            @RequestParam(required = false) String status
+    ) {
+        return requestFormService.getRequestList(type, branchId, status);
     }
 }

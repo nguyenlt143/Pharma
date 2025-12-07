@@ -1,9 +1,15 @@
 package vn.edu.fpt.pharma.dto.user;
 
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProfileUpdateRequest {
     @NotBlank(message = "Họ tên không được để trống")
     @Size(max = 100, message = "Họ tên không được vượt quá 100 ký tự")

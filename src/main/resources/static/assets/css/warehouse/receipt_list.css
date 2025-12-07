@@ -191,11 +191,41 @@ body {
     top: 100%;
     left: 0;
     margin-top: 5px;
-    padding: 8px;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
+    padding: 10px 16px;
+    border: 1px solid #D1D5DB;
+    border-radius: 12px;
     z-index: 1000;
     background-color: white;
+    display: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #0D131C;
+    min-width: 150px;
+}
+
+/* Clear Filters Button */
+.clear-filters-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 16px;
+    height: 40px;
+    border-radius: 12px;
+    border: 1px solid #D1D5DB;
+    background-color: #FFFFFF;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    color: #6B7280;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.clear-filters-button:hover {
+    background-color: #F9FAFB;
+    border-color: #9CA3AF;
+    color: #374151;
 }
 
 /* Table Section */
