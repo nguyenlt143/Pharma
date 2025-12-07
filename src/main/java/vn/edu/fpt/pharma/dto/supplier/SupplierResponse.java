@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class SupplierResponse {
     private Long id;
+    private String name;
     private String supplierName;
     private String phone;
     private String address;
@@ -25,6 +26,7 @@ public class SupplierResponse {
         
         return SupplierResponse.builder()
                 .id(supplier.getId())
+                .name(supplier.getName())
                 .supplierName(supplier.getName())
                 .phone(supplier.getPhone())
                 .address(supplier.getAddress())

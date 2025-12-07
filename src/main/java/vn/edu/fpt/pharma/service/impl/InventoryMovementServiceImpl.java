@@ -170,8 +170,25 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
                                     ? detail.getQuantity().intValue()
                                     : 0;
 
-                                // Use 4-parameter constructor for warehouse (backward compatible)
-                                return new ReceiptDetailVM(medicineName, concentration, unit, quantity);
+                                // Get batch information
+                                String batchCode = detail.getBatch() != null && detail.getBatch().getBatchCode() != null
+                                    ? detail.getBatch().getBatchCode()
+                                    : "N/A";
+                                java.time.LocalDate mfgDate = detail.getBatch() != null
+                                    ? detail.getBatch().getMfgDate()
+                                    : null;
+                                java.time.LocalDate expiryDate = detail.getBatch() != null
+                                    ? detail.getBatch().getExpiryDate()
+                                    : null;
+
+                                // Get import price
+                                Double importPrice = detail.getPrice() != null
+                                    ? detail.getPrice()
+                                    : 0.0;
+
+                                // Use full constructor with batch info and price
+                                return new ReceiptDetailVM(medicineName, concentration, unit, quantity,
+                                        batchCode, mfgDate, expiryDate, importPrice);
                             })
                             .collect(Collectors.toList());
                 })
@@ -581,8 +598,19 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
                 .orElseThrow(() -> new RuntimeException("Warehouse branch not found"));
 
         // 3. Create InventoryMovement with SHIPPED status (đã gửi)
+        // Determine movement type from DTO or default to BR_TO_WARE
+        MovementType movementType;
+        try {
+            movementType = dto.getMovementType() != null ? 
+                MovementType.valueOf(dto.getMovementType()) : 
+                MovementType.BR_TO_WARE;
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid movement type: {}, using BR_TO_WARE", dto.getMovementType());
+            movementType = MovementType.BR_TO_WARE;
+        }
+
         InventoryMovement movement = InventoryMovement.builder()
-                .movementType(MovementType.BR_TO_WARE)
+                .movementType(movementType)
                 .sourceBranchId(sourceBranch.getId())
                 .destinationBranchId(warehouseBranch.getId())
                 .movementStatus(MovementStatus.SHIPPED)

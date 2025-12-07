@@ -3,14 +3,19 @@ package vn.edu.fpt.pharma.service.impl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.pharma.base.BaseServiceImpl;
+import vn.edu.fpt.pharma.constant.MovementStatus;
+import vn.edu.fpt.pharma.constant.MovementType;
 import vn.edu.fpt.pharma.dto.inventorycheck.InventoryCheckHistoryVM;
 import vn.edu.fpt.pharma.dto.inventorycheck.StockAdjustmentDetailVM;
 import vn.edu.fpt.pharma.entity.*;
+import vn.edu.fpt.pharma.repository.InventoryMovementDetailRepository;
+import vn.edu.fpt.pharma.repository.InventoryMovementRepository;
 import vn.edu.fpt.pharma.repository.InventoryRepository;
 import vn.edu.fpt.pharma.repository.StockAdjustmentRepository;
 import vn.edu.fpt.pharma.service.AuditService;
 import vn.edu.fpt.pharma.service.StockAdjustmentService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,16 +24,22 @@ public class StockAdjustmentServiceImpl extends BaseServiceImpl<StockAdjustment,
 
     private final StockAdjustmentRepository stockAdjustmentRepository;
     private final InventoryRepository inventoryRepository;
+    private final InventoryMovementRepository inventoryMovementRepository;
+    private final InventoryMovementDetailRepository inventoryMovementDetailRepository;
     private final vn.edu.fpt.pharma.service.RequestFormService requestFormService;
     private final vn.edu.fpt.pharma.service.InventoryMovementService inventoryMovementService;
 
     public StockAdjustmentServiceImpl(StockAdjustmentRepository repository, AuditService auditService,
                                     InventoryRepository inventoryRepository,
+                                    InventoryMovementRepository inventoryMovementRepository,
+                                    InventoryMovementDetailRepository inventoryMovementDetailRepository,
                                     vn.edu.fpt.pharma.service.RequestFormService requestFormService,
                                     vn.edu.fpt.pharma.service.InventoryMovementService inventoryMovementService) {
         super(repository, auditService);
         this.stockAdjustmentRepository = repository;
         this.inventoryRepository = inventoryRepository;
+        this.inventoryMovementRepository = inventoryMovementRepository;
+        this.inventoryMovementDetailRepository = inventoryMovementDetailRepository;
         this.requestFormService = requestFormService;
         this.inventoryMovementService = inventoryMovementService;
     }
@@ -55,6 +66,18 @@ public class StockAdjustmentServiceImpl extends BaseServiceImpl<StockAdjustment,
         if (request == null || request.getItems() == null || request.getItems().isEmpty()) {
             throw new IllegalArgumentException("Danh sách kiểm kho trống");
         }
+
+        // Tạo InventoryMovement cho phiếu kiểm kho
+        InventoryMovement movement = InventoryMovement.builder()
+                .movementType(MovementType.INVENTORY_ADJUSTMENT)
+                .sourceBranchId(branchId)
+                .destinationBranchId(branchId)
+                .movementStatus(MovementStatus.APPROVED)
+                .totalMoney(0.0)
+                .build();
+        movement = inventoryMovementRepository.save(movement);
+
+        List<InventoryMovementDetail> details = new ArrayList<>();
 
         // Loop through each item and create a stock adjustment
         for (var item : request.getItems()) {
@@ -91,9 +114,27 @@ public class StockAdjustmentServiceImpl extends BaseServiceImpl<StockAdjustment,
                     .build();
             stockAdjustmentRepository.save(adj);
 
+            // Tạo InventoryMovementDetail cho từng thuốc bị điều chỉnh
+            if (diff != 0) {
+                InventoryMovementDetail detail = InventoryMovementDetail.builder()
+                        .movement(movement)
+                        .variant(inv.getVariant())
+                        .batch(inv.getBatch())
+                        .quantity(Math.abs(diff)) // Lưu giá trị tuyệt đối
+                        .price(0.0)
+                        .snapCost(inv.getCostPrice() != null ? inv.getCostPrice() : 0.0)
+                        .build();
+                details.add(detail);
+            }
+
             // Cập nhật inventory với số lượng mới
             inv.setQuantity(after);
             inventoryRepository.save(inv);
+        }
+
+        // Lưu tất cả movement details
+        if (!details.isEmpty()) {
+            inventoryMovementDetailRepository.saveAll(details);
         }
     }
 }
