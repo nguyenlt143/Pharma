@@ -84,10 +84,14 @@ content = @`
                         <thead>
                         <tr>
                             <th>STT</th>
-                            <th>Tên thuốc</th>
-                            <th>Hàm lượng</th>
-                            <th>Đơn vị</th>
-                            <th>Số lượng</th>
+                            <th>Tên Thuốc</th>
+                            <th>ĐVT</th>
+                            <th>Hàm Lượng</th>
+                            <th>Số Lô</th>
+                            <th>NSX</th>
+                            <th>HSD</th>
+                            <th>Số Lượng</th>
+                            <th>Giá Nhập</th>
                         </tr>
                         </thead>
 
@@ -96,13 +100,36 @@ content = @`
                             <tr>
                                 <td>${details.indexOf(detail) + 1}</td>
                                 <td>${detail.getMedicineName()}</td>
-                                <td>${detail.getConcentration()}</td>
                                 <td>${detail.getUnit()}</td>
+                                <td>${detail.getConcentration()}</td>
+                                <td>${detail.getBatchCode()}</td>
+                                <td>
+                                    @if(detail.getMfgDate() != null)
+                                        ${detail.getMfgDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}
+                                    @else
+                                        N/A
+                                    @endif
+                                </td>
+                                <td>
+                                    @if(detail.getExpiryDate() != null)
+                                        ${detail.getExpiryDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}
+                                    @else
+                                        N/A
+                                    @endif
+                                </td>
                                 <td>${detail.getQuantity()}</td>
+                                <td>${String.format("%,.0f", detail.getImportPrice())} VNĐ</td>
                             </tr>
                         @endfor
                         </tbody>
                     </table>
+
+                    <!-- TOTAL MONEY -->
+                    <div style="margin-top: 20px; text-align: right; font-size: 16px; font-weight: 600;">
+                        !{var totalMoney = details.stream().mapToDouble(d -> d.getQuantity() * d.getImportPrice()).sum();}
+                        <span>Tổng tiền: </span>
+                        <span style="color: #2563eb;">${String.format("%,.0f", totalMoney)} VNĐ</span>
+                    </div>
                 </div>
 
             </div>

@@ -118,6 +118,11 @@ body {
     gap: 12px;
 }
 
+.filter-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
 .filter-button {
     display: flex;
     align-items: center;
@@ -133,6 +138,7 @@ body {
     font-size: 16px;
     font-weight: 500;
     color: #0D131C;
+    min-width: 120px;
 }
 
 .filter-button:hover {
@@ -142,6 +148,107 @@ body {
 .filter-icon {
     width: 20px;
     height: 20px;
+    transition: transform 0.3s ease;
+}
+
+.filter-button.open .filter-icon {
+    transform: rotate(180deg);
+}
+
+/* Dropdown Menu Styles */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #FFFFFF;
+    border: 1px solid #CED8E8;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    margin-top: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    color: #0D131C;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.dropdown-item:hover {
+    background-color: #F8F9FC;
+}
+
+.dropdown-item:first-child {
+    border-radius: 8px 8px 0 0;
+}
+
+.dropdown-item:last-child {
+    border-radius: 0 0 8px 8px;
+}
+
+.dropdown-item.selected {
+    background-color: #E7ECF4;
+    font-weight: 500;
+    color: #0D131C;
+}
+
+/* Date Input */
+.date-input {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 5px;
+    padding: 10px 16px;
+    border: 1px solid #D1D5DB;
+    border-radius: 12px;
+    z-index: 1000;
+    background-color: white;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #0D131C;
+    min-width: 150px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+/* Clear Filters Button */
+.clear-filters-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 16px;
+    height: 40px;
+    background-color: #dc3545;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    font-weight: 500;
+    margin-left: auto;
+}
+
+.clear-filters-button:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+}
+
+.clear-filters-button:active {
+    transform: translateY(0);
 }
 
 /* Table Section */

@@ -54,13 +54,13 @@ content = @`
         <section class="product-section">
             <div class="product-container">
                 <div class="search-add-row">
-                    <div class="search-wrapper">
-                        <span class="material-icons search-icon">search</span>
-                        <input type="text" class="search-input" placeholder="Tìm kiếm thuốc">
-                    </div>
+<%--                    <div class="search-wrapper">--%>
+<%--                        <span class="material-icons search-icon">search</span>--%>
+<%--                        <input type="text" class="search-input" placeholder="Tìm kiếm thuốc">--%>
+<%--                    </div>--%>
                     <button class="add-button" type="button" id="btnAddFromCatalog">
                         <span class="material-icons">add</span>
-                        <span>THÊM VÀO TỪ DANH MỤC (F7)</span>
+                        <span>THÊM THUỐC VÀO DANH SÁCH (F7)</span>
                     </button>
                 </div>
 
@@ -71,12 +71,13 @@ content = @`
                             <th>STT</th>
                             <th>Tên thuốc</th>
                             <th>ĐVT</th>
+                            <th>S.lg/Hộp</th>
                             <th>Hàm lượng</th>
                             <th>Số lô</th>
                             <th>NSX</th>
                             <th>HSD</th>
                             <th>Số lượng</th>
-                            <th>Giá nhập</th>
+                            <th>Giá nhập(VNĐ)</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -89,6 +90,7 @@ content = @`
                 <div class="total-section">
                     <span class="total-label">TỔNG SỐ TIỀN:</span>
                     <span class="total-amount" id="totalAmount">0</span>
+                    <span class="total-currency">VNĐ</span>
                 </div>
             </div>
         </section>
