@@ -46,6 +46,10 @@
             <div class="prescription-section">
                 <div class="section-header">
                     <h3 class="section-title">Đơn Thuốc</h3>
+                    <button type="button" class="clear-all-btn" id="clearAllBtn" title="Xóa tất cả sản phẩm">
+                        <span class="material-icons">delete_sweep</span>
+                        Xóa tất cả
+                    </button>
                 </div>
 
                 <div class="prescription-table">

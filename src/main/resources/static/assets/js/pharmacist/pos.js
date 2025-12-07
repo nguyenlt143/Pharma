@@ -21,16 +21,16 @@ if (!resultContainer) {
 }
 
 // Payment method change event listener
-if (paymentMethodSelect && qrCodeSection) {
+if (paymentMethodSelect) {
     paymentMethodSelect.addEventListener('change', function() {
         const selectedMethod = this.value;
 
         if (selectedMethod === 'transfer') {
-            qrCodeSection.style.display = 'block';
-            // Generate QR code with payment amount
-            updateQRCode();
+            // Show QR popup instead of inline section
+            showQRCodePopup();
         } else {
-            qrCodeSection.style.display = 'none';
+            // Close QR popup if open
+            closeQRCodePopup();
         }
     });
 }
@@ -185,9 +185,16 @@ function addEventListenersToMedicineCards() {
                                 detailsHtml += `<tr>${variantInfoHtml}${inventoryInfoHtml}</tr>`;
                             });
                             detailsHtml += '</tbody></table>';
+                            detailsHtml += '</div>'; // Close variant-table-wrapper
                         }
                         detailsContainer.innerHTML = detailsHtml;
                         detailsContainer.style.display = 'block';
+
+                        // Auto-scroll to ensure the card is visible
+                        // Use longer timeout to ensure DOM is fully rendered with correct heights
+                        setTimeout(() => {
+                            ensureCardVisible(card);
+                        }, 300); // Increased to 300ms for better rendering
 
                         // Add event listeners to inventory items
                         addInventoryItemClickListeners();
@@ -196,10 +203,55 @@ function addEventListenersToMedicineCards() {
                         console.error('Error fetching variant details:', error);
                         detailsContainer.innerHTML = '<p style="color: red;">Không thể tải chi tiết thuốc.</p>';
                         detailsContainer.style.display = 'block';
+
+                        // Auto-scroll even on error
+                        setTimeout(() => {
+                            ensureCardVisible(card);
+                        }, 300);
                     });
             } else {
                 detailsContainer.style.display = 'none';
             }
+        });
+    });
+}
+
+// Function to ensure expanded card is fully visible in the viewport
+function ensureCardVisible(card) {
+    const medicineList = document.querySelector('.medicine-list');
+    if (!medicineList || !card) {
+        console.warn('ensureCardVisible: medicineList or card not found');
+        return;
+    }
+
+    // Use double requestAnimationFrame to ensure DOM is fully updated
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            // Force layout recalculation
+            const cardTop = card.offsetTop;
+            const cardHeight = card.offsetHeight;
+            const listScrollTop = medicineList.scrollTop;
+            const listScrollHeight = medicineList.scrollHeight;
+
+            console.log('Scroll Debug:', {
+                cardTop,
+                cardHeight,
+                listScrollTop,
+                listScrollHeight,
+                cardElement: card.querySelector('.medicine-name')?.textContent
+            });
+
+            // Always scroll card to near top of viewport
+            // This ensures user can see the card header and scroll down to see all content
+            const targetScrollTop = Math.max(0, cardTop - 30); // 30px from top
+
+            console.log('Scrolling to:', targetScrollTop, 'from:', listScrollTop);
+
+            // Scroll to target position
+            medicineList.scrollTo({
+                top: targetScrollTop,
+                behavior: 'smooth'
+            });
         });
     });
 }
@@ -388,7 +440,9 @@ function renderPrescription() {
                 </div>
             </td>
             <td>
-                <select class="unit-select" data-inventory-id="${item.inventoryId}">
+                <select class="unit-select"
+                        data-inventory-id="${item.inventoryId}"
+                        title="Chọn đơn vị bán hàng">
                     ${item.units.map(u => `
                     <option value="${u.multiplier}"
                             data-unit="${u.unitName}"
@@ -399,12 +453,21 @@ function renderPrescription() {
                 </select>
             </td>
             <td>
-                <input type="number" class="quantity-input" value="${item.quantity}" min="1" max="${item.maxQuantity}" data-inventory-id="${item.inventoryId}" style="width: 60px; padding: 4px;">
+                <input type="number"
+                       class="quantity-input"
+                       value="${item.quantity}"
+                       min="1"
+                       max="${item.maxQuantity}"
+                       data-inventory-id="${item.inventoryId}"
+                       title="Tồn kho: ${item.maxQuantity}"
+                       placeholder="SL">
             </td>
             <td class="text-right">${item.currentPrice.toLocaleString('vi-VN')}</td>
             <td class="text-right">${itemTotal.toLocaleString('vi-VN')}</td>
-            <td>
-                    <button class="delete-item-btn" data-index="${index}" style="color:red;">🗑</button>
+            <td class="text-center">
+                    <button class="delete-item-btn"
+                            data-index="${index}"
+                            title="Xóa sản phẩm">🗑</button>
             </td>
         `;
         prescriptionBody.appendChild(row);
@@ -425,6 +488,25 @@ function renderPrescription() {
 
     // Update payment totals and QR code
     updatePaymentTotals();
+
+    // Update Clear All button state
+    updateClearAllButtonState();
+}
+
+// Function to update Clear All button state
+function updateClearAllButtonState() {
+    const clearAllBtn = document.getElementById('clearAllBtn');
+    if (clearAllBtn) {
+        if (prescriptionItems.length === 0) {
+            clearAllBtn.disabled = true;
+            clearAllBtn.style.opacity = '0.5';
+            clearAllBtn.style.cursor = 'not-allowed';
+        } else {
+            clearAllBtn.disabled = false;
+            clearAllBtn.style.opacity = '1';
+            clearAllBtn.style.cursor = 'pointer';
+        }
+    }
 }
 
 function addPrescriptionActionListeners() {
@@ -461,39 +543,45 @@ function addPrescriptionActionListeners() {
             const item = prescriptionItems.find(p => p.inventoryId === inventoryId);
 
             if (item) {
+                // Remove any previous error/success classes
+                e.target.classList.remove('error', 'success');
+
                 // Validate input is a valid number
                 if (isNaN(newQuantity)) {
+                    e.target.classList.add('error');
                     alert('Vui lòng nhập số lượng hợp lệ.');
                     e.target.value = item.quantity;
+                    setTimeout(() => e.target.classList.remove('error'), 2000);
                     return;
                 }
 
                 // Validate quantity does not exceed max stock
                 if (newQuantity > item.maxQuantity) {
+                    e.target.classList.add('error');
                     alert(`Số lượng vượt quá tồn kho. Tồn kho hiện tại: ${item.maxQuantity}`);
                     newQuantity = item.maxQuantity;
                     e.target.value = newQuantity;
+                    setTimeout(() => e.target.classList.remove('error'), 2000);
                 }
 
                 // Validate quantity is at least 1
                 if (newQuantity < 1) {
+                    e.target.classList.add('error');
                     alert('Số lượng phải lớn hơn 0.');
                     newQuantity = 1;
                     e.target.value = newQuantity;
+                    setTimeout(() => e.target.classList.remove('error'), 2000);
+                }
+
+                // If validation passed, show success feedback
+                if (newQuantity >= 1 && newQuantity <= item.maxQuantity) {
+                    e.target.classList.add('success');
+                    setTimeout(() => e.target.classList.remove('success'), 1000);
                 }
 
                 item.quantity = newQuantity;
                 renderPrescription();
             }
-        });
-
-        document.querySelectorAll('.delete-item-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const index = parseInt(e.target.dataset.index);
-
-                prescriptionItems.splice(index, 1);
-                renderPrescription();
-            });
         });
 
         // Prevent entering invalid characters
@@ -502,6 +590,33 @@ function addPrescriptionActionListeners() {
             if (e.key && !/[0-9]/.test(e.key) && e.key !== 'Enter' && e.key !== 'Backspace') {
                 e.preventDefault();
             }
+        });
+
+        // Add input event for real-time validation feedback
+        input.addEventListener('input', (e) => {
+            const value = e.target.value;
+            const inventoryId = e.target.dataset.inventoryId;
+            const item = prescriptionItems.find(p => p.inventoryId === inventoryId);
+
+            if (item) {
+                e.target.classList.remove('error', 'success');
+
+                const numValue = parseInt(value, 10);
+                if (value && (isNaN(numValue) || numValue < 1 || numValue > item.maxQuantity)) {
+                    e.target.classList.add('error');
+                }
+            }
+        });
+    });
+
+    // Delete item buttons
+    document.querySelectorAll('.delete-item-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const index = parseInt(e.target.dataset.index);
+
+            // Remove item without confirmation
+            prescriptionItems.splice(index, 1);
+            renderPrescription();
         });
     });
 }
@@ -516,6 +631,23 @@ clearButtons.forEach(button => {
     }
   });
 });
+
+// Clear All Button - Xóa tất cả sản phẩm trong đơn thuốc
+const clearAllBtn = document.getElementById('clearAllBtn');
+if (clearAllBtn) {
+    clearAllBtn.addEventListener('click', () => {
+        if (prescriptionItems.length === 0) {
+            return;
+        }
+
+        // Clear all items without confirmation
+        prescriptionItems.length = 0;
+        renderPrescription();
+
+        // Show notification (optional)
+        console.log('Đã xóa tất cả sản phẩm trong đơn thuốc');
+    });
+}
 
 // OLD PAYMENT FUNCTIONALITY REMOVED - Now handled by form submission with proper validation
 
@@ -970,6 +1102,208 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// ============ QR CODE POPUP FUNCTIONS ============
+
+// Function to show QR code popup for transfer payment
+function showQRCodePopup() {
+    const totalAmount = getTotalAmount();
+
+    if (totalAmount <= 0) {
+        alert('Vui lòng thêm sản phẩm vào đơn hàng trước');
+        return;
+    }
+
+    // Generate invoice code
+    const invoiceCode = generateInvoiceCode();
+    const formattedAmount = totalAmount.toLocaleString('vi-VN');
+
+    // Bank configuration
+    const bankCode = 'VCB';
+    const accountNumber = '0123456789';
+    const amount = Math.round(totalAmount);
+    const addInfo = invoiceCode;
+
+    // Generate VietQR URL
+    const vietQRUrl = `https://img.vietqr.io/${bankCode}/${accountNumber}?amount=${amount}&addInfo=${encodeURIComponent(addInfo)}`;
+
+    // Create popup HTML
+    const popupHTML = `
+        <div class="qr-popup-overlay" id="qrPopupOverlay">
+            <div class="qr-popup">
+                <div class="qr-popup-header">
+                    <h2 class="qr-popup-title">
+                        <span class="material-icons">qr_code_2</span>
+                        Quét mã QR để thanh toán
+                    </h2>
+                    <button class="qr-popup-close" onclick="closeQRCodePopup()">
+                        <span class="material-icons">close</span>
+                    </button>
+                </div>
+
+                <div class="qr-popup-content">
+                    <div class="qr-code-display">
+                        <img src="${vietQRUrl}"
+                             alt="QR Code"
+                             class="qr-code-image"
+                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNTAgNTBIMTUwVjE1MEg1MFY1MFoiIGZpbGw9ImJsYWNrIi8+CjxyZWN0IHg9IjcwIiB5PSI3MCIgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4='">
+                    </div>
+
+                    <div class="qr-info-section">
+                        <div class="qr-info-row">
+                            <span class="qr-info-label">Ngân hàng:</span>
+                            <span class="qr-info-value">Vietcombank (VCB)</span>
+                        </div>
+                        <div class="qr-info-row">
+                            <span class="qr-info-label">Số tài khoản:</span>
+                            <span class="qr-info-value">${accountNumber}</span>
+                        </div>
+                        <div class="qr-info-row highlight">
+                            <span class="qr-info-label">Số tiền:</span>
+                            <span class="qr-info-value amount">${formattedAmount} VNĐ</span>
+                        </div>
+                        <div class="qr-info-row">
+                            <span class="qr-info-label">Nội dung:</span>
+                            <span class="qr-info-value code">${invoiceCode}</span>
+                        </div>
+                    </div>
+
+                    <div class="qr-instructions">
+                        <div class="qr-instruction-title">
+                            <span class="material-icons">info</span>
+                            Hướng dẫn thanh toán
+                        </div>
+                        <ul class="qr-instruction-list">
+                            <li>
+                                <span class="material-icons">check_circle</span>
+                                Mở ứng dụng ngân hàng trên điện thoại
+                            </li>
+                            <li>
+                                <span class="material-icons">check_circle</span>
+                                Chọn tính năng quét mã QR
+                            </li>
+                            <li>
+                                <span class="material-icons">check_circle</span>
+                                Quét mã QR bên trên
+                            </li>
+                            <li>
+                                <span class="material-icons">check_circle</span>
+                                Kiểm tra thông tin và xác nhận
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="qr-popup-footer">
+                    <button class="qr-popup-button secondary" onclick="closeQRCodePopup()">
+                        Đóng
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Add to body
+    document.body.insertAdjacentHTML('beforeend', popupHTML);
+
+    // Trigger animation
+    setTimeout(() => {
+        document.getElementById('qrPopupOverlay').classList.add('show');
+    }, 10);
+}
+
+// Function to close QR code popup
+function closeQRCodePopup() {
+    const overlay = document.getElementById('qrPopupOverlay');
+    if (overlay) {
+        overlay.classList.remove('show');
+        setTimeout(() => {
+            overlay.remove();
+        }, 300);
+    }
+}
+
+// Make closeQRCodePopup available globally
+window.closeQRCodePopup = closeQRCodePopup;
+
+// ============ SUCCESS POPUP FUNCTIONS ============
+
+// Function to show beautiful success popup
+function showSuccessPopup(data) {
+    // Create popup HTML
+    const popupHTML = `
+        <div class="success-popup-overlay" id="successPopupOverlay">
+            <div class="success-popup">
+                <div class="success-popup-icon">
+                    <div class="success-checkmark">
+                        <div class="check-icon">
+                            <span class="icon-line line-tip"></span>
+                            <span class="icon-line line-long"></span>
+                            <div class="icon-circle"></div>
+                            <div class="icon-fix"></div>
+                        </div>
+                    </div>
+                </div>
+                <h2 class="success-popup-title">${data.title}</h2>
+                <div class="success-popup-content">
+                    <div class="success-info-row">
+                        <span class="success-label">Mã hóa đơn:</span>
+                        <span class="success-value invoice-code">${data.invoiceCode}</span>
+                    </div>
+                    <div class="success-info-row">
+                        <span class="success-label">Tổng tiền:</span>
+                        <span class="success-value amount">${data.totalAmount.toLocaleString('vi-VN')} VNĐ</span>
+                    </div>
+                    <div class="success-info-row">
+                        <span class="success-label">Phương thức:</span>
+                        <span class="success-value">${getPaymentMethodText(data.paymentMethod)}</span>
+                    </div>
+                </div>
+                <button class="success-popup-button" onclick="closeSuccessPopup()">
+                    <span class="material-icons">check_circle</span>
+                    Hoàn tất
+                </button>
+            </div>
+        </div>
+    `;
+
+    // Add to body
+    document.body.insertAdjacentHTML('beforeend', popupHTML);
+
+    // Trigger animation
+    setTimeout(() => {
+        document.getElementById('successPopupOverlay').classList.add('show');
+    }, 10);
+
+    // Auto close after 5 seconds
+    setTimeout(() => {
+        closeSuccessPopup();
+    }, 5000);
+}
+
+// Function to get payment method text in Vietnamese
+function getPaymentMethodText(method) {
+    const methods = {
+        'cash': 'Tiền mặt',
+        'transfer': 'Chuyển khoản',
+        'card': 'Thẻ'
+    };
+    return methods[method.toLowerCase()] || method;
+}
+
+// Function to close success popup
+function closeSuccessPopup() {
+    const overlay = document.getElementById('successPopupOverlay');
+    if (overlay) {
+        overlay.classList.remove('show');
+        setTimeout(() => {
+            overlay.remove();
+        }, 300);
+    }
+}
+
+// Make closeSuccessPopup available globally
+window.closeSuccessPopup = closeSuccessPopup;
+
 function processPaymentWithValidation(paymentData) {
     const payButton = document.getElementById('payButton');
     if (payButton) {
@@ -1002,7 +1336,13 @@ function processPaymentWithValidation(paymentData) {
         return res.json();
     })
     .then(result => {
-        showAlert('success', `Thanh toán thành công! Mã hóa đơn: ${result.invoiceCode}`);
+        // Show beautiful success popup
+        showSuccessPopup({
+            title: 'Thanh toán thành công!',
+            invoiceCode: result.invoiceCode,
+            totalAmount: paymentData.totalAmount,
+            paymentMethod: paymentData.paymentMethod
+        });
 
         // Complete form reset
         resetPaymentFormCompletely();
@@ -1091,6 +1431,115 @@ const validationStyles = `
     .inventory-item:hover {
         box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
         transform: translateY(-1px);
+    }
+    .success-popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+    .success-popup-overlay.show {
+        opacity: 1;
+        pointer-events: all;
+    }
+    .success-popup {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        max-width: 400px;
+        width: 100%;
+        text-align: center;
+        position: relative;
+        transform: translateY(-30px);
+        transition: transform 0.3s ease;
+    }
+    .success-popup-icon {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 15px;
+    }
+    .success-checkmark {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+    .check-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 24px;
+        height: 24px;
+        transform: translate(-50%, -50%);
+        border: 4px solid white;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    .icon-line {
+        position: absolute;
+        background: white;
+    }
+    .line-tip {
+        width: 10px;
+        height: 10px;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%) rotate(45deg);
+    }
+    .line-long {
+        width: 4px;
+        height: 18px;
+        top: 14px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    .icon-circle {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 4px solid #28a745;
+        top: 0;
+        left: 0;
+        animation: scale-in 0.4s ease forwards;
+    }
+    .icon-fix {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: #28a745;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        animation: pulse 1.2s infinite;
+    }
+    @keyframes scale-in {
+        from {
+            transform: translate(-50%, -50%) scale(0);
+        }
+        to {
+            transform: translate(-50%, -50%) scale(1);
+        }
+    }
+    @keyframes pulse {
+        0% {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        50% {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+        100% {
+            transform: translate(-50%, -50%) scale(1);
+        }
     }
     </style>
 `;
@@ -1213,3 +1662,11 @@ function updatePaymentTotals() {
     validatePaymentForm();
 }
 
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Clear All button state
+    updateClearAllButtonState();
+
+    // Initialize other components if needed
+    console.log('POS system initialized');
+});

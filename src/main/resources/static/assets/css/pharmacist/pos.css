@@ -12,17 +12,15 @@
   height: 100vh;
   min-width: 0;
   overflow: hidden;
+  background-color: #f8fafc;
 }
-
-
-
 
 /* Content Area Styles */
 .content-area {
   flex: 1;
   display: flex;
-  padding: 16px;
-  gap: 16px;
+  padding: 20px;
+  gap: 20px;
   height: calc(100vh - 52px);
   overflow: hidden;
 }
@@ -39,106 +37,148 @@
 /* Search Section Styles */
 .search-section {
   flex: 1;
-  min-width: 300px;
+  min-width: 320px;
   background-color: #FFFFFF;
-  box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.1), 0px 4px 6px -1px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  border: 1px solid #e5e7eb;
 }
 
 @media (max-width: 768px) {
   .search-section {
     height: 200px;
     min-height: 150px;
-    padding: 8px;
+    padding: 12px;
   }
 }
 
 .search-container {
-  padding-bottom: 16px;
+  padding-bottom: 20px;
 }
 
 .search-input-wrapper {
   position: relative;
-  height: 49px;
-  background-color: #F3F4F6;
-  border: 1px solid #E5E7EB;
-  border-radius: 6px;
+  height: 48px;
+  background-color: #F9FAFB;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 8px;
   display: flex;
   align-items: center;
-  padding: 0; /* Remove existing padding */
-  cursor: text; /* Change cursor to text */
+  padding: 0;
+  cursor: text;
+  transition: all 0.2s ease;
+}
+
+.search-input-wrapper:focus-within {
+  border-color: #4338CA;
+  background-color: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.1);
 }
 
 .search-icon {
   position: absolute;
-  left: 12px;
+  left: 14px;
   top: 50%;
   transform: translateY(-50%);
   color: #6B7280;
-  font-size: 24px;
+  font-size: 22px;
 }
 
 .search-input {
   flex: 1;
-  height: 100%; /* Make input fill the height */
+  height: 100%;
   border: none;
   background: none;
   outline: none;
-  font-size: 16px;
-  line-height: 19.36px;
+  font-size: 15px;
+  line-height: 1.4;
   color: #111827;
-  padding: 15px 81px 15px 41px; /* Add padding here */
-  margin-left: 0; /* Remove margin */
+  padding: 12px 90px 12px 46px;
+  margin-left: 0;
 }
 
 .search-input::placeholder {
-  color: #6B7280;
+  color: #9CA3AF;
 }
 
 .search-button {
   position: absolute;
-  right: 9px;
+  right: 8px;
   top: 50%;
   transform: translateY(-50%);
-  width: 79px;
-  height: 30.42px;
+  width: 80px;
+  height: 32px;
   background-color: #4338CA;
   border: none;
   border-radius: 6px;
   color: #FFFFFF;
   font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 6px 16px;
+  transition: all 0.2s ease;
+}
+
+.search-button:hover {
+  background-color: #3730A3;
+  transform: translateY(-50%) scale(1.02);
+}
+
+.search-button:active {
+  background-color: #312E81;
+  transform: translateY(-50%) scale(0.98);
 }
 
 .medicine-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   max-height: 1019px;
   overflow-y: auto;
   padding-right: 8px;
+  padding-bottom: 200px; /* Large extra space for last card expansion - increased from 40px */
+}
+
+/* Scrollbar styling */
+.medicine-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.medicine-list::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.medicine-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.medicine-list::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .medicine-card {
-  background-color: #F3F4F6;
-  border: 1px solid #E5E7EB;
-  border-radius: 8px;
-  padding: 13px;
+  background-color: #F9FAFB;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 10px;
+  padding: 16px;
   cursor: pointer;
-  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .medicine-card:hover {
-  background-color: #E5E7EB;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: #F3F4F6;
+  border-color: #4338CA;
+  box-shadow: 0 4px 12px rgba(67, 56, 202, 0.15);
+  transform: translateY(-2px);
 }
 
 .medicine-name {
@@ -146,62 +186,129 @@
   font-size: 16px;
   line-height: 24px;
   color: #111827;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
 .medicine-info {
   font-size: 13px;
-  line-height: 18px;
+  line-height: 20px;
   color: #4B5563;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 .medicine-batch, .medicine-stock, .medicine-ingredient, .medicine-manufacturer,
 .medicine-packaging, .medicine-origin, .medicine-usage, .medicine-contraindication,
 .medicine-storage {
   font-size: 12px;
-  line-height: 16px;
+  line-height: 18px;
   color: #6B7280;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .variant-details {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid #D1D5DB;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1.5px solid #E5E7EB;
+  /* No max-height - let it expand fully */
+  display: block;
+  position: relative;
 }
 
 .variant-details h4 {
   font-size: 14px;
   font-weight: 600;
   color: #111827;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.variant-details h4::before {
+  content: '📦';
+  font-size: 18px;
+}
+
+/* Wrapper for variant table to handle overflow */
+.variant-table-wrapper {
+  overflow-x: auto;
   margin-bottom: 8px;
+  width: 100%;
+}
+
+.variant-table-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.variant-table-wrapper::-webkit-scrollbar-track {
+  background: #F1F5F9;
+  border-radius: 3px;
+}
+
+.variant-table-wrapper::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
+}
+
+.variant-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
 }
 
 .variant-table {
   font-size: 12px;
   background-color: white;
+  border-radius: 6px;
+  overflow: hidden;
 }
 
 .variant-table th {
   font-weight: 600;
   text-align: left;
   background-color: #F9FAFB;
+  padding: 10px 8px;
+  border-bottom: 1.5px solid #E5E7EB;
 }
 
 .variant-table td {
   font-size: 11px;
-  line-height: 1.4;
+  line-height: 1.5;
+  padding: 10px 8px;
+  border-bottom: 1px solid #F3F4F6;
 }
 
 .sell-quantity-input {
-  border: 1px solid #D1D5DB;
-  border-radius: 4px;
+  border: 1.5px solid #D1D5DB;
+  border-radius: 6px;
   font-size: 12px;
+  padding: 6px 8px;
+  transition: all 0.2s ease;
+}
+
+.sell-quantity-input:focus {
+  outline: none;
+  border-color: #4338CA;
+  box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.1);
+}
+
+.add-to-cart-btn {
+  background-color: #22c55e;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .add-to-cart-btn:hover {
-  background-color: #45a049 !important;
+  background-color: #16a34a !important;
+  transform: scale(1.05);
+}
+
+.add-to-cart-btn:active {
+  transform: scale(0.95);
 }
 
 .medicine-ingredient, .medicine-manufacturer, .medicine-packaging {
@@ -236,37 +343,108 @@
 .prescription-section {
   flex: 2;
   background-color: #FFFFFF;
-  box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.1), 0px 4px 6px -1px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   min-height: 300px;
+  border: 1px solid #e5e7eb;
 }
 
 @media (max-width: 768px) {
   .prescription-section {
-    padding: 8px;
+    padding: 12px;
     min-height: 200px;
   }
 }
 
 .section-header {
-  padding-bottom: 16px;
+  padding-bottom: 18px;
+  border-bottom: 2px solid #f3f4f6;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .section-title {
-  font-weight: 600;
-  font-size: 18px;
+  font-weight: 700;
+  font-size: 20px;
   line-height: 28px;
   color: #111827;
+}
+
+/* Clear All Button */
+.clear-all-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background-color: #DC2626;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);
+}
+
+.clear-all-btn:hover {
+  background-color: #B91C1C;
+  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
+  transform: translateY(-1px);
+}
+
+.clear-all-btn:active {
+  background-color: #991B1B;
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(220, 38, 38, 0.2);
+}
+
+.clear-all-btn .material-icons {
+  font-size: 18px;
+}
+
+.clear-all-btn:disabled {
+  background-color: #9CA3AF;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.clear-all-btn:disabled:hover {
+  transform: none;
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);
 }
 
 .prescription-table {
   flex: 1;
   overflow-x: auto;
   overflow-y: auto;
+  border-radius: 8px;
+}
+
+/* Scrollbar for prescription table */
+.prescription-table::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.prescription-table::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.prescription-table::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.prescription-table::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .table {
@@ -275,40 +453,52 @@
 }
 
 .table-header {
-  height: 40px;
+  height: 44px;
+  background-color: #f9fafb;
 }
 
 .table-cell {
-  padding: 12px 24px;
+  padding: 14px 20px;
   font-weight: 700;
-  font-size: 12px;
-  line-height: 16px;
+  font-size: 13px;
+  line-height: 18px;
   text-transform: uppercase;
   color: #6B7280;
   text-align: left;
-  vertical-align: center;
+  vertical-align: middle;
+  border-bottom: 1.5px solid #e5e7eb;
 }
 
 .text-right {
   text-align: right;
 }
 
+.table tbody tr {
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
 .table-footer {
-  height: 64.5px;
-  background-color: #FFFFFF;
+  height: 68px;
+  background-color: #f9fafb;
+  border-top: 2px solid #e5e7eb;
 }
 
 .table-footer .table-cell {
-  padding: 20.5px 24px 20px;
-  font-weight: 600;
-  font-size: 16px;
+  padding: 22px 20px;
+  font-weight: 700;
+  font-size: 18px;
   line-height: 24px;
   color: #111827;
   text-transform: none;
 }
-
 .total-amount {
   height: 24px;
+  color: #4338CA;
 }
 
 .vat-info {
@@ -321,11 +511,12 @@
 .medicine-info {
   display: flex;
   flex-direction: column;
-  gap: 0.5px;
+  gap: 4px;
 }
 
 .medicine-title {
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 15px;
   color: #111827;
   margin-bottom: 4px;
 }
@@ -333,7 +524,7 @@
 .medicine-detail {
   font-weight: 500;
   font-size: 12px;
-  line-height: 16px;
+  line-height: 18px;
   color: #6B7280;
 }
 
@@ -341,16 +532,18 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  gap: 2px;
 }
 
 .total-price {
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 16px;
   color: #111827;
   margin-bottom: 4px;
 }
 
 .vat-info {
-  font-size: 12px;
+  font-size: 11px;
   line-height: 16px;
   color: #6B7280;
 }
@@ -360,7 +553,18 @@
   border: none;
   color: #6B7280;
   cursor: pointer;
-  padding: 4px;
+  padding: 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.delete-button:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.delete-button:active {
+  transform: scale(0.95);
 }
 
 
@@ -368,19 +572,20 @@
 .payment-section {
   flex: 1;
   background-color: #FFFFFF;
-  box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.1), 0px 4px 6px -1px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   overflow: hidden;
   min-height: 300px;
+  border: 1px solid #e5e7eb;
 }
 
 @media (max-width: 768px) {
   .payment-section {
-    padding: 8px;
+    padding: 12px;
     min-height: 250px;
   }
 }
@@ -389,33 +594,56 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 28px;
+  height: 32px;
   gap: 16px;
   flex-shrink: 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f3f4f6;
 }
 
 .payment-time {
-  font-size: 12px;
-  line-height: 16px;
+  font-size: 13px;
+  line-height: 18px;
   color: #6B7280;
+  font-weight: 500;
 }
 
 .payment-content {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
+  padding-right: 4px;
+}
+
+/* Scrollbar for payment content */
+.payment-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.payment-content::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.payment-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.payment-content::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .customer-info {
   display: flex;
   gap: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 @media (max-width: 768px) {
   .customer-info {
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
   }
 }
 
@@ -423,13 +651,13 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .form-label {
-  font-weight: 500;
+  font-weight: 600;
   font-size: 14px;
-  color: #6B7280;
+  color: #374151;
   height: 20px;
   display: flex;
   align-items: center;
@@ -441,97 +669,135 @@
 
 .form-input {
   width: 100%;
-  height: 38px;
-  background-color: #F3F4F6;
-  border: 1px solid #E5E7EB;
+  height: 42px;
+  background-color: #F9FAFB;
+  border: 1.5px solid #E5E7EB;
   border-radius: 8px;
-  padding: 9px;
+  padding: 10px 36px 10px 12px;
   font-size: 14px;
   outline: none;
+  transition: all 0.2s ease;
 }
 
 .form-input:focus {
   border-color: #4338CA;
+  background-color: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.1);
+}
+
+.form-input::placeholder {
+  color: #9CA3AF;
 }
 
 .clear-button {
   position: absolute;
-  right: 0;
+  right: 4px;
   top: 50%;
   transform: translateY(-50%);
   width: 32px;
-  height: 42px;
+  height: 32px;
   background: none;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 7px 12px 7px 0;
+  padding: 0;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.clear-button:hover {
+  background-color: #f3f4f6;
 }
 
 .clear-button .material-icons {
   color: #6B7280;
-  font-size: 20px;
-  line-height: 28px;
+  font-size: 18px;
+  line-height: 1;
 }
 
 .payment-details {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
+  padding: 16px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  margin-top: 8px;
 }
 
 .payment-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 24px;
-  padding: 2px 0;
+  min-height: 24px;
+  padding: 4px 0;
 }
 
 .payment-label {
   font-size: 14px;
+  font-weight: 500;
   color: #6B7280;
 }
 
 .payment-value {
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: 700;
+  font-size: 16px;
   color: #111827;
 }
 
 .form-select {
   width: 100%;
-  height: 38px;
-  background-color: #F3F4F6;
-  border: 1px solid #E5E7EB;
+  height: 42px;
+  background-color: #F9FAFB;
+  border: 1.5px solid #E5E7EB;
   border-radius: 8px;
-  padding: 9px;
+  padding: 10px 12px;
   font-size: 14px;
   outline: none;
   color: #111827;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.form-select:focus {
+  border-color: #4338CA;
+  background-color: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.1);
 }
 
 .form-textarea {
   width: 100%;
-  height: 38px;
-  background-color: #F3F4F6;
-  border: 1px solid #E5E7EB;
+  min-height: 42px;
+  background-color: #F9FAFB;
+  border: 1.5px solid #E5E7EB;
   border-radius: 8px;
-  padding: 9px;
+  padding: 10px 12px;
   font-size: 14px;
   outline: none;
   resize: vertical;
   font-family: inherit;
+  line-height: 1.5;
+  transition: all 0.2s ease;
+}
+
+.form-textarea:focus {
+  border-color: #4338CA;
+  background-color: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.1);
+}
+
+.form-textarea::placeholder {
+  color: #9CA3AF;
 }
 
 .payment-button {
   width: 100%;
-  height: 44px;
-  background-color: #4338CA;
+  height: 48px;
+  background: linear-gradient(135deg, #4338CA 0%, #5b21b6 100%);
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   color: #FFFFFF;
   font-weight: 700;
   font-size: 16px;
@@ -540,27 +806,39 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 16px;
-  margin-top: 8px;
+  padding: 12px 16px;
+  margin-top: 12px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(67, 56, 202, 0.3);
 }
 
 .payment-button:hover {
-  background-color: #3730A3;
+  background: linear-gradient(135deg, #3730A3 0%, #4c1d95 100%);
+  box-shadow: 0 6px 16px rgba(67, 56, 202, 0.4);
+  transform: translateY(-2px);
 }
 
 .payment-button:active {
-  background-color: #312E81;
+  background: linear-gradient(135deg, #312E81 0%, #3b0764 100%);
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(67, 56, 202, 0.3);
 }
 
 /* QR Code Section Styles */
 .qr-code-section {
   margin: 16px 0;
-  padding: 20px;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  border: 2px dashed #94a3b8;
-  border-radius: 12px;
+  padding: 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+  border: 2px dashed #a5b4fc;
+  border-radius: 16px;
   text-align: center;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.1);
+}
+
+.qr-code-section:hover {
+  border-color: #818cf8;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.15);
 }
 
 .qr-header {
@@ -568,20 +846,21 @@
 }
 
 .qr-title {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 19px;
+  font-weight: 700;
   color: #1e293b;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .qr-subtitle {
   font-size: 14px;
   color: #64748b;
   margin: 0;
+  line-height: 1.6;
 }
 
 .qr-code-container {
-  margin: 20px 0;
+  margin: 24px 0;
   display: flex;
   justify-content: center;
 }
@@ -589,19 +868,26 @@
 .qr-placeholder {
   background: white;
   padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   border: 2px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.qr-placeholder:hover {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
 }
 
 .qr-code-img {
-  width: 200px;
-  height: 200px;
-  border-radius: 8px;
+  width: 220px;
+  height: 220px;
+  border-radius: 12px;
+  display: block;
 }
 
 .qr-instructions {
-  margin-top: 20px;
+  margin-top: 24px;
 }
 
 .instruction-list {
@@ -610,25 +896,33 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .instruction-list li {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   font-size: 14px;
+  font-weight: 500;
   color: #475569;
-  padding: 8px 16px;
-  background: rgba(34, 197, 94, 0.1);
-  border-radius: 8px;
+  padding: 10px 16px;
+  background: rgba(34, 197, 94, 0.08);
+  border-radius: 10px;
   border-left: 4px solid #22c55e;
+  transition: all 0.2s ease;
+}
+
+.instruction-list li:hover {
+  background: rgba(34, 197, 94, 0.15);
+  transform: translateX(4px);
 }
 
 .instruction-list li .material-icons {
   color: #22c55e;
-  font-size: 18px;
+  font-size: 20px;
+  flex-shrink: 0;
 }
 
 @media (max-width: 768px) {
@@ -638,7 +932,7 @@
   }
 
   .qr-title {
-    font-size: 16px;
+    font-size: 17px;
   }
 
   .qr-subtitle {
@@ -646,13 +940,13 @@
   }
 
   .qr-code-img {
-    width: 160px;
-    height: 160px;
+    width: 180px;
+    height: 180px;
   }
 
   .instruction-list li {
     font-size: 13px;
-    padding: 6px 12px;
+    padding: 8px 12px;
   }
 }
 
@@ -660,6 +954,11 @@
 @media (max-width: 480px) {
   .app-container {
     max-width: 100vw;
+  }
+
+  .content-area {
+    padding: 12px;
+    gap: 12px;
   }
 
   .sidebar {
@@ -673,42 +972,593 @@
   }
 
   .search-input-wrapper {
-    padding: 10px 60px 10px 35px;
+    height: 44px;
+  }
+
+  .search-input {
+    padding: 10px 80px 10px 42px;
+    font-size: 14px;
   }
 
   .search-button {
-    width: 60px;
-    font-size: 12px;
+    width: 70px;
+    font-size: 13px;
   }
 
   .table-cell {
-    padding: 8px 12px;
+    padding: 10px 14px;
     font-size: 11px;
   }
 
   .form-input,
   .form-select,
   .form-textarea {
-    height: 36px;
+    height: 40px;
     font-size: 13px;
   }
 
   .payment-button {
-    height: 40px;
-    font-size: 14px;
+    height: 44px;
+    font-size: 15px;
+  }
+
+  .section-title {
+    font-size: 18px;
   }
 }
 
 /* Tablet adjustments */
 @media (min-width: 769px) and (max-width: 1024px) {
   .content-area {
-    padding: 12px;
-    gap: 12px;
+    padding: 16px;
+    gap: 16px;
   }
 
   .search-section,
   .prescription-section,
   .payment-section {
-    padding: 12px;
+    padding: 16px;
+  }
+
+  .section-title {
+    font-size: 19px;
   }
 }
+
+/* Large screen optimizations */
+@media (min-width: 1440px) {
+  .content-area {
+    padding: 24px;
+    gap: 24px;
+  }
+
+  .search-section,
+  .prescription-section,
+  .payment-section {
+    padding: 24px;
+  }
+}
+
+/* ========================================
+   PRESCRIPTION TABLE INPUT & SELECT STYLES
+   ======================================== */
+
+/* Quantity Input in Prescription Table */
+.quantity-input {
+  width: 70px !important;
+  height: 36px;
+  padding: 6px 8px !important;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  text-align: center;
+  background-color: #F9FAFB;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.quantity-input:hover {
+  border-color: #D1D5DB;
+  background-color: #F3F4F6;
+}
+
+.quantity-input:focus {
+  border-color: #4338CA;
+  background-color: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.1);
+}
+
+/* Remove spinner buttons in Chrome, Safari, Edge, Opera */
+.quantity-input::-webkit-outer-spin-button,
+.quantity-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Remove spinner buttons in Firefox */
+.quantity-input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Unit Select in Prescription Table */
+.unit-select {
+  width: 100%;
+  min-width: 90px;
+  height: 36px;
+  padding: 6px 30px 6px 10px;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  background-color: #F9FAFB;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.unit-select:hover {
+  border-color: #D1D5DB;
+  background-color: #F3F4F6;
+}
+
+.unit-select:focus {
+  border-color: #4338CA;
+  background-color: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.1);
+}
+
+/* Delete Button in Prescription Table */
+.delete-item-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  opacity: 0.7;
+}
+
+.delete-item-btn:hover {
+  background-color: #FEE2E2;
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.delete-item-btn:active {
+  transform: scale(0.95);
+}
+
+/* Table Body Rows with Interactive Elements */
+.table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background-color: #F9FAFB;
+}
+
+.table tbody td {
+  padding: 12px 16px;
+  vertical-align: middle;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+/* Medicine Info Column Styling */
+.table tbody .medicine-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.table tbody .medicine-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #111827;
+  line-height: 1.4;
+}
+
+.table tbody .medicine-detail {
+  font-size: 12px;
+  color: #6B7280;
+  line-height: 1.4;
+}
+
+/* Price and Total Columns */
+.table tbody .text-right {
+  font-weight: 600;
+  font-size: 14px;
+  color: #111827;
+}
+
+/* Index Column */
+.table tbody td:first-child {
+  font-weight: 600;
+  color: #6B7280;
+  text-align: center;
+  width: 40px;
+}
+
+/* Responsive adjustments for table inputs */
+@media (max-width: 768px) {
+  .quantity-input {
+    width: 60px !important;
+    height: 32px;
+    font-size: 13px;
+    padding: 4px 6px !important;
+  }
+
+  .unit-select {
+    min-width: 80px;
+    height: 32px;
+    font-size: 12px;
+    padding: 4px 26px 4px 8px;
+  }
+
+  .delete-item-btn {
+    font-size: 16px;
+    padding: 4px 8px;
+  }
+
+  .table tbody td {
+    padding: 10px 12px;
+  }
+
+  .table tbody .medicine-title {
+    font-size: 13px;
+  }
+
+  .table tbody .medicine-detail {
+    font-size: 11px;
+  }
+}
+
+/* Tablet optimization for table inputs */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .quantity-input {
+    width: 65px !important;
+  }
+
+  .unit-select {
+    min-width: 85px;
+  }
+}
+
+/* Highlight changed inputs */
+.quantity-input:not(:placeholder-shown),
+.unit-select:not([value=""]) {
+  font-weight: 600;
+}
+
+/* Loading state for inputs */
+.quantity-input:disabled,
+.unit-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #F3F4F6;
+}
+
+/* Error state for inputs */
+.quantity-input.error {
+  border-color: #DC2626;
+  background-color: #FEE2E2;
+}
+
+.quantity-input.error:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+/* Success state for inputs */
+.quantity-input.success {
+  border-color: #22C55E;
+  background-color: #DCFCE7;
+}
+
+/* ========================================
+   SUCCESS POPUP STYLES
+   ======================================== */
+
+/* ========================================
+   QR CODE POPUP STYLES
+   ======================================== */
+
+/* QR Popup Overlay */
+.qr-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.qr-popup-overlay.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.qr-popup-overlay.show .qr-popup {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* QR Popup Container */
+.qr-popup {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 20px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  transform: scale(0.7);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  overflow: hidden;
+}
+
+/* QR Popup Header */
+.qr-popup-header {
+  background: linear-gradient(135deg, #4338ca 0%, #5b21b6 100%);
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.qr-popup-title {
+  color: white;
+  font-size: 20px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+.qr-popup-title .material-icons {
+  font-size: 28px;
+}
+
+.qr-popup-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.qr-popup-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.qr-popup-close .material-icons {
+  font-size: 24px;
+}
+
+/* QR Popup Content */
+.qr-popup-content {
+  padding: 30px 24px;
+}
+
+/* QR Code Display */
+.qr-code-display {
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.qr-code-image {
+  width: 280px;
+  height: 280px;
+  border-radius: 12px;
+  display: block;
+}
+
+/* QR Info Section */
+.qr-info-section {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.qr-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.qr-info-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.qr-info-row.highlight {
+  background: #eef2ff;
+  padding: 12px;
+  border-radius: 8px;
+  margin: 8px 0;
+  border: 2px solid #4338ca;
+}
+
+.qr-info-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.qr-info-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.qr-info-value.amount {
+  font-size: 20px;
+  color: #4338ca;
+}
+
+.qr-info-value.code {
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+  color: #4338ca;
+}
+
+/* QR Instructions */
+.qr-instructions {
+  background: #eef2ff;
+  border-radius: 12px;
+  padding: 16px;
+  border-left: 4px solid #4338ca;
+}
+
+.qr-instruction-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qr-instruction-title .material-icons {
+  color: #4338ca;
+  font-size: 20px;
+}
+
+.qr-instruction-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.qr-instruction-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 14px;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.qr-instruction-list li .material-icons {
+  color: #22c55e;
+  font-size: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* QR Popup Footer */
+.qr-popup-footer {
+  padding: 16px 24px 24px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.qr-popup-button {
+  padding: 12px 32px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qr-popup-button.secondary {
+  background: #6b7280;
+  color: white;
+}
+
+.qr-popup-button.secondary:hover {
+  background: #4b5563;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .qr-popup {
+    max-width: 95%;
+  }
+
+  .qr-popup-header {
+    padding: 16px 20px;
+  }
+
+  .qr-popup-title {
+    font-size: 18px;
+  }
+
+  .qr-popup-title .material-icons {
+    font-size: 24px;
+  }
+
+  .qr-popup-content {
+    padding: 20px 16px;
+  }
+
+  .qr-code-display {
+    padding: 16px;
+  }
+
+  .qr-code-image {
+    width: 220px;
+    height: 220px;
+  }
+
+  .qr-info-label,
+  .qr-instruction-list li {
+    font-size: 13px;
+  }
+
+  .qr-info-value {
+    font-size: 14px;
+  }
+
+  .qr-info-value.amount {
+    font-size: 18px;
+  }
+}
+
+/* ========================================
+   SUCCESS POPUP STYLES
+   ======================================== */

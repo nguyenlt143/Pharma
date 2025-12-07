@@ -19,14 +19,14 @@ content = @`
         <div class="schedule-card">
                 <div class="schedule-controls">
                     <div class="control-group">
-                        <label class="control-label">YEAR</label>
+                        <label class="control-label">Năm</label>
                         <select class="control-select">
                             <option>${start.getYear()}</option>
                         </select>
                     </div>
 
                     <div class="control-group">
-                        <label class="control-label">WEEK</label>
+                        <label class="control-label">Tuần</label>
                         <select class="control-select week-select">
                             <option>
                                 ${start.format(DateTimeFormatter.ofPattern("dd/MM"))}
@@ -42,8 +42,20 @@ content = @`
                         <div class="header-cell empty-cell"></div>
                         <div class="table-header">
                             @for(LocalDate d = start; !d.isAfter(end); d = d.plusDays(1))
+                                !{
+                                    String dayName = switch(d.getDayOfWeek().getValue()) {
+                                        case 1 -> "Thứ Hai";
+                                        case 2 -> "Thứ Ba";
+                                        case 3 -> "Thứ Tư";
+                                        case 4 -> "Thứ Năm";
+                                        case 5 -> "Thứ Sáu";
+                                        case 6 -> "Thứ Bảy";
+                                        case 7 -> "Chủ Nhật";
+                                        default -> "";
+                                    };
+                                }
                                 <div class="header-cell">
-                                    ${d.getDayOfWeek().name().substring(0,3)}
+                                    ${dayName}
                                     <br>
                                     ${d.format(DateTimeFormatter.ofPattern("dd/MM"))}
                                 </div>
