@@ -116,7 +116,15 @@
         <!-- Note and Submit -->
         <div class="bg-white p-6 rounded-lg shadow-md">
             <div class="mb-4">
-                <label class="block text-sm font-medium mb-2">Ghi chú</label>
+                <label class="block text-sm font-medium mb-2">Loại phiếu trả <span class="text-red-500">*</span></label>
+                <select id="movementType" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">-- Chọn loại phiếu trả --</option>
+                    <option value="BR_TO_WARE">Trả từ chi nhánh về kho tổng</option>
+                    <option value="BR_TO_WARE2">Trả hàng hết hạn</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-2">Ghi chú (tối đa 300 ký tự)</label>
                 <textarea id="note" rows="3" maxlength="300" class="w-full border border-gray-300 rounded-md px-3 py-2" placeholder="Nhập ghi chú (tối đa 300 ký tự)"></textarea>
             </div>
             <div class="flex justify-end gap-3">
@@ -304,6 +312,12 @@ $('#submitBtn').on('click', function() {
         return;
     }
 
+    const movementType = $('#movementType').val();
+    if (!movementType) {
+        alert('Vui lòng chọn loại phiếu trả!');
+        return;
+    }
+
     const items = Array.from(selectedItems.values()).map(item => ({
         variantId: item.variantId,
         batchId: item.batchId,
@@ -313,6 +327,7 @@ $('#submitBtn').on('click', function() {
 
     const data = {
         branchId: branchIdValue,
+        movementType: movementType,
         note: $('#note').val().trim(),
         items: items
     };

@@ -141,6 +141,18 @@ content = @`
 
                                 <div class="form-row">
                                     <div class="form-group">
+                                        <label for="currentPassword" class="form-label">Mật khẩu hiện tại</label>
+                                        <input type="password"
+                                               id="currentPassword"
+                                               name="currentPassword"
+                                               class="form-input"
+                                               placeholder="Nhập mật khẩu hiện tại để đổi mật khẩu">
+                                        <div class="invalid-feedback" id="currentPassword-error"></div>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
                                         <label for="password" class="form-label">Mật khẩu mới</label>
                                         <input type="password"
                                                id="password"
