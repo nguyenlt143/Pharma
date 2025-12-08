@@ -1,4 +1,4 @@
-package vn.edu.fpt.pharma.controller.warehouse;
+package vn.edu.fpt.pharma.controller.wareHouse;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -21,10 +21,18 @@ import vn.edu.fpt.pharma.service.BranchService;
 import vn.edu.fpt.pharma.service.InventoryMovementService;
 import vn.edu.fpt.pharma.service.RequestFormService;
 import vn.edu.fpt.pharma.service.InventoryService;
+import vn.edu.fpt.pharma.service.StockAdjustmentService;
 import vn.edu.fpt.pharma.dto.inventory.InventoryMedicineVM;
+import vn.edu.fpt.pharma.dto.inventory.InventoryCheckRequestDTO;
+import vn.edu.fpt.pharma.dto.inventorycheck.InventoryCheckHistoryVM;
+import vn.edu.fpt.pharma.dto.inventorycheck.StockAdjustmentDetailVM;
+import vn.edu.fpt.pharma.entity.Inventory;
+import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @Controller
 @RequestMapping("/warehouse")
@@ -35,6 +43,7 @@ public class WarehouseController {
     private final BranchService branchService;
     private final RequestFormService requestFormService;
     private final InventoryService inventoryService;
+    private final StockAdjustmentService stockAdjustmentService;
     @GetMapping("/receipt/create")
     public String receiptCreate(Model model) {
         // Tạo ViewModel rỗng cho form mới
@@ -168,6 +177,87 @@ public class WarehouseController {
         }
 
         return inventoryMovementService.getReceiptList(movementType, branchId, status);
+    }
+
+    // -------------------- CHECK INVENTORY --------------------
+    @GetMapping("/check")
+    public String checkList(Model model) {
+        Long branchId = 1L; // Warehouse branch ID
+        List<InventoryCheckHistoryVM> inventoryChecks =
+            stockAdjustmentService.getInventoryCheckHistory(branchId);
+
+        model.addAttribute("inventoryChecks", inventoryChecks);
+        model.addAttribute("branchName", "Kho Tổng");
+
+        return "pages/warehouse/warehouse_check_list";
+    }
+
+    @GetMapping("/check/detail")
+    public String checkDetail(
+            @RequestParam String checkDate,
+            Model model
+    ) {
+        Long branchId = 1L;
+        List<StockAdjustmentDetailVM> details =
+            stockAdjustmentService.getInventoryCheckDetails(branchId, checkDate);
+
+        model.addAttribute("checkDate", checkDate);
+        model.addAttribute("details", details);
+
+        return "pages/warehouse/warehouse_check_detail";
+    }
+
+    @GetMapping("/check/create")
+    public String checkCreate(Model model) {
+        Long branchId = 1L;
+        List<InventoryMedicineVM> medicines =
+            inventoryService.getInventoryMedicinesByBranch(branchId);
+
+        model.addAttribute("medicines", medicines);
+        model.addAttribute("branchId", branchId);
+
+        return "pages/warehouse/warehouse_check_create";
+    }
+
+    @PostMapping("/check/submit")
+    @ResponseBody
+    public ResponseEntity<?> submitInventoryCheck(
+            @org.springframework.web.bind.annotation.RequestBody InventoryCheckRequestDTO request
+    ) {
+        try {
+            Long branchId = 1L;
+            Long userId = 1L; // TODO: Get from authenticated user
+
+            // Kiểm tra shortage
+            List<Map<String, Object>> shortageItems = new ArrayList<>();
+            for (var item : request.getItems()) {
+                Inventory inv = inventoryService.findById(item.getInventoryId());
+                if (inv != null) {
+                    Long systemQty = inv.getQuantity() != null ? inv.getQuantity() : 0L;
+                    Long countedQty = item.getCountedQuantity() != null ? item.getCountedQuantity() : 0L;
+
+                    if (countedQty < systemQty) {
+                        Map<String, Object> shortage = new HashMap<>();
+                        shortage.put("inventoryId", item.getInventoryId());
+                        shortage.put("variantId", item.getVariantId());
+                        shortage.put("shortage", systemQty - countedQty);
+                        shortageItems.add(shortage);
+                    }
+                }
+            }
+
+            stockAdjustmentService.performInventoryCheck(branchId, userId, request);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("hasShortage", !shortageItems.isEmpty());
+            response.put("shortageItems", shortageItems);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("success", false, "message", e.getMessage()));
+        }
     }
 
 //    @GetMapping("/request/detail")

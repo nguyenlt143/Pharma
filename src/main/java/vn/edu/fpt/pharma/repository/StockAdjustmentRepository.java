@@ -14,8 +14,7 @@ import org.springframework.data.jpa.repository.Query;
 public interface StockAdjustmentRepository extends JpaRepository<StockAdjustment, Long>, JpaSpecificationExecutor<StockAdjustment> {
 
     @Query(value = """
-        SELECT MAX(created_at) FROM stock_adjustments 
-        WHERE brand_id != 1
+        SELECT MAX(created_at) FROM stock_adjustments
         """, nativeQuery = true)
     LocalDateTime findLastInventoryCheck();
 

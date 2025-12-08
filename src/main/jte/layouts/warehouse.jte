@@ -42,8 +42,8 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/warehouse/" class="nav-link">
-                        <span class="nav-text">Kiểm kê tồn kho</span>
+                    <a href="/warehouse/check" class="nav-link ${active.equals("check") ? "active" : ""}">
+                        <span class="nav-text">Kiểm kho</span>
                     </a>
                 </li>
                 <li class="nav-item">

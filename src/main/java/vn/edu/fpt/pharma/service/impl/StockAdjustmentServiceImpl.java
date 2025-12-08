@@ -95,8 +95,9 @@ public class StockAdjustmentServiceImpl extends BaseServiceImpl<StockAdjustment,
                 throw new IllegalArgumentException("Số lượng kiểm không được âm cho thuốc: " + inv.getVariant().getMedicine().getName());
             }
 
-            // Validate: số lượng kiểm không được vượt quá số tồn
-            if (after > before) {
+            // Validate: số lượng kiểm không được vượt quá số tồn (chỉ áp dụng cho chi nhánh, không áp dụng cho kho tổng)
+            boolean isWarehouse = branchId.equals(1L);
+            if (!isWarehouse && after > before) {
                 throw new IllegalArgumentException("Số lượng kiểm (" + after + ") không được vượt quá số tồn hệ thống (" + before + ") cho thuốc: " + inv.getVariant().getMedicine().getName());
             }
 
