@@ -16,6 +16,7 @@ public class UserTestBuilder {
     private String email = "test@example.com";
     private String phoneNumber = "0123456789";
     private String password = "password123";
+    private String imageUrl;
     private Long roleId = 4L; // Default: Pharmacist
     private Long branchId = 1L;
     private boolean deleted = false;
@@ -53,8 +54,18 @@ public class UserTestBuilder {
         return this;
     }
 
+    public UserTestBuilder withPhone(String phoneNumber) {
+        // Alias for withPhoneNumber for backward compatibility
+        return withPhoneNumber(phoneNumber);
+    }
+
     public UserTestBuilder withPassword(String password) {
         this.password = password;
+        return this;
+    }
+
+    public UserTestBuilder withImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
         return this;
     }
 
@@ -103,6 +114,7 @@ public class UserTestBuilder {
         user.setEmail(email);
         user.setPhoneNumber(phoneNumber);
         user.setPassword(password);
+        user.setImageUrl(imageUrl);
         user.setBranchId(branchId);
         user.setDeleted(deleted);
 
@@ -127,4 +139,3 @@ public class UserTestBuilder {
                 .build();
     }
 }
-

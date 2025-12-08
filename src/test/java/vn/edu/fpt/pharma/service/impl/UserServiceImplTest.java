@@ -388,6 +388,142 @@ class UserServiceImplTest extends BaseServiceTest {
         }
 
         @Test
+        @DisplayName("Should accept password with minimum valid length (6 characters)")
+        void create_withMinimumPasswordLength_shouldSucceed() {
+            // Arrange - From PasswordValidatorTest: minimum length is 6
+            UserRequest request = UserTestBuilder.create()
+                    .withPassword("pass12") // Exactly 6 characters
+                    .buildRequest();
+
+            when(roleRepository.findById(any())).thenReturn(Optional.of(pharmacistRole));
+            when(userRepository.existsByUserNameIgnoreCase(any())).thenReturn(false);
+            when(userRepository.existsByEmailIgnoreCase(any())).thenReturn(false);
+            when(userRepository.existsByPhoneNumber(any())).thenReturn(false);
+            when(passwordEncoder.encode("pass12")).thenReturn("encoded_pass12");
+            when(userRepository.save(any(User.class))).thenAnswer(inv -> {
+                User u = inv.getArgument(0);
+                u.setId(1L);
+                return u;
+            });
+
+            // Act
+            UserDto result = userService.create(request);
+
+            // Assert
+            assertThat(result).isNotNull();
+            verify(passwordEncoder).encode("pass12");
+        }
+
+        @Test
+        @DisplayName("Should accept password with maximum valid length (100 characters)")
+        void create_withMaximumPasswordLength_shouldSucceed() {
+            // Arrange - From PasswordValidatorTest: maximum length is 100
+            String maxLengthPassword = "a".repeat(100); // Exactly 100 characters
+            UserRequest request = UserTestBuilder.create()
+                    .withPassword(maxLengthPassword)
+                    .buildRequest();
+
+            when(roleRepository.findById(any())).thenReturn(Optional.of(pharmacistRole));
+            when(userRepository.existsByUserNameIgnoreCase(any())).thenReturn(false);
+            when(userRepository.existsByEmailIgnoreCase(any())).thenReturn(false);
+            when(userRepository.existsByPhoneNumber(any())).thenReturn(false);
+            when(passwordEncoder.encode(maxLengthPassword)).thenReturn("encoded_max");
+            when(userRepository.save(any(User.class))).thenAnswer(inv -> {
+                User u = inv.getArgument(0);
+                u.setId(1L);
+                return u;
+            });
+
+            // Act
+            UserDto result = userService.create(request);
+
+            // Assert
+            assertThat(result).isNotNull();
+            verify(passwordEncoder).encode(maxLengthPassword);
+        }
+
+        @Test
+        @DisplayName("Should accept password with special characters if length is valid")
+        void create_withSpecialCharactersPassword_shouldSucceed() {
+            // Arrange - From PasswordValidatorTest: special chars are allowed
+            UserRequest request = UserTestBuilder.create()
+                    .withPassword("p@ss!123") // 8 characters with special chars
+                    .buildRequest();
+
+            when(roleRepository.findById(any())).thenReturn(Optional.of(pharmacistRole));
+            when(userRepository.existsByUserNameIgnoreCase(any())).thenReturn(false);
+            when(userRepository.existsByEmailIgnoreCase(any())).thenReturn(false);
+            when(userRepository.existsByPhoneNumber(any())).thenReturn(false);
+            when(passwordEncoder.encode("p@ss!123")).thenReturn("encoded_special");
+            when(userRepository.save(any(User.class))).thenAnswer(inv -> {
+                User u = inv.getArgument(0);
+                u.setId(1L);
+                return u;
+            });
+
+            // Act
+            UserDto result = userService.create(request);
+
+            // Assert
+            assertThat(result).isNotNull();
+            verify(passwordEncoder).encode("p@ss!123");
+        }
+
+        @Test
+        @DisplayName("Should accept phone number with valid format starting with 0")
+        void create_withValidPhoneFormat_shouldSucceed() {
+            // Arrange - From PhoneNumberValidatorTest: valid format 0XXXXXXXXX (10 digits)
+            UserRequest request = UserTestBuilder.create()
+                    .withPhoneNumber("0123456789") // Valid 10 digits
+                    .buildRequest();
+
+            when(roleRepository.findById(any())).thenReturn(Optional.of(pharmacistRole));
+            when(userRepository.existsByUserNameIgnoreCase(any())).thenReturn(false);
+            when(userRepository.existsByEmailIgnoreCase(any())).thenReturn(false);
+            when(userRepository.existsByPhoneNumber("0123456789")).thenReturn(false);
+            when(passwordEncoder.encode(any())).thenReturn("encoded");
+            when(userRepository.save(any(User.class))).thenAnswer(inv -> {
+                User u = inv.getArgument(0);
+                u.setId(1L);
+                return u;
+            });
+
+            // Act
+            UserDto result = userService.create(request);
+
+            // Assert
+            assertThat(result).isNotNull();
+            assertThat(result.getPhoneNumber()).isEqualTo("0123456789");
+        }
+
+        @Test
+        @DisplayName("Should accept phone number with +84 country code")
+        void create_withValidPhoneFormatWithCountryCode_shouldSucceed() {
+            // Arrange - From PhoneNumberValidatorTest: +84XXXXXXXXX format
+            UserRequest request = UserTestBuilder.create()
+                    .withPhoneNumber("+84123456789")
+                    .buildRequest();
+
+            when(roleRepository.findById(any())).thenReturn(Optional.of(pharmacistRole));
+            when(userRepository.existsByUserNameIgnoreCase(any())).thenReturn(false);
+            when(userRepository.existsByEmailIgnoreCase(any())).thenReturn(false);
+            when(userRepository.existsByPhoneNumber("+84123456789")).thenReturn(false);
+            when(passwordEncoder.encode(any())).thenReturn("encoded");
+            when(userRepository.save(any(User.class))).thenAnswer(inv -> {
+                User u = inv.getArgument(0);
+                u.setId(1L);
+                return u;
+            });
+
+            // Act
+            UserDto result = userService.create(request);
+
+            // Assert
+            assertThat(result).isNotNull();
+            assertThat(result.getPhoneNumber()).isEqualTo("+84123456789");
+        }
+
+        @Test
         @DisplayName("Should rollback when repo save fails")
         void create_whenRepoSaveFails_shouldRollback() {
             // Arrange
@@ -435,6 +571,220 @@ class UserServiceImplTest extends BaseServiceTest {
             assertThatThrownBy(() -> userService.create(request))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessage("Branch save failed");
+        }
+
+        // ========================================
+        // Decision Table TR_USER_01 - Missing Tests
+        // ========================================
+
+        @Test
+        @DisplayName("TC_USER_03 - Should reject null userName")
+        void create_withNullUserName_shouldThrowException() {
+            // Decision Table: TC_03 - Condition A = null
+            // Type: A (Abnormal)
+            // Expected: EXCEPTION
+
+            // Arrange
+            UserRequest request = UserTestBuilder.create()
+                    .withUserName(null)
+                    .buildRequest();
+
+            // Act & Assert
+            assertThatThrownBy(() -> userService.create(request))
+                    .isInstanceOf(RuntimeException.class);
+
+            // Verify no database interaction occurred
+            verify(userRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("TC_USER_05 - Should reject duplicate email")
+        void create_withDuplicateEmail_shouldThrowException() {
+            // Decision Table: TC_05 - Condition B = Duplicate
+            // Type: A (Abnormal)
+            // Expected: EXCEPTION with message "Email đã tồn tại"
+
+            // Arrange
+            UserRequest request = UserTestBuilder.create()
+                    .withUserName("newuser")
+                    .withEmail("duplicate@test.com")
+                    .buildRequest();
+
+            when(userRepository.existsByUserNameIgnoreCase(any())).thenReturn(false);
+            when(userRepository.existsByEmailIgnoreCase("duplicate@test.com")).thenReturn(true);
+
+            // Act & Assert
+            assertThatThrownBy(() -> userService.create(request))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("Email đã tồn tại");
+
+            verify(userRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("TC_USER_11 - Should reject userName shorter than 4 characters (Boundary)")
+        void create_withTooShortUserName_shouldThrowException() {
+            // Decision Table: TC_11 - Condition A = 3 chars (boundary)
+            // Type: B (Boundary)
+            // Expected: EXCEPTION
+
+            // Arrange
+            UserRequest request = UserTestBuilder.create()
+                    .withUserName("abc") // 3 characters - below minimum of 4
+                    .buildRequest();
+
+            // Act & Assert
+            assertThatThrownBy(() -> userService.create(request))
+                    .isInstanceOf(RuntimeException.class);
+        }
+
+        @Test
+        @DisplayName("TC_USER_12 - Should reject userName longer than 30 characters (Boundary)")
+        void create_withTooLongUserName_shouldThrowException() {
+            // Decision Table: TC_12 - Condition A = 31 chars (boundary)
+            // Type: B (Boundary)
+            // Expected: EXCEPTION
+
+            // Arrange
+            String tooLongUserName = "a".repeat(31); // 31 characters - above maximum of 30
+            UserRequest request = UserTestBuilder.create()
+                    .withUserName(tooLongUserName)
+                    .buildRequest();
+
+            // Act & Assert
+            assertThatThrownBy(() -> userService.create(request))
+                    .isInstanceOf(RuntimeException.class);
+        }
+
+        @Test
+        @DisplayName("TC_USER_13 - Should reject invalid email format")
+        void create_withInvalidEmailFormat_shouldThrowException() {
+            // Decision Table: TC_13 - Condition B = Invalid_format
+            // Type: A (Abnormal)
+            // Expected: EXCEPTION
+
+            // Arrange
+            UserRequest request = UserTestBuilder.create()
+                    .withUserName("validuser")
+                    .withEmail("invalid-email-format") // No @ sign, invalid format
+                    .buildRequest();
+
+            // Act & Assert
+            assertThatThrownBy(() -> userService.create(request))
+                    .isInstanceOf(RuntimeException.class);
+        }
+
+        @Test
+        @DisplayName("TC_USER_14 - Should reject invalid phoneNumber format")
+        void create_withInvalidPhoneNumberFormat_shouldThrowException() {
+            // Decision Table: TC_14 - Condition C = Invalid_format
+            // Type: A (Abnormal)
+            // Expected: EXCEPTION
+
+            // Arrange
+            UserRequest request = UserTestBuilder.create()
+                    .withUserName("validuser")
+                    .withEmail("valid@test.com")
+                    .withPhoneNumber("123") // Invalid format - too short, wrong pattern
+                    .buildRequest();
+
+            // Act & Assert
+            assertThatThrownBy(() -> userService.create(request))
+                    .isInstanceOf(RuntimeException.class);
+        }
+
+        @Test
+        @DisplayName("TC_USER_15 - Should reject password shorter than 6 characters (Boundary)")
+        void create_withTooShortPassword_shouldThrowException() {
+            // Decision Table: TC_15 - Condition D = 5 chars (boundary)
+            // Type: B (Boundary)
+            // Expected: EXCEPTION
+
+            // Arrange
+            UserRequest request = UserTestBuilder.create()
+                    .withUserName("validuser")
+                    .withEmail("valid@test.com")
+                    .withPhoneNumber("0123456789")
+                    .withPassword("pass") // 4 characters - below minimum of 6
+                    .withRoleId(4L)
+                    .buildRequest();
+
+            // Act & Assert
+            assertThatThrownBy(() -> userService.create(request))
+                    .isInstanceOf(RuntimeException.class);
+        }
+
+        @Test
+        @DisplayName("TC_USER_16 - Should accept userName at minimum boundary (4 chars)")
+        void create_withMinimumUserNameLength_shouldSucceed() {
+            // Decision Table: TC_07 equivalent - Boundary test
+            // Type: B (Boundary)
+            // Expected: SUCCESS
+
+            // Arrange
+            UserRequest request = UserTestBuilder.create()
+                    .withUserName("test") // Exactly 4 characters - minimum boundary
+                    .withEmail("test@example.com")
+                    .withPhoneNumber("0123456789")
+                    .withPassword("password123")
+                    .withRoleId(4L)
+                    .buildRequest();
+
+            when(roleRepository.findById(4L)).thenReturn(Optional.of(pharmacistRole));
+            when(userRepository.existsByUserNameIgnoreCase("test")).thenReturn(false);
+            when(userRepository.existsByEmailIgnoreCase(any())).thenReturn(false);
+            when(userRepository.existsByPhoneNumber(any())).thenReturn(false);
+            when(passwordEncoder.encode(any())).thenReturn("encoded");
+            when(userRepository.save(any(User.class))).thenAnswer(inv -> {
+                User u = inv.getArgument(0);
+                u.setId(1L);
+                return u;
+            });
+
+            // Act
+            UserDto result = userService.create(request);
+
+            // Assert
+            assertThat(result).isNotNull();
+            assertThat(result.getUserName()).isEqualTo("test");
+            verify(userRepository).save(any(User.class));
+        }
+
+        @Test
+        @DisplayName("TC_USER_17 - Should accept userName at maximum boundary (30 chars)")
+        void create_withMaximumUserNameLength_shouldSucceed() {
+            // Decision Table: TC_08 equivalent - Boundary test
+            // Type: B (Boundary)
+            // Expected: SUCCESS
+
+            // Arrange
+            String maxLengthUserName = "a".repeat(30); // Exactly 30 characters - maximum boundary
+            UserRequest request = UserTestBuilder.create()
+                    .withUserName(maxLengthUserName)
+                    .withEmail("test@example.com")
+                    .withPhoneNumber("0123456789")
+                    .withPassword("password123")
+                    .withRoleId(4L)
+                    .buildRequest();
+
+            when(roleRepository.findById(4L)).thenReturn(Optional.of(pharmacistRole));
+            when(userRepository.existsByUserNameIgnoreCase(maxLengthUserName)).thenReturn(false);
+            when(userRepository.existsByEmailIgnoreCase(any())).thenReturn(false);
+            when(userRepository.existsByPhoneNumber(any())).thenReturn(false);
+            when(passwordEncoder.encode(any())).thenReturn("encoded");
+            when(userRepository.save(any(User.class))).thenAnswer(inv -> {
+                User u = inv.getArgument(0);
+                u.setId(1L);
+                return u;
+            });
+
+            // Act
+            UserDto result = userService.create(request);
+
+            // Assert
+            assertThat(result).isNotNull();
+            assertThat(result.getUserName()).isEqualTo(maxLengthUserName);
+            verify(userRepository).save(any(User.class));
         }
     }
 

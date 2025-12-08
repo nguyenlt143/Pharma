@@ -2,11 +2,15 @@ package vn.edu.fpt.pharma.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import vn.edu.fpt.pharma.BaseServiceTest;
 import vn.edu.fpt.pharma.dto.user.ProfileUpdateRequest;
 import vn.edu.fpt.pharma.entity.User;
+import vn.edu.fpt.pharma.repository.UserRepository;
 import vn.edu.fpt.pharma.service.impl.UserServiceImpl;
-import vn.edu.fpt.pharma.testutil.BaseServiceTest;
-import vn.edu.fpt.pharma.testutil.UserTestDataBuilder;
+import vn.edu.fpt.pharma.testbuilder.UserTestBuilder;
 
 import java.util.Optional;
 
@@ -20,20 +24,18 @@ import static org.mockito.Mockito.*;
  */
 class UserServiceTest extends BaseServiceTest {
 
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @InjectMocks
     private UserServiceImpl userService;
 
     @BeforeEach
-    void setUpService() {
-        // Manual injection to ensure all dependencies are provided
-        userService = new UserServiceImpl(
-            userRepository,      // repository (BaseService)
-            auditService,        // auditService (BaseService)
-            userRepository,      // userRepository (duplicate parameter)
-            roleRepository,      // roleRepository
-            passwordEncoder,     // passwordEncoder
-            shiftAssignmentRepository,  // shiftAssignmentRepository
-            branchRepository     // branchRepository
-        );
+    void setUp() {
+        // Mockito will inject mocks automatically
     }
 
     // ========================================
@@ -44,11 +46,11 @@ class UserServiceTest extends BaseServiceTest {
     void updateProfile_withValidData_shouldUpdateSuccessfully() {
         // Arrange
         Long userId = 1L;
-        User existingUser = UserTestDataBuilder.aUser()
+        User existingUser = UserTestBuilder.create()
             .withId(userId)
             .withEmail("old@example.com")
-            .withPhone("0123456789")
-            .build();
+            .withPhoneNumber("0123456789")
+            .buildEntity();
 
         ProfileUpdateRequest request = ProfileUpdateRequest.builder()
             .fullName("New Name")
@@ -78,10 +80,10 @@ class UserServiceTest extends BaseServiceTest {
     void updateProfile_withOnlyNameChange_shouldNotUpdatePassword() {
         // Arrange
         Long userId = 1L;
-        User existingUser = UserTestDataBuilder.aUser()
+        User existingUser = UserTestBuilder.create()
             .withId(userId)
             .withPassword("encodedOldPassword")
-            .build();
+            .buildEntity();
 
         ProfileUpdateRequest request = ProfileUpdateRequest.builder()
             .fullName("New Name")
@@ -113,10 +115,10 @@ class UserServiceTest extends BaseServiceTest {
         String encodedOld = "encodedOldPassword";
         String encodedNew = "encodedNewPassword";
 
-        User existingUser = UserTestDataBuilder.aUser()
+        User existingUser = UserTestBuilder.create()
             .withId(userId)
             .withPassword(encodedOld)
-            .build();
+            .buildEntity();
 
         ProfileUpdateRequest request = ProfileUpdateRequest.builder()
             .fullName(existingUser.getFullName())
@@ -149,10 +151,10 @@ class UserServiceTest extends BaseServiceTest {
     void updateProfile_withEmptyPhone_shouldAcceptAndStoreEmpty() {
         // Arrange
         Long userId = 1L;
-        User existingUser = UserTestDataBuilder.aUser()
+        User existingUser = UserTestBuilder.create()
             .withId(userId)
             .withPhone("0123456789")
-            .build();
+            .buildEntity();
 
         ProfileUpdateRequest request = ProfileUpdateRequest.builder()
             .fullName("Test User")
@@ -180,10 +182,10 @@ class UserServiceTest extends BaseServiceTest {
         Long userId = 1L;
         String base64Avatar = "data:image/png;base64,iVBORw0KGgoAAAANS";
 
-        User existingUser = UserTestDataBuilder.aUser()
+        User existingUser = UserTestBuilder.create()
             .withId(userId)
             .withImageUrl(null)
-            .build();
+            .buildEntity();
 
         ProfileUpdateRequest request = ProfileUpdateRequest.builder()
             .fullName("Test User")
@@ -215,9 +217,9 @@ class UserServiceTest extends BaseServiceTest {
         Long userId = 1L;
         String minLengthName = "Name12"; // 6 characters
 
-        User existingUser = UserTestDataBuilder.aUser()
+        User existingUser = UserTestBuilder.create()
             .withId(userId)
-            .build();
+            .buildEntity();
 
         ProfileUpdateRequest request = ProfileUpdateRequest.builder()
             .fullName(minLengthName)
@@ -244,9 +246,9 @@ class UserServiceTest extends BaseServiceTest {
         Long userId = 1L;
         String maxLengthName = "A".repeat(100); // 100 characters
 
-        User existingUser = UserTestDataBuilder.aUser()
+        User existingUser = UserTestBuilder.create()
             .withId(userId)
-            .build();
+            .buildEntity();
 
         ProfileUpdateRequest request = ProfileUpdateRequest.builder()
             .fullName(maxLengthName)
@@ -274,10 +276,10 @@ class UserServiceTest extends BaseServiceTest {
         String minPassword = "pass12"; // 6 characters
         String encodedPassword = "encoded_pass12";
 
-        User existingUser = UserTestDataBuilder.aUser()
+        User existingUser = UserTestBuilder.create()
             .withId(userId)
             .withPassword("oldEncoded")
-            .build();
+            .buildEntity();
 
         ProfileUpdateRequest request = ProfileUpdateRequest.builder()
             .fullName("Test")
@@ -308,10 +310,10 @@ class UserServiceTest extends BaseServiceTest {
         String maxPassword = "p".repeat(100); // 100 characters
         String encodedPassword = "encoded_max";
 
-        User existingUser = UserTestDataBuilder.aUser()
+        User existingUser = UserTestBuilder.create()
             .withId(userId)
             .withPassword("oldEncoded")
-            .build();
+            .buildEntity();
 
         ProfileUpdateRequest request = ProfileUpdateRequest.builder()
             .fullName("Test")
@@ -341,9 +343,9 @@ class UserServiceTest extends BaseServiceTest {
         Long userId = 1L;
         String maxPhone = "+84123456789"; // 11 digits with +84
 
-        User existingUser = UserTestDataBuilder.aUser()
+        User existingUser = UserTestBuilder.create()
             .withId(userId)
-            .build();
+            .buildEntity();
 
         ProfileUpdateRequest request = ProfileUpdateRequest.builder()
             .fullName("Test")
@@ -408,7 +410,7 @@ class UserServiceTest extends BaseServiceTest {
     void updateProfile_withDuplicateEmail_shouldThrowException() {
         // Arrange
         Long userId = 1L;
-        User existingUser = UserTestDataBuilder.aUser().withId(userId).build();
+        User existingUser = UserTestBuilder.create().withId(userId).buildEntity();
 
         ProfileUpdateRequest request = ProfileUpdateRequest.builder()
             .fullName("Test")
@@ -429,7 +431,7 @@ class UserServiceTest extends BaseServiceTest {
     void updateProfile_withDuplicatePhone_shouldThrowException() {
         // Arrange
         Long userId = 1L;
-        User existingUser = UserTestDataBuilder.aUser().withId(userId).build();
+        User existingUser = UserTestBuilder.create().withId(userId).buildEntity();
 
         ProfileUpdateRequest request = ProfileUpdateRequest.builder()
             .fullName("Test")
@@ -457,10 +459,10 @@ class UserServiceTest extends BaseServiceTest {
         String newPassword = "newPass456";
         String encodedOld = "encodedOldPassword";
 
-        User existingUser = UserTestDataBuilder.aUser()
+        User existingUser = UserTestBuilder.create()
             .withId(userId)
             .withPassword(encodedOld)
-            .build();
+            .buildEntity();
 
         ProfileUpdateRequest request = ProfileUpdateRequest.builder()
             .fullName("Test")
@@ -487,10 +489,10 @@ class UserServiceTest extends BaseServiceTest {
         Long userId = 1L;
         String originalPassword = "originalEncoded";
 
-        User existingUser = UserTestDataBuilder.aUser()
+        User existingUser = UserTestBuilder.create()
             .withId(userId)
             .withPassword(originalPassword)
-            .build();
+            .buildEntity();
 
         ProfileUpdateRequest request = ProfileUpdateRequest.builder()
             .fullName("Test")
@@ -519,10 +521,10 @@ class UserServiceTest extends BaseServiceTest {
         Long userId = 1L;
         String originalPassword = "originalEncoded";
 
-        User existingUser = UserTestDataBuilder.aUser()
+        User existingUser = UserTestBuilder.create()
             .withId(userId)
             .withPassword(originalPassword)
-            .build();
+            .buildEntity();
 
         ProfileUpdateRequest request = ProfileUpdateRequest.builder()
             .fullName("Test")
@@ -548,10 +550,10 @@ class UserServiceTest extends BaseServiceTest {
         Long userId = 1L;
         String originalPassword = "originalEncoded";
 
-        User existingUser = UserTestDataBuilder.aUser()
+        User existingUser = UserTestBuilder.create()
             .withId(userId)
             .withPassword(originalPassword)
-            .build();
+            .buildEntity();
 
         ProfileUpdateRequest request = ProfileUpdateRequest.builder()
             .fullName("Test")
@@ -575,7 +577,7 @@ class UserServiceTest extends BaseServiceTest {
     void updateProfile_whenRepositorySaveFails_shouldThrowException() {
         // Arrange
         Long userId = 1L;
-        User existingUser = UserTestDataBuilder.aUser().withId(userId).build();
+        User existingUser = UserTestBuilder.create().withId(userId).buildEntity();
         ProfileUpdateRequest request = ProfileUpdateRequest.builder()
             .fullName("Test")
             .email("test@example.com")
@@ -600,10 +602,10 @@ class UserServiceTest extends BaseServiceTest {
     void updateProfile_whenPasswordEncoderFails_shouldThrowException() {
         // Arrange
         Long userId = 1L;
-        User existingUser = UserTestDataBuilder.aUser()
+        User existingUser = UserTestBuilder.create()
             .withId(userId)
             .withPassword("oldEncoded")
-            .build();
+            .buildEntity();
 
         ProfileUpdateRequest request = ProfileUpdateRequest.builder()
             .fullName("Test")
