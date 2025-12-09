@@ -37,8 +37,9 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 /**
- * Unit tests for InvoiceServiceImpl - 15 tests
- * Strategy: Full coverage for createInvoice, getInvoiceDetail
+ * Unit tests for InvoiceServiceImpl - 14 tests
+ * Role: Pharmacist
+ * Functions: createInvoice, getInvoiceDetail, generateInvoiceCode
  */
 @DisplayName("InvoiceServiceImpl Tests")
 @org.mockito.junit.jupiter.MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
@@ -118,7 +119,7 @@ class InvoiceServiceImplTest extends BaseServiceTest {
     class GetInvoiceDetailTests {
 
         @Test
-        @DisplayName("Should return invoice detail when invoice exists")
+        @DisplayName("TC1: Should return invoice detail when invoice exists - Normal")
         void getInvoiceDetail_whenInvoiceExists_shouldReturnDetail() {
             // Arrange
             InvoiceInfoVM info = new InvoiceInfoVM() {
@@ -146,7 +147,7 @@ class InvoiceServiceImplTest extends BaseServiceTest {
         }
 
         @Test
-        @DisplayName("Should throw exception when invoice not found")
+        @DisplayName("TC2: Should throw exception when invoice not found - Abnormal")
         void getInvoiceDetail_whenInvoiceNotFound_shouldThrowException() {
             // Arrange
             when(invoiceRepository.existsById(999L)).thenReturn(false);
@@ -158,7 +159,7 @@ class InvoiceServiceImplTest extends BaseServiceTest {
         }
 
         @Test
-        @DisplayName("Should throw exception when query returns null")
+        @DisplayName("TC3: Should throw exception when query returns null - Abnormal")
         void getInvoiceDetail_whenQueryReturnsNull_shouldThrowException() {
             // Arrange
             when(invoiceRepository.existsById(1L)).thenReturn(true);
@@ -171,7 +172,7 @@ class InvoiceServiceImplTest extends BaseServiceTest {
         }
 
         @Test
-        @DisplayName("Should include medicine list in response")
+        @DisplayName("TC4: Should include medicine list in response - Normal")
         void getInvoiceDetail_shouldIncludeMedicineList() {
             // Arrange
             InvoiceInfoVM info = new InvoiceInfoVM() {
@@ -202,11 +203,82 @@ class InvoiceServiceImplTest extends BaseServiceTest {
     }
 
     @Nested
-    @DisplayName("createInvoice() tests - 5 tests")
+    @DisplayName("createInvoice() tests - 8 tests")
     class CreateInvoiceTests {
 
         @Test
-        @DisplayName("Should validate phone number format")
+        @DisplayName("TC1: Should create invoice successfully with valid data - Normal (Happy Path)")
+        void createInvoice_withValidData_shouldCreateSuccessfully() {
+            // Arrange
+            InvoiceItemRequest itemRequest = new InvoiceItemRequest();
+            itemRequest.setInventoryId(1L);
+            itemRequest.setQuantity(5L);
+            itemRequest.setSelectedMultiplier(1.0);
+            itemRequest.setUnitPrice(10000.0);
+
+            InvoiceCreateRequest request = new InvoiceCreateRequest();
+            request.setCustomerName("Nguyễn Văn A");
+            request.setPhoneNumber("0901234567");
+            request.setTotalAmount(50000.0);
+            request.setPaymentMethod("CASH");
+            request.setItems(List.of(itemRequest));
+
+            when(customerService.getOrCreate(any(), any())).thenReturn(testCustomer);
+            when(inventoryService.findById(1L)).thenReturn(testInventory);
+            when(invoiceRepository.findMaxInvoiceId()).thenReturn(0L);
+            when(invoiceRepository.save(any(Invoice.class))).thenAnswer(inv -> {
+                Invoice i = inv.getArgument(0);
+                i.setId(1L);
+                return i;
+            });
+
+            // Act
+            Invoice result = invoiceService.createInvoice(request);
+
+            // Assert
+            assertThat(result).isNotNull();
+            assertThat(result.getId()).isEqualTo(1L);
+            verify(customerService).getOrCreate("Nguyễn Văn A", "0901234567");
+            verify(invoiceRepository).save(any(Invoice.class));
+            verify(inventoryRepository).save(any(Inventory.class));
+        }
+
+        @Test
+        @DisplayName("TC2: Should create invoice with default customer name when empty - Normal")
+        void createInvoice_withEmptyCustomerName_shouldUseDefaultName() {
+            // Arrange
+            InvoiceItemRequest itemRequest = new InvoiceItemRequest();
+            itemRequest.setInventoryId(1L);
+            itemRequest.setQuantity(5L);
+            itemRequest.setSelectedMultiplier(1.0);
+            itemRequest.setUnitPrice(10000.0);
+
+            InvoiceCreateRequest request = new InvoiceCreateRequest();
+            request.setCustomerName(""); // Empty name
+            request.setPhoneNumber(""); // Empty phone
+            request.setTotalAmount(50000.0);
+            request.setPaymentMethod("CASH");
+            request.setItems(List.of(itemRequest));
+
+            when(inventoryService.findById(1L)).thenReturn(testInventory);
+            when(invoiceRepository.findMaxInvoiceId()).thenReturn(0L);
+            when(invoiceRepository.save(any(Invoice.class))).thenAnswer(inv -> {
+                Invoice i = inv.getArgument(0);
+                i.setId(1L);
+                return i;
+            });
+
+            // Act
+            Invoice result = invoiceService.createInvoice(request);
+
+            // Assert
+            assertThat(result).isNotNull();
+            // Should not call customerService when phone is empty
+            verify(customerService, never()).getOrCreate(any(), any());
+        }
+
+        @Test
+        @DisplayName("TC3: Should validate phone number format - Abnormal")
         void createInvoice_withInvalidPhoneFormat_shouldThrowException() {
             // Arrange
             InvoiceCreateRequest request = new InvoiceCreateRequest();
@@ -221,7 +293,7 @@ class InvoiceServiceImplTest extends BaseServiceTest {
         }
 
         @Test
-        @DisplayName("Should throw exception when inventory insufficient")
+        @DisplayName("TC4: Should throw exception when inventory insufficient - Abnormal")
         void createInvoice_whenInventoryInsufficient_shouldThrowException() {
             // Arrange
             testInventory.setQuantity(5L); // Only 5 available
@@ -247,7 +319,7 @@ class InvoiceServiceImplTest extends BaseServiceTest {
         }
 
         @Test
-        @DisplayName("Should accept valid phone with 0 prefix")
+        @DisplayName("TC5: Should accept valid phone with 0 prefix - Normal")
         void createInvoice_withValid0PhonePrefix_shouldAccept() {
             // Arrange
             InvoiceItemRequest itemRequest = new InvoiceItemRequest();
@@ -260,6 +332,7 @@ class InvoiceServiceImplTest extends BaseServiceTest {
             request.setCustomerName("Test");
             request.setPhoneNumber("0901234567");
             request.setTotalAmount(50000.0);
+            request.setPaymentMethod("CASH");
             request.setItems(List.of(itemRequest));
 
             when(customerService.getOrCreate(any(), any())).thenReturn(testCustomer);
@@ -278,6 +351,109 @@ class InvoiceServiceImplTest extends BaseServiceTest {
             assertThat(result).isNotNull();
             verify(customerService).getOrCreate("Test", "0901234567");
         }
+
+        @Test
+        @DisplayName("TC6: Should accept valid phone with +84 prefix - Normal")
+        void createInvoice_withValid84PhonePrefix_shouldAccept() {
+            // Arrange
+            InvoiceItemRequest itemRequest = new InvoiceItemRequest();
+            itemRequest.setInventoryId(1L);
+            itemRequest.setQuantity(5L);
+            itemRequest.setSelectedMultiplier(1.0);
+            itemRequest.setUnitPrice(10000.0);
+
+            InvoiceCreateRequest request = new InvoiceCreateRequest();
+            request.setCustomerName("Test");
+            request.setPhoneNumber("+84901234567");
+            request.setTotalAmount(50000.0);
+            request.setPaymentMethod("CASH");
+            request.setItems(List.of(itemRequest));
+
+            when(customerService.getOrCreate(any(), any())).thenReturn(testCustomer);
+            when(inventoryService.findById(1L)).thenReturn(testInventory);
+            when(invoiceRepository.findMaxInvoiceId()).thenReturn(0L);
+            when(invoiceRepository.save(any(Invoice.class))).thenAnswer(inv -> {
+                Invoice i = inv.getArgument(0);
+                i.setId(1L);
+                return i;
+            });
+
+            // Act
+            Invoice result = invoiceService.createInvoice(request);
+
+            // Assert
+            assertThat(result).isNotNull();
+            verify(customerService).getOrCreate("Test", "+84901234567");
+        }
+
+        @Test
+        @DisplayName("TC7: Should handle customer creation failure gracefully - Abnormal")
+        void createInvoice_whenCustomerCreationFails_shouldContinueWithoutCustomer() {
+            // Arrange
+            InvoiceItemRequest itemRequest = new InvoiceItemRequest();
+            itemRequest.setInventoryId(1L);
+            itemRequest.setQuantity(5L);
+            itemRequest.setSelectedMultiplier(1.0);
+            itemRequest.setUnitPrice(10000.0);
+
+            InvoiceCreateRequest request = new InvoiceCreateRequest();
+            request.setCustomerName("Test");
+            request.setPhoneNumber("0901234567");
+            request.setTotalAmount(50000.0);
+            request.setPaymentMethod("CASH");
+            request.setItems(List.of(itemRequest));
+
+            when(customerService.getOrCreate(any(), any())).thenThrow(new RuntimeException("DB error"));
+            when(inventoryService.findById(1L)).thenReturn(testInventory);
+            when(invoiceRepository.findMaxInvoiceId()).thenReturn(0L);
+            when(invoiceRepository.save(any(Invoice.class))).thenAnswer(inv -> {
+                Invoice i = inv.getArgument(0);
+                i.setId(1L);
+                return i;
+            });
+
+            // Act
+            Invoice result = invoiceService.createInvoice(request);
+
+            // Assert - Should still create invoice without customer
+            assertThat(result).isNotNull();
+        }
+
+        @Test
+        @DisplayName("TC8: Should calculate quantity with multiplier correctly - Boundary")
+        void createInvoice_withMultiplier_shouldCalculateCorrectly() {
+            // Arrange
+            testInventory.setQuantity(100L);
+
+            InvoiceItemRequest itemRequest = new InvoiceItemRequest();
+            itemRequest.setInventoryId(1L);
+            itemRequest.setQuantity(5L);
+            itemRequest.setSelectedMultiplier(2.0); // Multiplier = 2, so real qty = 10
+            itemRequest.setUnitPrice(20000.0);
+
+            InvoiceCreateRequest request = new InvoiceCreateRequest();
+            request.setCustomerName("Test");
+            request.setPhoneNumber("");
+            request.setTotalAmount(100000.0);
+            request.setPaymentMethod("CASH");
+            request.setItems(List.of(itemRequest));
+
+            when(inventoryService.findById(1L)).thenReturn(testInventory);
+            when(invoiceRepository.findMaxInvoiceId()).thenReturn(0L);
+            when(invoiceRepository.save(any(Invoice.class))).thenAnswer(inv -> {
+                Invoice i = inv.getArgument(0);
+                i.setId(1L);
+                return i;
+            });
+
+            // Act
+            Invoice result = invoiceService.createInvoice(request);
+
+            // Assert
+            assertThat(result).isNotNull();
+            // Verify inventory was decreased by 10 (5 * 2)
+            verify(inventoryRepository).save(argThat(inv -> inv.getQuantity() == 90L));
+        }
     }
 
     @Nested
@@ -285,7 +461,7 @@ class InvoiceServiceImplTest extends BaseServiceTest {
     class GenerateInvoiceCodeTests {
 
         @Test
-        @DisplayName("Should generate code with correct format")
+        @DisplayName("TC1: Should generate code with correct format - Normal")
         void generateInvoiceCode_shouldReturnCorrectFormat() {
             // Arrange
             when(invoiceRepository.findMaxInvoiceId()).thenReturn(123L);
@@ -299,7 +475,7 @@ class InvoiceServiceImplTest extends BaseServiceTest {
         }
 
         @Test
-        @DisplayName("Should handle null maxId as 0")
+        @DisplayName("TC2: Should handle null maxId as 0 - Boundary")
         void generateInvoiceCode_whenMaxIdNull_shouldStart1() {
             // Arrange
             when(invoiceRepository.findMaxInvoiceId()).thenReturn(null);

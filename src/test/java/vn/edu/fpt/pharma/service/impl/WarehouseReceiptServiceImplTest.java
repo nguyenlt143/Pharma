@@ -150,7 +150,7 @@ class WarehouseReceiptServiceImplTest extends BaseServiceTest {
         }
 
         @Test
-        @DisplayName("Should throw exception when quantity not divisible by package size")
+        @DisplayName("TC5: Should throw exception when quantity not divisible by package size - Boundary")
         void createReceipt_whenQuantityNotDivisible_shouldThrowException() {
             // Arrange
             ReceiptDetailRequest detail = new ReceiptDetailRequest();
