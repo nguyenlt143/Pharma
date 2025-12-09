@@ -29,9 +29,9 @@ public class DashboardServiceImpl implements DashboardService {
         long waitingOrders = inventoryMovementRepository.countByBranchAndTypeAndStatus(
                 branchId, MovementType.WARE_TO_BR, MovementStatus.SHIPPED);
 
-        LocalDateTime lastInventoryCheck = stockAdjustmentRepository.findLastInventoryCheck();
-        int nearlyExpiredCount = batchRepository.countNearlyExpired();
-        int lowStockCount = inventoryRepository.countLowStock();
+        LocalDateTime lastInventoryCheck = stockAdjustmentRepository.findLastInventoryCheckByBranch(branchId);
+        int nearlyExpiredCount = batchRepository.countNearlyExpiredByBranch(branchId);
+        int lowStockCount = inventoryRepository.countLowStockByBranch(branchId);
 
         result.put("waitingOrders", (int) waitingOrders);
         result.put("lastInventoryCheck",
