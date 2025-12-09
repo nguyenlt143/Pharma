@@ -17,14 +17,12 @@ public class UserRequest {
     @NotBlank(message = "Họ và tên là bắt buộc")
     private String fullName;
 
-    @NotBlank(message = "Số điện thoại là bắt buộc")
     @Pattern(
             regexp = "^(?:\\+?84|0)(?:3|5|7|8|9)\\d{8}$",
             message = "Số điện thoại không hợp lệ"
     )
     private String phoneNumber;
 
-    @NotBlank(message = "Email là bắt buộc")
     @Email(message = "Email không hợp lệ")
     private String email;
 

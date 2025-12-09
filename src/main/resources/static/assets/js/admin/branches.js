@@ -31,6 +31,26 @@
         'DISPOSAL_AREA': 'Khu vực hủy'
     };
 
+    // Allowed types to display in UI (exclude HEAD_QUARTER)
+    const allowedBranchTypes = ['BRANCH', 'DISPOSAL_AREA'];
+
+    // Populate the branchType <select> with only allowed types
+    function populateBranchTypeOptions() {
+        const select = document.getElementById('branchType');
+        if (!select) return;
+        select.innerHTML = '';
+        const defaultOpt = document.createElement('option');
+        defaultOpt.value = '';
+        defaultOpt.textContent = '-- Chọn loại chi nhánh --';
+        select.appendChild(defaultOpt);
+        allowedBranchTypes.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t;
+            opt.textContent = branchTypeLabels[t] || t;
+            select.appendChild(opt);
+        });
+    }
+
     // UTIL
     function showToast(msg, timeout = 2500, type = 'info') {
         if (!toastEl) {
@@ -64,11 +84,17 @@
             modalTitle.textContent = 'Tạo chi nhánh';
             branchIdInput.value = '';
             branchForm.reset();
+            // ensure select options exist
+            populateBranchTypeOptions();
         } else {
             modalTitle.textContent = 'Chỉnh sửa chi nhánh';
             branchIdInput.value = data.id || '';
             document.getElementById('name').value = data.name || '';
-            document.getElementById('branchType').value = data.branchType || '';
+            // ensure select options exist
+            populateBranchTypeOptions();
+            // if branchType is not allowed (e.g. HEAD_QUARTER), fallback to BRANCH
+            const btype = allowedBranchTypes.includes(data.branchType) ? data.branchType : allowedBranchTypes[0];
+            document.getElementById('branchType').value = btype || '';
             document.getElementById('address').value = data.address || '';
         }
     }
@@ -81,13 +107,10 @@
     // API calls
     async function fetchAll() {
         try {
-            const res = await fetch(API_BASE);
+            const url = showDeleted ? `${API_BASE}?showDeleted=true` : API_BASE;
+            const res = await fetch(url);
             if (!res.ok) throw new Error('Lỗi khi lấy danh sách');
             allBranches = await res.json();
-            // Filter deleted if needed
-            if (!showDeleted) {
-                allBranches = allBranches.filter(b => !b.deleted);
-            }
             applySearchAndRender();
         } catch (e) {
             console.error(e);
@@ -133,6 +156,14 @@
             throw new Error(errorText || 'Xoá thất bại');
         }
         return;
+    }
+
+    async function restoreBranch(id) {
+        const res = await fetch(`${API_BASE}/${id}/restore`, { method: 'PATCH' });
+        if (!res.ok) {
+            const errorText = await res.text();
+            throw new Error(errorText || 'Khôi phục thất bại');
+        }
     }
 
     // Render & Pagination
@@ -186,7 +217,7 @@
                 </td>
                 <td class="text-center">
                   ${isDeleted ? `
-                    <button class="btn btn-success restore-btn" data-id="${branch.id}" title="Khôi phục" disabled>↩ Khôi phục</button>
+                    <button class="btn btn-success restore-btn" data-id="${branch.id}" title="Khôi phục">↩ Khôi phục</button>
                   ` : `
                     <button class="btn btn-ghost edit-btn" data-id="${branch.id}" title="Sửa">✏️</button>
                     <button class="btn btn-danger del-btn" data-id="${branch.id}" title="Xoá">🗑️</button>
@@ -237,6 +268,20 @@
                 try {
                     await deleteBranch(id);
                     showToast('Xoá thành công', 2500, 'success');
+                    await fetchAll();
+                } catch (e) {
+                    showToast(e.message || 'Lỗi', 4000, 'error');
+                }
+            });
+        });
+
+        document.querySelectorAll('.restore-btn').forEach(b => {
+            b.addEventListener('click', async (ev) => {
+                const id = ev.currentTarget.dataset.id;
+                if (!confirm('Bạn chắc chắn muốn khôi phục chi nhánh này?')) return;
+                try {
+                    await restoreBranch(id);
+                    showToast('Khôi phục thành công', 2500, 'success');
                     await fetchAll();
                 } catch (e) {
                     showToast(e.message || 'Lỗi', 4000, 'error');
@@ -348,6 +393,7 @@
 
     // Initial load
     setupEventListeners();
+    // pre-populate branch type options for the page
+    populateBranchTypeOptions();
     fetchAll();
 })();
-

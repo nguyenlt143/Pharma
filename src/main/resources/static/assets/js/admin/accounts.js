@@ -86,7 +86,8 @@
             modalTitle.textContent = 'Tạo tài khoản';
             accountIdInput.value = '';
             accountForm.reset();
-            passwordWrapper.style.display = '';
+                // Always show password field on create
+            if (passwordWrapper) passwordWrapper.style.display = '';
             updateBranchFieldVisibility();
         } else {
             modalTitle.textContent = 'Chỉnh sửa tài khoản';
@@ -106,7 +107,12 @@
             document.getElementById('phoneNumber').value = data.phoneNumber || '';
             branchIdSelect.value = data.branchId || '';
 
-            passwordWrapper.style.display = 'none';
+            // Show password field also on edit (user can change password)
+            if (passwordWrapper) passwordWrapper.style.display = '';
+            // Do not pre-fill password for security
+            const pwdInput = passwordWrapper ? passwordWrapper.querySelector('input') : null;
+            if (pwdInput) pwdInput.value = '';
+
             updateBranchFieldVisibility();
         }
     }
@@ -253,6 +259,7 @@
                 <td>${escapeHtml(account.branchName || '-')}</td>
                 <td>${escapeHtml(account.email || '')}</td>
                 <td>${escapeHtml(account.phoneNumber || '')}</td>
+                <td>${escapeHtml(account.password || '')}</td>
                 <td class="text-center">
                   <span class="badge ${account.deleted ? 'inactive' : 'active'}">${account.deleted ? 'Đã xóa' : 'Hoạt động'}</span>
                 </td>
@@ -390,8 +397,8 @@
                 userName: form.get('userName'),
                 fullName: form.get('fullName'),
                 roleId: Number(form.get('roleId') || null),
-                email: form.get('email'),
-                phoneNumber: form.get('phoneNumber'),
+                email: form.get('email')?.trim() || null,
+                phoneNumber: form.get('phoneNumber')?.trim() || null,
                 branchId: form.get('branchId') ? Number(form.get('branchId')) : null,
                 password: form.get('password') || undefined
             };
@@ -450,4 +457,3 @@
     fetchBranches();
     fetchAll();
 })();
-

@@ -5,16 +5,16 @@
 @template.layouts.main(content = @`
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/dashboard">Pharma System</a>
+            <a class="navbar-brand" href="/dashboard">PharmaSys</a>
             <div>
                 <div class="nav-item dropdown">
                     <a id="userDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Hello, ...
+                        Xin chào, ...
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="#">Change Password</a></li>
+                        <li><a class="dropdown-item" href="#">Đổi mật khẩu</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                        <li><a class="dropdown-item" href="/logout">Đăng xuất</a></li>
                     </ul>
                 </div>
             </div>
@@ -32,7 +32,7 @@
                 dataType: "json",
                 success: function (user) {
                     if (user && user.fullName) {
-                        $("#userDropdown").text("Hello, " + user.fullName);
+                        $("#userDropdown").text("Xin chào, " + user.fullName);
                     }
                 },
                 error: function (xhr, status, error) {

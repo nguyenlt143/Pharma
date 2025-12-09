@@ -190,6 +190,7 @@
                     <td>${escapeHtml(s.roleName || '')}</td>
                     <td>${escapeHtml(s.email || '')}</td>
                     <td>${escapeHtml(s.phoneNumber || '')}</td>
+                    <td>${escapeHtml(s.password || '')}</td>
                     <td class="text-center">
                       <span class="badge ${s.deleted ? 'inactive' : 'active'}">${s.deleted ? 'Đã xóa' : 'Hoạt động'}</span>
                     </td>
@@ -324,8 +325,8 @@
                     userName: form.get('userName'),
                     fullName: form.get('fullName'),
                     roleId: Number(form.get('roleId') || null),
-                    email: form.get('email'),
-                    phoneNumber: form.get('phoneNumber'),
+                    email: form.get('email')?.trim() || null,
+                    phoneNumber: form.get('phoneNumber')?.trim() || null,
                     branchId: form.get('branchId') ? Number(form.get('branchId')) : null,
                     imageUrl: form.get('imageUrl'),
                     password: form.get('password') || undefined

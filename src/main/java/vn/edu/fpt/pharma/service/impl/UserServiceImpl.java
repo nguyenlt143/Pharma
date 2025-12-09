@@ -48,6 +48,16 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
         if (user.getRole() == null) {
             throw new UsernameNotFoundException("User '" + username + "' does not have a role assigned");
         }
+
+        // If user belongs to a branch, ensure the branch is active (not soft-deleted).
+        if (user.getBranchId() != null) {
+            boolean branchExists = branchRepository.findById(user.getBranchId()).isPresent();
+            if (!branchExists) {
+                // Throw here to stop authentication and provide a clear message
+                throw new UsernameNotFoundException("Chi nhánh đã ngừng hoạt động");
+            }
+        }
+
         return new CustomUserDetails(user);
     }
 
@@ -99,10 +109,12 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
         if (userRepository.existsByUserNameIgnoreCase(req.getUserName())) {
             throw new RuntimeException("Tên đăng nhập đã tồn tại");
         }
-        if (userRepository.existsByEmailIgnoreCase(req.getEmail())) {
+        if (req.getEmail() != null && !req.getEmail().trim().isEmpty()
+                && userRepository.existsByEmailIgnoreCase(req.getEmail())) {
             throw new RuntimeException("Email đã tồn tại");
         }
-        if (userRepository.existsByPhoneNumber(req.getPhoneNumber())) {
+        if (req.getPhoneNumber() != null && !req.getPhoneNumber().trim().isEmpty()
+                && userRepository.existsByPhoneNumber(req.getPhoneNumber())) {
             throw new RuntimeException("Số điện thoại đã tồn tại");
         }
         Role role = roleRepository.findById(req.getRoleId())
@@ -147,11 +159,13 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
                 && userRepository.existsByUserNameIgnoreCase(req.getUserName())) {
             throw new RuntimeException("Tên đăng nhập đã tồn tại");
         }
-        if (!equalsIgnoreCase(user.getEmail(), req.getEmail())
+        if (req.getEmail() != null && !req.getEmail().trim().isEmpty()
+                && !equalsIgnoreCase(user.getEmail(), req.getEmail())
                 && userRepository.existsByEmailIgnoreCaseAndIdNot(req.getEmail(), id)) {
             throw new RuntimeException("Email đã tồn tại");
         }
-        if (!equals(user.getPhoneNumber(), req.getPhoneNumber())
+        if (req.getPhoneNumber() != null && !req.getPhoneNumber().trim().isEmpty()
+                && !equals(user.getPhoneNumber(), req.getPhoneNumber())
                 && userRepository.existsByPhoneNumberAndIdNot(req.getPhoneNumber(), id)) {
             throw new RuntimeException("Số điện thoại đã tồn tại");
         }
@@ -316,6 +330,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
                 .userName(u.getUserName())
                 .email(u.getEmail())
                 .phoneNumber(u.getPhoneNumber())
+                .password(u.getPassword())
                 .roleName(u.getRole().getName())
                 .branchId(u.getBranchId())
                 .branchName(branchName)

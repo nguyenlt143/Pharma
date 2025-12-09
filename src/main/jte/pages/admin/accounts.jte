@@ -36,6 +36,7 @@ content = @`
                             <th>Chi nhánh</th>
                             <th>Email</th>
                             <th>SĐT</th>
+                            <th>Mật khẩu</th>
                             <th class="text-center">Trạng thái</th>
                             <th class="text-center">Hành động</th>
                         </tr>

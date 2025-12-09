@@ -82,8 +82,13 @@ public class AdminAccountApiController {
 
     // Get all branches for dropdown
     @GetMapping("/branches")
-    public ResponseEntity<List<Map<String, Object>>> getAllBranches() {
-        List<Branch> branches = branchRepository.findAll();
+    public ResponseEntity<List<Map<String, Object>>> getAllBranches(@RequestParam(name = "showDeleted", defaultValue = "false") boolean showDeleted) {
+        List<Branch> branches;
+        if (showDeleted) {
+            branches = branchRepository.findAllIncludingDeleted();
+        } else {
+            branches = branchRepository.findAll();
+        }
         List<Map<String, Object>> branchDtos = branches.stream()
                 .map(branch -> {
                     Map<String, Object> map = new HashMap<>();
@@ -91,6 +96,7 @@ public class AdminAccountApiController {
                     map.put("name", branch.getName());
                     map.put("branchType", branch.getBranchType());
                     map.put("address", branch.getAddress());
+                    map.put("deleted", branch.isDeleted());
                     return map;
                 })
                 .toList();
@@ -146,10 +152,28 @@ public class AdminAccountApiController {
     @DeleteMapping("/branches/{id}")
     public ResponseEntity<?> deleteBranch(@PathVariable Long id) {
         try {
+            Branch branch = branchRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy chi nhánh"));
+            if (branch.getBranchType() == vn.edu.fpt.pharma.constant.BranchType.HEAD_QUARTER) {
+                return ResponseEntity.status(400).body("Không thể xóa chi nhánh tổng");
+            }
             branchRepository.deleteById(id);
             return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(400).body("Lỗi khi xóa chi nhánh: " + e.getMessage());
+        }
+    }
+
+    // Restore soft-deleted branch
+    @PatchMapping("/branches/{id}/restore")
+    public ResponseEntity<?> restoreBranch(@PathVariable Long id) {
+        try {
+            branchRepository.restoreById(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body("Lỗi khi khôi phục chi nhánh: " + e.getMessage());
         }
     }
 
@@ -182,4 +206,3 @@ public class AdminAccountApiController {
         }
     }
 }
-

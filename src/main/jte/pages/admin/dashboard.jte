@@ -2,7 +2,7 @@
 headContent = @`
     <style>
         .dashboard-container {
-            max-width: 1200px;
+            width: 100%;
         }
         .welcome-card {
             background: white;

@@ -129,7 +129,7 @@ headContent = @`
 `,
 content = @`
 <div class="page-container">
-    <h1 class="page-title">Dashboard - Tổng quan doanh thu & lợi nhuận</h1>
+    <h1 class="page-title">Tổng quan doanh thu & lợi nhuận</h1>
 
     <div class="filter-section">
         <div class="filter-group">
