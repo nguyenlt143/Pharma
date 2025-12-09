@@ -12,7 +12,6 @@ headContent = @`
     <link rel="stylesheet" href="/assets/css/warehouse/export_create.css">
 `,
 content = @`
-    <main class="main-content">
         <h1 class="heading">Tạo Phiếu Xuất Kho</h1>
         <p class="subtitle">Điền thông tin phiếu và danh sách thuốc cần xuất.</p>
 
