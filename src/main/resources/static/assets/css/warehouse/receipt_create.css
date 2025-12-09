@@ -13,11 +13,7 @@ body {
 }
 
 /* Main Content - Note: sidebar and page-wrapper are handled by sidebar.css and warehouse.jte layout */
-.main-content {
-    padding: 0;
-    background-color: #F7F7F9;
-    margin: 0;
-}
+/* Main content inherits margin-left: 286px and padding: 24px from layout.css */
 
 .page-header {
     padding: 0;
