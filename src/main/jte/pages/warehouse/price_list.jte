@@ -242,7 +242,7 @@ content = @`
         <h2 style="margin-bottom: 24px; font-size: 20px; font-weight: 700;" id="modalTitle">Điều chỉnh giá</h2>
         <form id="priceForm">
             <input type="hidden" id="priceId">
-
+            
             <div class="form-group">
                 <label class="form-label">Biến thể thuốc <span style="color: red;">*</span></label>
                 <select id="variantId" class="form-input" required>
@@ -303,4 +303,3 @@ content = @`
 `,
 pageScript = @`<script src="/assets/js/warehouse/price_list.js" defer></script>`
 )
-

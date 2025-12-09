@@ -2,7 +2,6 @@
 @param java.util.List<vn.edu.fpt.pharma.dto.inventorycheck.StockAdjustmentDetailVM> details
 
 @template.layouts.warehouse(
-active = "check",
 headContent = @`
     <title>Chi tiết phiếu kiểm kho - Kho Tổng</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>

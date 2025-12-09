@@ -228,7 +228,7 @@ content = @`
         <h2 style="margin-bottom: 24px; font-size: 20px; font-weight: 700;" id="modalTitle">Thêm thuốc mới</h2>
         <form id="medicineForm">
             <input type="hidden" id="medicineId">
-
+            
             <div class="form-group">
                 <label class="form-label">Tên thuốc <span style="color: red;">*</span></label>
                 <input type="text" id="medicineName" class="form-input" required>
@@ -275,7 +275,7 @@ content = @`
 <div id="variantModal" class="modal">
     <div class="modal-content" style="max-width: 1000px;">
         <h2 style="margin-bottom: 24px; font-size: 20px; font-weight: 700;" id="variantModalTitle">Quản lý biến thể thuốc</h2>
-
+        
         <div style="margin-bottom: 24px; padding: 12px; background: #F3F4F6; border-radius: 6px;">
             <strong>Thuốc:</strong> <span id="variantMedicineName"></span>
             <input type="hidden" id="variantMedicineId">
@@ -314,7 +314,7 @@ content = @`
         <div id="variantFormContainer" style="display: none; border-top: 2px solid #E5E7EB; padding-top: 24px;">
             <form id="variantForm">
                 <input type="hidden" id="variantId">
-
+                
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Dạng bào chế</label>
@@ -457,4 +457,3 @@ content = @`
 `,
 pageScript = @`<script src="/assets/js/warehouse/medicine_list.js" defer></script>`
 )
-

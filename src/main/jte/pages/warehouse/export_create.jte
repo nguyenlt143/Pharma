@@ -12,13 +12,11 @@ headContent = @`
     <link rel="stylesheet" href="/assets/css/warehouse/export_create.css">
 `,
 content = @`
-    <div class="container">
-        <div class="frame">
-            <main class="main-content">
-                <h1 class="heading">Tạo Phiếu Xuất Kho</h1>
-                <p class="subtitle">Điền thông tin phiếu và danh sách thuốc cần xuất.</p>
+    <main class="main-content">
+        <h1 class="heading">Tạo Phiếu Xuất Kho</h1>
+        <p class="subtitle">Điền thông tin phiếu và danh sách thuốc cần xuất.</p>
 
-                <div class="form-section">
+        <div class="form-section">
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Chi nhánh nhận</label>
@@ -120,11 +118,9 @@ content = @`
 
                 <div class="button-section">
                     <button class="btn-secondary" onclick="saveDraft()">Lưu nháp</button>
-                    <button class="btn-primary" onclick="createExport()">Tạo phiếu xuất</button>
-                </div>
-            </main>
-        </div>
-    </div>
+                <button class="btn-primary" onclick="createExport()">Tạo phiếu xuất</button>
+            </div>
+        </main>
 `,
 pageScript = @`
     <script src="/assets/js/warehouse/export_create.js" defer></script>

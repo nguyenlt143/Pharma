@@ -5,7 +5,6 @@
 @param String branchName
 
 @template.layouts.warehouse(
-active = "inventory",
 headContent = @`
     <title>Danh Sách Thuốc Tồn Kho - ${branchName}</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>

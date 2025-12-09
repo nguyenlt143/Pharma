@@ -37,6 +37,7 @@ public class MedicineWarehouseApiController {
             @RequestParam(required = false) Integer status,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
+
         // Verify warehouse role
         if (userDetails == null || !"WAREHOUSE".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
