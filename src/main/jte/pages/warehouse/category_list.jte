@@ -1,4 +1,4 @@
-@template.layouts.owner(
+@template.layouts.warehouse(
 headContent = @`
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -193,7 +193,7 @@ content = @`
         <h2 style="margin-bottom: 24px; font-size: 20px; font-weight: 700;" id="modalTitle">Thêm danh mục mới</h2>
         <form id="categoryForm">
             <input type="hidden" id="categoryId">
-            
+
             <div class="form-group">
                 <label class="form-label">Tên danh mục <span style="color: red;">*</span></label>
                 <input type="text" id="categoryName" class="form-input" required>
@@ -228,5 +228,6 @@ content = @`
 <!-- Toast Notification -->
 <div id="toast" class="toast"></div>
 `,
-pageScript = @`<script src="/assets/js/owner/category_list.js" defer></script>`
+pageScript = @`<script src="/assets/js/warehouse/category_list.js" defer></script>`
 )
+

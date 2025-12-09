@@ -1,8 +1,7 @@
-package vn.edu.fpt.pharma.controller.owner;
+package vn.edu.fpt.pharma.controller.wareHouse;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,14 +16,14 @@ import vn.edu.fpt.pharma.service.PriceService;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/owner/price")
+@RequestMapping("/api/warehouse/price")
 @RequiredArgsConstructor
-public class PriceApiController {
+public class PriceWarehouseApiController {
     private final PriceService priceService;
 
     /**
      * View price of product (Search, list price) – Price
-     * GET /api/owner/price?draw=1&start=0&length=10&variantId=1&branchId=1
+     * GET /api/warehouse/price?draw=1&start=0&length=10&variantId=1&branchId=1
      */
     @GetMapping
     public ResponseEntity<DataTableResponse<PriceResponse>> getPrices(
@@ -32,9 +31,9 @@ public class PriceApiController {
             @RequestParam(required = false) Long variantId,
             @RequestParam(required = false) Long branchId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        
-        // Verify owner role
-        if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
+
+        // Verify warehouse role
+        if (userDetails == null || !"WAREHOUSE".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -45,15 +44,15 @@ public class PriceApiController {
 
     /**
      * Adjust price (for customer/branches) – Price
-     * POST /api/owner/price
+     * POST /api/warehouse/price
      */
     @PostMapping
     public ResponseEntity<PriceResponse> adjustPrice(
             @Valid @RequestBody PriceRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        
-        // Verify owner role
-        if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
+
+        // Verify warehouse role
+        if (userDetails == null || !"WAREHOUSE".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -63,7 +62,7 @@ public class PriceApiController {
 
     /**
      * Update price
-     * PUT /api/owner/price/{id}
+     * PUT /api/warehouse/price/{id}
      */
     @PutMapping("/{id}")
     public ResponseEntity<PriceResponse> updatePrice(
@@ -71,8 +70,8 @@ public class PriceApiController {
             @Valid @RequestBody PriceRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        // Verify owner role
-        if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
+        // Verify warehouse role
+        if (userDetails == null || !"WAREHOUSE".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -85,15 +84,15 @@ public class PriceApiController {
 
     /**
      * Get price by ID
-     * GET /api/owner/price/{id}
+     * GET /api/warehouse/price/{id}
      */
     @GetMapping("/{id}")
     public ResponseEntity<PriceResponse> getPriceById(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        
-        // Verify owner role
-        if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
+
+        // Verify warehouse role
+        if (userDetails == null || !"WAREHOUSE".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -103,15 +102,15 @@ public class PriceApiController {
 
     /**
      * Delete price
-     * DELETE /api/owner/price/{id}
+     * DELETE /api/warehouse/price/{id}
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePrice(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        
-        // Verify owner role
-        if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
+
+        // Verify warehouse role
+        if (userDetails == null || !"WAREHOUSE".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 

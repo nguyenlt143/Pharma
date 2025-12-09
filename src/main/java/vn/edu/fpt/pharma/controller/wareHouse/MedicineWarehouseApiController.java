@@ -1,4 +1,4 @@
-package vn.edu.fpt.pharma.controller.owner;
+package vn.edu.fpt.pharma.controller.wareHouse;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,25 +20,25 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/owner/medicine")
+@RequestMapping("/api/warehouse/medicine")
 @RequiredArgsConstructor
-public class MedicineApiController {
+public class MedicineWarehouseApiController {
 
     private final MedicineService medicineService;
     private final MedicineVariantService medicineVariantService;
 
     /**
      * View medicine list (Sort, view status) – List medicine
-     * GET /api/owner/medicine?draw=1&start=0&length=10&orderColumn=name&orderDir=asc&status=1
+     * GET /api/warehouse/medicine?draw=1&start=0&length=10&orderColumn=name&orderDir=asc&status=1
      */
     @GetMapping
     public ResponseEntity<DataTableResponse<MedicineResponse>> getMedicines(
             @RequestParam Map<String, ?> params,
             @RequestParam(required = false) Integer status,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        
-        // Verify owner role
-        if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
+
+        // Verify warehouse role
+        if (userDetails == null || !"WAREHOUSE".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -49,15 +49,15 @@ public class MedicineApiController {
 
     /**
      * Create new medicine – List medicine
-     * POST /api/owner/medicine
+     * POST /api/warehouse/medicine
      */
     @PostMapping
     public ResponseEntity<MedicineResponse> createMedicine(
             @Valid @RequestBody MedicineRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        
-        // Verify owner role
-        if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
+
+        // Verify warehouse role
+        if (userDetails == null || !"WAREHOUSE".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -67,16 +67,16 @@ public class MedicineApiController {
 
     /**
      * Update medicine
-     * PUT /api/owner/medicine/{id}
+     * PUT /api/warehouse/medicine/{id}
      */
     @PutMapping("/{id}")
     public ResponseEntity<MedicineResponse> updateMedicine(
             @PathVariable Long id,
             @Valid @RequestBody MedicineRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        
-        // Verify owner role
-        if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
+
+        // Verify warehouse role
+        if (userDetails == null || !"WAREHOUSE".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -86,15 +86,15 @@ public class MedicineApiController {
 
     /**
      * Get medicine by ID
-     * GET /api/owner/medicine/{id}
+     * GET /api/warehouse/medicine/{id}
      */
     @GetMapping("/{id}")
     public ResponseEntity<MedicineResponse> getMedicineById(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        
-        // Verify owner role
-        if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
+
+        // Verify warehouse role
+        if (userDetails == null || !"WAREHOUSE".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -104,15 +104,15 @@ public class MedicineApiController {
 
     /**
      * Get medicine variants by medicine ID
-     * GET /api/owner/medicine/{medicineId}/variants
+     * GET /api/warehouse/medicine/{medicineId}/variants
      */
     @GetMapping("/{medicineId}/variants")
     public ResponseEntity<List<MedicineVariantResponse>> getVariantsByMedicineId(
             @PathVariable Long medicineId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        
-        // Verify owner role
-        if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
+
+        // Verify warehouse role
+        if (userDetails == null || !"WAREHOUSE".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -122,15 +122,15 @@ public class MedicineApiController {
 
     /**
      * Add medicine variant – List medicine
-     * POST /api/owner/medicine/variant
+     * POST /api/warehouse/medicine/variant
      */
     @PostMapping("/variant")
     public ResponseEntity<MedicineVariantResponse> addMedicineVariant(
             @Valid @RequestBody MedicineVariantRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        
-        // Verify owner role
-        if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
+
+        // Verify warehouse role
+        if (userDetails == null || !"WAREHOUSE".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -140,16 +140,16 @@ public class MedicineApiController {
 
     /**
      * Update medicine variant
-     * PUT /api/owner/medicine/variant/{id}
+     * PUT /api/warehouse/medicine/variant/{id}
      */
     @PutMapping("/variant/{id}")
     public ResponseEntity<MedicineVariantResponse> updateVariant(
             @PathVariable Long id,
             @Valid @RequestBody MedicineVariantRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        
-        // Verify owner role
-        if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
+
+        // Verify warehouse role
+        if (userDetails == null || !"WAREHOUSE".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -159,15 +159,15 @@ public class MedicineApiController {
 
     /**
      * Get medicine variant by ID
-     * GET /api/owner/medicine/variant/{id}
+     * GET /api/warehouse/medicine/variant/{id}
      */
     @GetMapping("/variant/{id}")
     public ResponseEntity<MedicineVariantResponse> getVariantById(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        
-        // Verify owner role
-        if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
+
+        // Verify warehouse role
+        if (userDetails == null || !"WAREHOUSE".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -177,15 +177,15 @@ public class MedicineApiController {
 
     /**
      * Delete medicine variant
-     * DELETE /api/owner/medicine/variant/{id}
+     * DELETE /api/warehouse/medicine/variant/{id}
      */
     @DeleteMapping("/variant/{id}")
     public ResponseEntity<Void> deleteVariant(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        
-        // Verify owner role
-        if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
+
+        // Verify warehouse role
+        if (userDetails == null || !"WAREHOUSE".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -195,15 +195,15 @@ public class MedicineApiController {
 
     /**
      * Delete medicine
-     * DELETE /api/owner/medicine/{id}
+     * DELETE /api/warehouse/medicine/{id}
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMedicine(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        
-        // Verify owner role
-        if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
+
+        // Verify warehouse role
+        if (userDetails == null || !"WAREHOUSE".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -213,15 +213,15 @@ public class MedicineApiController {
 
     /**
      * Get unit conversions for a variant
-     * GET /api/owner/medicine/variant/{variantId}/unit-conversions
+     * GET /api/warehouse/medicine/variant/{variantId}/unit-conversions
      */
     @GetMapping("/variant/{variantId}/unit-conversions")
     public ResponseEntity<List<Map<String, Object>>> getUnitConversions(
             @PathVariable Long variantId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        // Verify owner role
-        if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
+        // Verify warehouse role
+        if (userDetails == null || !"WAREHOUSE".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 

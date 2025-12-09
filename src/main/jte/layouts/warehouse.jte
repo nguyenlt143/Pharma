@@ -51,6 +51,21 @@
                         <span class="nav-text">Danh sách thuốc tồn kho</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="/warehouse/category" class="nav-link ${active.equals("category") ? "active" : ""}">
+                        <span class="nav-text">Quản lý danh mục</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/warehouse/medicine" class="nav-link ${active.equals("medicine") ? "active" : ""}">
+                        <span class="nav-text">Quản lý thuốc</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/warehouse/price" class="nav-link ${active.equals("price") ? "active" : ""}">
+                        <span class="nav-text">Quản lý giá</span>
+                    </a>
+                </li>
             </ul>
         </nav>
 

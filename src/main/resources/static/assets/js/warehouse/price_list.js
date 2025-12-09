@@ -1,4 +1,4 @@
-// Price Management JavaScript
+// Price Management JavaScript for Warehouse
 let priceTable;
 let currentVariantId = null;
 let currentBranchId = null;
@@ -16,7 +16,7 @@ function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
     toast.textContent = message;
     toast.className = `toast ${type} show`;
-    
+
     setTimeout(() => {
         toast.classList.remove('show');
     }, 3000);
@@ -27,7 +27,7 @@ function initDataTable() {
         processing: true,
         serverSide: true,
         ajax: {
-            url: '/api/owner/price',
+            url: '/api/warehouse/price',
             type: 'GET',
             data: function(d) {
                 const params = {
@@ -48,32 +48,32 @@ function initDataTable() {
         },
         columns: [
             { data: 'id' },
-            { 
+            {
                 data: 'variantName',
                 defaultContent: '-',
                 render: function(data, type, row) {
                     return data || (row.variantId ? `Biến thể #${row.variantId}` : '-');
                 }
             },
-            { 
+            {
                 data: 'salePrice',
                 render: function(data) {
                     return data ? new Intl.NumberFormat('vi-VN').format(data) + ' đ' : '-';
                 }
             },
-            { 
+            {
                 data: 'branchPrice',
                 render: function(data) {
                     return data ? new Intl.NumberFormat('vi-VN').format(data) + ' đ' : '-';
                 }
             },
-            { 
+            {
                 data: 'startDate',
                 render: function(data) {
                     return data ? new Date(data).toLocaleString('vi-VN') : '-';
                 }
             },
-            { 
+            {
                 data: 'endDate',
                 render: function(data) {
                     return data ? new Date(data).toLocaleString('vi-VN') : '-';
@@ -99,13 +99,13 @@ function initDataTable() {
 }
 
 function loadVariants() {
-    fetch('/api/owner/variants')
+    fetch('/api/warehouse/variants')
         .then(res => res.json())
         .then(data => {
             variants = data;
             const filterSelect = document.getElementById('filterVariantId');
             const modalSelect = document.getElementById('variantId');
-            
+
             // Populate filter dropdown
             data.forEach(variant => {
                 const option = document.createElement('option');
@@ -113,7 +113,7 @@ function loadVariants() {
                 option.textContent = variant.displayName || `Biến thể #${variant.id}`;
                 filterSelect.appendChild(option);
             });
-            
+
             // Populate modal dropdown
             data.forEach(variant => {
                 const option = document.createElement('option');
@@ -128,13 +128,13 @@ function loadVariants() {
 }
 
 function loadBranches() {
-    fetch('/api/owner/branches')
+    fetch('/api/warehouse/branches')
         .then(res => res.json())
         .then(data => {
             branches = data;
             const filterSelect = document.getElementById('filterBranchId');
             const modalSelect = document.getElementById('branchId');
-            
+
             // Populate filter dropdown
             data.forEach(branch => {
                 const option = document.createElement('option');
@@ -142,7 +142,7 @@ function loadBranches() {
                 option.textContent = branch.name || `Chi nhánh #${branch.id}`;
                 filterSelect.appendChild(option);
             });
-            
+
             // Populate modal dropdown
             data.forEach(branch => {
                 const option = document.createElement('option');
@@ -183,7 +183,7 @@ function openCreateModal() {
 }
 
 function openEditModal(id) {
-    fetch(`/api/owner/price/${id}`)
+    fetch(`/api/warehouse/price/${id}`)
         .then(res => res.json())
         .then(data => {
             document.getElementById('modalTitle').textContent = 'Cập nhật giá';
@@ -212,7 +212,7 @@ function closePriceModal() {
 }
 
 function viewDetails(id) {
-    fetch(`/api/owner/price/${id}`)
+    fetch(`/api/warehouse/price/${id}`)
         .then(res => res.json())
         .then(data => {
             const detailContent = document.getElementById('detailContent');
@@ -260,7 +260,7 @@ function confirmDelete(id) {
 }
 
 function deletePrice(id) {
-    fetch(`/api/owner/price/${id}`, {
+    fetch(`/api/warehouse/price/${id}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' }
     })
@@ -285,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (priceForm) {
         priceForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             const id = document.getElementById('priceId').value;
             const data = {
                 variantId: parseInt(document.getElementById('variantId').value),
@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 endDate: document.getElementById('endDate').value ? new Date(document.getElementById('endDate').value).toISOString() : null
             };
 
-            const url = id ? `/api/owner/price/${id}` : '/api/owner/price';
+            const url = id ? `/api/warehouse/price/${id}` : '/api/warehouse/price';
             const method = id ? 'PUT' : 'POST';
 
             fetch(url, {

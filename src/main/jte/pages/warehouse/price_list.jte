@@ -1,4 +1,4 @@
-@template.layouts.owner(
+@template.layouts.warehouse(
 headContent = @`
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -242,7 +242,7 @@ content = @`
         <h2 style="margin-bottom: 24px; font-size: 20px; font-weight: 700;" id="modalTitle">Điều chỉnh giá</h2>
         <form id="priceForm">
             <input type="hidden" id="priceId">
-            
+
             <div class="form-group">
                 <label class="form-label">Biến thể thuốc <span style="color: red;">*</span></label>
                 <select id="variantId" class="form-input" required>
@@ -301,5 +301,6 @@ content = @`
 <!-- Toast Notification -->
 <div id="toast" class="toast"></div>
 `,
-pageScript = @`<script src="/assets/js/owner/price_list.js" defer></script>`
+pageScript = @`<script src="/assets/js/warehouse/price_list.js" defer></script>`
 )
+

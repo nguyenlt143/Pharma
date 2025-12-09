@@ -22,22 +22,6 @@ public class OwnerController {
     private final BranchRepository branchRepository;
     private final CategoryRepository categoryRepository;
 
-    // --- Quản lý thuốc ---
-    @GetMapping("/medicine/list")
-    public String medicineList(Model model) {
-        return "pages/owner/medicine_list";
-    }
-
-    @GetMapping("/price/list")
-    public String priceList(Model model) {
-        return "pages/owner/price_list";
-    }
-
-    // --- Quản lý nhóm hàng hóa ---
-    @GetMapping("/category/list")
-    public String categoryList(Model model) {
-        return "pages/owner/category_list";
-    }
 
     // --- Quản lý nhà cung cấp ---
     @GetMapping("/supplier/list")
