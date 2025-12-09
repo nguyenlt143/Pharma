@@ -331,6 +331,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
                 .email(u.getEmail())
                 .phoneNumber(u.getPhoneNumber())
                 .password(u.getPassword())
+                .roleId(u.getRole().getId())
                 .roleName(u.getRole().getName())
                 .branchId(u.getBranchId())
                 .branchName(branchName)
