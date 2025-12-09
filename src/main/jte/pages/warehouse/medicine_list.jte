@@ -1,4 +1,4 @@
-@template.layouts.owner(
+@template.layouts.warehouse(
 headContent = @`
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -455,5 +455,5 @@ content = @`
 <!-- Toast Notification -->
 <div id="toast" class="toast"></div>
 `,
-pageScript = @`<script src="/assets/js/owner/medicine_list.js" defer></script>`
+pageScript = @`<script src="/assets/js/warehouse/medicine_list.js" defer></script>`
 )

@@ -1,4 +1,4 @@
-// Category Management JavaScript
+// Category Management JavaScript for Warehouse
 let categoryTable;
 
 $(document).ready(function() {
@@ -10,7 +10,7 @@ function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
     toast.textContent = message;
     toast.className = `toast ${type} show`;
-    
+
     setTimeout(() => {
         toast.classList.remove('show');
     }, 3000);
@@ -21,7 +21,7 @@ function initDataTable() {
         processing: true,
         serverSide: true,
         ajax: {
-            url: '/api/owner/category',
+            url: '/api/warehouse/category',
             type: 'GET',
             data: function(d) {
                 return {
@@ -68,7 +68,7 @@ function openCreateModal() {
 }
 
 function openEditModal(id) {
-    fetch(`/api/owner/category/${id}`)
+    fetch(`/api/warehouse/category/${id}`)
         .then(res => res.json())
         .then(data => {
             document.getElementById('modalTitle').textContent = 'Cập nhật danh mục';
@@ -84,7 +84,7 @@ function closeCategoryModal() {
 }
 
 function viewDetails(id) {
-    fetch(`/api/owner/category/${id}`)
+    fetch(`/api/warehouse/category/${id}`)
         .then(res => res.json())
         .then(data => {
             const detailContent = document.getElementById('detailContent');
@@ -120,7 +120,7 @@ function confirmDelete(id) {
 }
 
 function deleteCategory(id) {
-    fetch(`/api/owner/category/${id}`, {
+    fetch(`/api/warehouse/category/${id}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' }
     })
@@ -145,14 +145,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (categoryForm) {
         categoryForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             const id = document.getElementById('categoryId').value;
             const data = {
                 categoryName: document.getElementById('categoryName').value,
                 description: document.getElementById('description').value
             };
 
-            const url = id ? `/api/owner/category/${id}` : '/api/owner/category';
+            const url = id ? `/api/warehouse/category/${id}` : '/api/warehouse/category';
             const method = id ? 'PUT' : 'POST';
 
             fetch(url, {

@@ -1,4 +1,4 @@
-package vn.edu.fpt.pharma.controller.owner;
+package vn.edu.fpt.pharma.controller.wareHouse;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,23 +16,23 @@ import vn.edu.fpt.pharma.service.CategoryService;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/owner/category")
+@RequestMapping("/api/warehouse/category")
 @RequiredArgsConstructor
-public class CategoryApiController {
+public class CategoryWarehouseApiController {
 
     private final CategoryService categoryService;
 
     /**
      * View category (Search, list category) – List category
-     * GET /api/owner/category?draw=1&start=0&length=10&orderColumn=categoryName&orderDir=asc&search[value]=keyword
+     * GET /api/warehouse/category?draw=1&start=0&length=10&orderColumn=categoryName&orderDir=asc&search[value]=keyword
      */
     @GetMapping
     public ResponseEntity<DataTableResponse<CategoryResponse>> getCategories(
             @RequestParam Map<String, ?> params,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        
-        // Verify owner role
-        if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
+
+        // Verify warehouse role
+        if (userDetails == null || !"WAREHOUSE".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -43,15 +43,15 @@ public class CategoryApiController {
 
     /**
      * Add new category – List category
-     * POST /api/owner/category
+     * POST /api/warehouse/category
      */
     @PostMapping
     public ResponseEntity<CategoryResponse> createCategory(
             @Valid @RequestBody CategoryRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        
-        // Verify owner role
-        if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
+
+        // Verify warehouse role
+        if (userDetails == null || !"WAREHOUSE".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -61,16 +61,16 @@ public class CategoryApiController {
 
     /**
      * Update category
-     * PUT /api/owner/category/{id}
+     * PUT /api/warehouse/category/{id}
      */
     @PutMapping("/{id}")
     public ResponseEntity<CategoryResponse> updateCategory(
             @PathVariable Long id,
             @Valid @RequestBody CategoryRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        
-        // Verify owner role
-        if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
+
+        // Verify warehouse role
+        if (userDetails == null || !"WAREHOUSE".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -80,15 +80,15 @@ public class CategoryApiController {
 
     /**
      * Get category by ID
-     * GET /api/owner/category/{id}
+     * GET /api/warehouse/category/{id}
      */
     @GetMapping("/{id}")
     public ResponseEntity<CategoryResponse> getCategoryById(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        
-        // Verify owner role
-        if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
+
+        // Verify warehouse role
+        if (userDetails == null || !"WAREHOUSE".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -98,15 +98,15 @@ public class CategoryApiController {
 
     /**
      * Delete category
-     * DELETE /api/owner/category/{id}
+     * DELETE /api/warehouse/category/{id}
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategory(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        
-        // Verify owner role
-        if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
+
+        // Verify warehouse role
+        if (userDetails == null || !"WAREHOUSE".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 

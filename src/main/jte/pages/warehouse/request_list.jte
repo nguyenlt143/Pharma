@@ -14,17 +14,12 @@ headContent = @`
     <link rel="stylesheet" href="/assets/css/warehouse/request_list.css">
 `,
 content = @`
-
-
-<div class="container">
-    <div class="main-content">
-
-        <header class="header">
-            <div class="header-content">
-                <h1 class="page-title">Yêu Cầu Từ Chi Nhánh</h1>
-                <p class="page-description">Quản lý các yêu cầu từ chi nhánh.</p>
-            </div>
-        </header>
+<header class="header">
+    <div class="header-content">
+        <h1 class="page-title">Yêu Cầu Từ Chi Nhánh</h1>
+        <p class="page-description">Quản lý các yêu cầu từ chi nhánh.</p>
+    </div>
+</header>
 
 
 <%--        <section class="search-section">--%>
@@ -148,9 +143,7 @@ content = @`
                     </tbody>
                 </table>
             </div>
-        </section>
-    </div>
-</div>
+    </section>
 `,
 pageScript = @`
     <script src="/assets/js/warehouse/request_list.js" defer></script>
