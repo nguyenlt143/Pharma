@@ -15,12 +15,7 @@ body {
     margin: 0;
 }
 
-.main-content {
-    background-color: transparent;
-    border-radius: 0;
-    padding: 0;
-    box-shadow: none;
-}
+/* Main content inherits margin-left: 286px and padding: 24px from layout.css */
 
 /* Header Section */
 .header {
