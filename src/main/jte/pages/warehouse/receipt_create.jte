@@ -10,7 +10,6 @@ pageScript = @`
     <script src="/assets/js/warehouse/receipt_create.js" defer></script>
 `,
 content = @`
-    <main class="main-content">
         <header class="page-header">
             <h1 class="page-title">Nhập từ nhà cung cấp</h1>
         </header>

@@ -1,4 +1,4 @@
-// Medicine Management JavaScript
+// Medicine Management JavaScript for Warehouse
 let medicineTable;
 let categories = [];
 let units = [];
@@ -14,7 +14,7 @@ function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
     toast.textContent = message;
     toast.className = `toast ${type} show`;
-    
+
     setTimeout(() => {
         toast.classList.remove('show');
     }, 3000);
@@ -25,7 +25,7 @@ function initDataTable() {
         processing: true,
         serverSide: true,
         ajax: {
-            url: '/api/owner/medicine',
+            url: '/api/warehouse/medicine',
             type: 'GET',
             data: function(d) {
                 const params = {
@@ -34,21 +34,21 @@ function initDataTable() {
                     length: d.length,
                     'search[value]': d.search.value || ''
                 };
-                
+
                 // Add sorting
                 if (d.order && d.order.length > 0) {
                     const orderCol = d.order[0].column;
                     const orderDir = d.order[0].dir;
                     params['order[0][column]'] = orderCol;
                     params['order[0][dir]'] = orderDir;
-                    
+
                     // Map column index to field name for sorting
                     const columnMap = ['id', 'name', 'category.name', 'brandName', 'manufacturer', 'activeIngredient'];
                     if (columnMap[orderCol]) {
                         params['columns[' + orderCol + '][data]'] = columnMap[orderCol];
                     }
                 }
-                
+
                 return params;
             },
             dataSrc: function(json) {
@@ -58,33 +58,33 @@ function initDataTable() {
             }
         },
         columns: [
-            { 
+            {
                 data: 'id',
                 name: 'id'
             },
-            { 
+            {
                 data: 'medicineName',
                 name: 'name',
                 render: function(data, type, row) {
                     return data || row.name || '-';
                 }
             },
-            { 
+            {
                 data: 'categoryName',
                 name: 'category.name',
                 defaultContent: '-'
             },
-            { 
+            {
                 data: 'brandName',
                 name: 'brandName',
                 defaultContent: '-'
             },
-            { 
+            {
                 data: 'manufacturer',
                 name: 'manufacturer',
                 defaultContent: '-'
             },
-            { 
+            {
                 data: 'activeIngredient',
                 name: 'activeIngredient',
                 defaultContent: '-'
@@ -113,7 +113,7 @@ function initDataTable() {
 }
 
 function loadCategories() {
-    fetch('/api/owner/category?draw=1&start=0&length=1000')
+    fetch('/api/warehouse/category?draw=1&start=0&length=1000')
         .then(res => res.json())
         .then(data => {
             categories = data.data;
@@ -130,7 +130,7 @@ function loadCategories() {
 
 function loadUnits() {
     // Load units from API
-    fetch('/api/owner/units')
+    fetch('/api/warehouse/units')
         .then(res => res.json())
         .then(data => {
             // Store units in global variable for unit conversion rows
@@ -141,7 +141,7 @@ function loadUnits() {
             // Load into variant modal dropdowns
             const baseUnitSelect = document.getElementById('baseUnitId');
             const packageUnitSelect = document.getElementById('packageUnitId');
-            
+
             if (baseUnitSelect) {
                 baseUnitSelect.innerHTML = '<option value="">Chọn đơn vị</option>';
                 if (Array.isArray(data)) {
@@ -153,7 +153,7 @@ function loadUnits() {
                     });
                 }
             }
-            
+
             if (packageUnitSelect) {
                 packageUnitSelect.innerHTML = '<option value="">Chọn đơn vị</option>';
                 if (Array.isArray(data)) {
@@ -188,43 +188,43 @@ function openCreateModal() {
 }
 
 function openEditModal(id) {
-    fetch(`/api/owner/medicine/${id}`)
+    fetch(`/api/warehouse/medicine/${id}`)
         .then(res => res.json())
         .then(data => {
             document.getElementById('modalTitle').textContent = 'Cập nhật thuốc';
             document.getElementById('medicineId').value = data.id || '';
-            
+
             // Only set fields that exist in Medicine entity: name, category, activeIngredient, brandName, manufacturer, country
             const medicineNameEl = document.getElementById('medicineName');
             if (medicineNameEl) {
                 medicineNameEl.value = data.name || data.medicineName || '';
             }
-            
+
             const categoryIdEl = document.getElementById('categoryId');
             if (categoryIdEl) {
                 categoryIdEl.value = data.categoryId || (data.category ? data.category.id : '') || '';
             }
-            
+
             const brandNameEl = document.getElementById('brandName');
             if (brandNameEl) {
                 brandNameEl.value = data.brandName || '';
             }
-            
+
             const manufacturerEl = document.getElementById('manufacturer');
             if (manufacturerEl) {
                 manufacturerEl.value = data.manufacturer || '';
             }
-            
+
             const countryEl = document.getElementById('countryOfOrigin');
             if (countryEl) {
                 countryEl.value = data.country || data.countryOfOrigin || '';
             }
-            
+
             const activeIngredientEl = document.getElementById('activeIngredient');
             if (activeIngredientEl) {
                 activeIngredientEl.value = data.activeIngredient || '';
             }
-            
+
             document.getElementById('medicineModal').style.display = 'block';
         })
         .catch(err => {
@@ -253,7 +253,7 @@ function closeVariantModal() {
 }
 
 function loadVariants(medicineId) {
-    fetch(`/api/owner/medicine/${medicineId}/variants`)
+    fetch(`/api/warehouse/medicine/${medicineId}/variants`)
         .then(res => res.json())
         .then(data => {
             const tbody = document.getElementById('variantTableBody');
@@ -261,7 +261,7 @@ function loadVariants(medicineId) {
                 tbody.innerHTML = '<tr><td colspan="6" style="padding: 24px; text-align: center; color: #6B7280;">Chưa có biến thể nào</td></tr>';
                 return;
             }
-            
+
             tbody.innerHTML = data.map(variant => `
                 <tr style="border-bottom: 1px solid #E5E7EB;">
                     <td style="padding: 12px;">${variant.dosageForm || variant.dosage_form || '-'}</td>
@@ -289,16 +289,16 @@ function openCreateVariantForm() {
     if (form) {
         form.reset();
     }
-    
+
     // Reset all variant form fields safely
     const fields = [
-        'variantId', 'dosageForm', 'dosage', 'strength', 
-        'packageUnitId', 'baseUnitId', 'quantityPerPackage', 
-        'barcode', 'registrationNumber', 'storageConditions', 
-        'indications', 'contraindications', 'sideEffects', 
+        'variantId', 'dosageForm', 'dosage', 'strength',
+        'packageUnitId', 'baseUnitId', 'quantityPerPackage',
+        'barcode', 'registrationNumber', 'storageConditions',
+        'indications', 'contraindications', 'sideEffects',
         'instructions', 'prescriptionRequired', 'uses'
     ];
-    
+
     fields.forEach(fieldId => {
         const field = document.getElementById(fieldId);
         if (field) {
@@ -309,29 +309,32 @@ function openCreateVariantForm() {
             }
         }
     });
-    
+
     // Set default for prescriptionRequired
     const prescriptionField = document.getElementById('prescriptionRequired');
     if (prescriptionField) {
         prescriptionField.value = 'false';
     }
-    
+
+    // Clear unit conversions
+    clearUnitConversions();
+
     document.getElementById('variantFormContainer').style.display = 'block';
     document.getElementById('variantFormContainer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function openEditVariantForm(variantId) {
-    fetch(`/api/owner/medicine/variant/${variantId}`)
+    fetch(`/api/warehouse/medicine/variant/${variantId}`)
         .then(res => res.json())
         .then(data => {
             document.getElementById('variantModalTitle').textContent = 'Cập nhật biến thể thuốc';
-            
+
             // Set values safely with null checks
             const setValue = (id, value) => {
                 const el = document.getElementById(id);
                 if (el) el.value = value || '';
             };
-            
+
             setValue('variantId', data.id);
             setValue('dosageForm', data.dosageForm || data.dosage_form);
             setValue('dosage', data.dosage);
@@ -347,12 +350,12 @@ function openEditVariantForm(variantId) {
             setValue('sideEffects', data.sideEffects);
             setValue('instructions', data.instructions);
             setValue('uses', data.uses);
-            
+
             const prescriptionField = document.getElementById('prescriptionRequired');
             if (prescriptionField) {
                 prescriptionField.value = (data.prescription_require !== undefined ? data.prescription_require : data.prescriptionRequired) ? 'true' : 'false';
             }
-            
+
             // Load unit conversions for this variant
             loadUnitConversions(variantId);
 
@@ -371,7 +374,7 @@ function cancelVariantForm() {
 }
 
 function viewVariantDetail(variantId) {
-    fetch(`/api/owner/medicine/variant/${variantId}`)
+    fetch(`/api/warehouse/medicine/variant/${variantId}`)
         .then(res => res.json())
         .then(data => {
             document.getElementById('variantModalTitle').textContent = 'Chi tiết biến thể thuốc';
@@ -477,7 +480,7 @@ function confirmDeleteVariant(variantId) {
 }
 
 function deleteVariant(variantId) {
-    fetch(`/api/owner/medicine/variant/${variantId}`, {
+    fetch(`/api/warehouse/medicine/variant/${variantId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' }
     })
@@ -499,7 +502,7 @@ function deleteVariant(variantId) {
 }
 
 function viewDetails(id) {
-    fetch(`/api/owner/medicine/${id}`)
+    fetch(`/api/warehouse/medicine/${id}`)
         .then(res => res.json())
         .then(data => {
             const detailContent = document.getElementById('detailContent');
@@ -551,7 +554,7 @@ function confirmDelete(id) {
 }
 
 function deleteMedicine(id) {
-    fetch(`/api/owner/medicine/${id}`, {
+    fetch(`/api/warehouse/medicine/${id}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' }
     })
@@ -575,24 +578,24 @@ function deleteMedicine(id) {
 document.addEventListener('DOMContentLoaded', function() {
     const medicineForm = document.getElementById('medicineForm');
     const variantForm = document.getElementById('variantForm');
-    
+
     if (medicineForm) {
         medicineForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             const id = document.getElementById('medicineId').value;
             const categoryIdValue = document.getElementById('categoryId').value;
-            
+
             // Only send fields that exist in Medicine entity
             const data = {
-                medicineName: document.getElementById('medicineName').value, // DTO expects medicineName, entity has name
+                medicineName: document.getElementById('medicineName').value,
                 categoryId: categoryIdValue ? parseInt(categoryIdValue) : null,
                 brandName: document.getElementById('brandName').value || null,
                 manufacturer: document.getElementById('manufacturer').value || null,
-                countryOfOrigin: document.getElementById('countryOfOrigin').value || null, // DTO expects countryOfOrigin, entity has country
+                countryOfOrigin: document.getElementById('countryOfOrigin').value || null,
                 activeIngredient: document.getElementById('activeIngredient').value || null
             };
-            
+
             // Remove null/empty values to match entity structure
             Object.keys(data).forEach(key => {
                 if (data[key] === null || data[key] === '') {
@@ -600,7 +603,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
-            const url = id ? `/api/owner/medicine/${id}` : '/api/owner/medicine';
+            const url = id ? `/api/warehouse/medicine/${id}` : '/api/warehouse/medicine';
             const method = id ? 'PUT' : 'POST';
 
             fetch(url, {
@@ -629,7 +632,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (variantForm) {
         variantForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             const variantId = document.getElementById('variantId').value;
             const medicineId = parseInt(document.getElementById('variantMedicineId').value);
 
@@ -656,7 +659,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 unitConversions: unitConversionsData
             };
 
-            const url = variantId ? `/api/owner/medicine/variant/${variantId}` : '/api/owner/medicine/variant';
+            const url = variantId ? `/api/warehouse/medicine/variant/${variantId}` : '/api/warehouse/medicine/variant';
             const method = variantId ? 'PUT' : 'POST';
 
             fetch(url, {
@@ -686,7 +689,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const medicineModal = document.getElementById('medicineModal');
     const variantModal = document.getElementById('variantModal');
     const detailModal = document.getElementById('detailModal');
-    
+
     window.onclick = function(event) {
         if (event.target == medicineModal) {
             closeMedicineModal();
@@ -796,7 +799,7 @@ function getUnitConversionsFromForm() {
 }
 
 function loadUnitConversions(variantId) {
-    fetch(`/api/owner/medicine/variant/${variantId}/unit-conversions`)
+    fetch(`/api/warehouse/medicine/variant/${variantId}/unit-conversions`)
         .then(res => res.json())
         .then(data => {
             unitConversions = data || [];

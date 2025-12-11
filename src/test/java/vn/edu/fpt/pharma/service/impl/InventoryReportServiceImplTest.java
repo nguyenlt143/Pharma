@@ -79,7 +79,7 @@ class InventoryReportServiceImplTest extends BaseServiceTest {
                 "Viên nén", "Manufacturer A", "BATCH001", null, 100L, "Viên",
                 "Thuốc giảm đau", 1L, 10L
         };
-        List<Object[]> mockDetails = java.util.Collections.singletonList(mockRow);
+        List<Object[]> mockDetails = Collections.singletonList(mockRow);
         when(inventoryRepository.findMedicinesByBranch(branchId)).thenReturn(mockDetails);
 
         // Act
@@ -119,7 +119,7 @@ class InventoryReportServiceImplTest extends BaseServiceTest {
                 "Viên nén", "Manufacturer A", "BATCH001", null, 100L, "Viên",
                 "Thuốc giảm đau", 1L, 10L
         };
-        List<Object[]> mockDetails = java.util.Collections.singletonList(mockRow);
+        List<Object[]> mockDetails = Collections.singletonList(mockRow);
 
         when(inventoryRepository.findMedicinesByBranch(branchId)).thenReturn(mockDetails);
 

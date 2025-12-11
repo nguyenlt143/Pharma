@@ -2,7 +2,6 @@
 @param Long branchId
 
 @template.layouts.warehouse(
-active = "check",
 headContent = @`
     <title>Phiếu kiểm kho - Kho Tổng</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">

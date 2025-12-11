@@ -15,6 +15,7 @@ import vn.edu.fpt.pharma.dto.user.ProfileVM;
 import vn.edu.fpt.pharma.dto.user.UserVM;
 import vn.edu.fpt.pharma.entity.Role;
 import vn.edu.fpt.pharma.entity.User;
+import vn.edu.fpt.pharma.exception.EntityInUseException;
 import vn.edu.fpt.pharma.repository.RoleRepository;
 import vn.edu.fpt.pharma.repository.ShiftAssignmentRepository;
 import vn.edu.fpt.pharma.repository.UserRepository;
@@ -207,7 +208,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
     @Override
     public void delete(Long id) {
         if (shiftAssignmentRepository.existsByUserIdAndDeletedFalse(id)) {
-            throw new RuntimeException("Nhân viên đang trong một ca làm việc, không thể xóa");
+            throw new EntityInUseException("Nhân viên", "ca làm việc");
         }
 
         // Nếu xóa Manager, xóa userId khỏi Branch

@@ -15,17 +15,12 @@ headContent = @`
     <link rel="stylesheet" href="/assets/css/warehouse/receipt_list.css">
 `,
 content = @`
-
-
-<div class="container">
-    <div class="main-content">
-
-        <header class="header">
-            <div class="header-content">
-                <h1 class="page-title">Danh sách phiếu</h1>
-                <p class="page-description">Quản lý danh sách phiếu.</p>
-            </div>
-        </header>
+<header class="header">
+    <div class="header-content">
+        <h1 class="page-title">Danh sách phiếu</h1>
+        <p class="page-description">Quản lý danh sách phiếu.</p>
+    </div>
+</header>
 
 
 <%--        <section class="search-section">--%>
@@ -143,10 +138,8 @@ content = @`
                     @endif
                     </tbody>
                 </table>
-            </div>
-        </section>
-    </div>
-</div>
+        </div>
+    </section>
 `,
 pageScript = @`
     <script src="/assets/js/warehouse/receipt_list.js" defer></script>

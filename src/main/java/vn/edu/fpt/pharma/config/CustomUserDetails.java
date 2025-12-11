@@ -3,12 +3,10 @@ package vn.edu.fpt.pharma.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import vn.edu.fpt.pharma.constant.UserRole;
 import vn.edu.fpt.pharma.entity.User;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 @RequiredArgsConstructor
 public class CustomUserDetails  implements UserDetails {
@@ -17,7 +15,9 @@ public class CustomUserDetails  implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(() -> "ROLE_" + getRole());
+        String role = getRole();
+        final String authority = role != null && role.startsWith("ROLE_") ? role : ("ROLE_" + role);
+        return List.of(() -> authority);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class CustomUserDetails  implements UserDetails {
     }
 
     public String getRole() {
-        return user.getRole().getName();
+        return user.getRole() != null ? user.getRole().getName() : null;
     }
 
     public Long getId() {

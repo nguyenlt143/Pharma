@@ -320,6 +320,8 @@
             // submit
             staffForm.addEventListener('submit', async (ev) => {
                 ev.preventDefault();
+                clearFieldErrors();
+
                 const form = new FormData(staffForm);
                 const payload = {
                     userName: form.get('userName'),
@@ -349,9 +351,42 @@
                     await fetchAll();
                 } catch (e) {
                     console.error(e);
-                    showToast(e.message || 'Lỗi khi lưu', 3000, 'error');
+
+                    if (e.isValidation && e.data) {
+                        // Validation errors - display field-level feedback
+                        if (e.data.errors) {
+                            displayFieldErrors(e.data.errors);
+                            focusFirstInvalidField();
+                        }
+                        // Do NOT show toast for field-level validation errors
+                        // but if there's a general message and no field-level errors, show it
+                        if (!e.data.errors || Object.keys(e.data.errors).length === 0) {
+                            if (e.data.message) showToast(e.data.message, 4000, 'error');
+                        }
+                    } else {
+                        // Business logic or other errors - show toast only
+                        showToast(e.message || e.data?.message || 'Lỗi khi lưu', 3000, 'error');
+                    }
                 }
             });
+
+            // helper: focus first invalid field after showing errors
+            function focusFirstInvalidField() {
+                const first = document.querySelector('.is-invalid');
+                if (first) {
+                    try {
+                        if (typeof first.scrollIntoView === 'function') {
+                            first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                        if (typeof first.focus === 'function') {
+                            first.focus();
+                        }
+                    } catch (err) {
+                        // ignore if focusing fails
+                        console.error('Could not focus invalid field', err);
+                    }
+                }
+            }
 
             // search
             let searchTimeout = null;

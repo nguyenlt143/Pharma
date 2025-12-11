@@ -59,14 +59,18 @@ content = @`
                 <div class="form-grid">
                     <label>Tên ca <span class="required">*</span>
                         <input type="text" id="shiftName" name="shiftName" placeholder="VD: Ca Sáng" required>
+
+                        <div class="invalid-feedback" id="shiftName-error"></div>
                     </label>
 
                     <label>Giờ bắt đầu <span class="required">*</span>
                         <input type="time" id="startTime" name="startTime" required>
+                        <div class="invalid-feedback" id="startTime-error"></div>
                     </label>
 
                     <label>Giờ kết thúc <span class="required">*</span>
                         <input type="time" id="endTime" name="endTime" required>
+                        <div class="invalid-feedback" id="endTime-error"></div>
                     </label>
 
                     <label style="grid-column: 1 / -1;">Ghi chú

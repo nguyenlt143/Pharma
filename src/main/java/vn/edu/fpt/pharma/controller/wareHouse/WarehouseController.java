@@ -266,4 +266,22 @@ public class WarehouseController {
 //        return "pages/warehouse/request_detail";
 //    }
 
+    // -------------------- CATEGORY MANAGEMENT --------------------
+    @GetMapping("/category")
+    public String categoryList(Model model) {
+        return "pages/warehouse/category_list";
+    }
+
+    // -------------------- PRICE MANAGEMENT --------------------
+    @GetMapping("/price")
+    public String priceList(Model model) {
+        return "pages/warehouse/price_list";
+    }
+
+    // -------------------- MEDICINE MANAGEMENT --------------------
+    @GetMapping("/medicine")
+    public String medicineList(Model model) {
+        return "pages/warehouse/medicine_list";
+    }
+
 }

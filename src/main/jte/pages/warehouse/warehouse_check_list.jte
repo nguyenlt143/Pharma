@@ -3,7 +3,6 @@
 @param String branchName
 
 @template.layouts.warehouse(
-active = "check",
 headContent = @`
     <title>Danh sách kiểm kho - ${branchName}</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>

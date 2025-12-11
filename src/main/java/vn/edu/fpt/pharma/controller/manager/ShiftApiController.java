@@ -37,28 +37,20 @@ public class ShiftApiController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody ShiftRequest req,
+    public ResponseEntity<ShiftResponse> create(@Valid @RequestBody ShiftRequest req,
                                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
-        try {
-            User u = userDetails.getUser();
-            ShiftResponse s = shiftService.save(req, u.getBranchId());
-            return ResponseEntity.ok(s);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        User u = userDetails.getUser();
+        ShiftResponse s = shiftService.save(req, u.getBranchId());
+        return ResponseEntity.ok(s);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody ShiftRequest req,
+    public ResponseEntity<ShiftResponse> update(@PathVariable Long id, @Valid @RequestBody ShiftRequest req,
                                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
-        try {
-            User u = userDetails.getUser();
-            req.setId(id);
-            ShiftResponse s = shiftService.save(req, u.getBranchId());
-            return ResponseEntity.ok(s);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        User u = userDetails.getUser();
+        req.setId(id);
+        ShiftResponse s = shiftService.save(req, u.getBranchId());
+        return ResponseEntity.ok(s);
     }
 
     @DeleteMapping("/{id}")

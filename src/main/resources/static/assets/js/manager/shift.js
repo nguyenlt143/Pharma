@@ -143,6 +143,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // ====================== ADD / EDIT SHIFT ======================
     shiftForm.onsubmit = async (e) => {
         e.preventDefault();
+        clearFieldErrors();
+
         const idVal = document.getElementById("shiftId").value || null;
 
         const startTime = document.getElementById("startTime").value;
@@ -150,7 +152,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Frontend validation: end time must be after start time
         if (startTime && endTime && endTime <= startTime) {
-            showToast("Giờ kết thúc phải lớn hơn giờ bắt đầu", 4000, 'error');
+            displayFieldErrors({
+                'endTime': 'Giờ kết thúc phải lớn hơn giờ bắt đầu'
+            });
+            focusFirstInvalidField();
             return;
         }
 
@@ -175,14 +180,50 @@ document.addEventListener("DOMContentLoaded", () => {
                 loadShifts();
                 showToast(payload.id ? "Cập nhật ca thành công!" : "Thêm ca mới thành công!", 2500, 'success');
             } else {
-                const error = await res.text();
-                showToast(error || "Lỗi khi lưu ca làm việc", 4000, 'error');
+                const contentType = res.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    const errorData = await res.json();
+
+                    if (errorData.errors) {
+                        // Validation errors - display field-level feedback
+                        displayFieldErrors(errorData.errors);
+                        focusFirstInvalidField();
+                        // Do NOT show toast for field-level validation errors
+                        if (!errorData.errors || Object.keys(errorData.errors).length === 0) {
+                            if (errorData.message) showToast(errorData.message, 4000, 'error');
+                        }
+                    } else {
+                        // Business logic error - show toast only
+                        showToast(errorData.message || "Lỗi khi lưu ca làm việc", 4000, 'error');
+                    }
+                } else {
+                    const error = await res.text();
+                    showToast(error || "Lỗi khi lưu ca làm việc", 4000, 'error');
+                }
             }
         } catch (err) {
             console.error("❌ Lỗi lưu shift:", err);
             showToast("Có lỗi xảy ra khi lưu ca làm việc!", 3000, 'error');
         }
     };
+
+    // helper: focus first invalid field after showing errors
+    function focusFirstInvalidField() {
+        const first = document.querySelector('.is-invalid');
+        if (first) {
+            try {
+                if (typeof first.scrollIntoView === 'function') {
+                    first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                if (typeof first.focus === 'function') {
+                    first.focus();
+                }
+            } catch (err) {
+                // ignore if focusing fails
+                console.error('Could not focus invalid field', err);
+            }
+        }
+    }
 
     window.editShift = async (id) => {
         try {
