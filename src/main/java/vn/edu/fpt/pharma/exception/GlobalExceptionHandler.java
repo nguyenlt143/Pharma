@@ -91,6 +91,89 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Xử lý DuplicateEntityException
+     */
+    @ExceptionHandler(DuplicateEntityException.class)
+    public ResponseEntity<Map<String, Object>> handleDuplicateEntityException(DuplicateEntityException ex) {
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("timestamp", LocalDateTime.now());
+        errorResponse.put("status", HttpStatus.CONFLICT.value());
+        errorResponse.put("error", "Duplicate Entity");
+        errorResponse.put("message", ex.getMessage());
+        errorResponse.put("entityName", ex.getEntityName());
+        errorResponse.put("fieldName", ex.getFieldName());
+        errorResponse.put("fieldValue", ex.getFieldValue());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
+    /**
+     * Xử lý EntityNotFoundException
+     */
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleEntityNotFoundException(EntityNotFoundException ex) {
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("timestamp", LocalDateTime.now());
+        errorResponse.put("status", HttpStatus.NOT_FOUND.value());
+        errorResponse.put("error", "Not Found");
+        errorResponse.put("message", ex.getMessage() != null ? ex.getMessage() : "Không tìm thấy dữ liệu");
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    /**
+     * Xử lý BusinessRuleViolationException
+     */
+    @ExceptionHandler(BusinessRuleViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleBusinessRuleViolationException(BusinessRuleViolationException ex) {
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("timestamp", LocalDateTime.now());
+        errorResponse.put("status", HttpStatus.UNPROCESSABLE_ENTITY.value());
+        errorResponse.put("error", "Business Rule Violation");
+        errorResponse.put("message", ex.getMessage());
+        if (ex.getRuleName() != null) {
+            errorResponse.put("ruleName", ex.getRuleName());
+        }
+
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(errorResponse);
+    }
+
+    /**
+     * Xử lý InvalidTimeRangeException
+     */
+    @ExceptionHandler(InvalidTimeRangeException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidTimeRangeException(InvalidTimeRangeException ex) {
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("timestamp", LocalDateTime.now());
+        errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
+        errorResponse.put("error", "Invalid Time Range");
+        errorResponse.put("message", ex.getMessage());
+        if (ex.getStartTime() != null) {
+            errorResponse.put("startTime", ex.getStartTime());
+        }
+        if (ex.getEndTime() != null) {
+            errorResponse.put("endTime", ex.getEndTime());
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    /**
+     * Xử lý ShiftOverlapException
+     */
+    @ExceptionHandler(ShiftOverlapException.class)
+    public ResponseEntity<Map<String, Object>> handleShiftOverlapException(ShiftOverlapException ex) {
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("timestamp", LocalDateTime.now());
+        errorResponse.put("status", HttpStatus.CONFLICT.value());
+        errorResponse.put("error", "Shift Overlap");
+        errorResponse.put("message", ex.getMessage());
+        errorResponse.put("overlappingShifts", ex.getOverlappingShifts());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
+    /**
      * Xử lý các Exception chung khác
      */
     @ExceptionHandler(Exception.class)

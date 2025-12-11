@@ -41,45 +41,29 @@ public class StaffApiController {
 
     // ✅ Get by ID
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok(userService.getById(id));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body(e.getMessage());
-        }
+    public ResponseEntity<UserDto> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getById(id));
     }
 
     // ✅ Create staff — ép branchId từ user login
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody UserRequest req,
+    public ResponseEntity<UserDto> create(@Valid @RequestBody UserRequest req,
                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
-        try {
-            req.setBranchId(userDetails.getUser().getBranchId());
-            return ResponseEntity.ok(userService.create(req));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(400).body(e.getMessage());
-        }
+        req.setBranchId(userDetails.getUser().getBranchId());
+        return ResponseEntity.ok(userService.create(req));
     }
 
     // ✅ Update staff — không cho sửa branchId
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody UserRequest req) {
-        try {
-            return ResponseEntity.ok(userService.update(id, req));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(400).body(e.getMessage());
-        }
+    public ResponseEntity<UserDto> update(@PathVariable Long id, @Valid @RequestBody UserRequest req) {
+        return ResponseEntity.ok(userService.update(id, req));
     }
 
     // ✅ Delete staff
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        try {
-            userService.delete(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(400).body(e.getMessage());
-        }
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        userService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
     // ✅ Restore staff (soft-deleted)

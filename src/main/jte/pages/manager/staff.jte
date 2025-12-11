@@ -79,10 +79,12 @@ content = @`
                 <div class="form-grid">
                     <label>Username <span class="required">*</span>
                         <input id="userName" name="userName" required>
+                        <div class="invalid-feedback" id="userName-error"></div>
                     </label>
 
                     <label>Họ tên <span class="required">*</span>
                         <input id="fullName" name="fullName" required>
+                        <div class="invalid-feedback" id="fullName-error"></div>
                     </label>
 
                     <label>Vai trò <span class="required">*</span>
@@ -92,18 +94,22 @@ content = @`
                             <option value="4">Nhân viên kho</option>
 
                         </select>
+                        <div class="invalid-feedback" id="roleId-error"></div>
                     </label>
 
                     <label>Email
                         <input id="email" name="email" type="email">
+                        <div class="invalid-feedback" id="email-error"></div>
                     </label>
 
                     <label>Số điện thoại
                         <input id="phoneNumber" name="phoneNumber" type="tel">
+                        <div class="invalid-feedback" id="phoneNumber-error"></div>
                     </label>
 
                     <label id="passwordWrapper">Mật khẩu <span class="required">*</span>
                         <input id="password" name="password" type="password">
+                        <div class="invalid-feedback" id="password-error"></div>
                     </label>
                 </div>
 

@@ -150,3 +150,84 @@ VALUES (1, 1, 1, 1, 520, 500, -20, 'Kiểm kê định kỳ - phát hiện thi�
 INSERT INTO stock_adjustments (id, brand_id, variant_id, batch_id, before_quantity, after_quantity, difference_quantity, reason, created_at, deleted)
 VALUES (2, 1, 2, 2, 300, 300, 0, 'Kiểm kê định kỳ - đúng số lượng', '2024-12-01 08:00:00', false);
 
+-- ============================================================================
+-- LEVEL 5: Shift Management Data
+-- ============================================================================
+
+-- Additional Staff Users for Shift Management (role_id=5 is INVENTORY/STAFF role)
+INSERT INTO users (id, user_name, password, full_name, role_id, branch_id, phone_number, email, deleted)
+VALUES (4, 'staff1', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhCy', 'Nhân viên 1', 5, 2, '0945678901', 'staff1@pharma.vn', false);
+INSERT INTO users (id, user_name, password, full_name, role_id, branch_id, phone_number, email, deleted)
+VALUES (5, 'staff2', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhCy', 'Nhân viên 2', 5, 2, '0956789012', 'staff2@pharma.vn', false);
+INSERT INTO users (id, user_name, password, full_name, role_id, branch_id, phone_number, email, deleted)
+VALUES (6, 'pharmacist1', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhCy', 'Dược sĩ 1', 4, 2, '0967890123', 'pharmacist1@pharma.vn', false);
+
+-- Shifts for Branch 2 (Manager's branch)
+INSERT INTO shifts (id, branch_id, name, start_time, end_time, created_at, updated_at, deleted)
+VALUES (1, 2, 'Ca Sáng', '08:00:00', '14:00:00', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+INSERT INTO shifts (id, branch_id, name, start_time, end_time, created_at, updated_at, deleted)
+VALUES (2, 2, 'Ca Chiều', '14:00:00', '20:00:00', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+INSERT INTO shifts (id, branch_id, name, start_time, end_time, created_at, updated_at, deleted)
+VALUES (3, 2, 'Ca Tối', '20:00:00', '02:00:00', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+
+-- Shift Assignments (assign staff to shifts)
+INSERT INTO shift_assignments (id, shift_id, user_id, created_at, updated_at, deleted)
+VALUES (1, 1, 4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+INSERT INTO shift_assignments (id, shift_id, user_id, created_at, updated_at, deleted)
+VALUES (2, 1, 6, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+INSERT INTO shift_assignments (id, shift_id, user_id, created_at, updated_at, deleted)
+VALUES (3, 2, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+
+-- Shift Works (actual work schedules)
+INSERT INTO shift_works (id, shift_assignment_id, work_date, status, created_at, updated_at, deleted)
+VALUES (1, 1, CURRENT_DATE, 'SCHEDULED', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+INSERT INTO shift_works (id, shift_assignment_id, work_date, status, created_at, updated_at, deleted)
+VALUES (2, 1, DATEADD('DAY', 1, CURRENT_DATE), 'SCHEDULED', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+INSERT INTO shift_works (id, shift_assignment_id, work_date, status, created_at, updated_at, deleted)
+VALUES (3, 2, CURRENT_DATE, 'SCHEDULED', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+
+-- ============================================================================
+-- LEVEL 6: Revenue Data (Customers & Invoices for Revenue Reports)
+-- ============================================================================
+
+-- Customers
+INSERT INTO customers (id, name, phone, created_at, updated_at, deleted)
+VALUES (1, 'Nguyễn Văn A', '0901234567', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+INSERT INTO customers (id, name, phone, created_at, updated_at, deleted)
+VALUES (2, 'Trần Thị B', '0912345678', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+INSERT INTO customers (id, name, phone, created_at, updated_at, deleted)
+VALUES (3, 'Lê Văn C', '0923456789', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+
+-- Invoices (for revenue reports) - Branch 2
+INSERT INTO invoices (id, invoice_code, customer_id, shift_work_id, branch_id, total_price, payment_method, user_id, invoice_type, created_at, updated_at, deleted)
+VALUES (1, 'INV-001', 1, 1, 2, 150000, 'cash', 4, 'PAID', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+INSERT INTO invoices (id, invoice_code, customer_id, shift_work_id, branch_id, total_price, payment_method, user_id, invoice_type, created_at, updated_at, deleted)
+VALUES (2, 'INV-002', 2, 1, 2, 250000, 'transfer', 6, 'PAID', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+INSERT INTO invoices (id, invoice_code, customer_id, shift_work_id, branch_id, total_price, payment_method, user_id, invoice_type, created_at, updated_at, deleted)
+VALUES (3, 'INV-003', 3, 3, 2, 180000, 'cash', 5, 'PAID', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+INSERT INTO invoices (id, invoice_code, customer_id, shift_work_id, branch_id, total_price, payment_method, user_id, invoice_type, created_at, updated_at, deleted)
+VALUES (4, 'INV-004', 1, 1, 2, 320000, 'transfer', 4, 'PAID', DATEADD('DAY', -1, CURRENT_TIMESTAMP), DATEADD('DAY', -1, CURRENT_TIMESTAMP), false);
+INSERT INTO invoices (id, invoice_code, customer_id, shift_work_id, branch_id, total_price, payment_method, user_id, invoice_type, created_at, updated_at, deleted)
+VALUES (5, 'INV-005', 2, 3, 2, 95000, 'cash', 5, 'PAID', DATEADD('DAY', -2, CURRENT_TIMESTAMP), DATEADD('DAY', -2, CURRENT_TIMESTAMP), false);
+
+-- Invoice Details (for profit calculation)
+INSERT INTO invoice_details (id, invoice_id, inventory_id, quantity, price, created_at, updated_at, deleted)
+VALUES (1, 1, 5, 10, 5000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+INSERT INTO invoice_details (id, invoice_id, inventory_id, quantity, price, created_at, updated_at, deleted)
+VALUES (2, 1, 6, 2, 50000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+INSERT INTO invoice_details (id, invoice_id, inventory_id, quantity, price, created_at, updated_at, deleted)
+VALUES (3, 2, 5, 20, 5000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+INSERT INTO invoice_details (id, invoice_id, inventory_id, quantity, price, created_at, updated_at, deleted)
+VALUES (4, 2, 6, 3, 50000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+INSERT INTO invoice_details (id, invoice_id, inventory_id, quantity, price, created_at, updated_at, deleted)
+VALUES (5, 3, 5, 15, 5000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+INSERT INTO invoice_details (id, invoice_id, inventory_id, quantity, price, created_at, updated_at, deleted)
+VALUES (6, 3, 6, 2, 52500, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+INSERT INTO invoice_details (id, invoice_id, inventory_id, quantity, price, created_at, updated_at, deleted)
+VALUES (7, 4, 5, 30, 5000, DATEADD('DAY', -1, CURRENT_TIMESTAMP), DATEADD('DAY', -1, CURRENT_TIMESTAMP), false);
+INSERT INTO invoice_details (id, invoice_id, inventory_id, quantity, price, created_at, updated_at, deleted)
+VALUES (8, 4, 6, 3, 57000, DATEADD('DAY', -1, CURRENT_TIMESTAMP), DATEADD('DAY', -1, CURRENT_TIMESTAMP), false);
+INSERT INTO invoice_details (id, invoice_id, inventory_id, quantity, price, created_at, updated_at, deleted)
+VALUES (9, 5, 5, 15, 5000, DATEADD('DAY', -2, CURRENT_TIMESTAMP), DATEADD('DAY', -2, CURRENT_TIMESTAMP), false);
+INSERT INTO invoice_details (id, invoice_id, inventory_id, quantity, price, created_at, updated_at, deleted)
+VALUES (10, 5, 6, 1, 20000, DATEADD('DAY', -2, CURRENT_TIMESTAMP), DATEADD('DAY', -2, CURRENT_TIMESTAMP), false);

@@ -8,6 +8,9 @@ import vn.edu.fpt.pharma.entity.Shift;
 import vn.edu.fpt.pharma.repository.ShiftRepository;
 import vn.edu.fpt.pharma.service.ShiftService;
 
+import vn.edu.fpt.pharma.exception.InvalidTimeRangeException;
+import vn.edu.fpt.pharma.exception.ShiftOverlapException;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -54,7 +57,8 @@ public class ShiftServiceImpl implements ShiftService {
 
         // Validate end time is after start time
         if (et.isBefore(st) || et.equals(st)) {
-            throw new IllegalArgumentException("Giờ kết thúc phải lớn hơn giờ bắt đầu");
+            throw new InvalidTimeRangeException(request.getStartTime(), request.getEndTime(),
+                "Giờ kết thúc phải lớn hơn giờ bắt đầu");
         }
 
         // Validate no overlapping shifts
@@ -63,7 +67,7 @@ public class ShiftServiceImpl implements ShiftService {
             String overlappingNames = overlapping.stream()
                     .map(shift -> shift.getName() + " (" + shift.getStartTime() + " - " + shift.getEndTime() + ")")
                     .collect(Collectors.joining(", "));
-            throw new IllegalArgumentException("Ca làm việc bị trùng thời gian với: " + overlappingNames);
+            throw new ShiftOverlapException(overlappingNames);
         }
 
         s.setBranchId(branchId);
@@ -118,4 +122,3 @@ public class ShiftServiceImpl implements ShiftService {
         }
     }
 }
-

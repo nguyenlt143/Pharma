@@ -207,6 +207,33 @@ input:focus, select:focus {
     margin-top: 18px;
 }
 
+/* ===== Validation Feedback ===== */
+.invalid-feedback {
+    display: none;
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    line-height: 1.4;
+}
+
+.invalid-feedback.show {
+    display: block;
+}
+
+input.is-invalid,
+select.is-invalid,
+textarea.is-invalid {
+    border-color: #dc2626 !important;
+    background-color: #fef2f2;
+}
+
+input.is-invalid:focus,
+select.is-invalid:focus,
+textarea.is-invalid:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
 /* ===== Toast ===== */
 .toast {
     position: fixed;

@@ -4,6 +4,11 @@
 
 -- Drop tables if exist (in reverse dependency order)
 DROP TABLE IF EXISTS stock_adjustments;
+DROP TABLE IF EXISTS invoice_details;
+DROP TABLE IF EXISTS invoices;
+DROP TABLE IF EXISTS shift_works;
+DROP TABLE IF EXISTS shift_assignments;
+DROP TABLE IF EXISTS customers;
 DROP TABLE IF EXISTS request_details;
 DROP TABLE IF EXISTS inventory_movement_details;
 DROP TABLE IF EXISTS inventory_movements;
@@ -137,6 +142,7 @@ CREATE TABLE shifts (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     branch_id BIGINT,
     name VARCHAR(255),
+    note VARCHAR(500),
     start_time TIME,
     end_time TIME,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -145,6 +151,17 @@ CREATE TABLE shifts (
     updated_by BIGINT,
     deleted BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (branch_id) REFERENCES branchs(id)
+);
+
+CREATE TABLE customers (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    phone VARCHAR(50) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by BIGINT,
+    updated_by BIGINT,
+    deleted BOOLEAN DEFAULT FALSE
 );
 
 -- ============================================================================
@@ -303,3 +320,76 @@ CREATE TABLE stock_adjustments (
     FOREIGN KEY (batch_id) REFERENCES batches(id)
 );
 
+-- ============================================================================
+-- SHIFT MANAGEMENT TABLES
+-- ============================================================================
+
+CREATE TABLE shift_assignments (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    shift_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by BIGINT,
+    updated_by BIGINT,
+    deleted BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (shift_id) REFERENCES shifts(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE shift_works (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    shift_assignment_id BIGINT NOT NULL,
+    work_date DATE NOT NULL,
+    check_in_time TIME,
+    check_out_time TIME,
+    status VARCHAR(50) DEFAULT 'SCHEDULED',
+    notes VARCHAR(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by BIGINT,
+    updated_by BIGINT,
+    deleted BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (shift_assignment_id) REFERENCES shift_assignments(id)
+);
+
+-- ============================================================================
+-- INVOICE TABLES (for Revenue Reports)
+-- ============================================================================
+
+CREATE TABLE invoices (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    invoice_code VARCHAR(255) NOT NULL UNIQUE,
+    customer_id BIGINT,
+    shift_work_id BIGINT,
+    branch_id BIGINT,
+    total_price DOUBLE,
+    description VARCHAR(1000),
+    payment_method VARCHAR(50),
+    user_id BIGINT,
+    invoice_type VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by BIGINT,
+    updated_by BIGINT,
+    deleted BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (customer_id) REFERENCES customers(id),
+    FOREIGN KEY (shift_work_id) REFERENCES shift_works(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE invoice_details (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    invoice_id BIGINT NOT NULL,
+    inventory_id BIGINT NOT NULL,
+    quantity BIGINT,
+    price DOUBLE,
+    multiplier DOUBLE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by BIGINT,
+    updated_by BIGINT,
+    deleted BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (invoice_id) REFERENCES invoices(id),
+    FOREIGN KEY (inventory_id) REFERENCES inventory(id)
+);
