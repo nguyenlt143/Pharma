@@ -50,6 +50,15 @@
                     </span>
                 </div>
             </div>
+            <!-- Show single note for the whole check -->
+            <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-600 mb-1">Ghi chú</label>
+                <p class="text-sm text-gray-700">@if(details != null && !details.isEmpty())
+                    @for(vn.edu.fpt.pharma.dto.inventorycheck.StockAdjustmentDetailVM d : details)
+                        @if(d.getReason() != null && !d.getReason().isBlank())${d.getReason()}@break@endif
+                    @endfor
+                @else - @endif</p>
+            </div>
         </div>
 
         <!-- Details Table -->
@@ -69,7 +78,7 @@
                         <th class="px-4 py-3 font-medium text-right">SL trước kiểm</th>
                         <th class="px-4 py-3 font-medium text-right">SL sau kiểm</th>
                         <th class="px-4 py-3 font-medium text-right">Chênh lệch</th>
-                        <th class="px-4 py-3 font-medium">Ghi chú</th>
+                        <!-- Removed per-row note column -->
                     </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
@@ -85,12 +94,11 @@
                                 <td class="px-4 py-3 text-right font-semibold @if(detail.getDifferenceQuantity() < 0) text-red-600 @elseif(detail.getDifferenceQuantity() > 0) text-green-600 @else text-gray-600 @endif">
                                     @if(detail.getDifferenceQuantity() > 0)+@endif${detail.getDifferenceQuantity()}
                                 </td>
-                                <td class="px-4 py-3 text-sm text-gray-600">${detail.getReason()}</td>
                             </tr>
                         @endfor
                     @else
                         <tr>
-                            <td colspan="8" class="px-4 py-8 text-center text-gray-500">
+                            <td colspan="7" class="px-4 py-8 text-center text-gray-500">
                                 Không có dữ liệu kiểm kho
                             </td>
                         </tr>
@@ -103,4 +111,3 @@
 </div>
 </body>
 </html>
-
