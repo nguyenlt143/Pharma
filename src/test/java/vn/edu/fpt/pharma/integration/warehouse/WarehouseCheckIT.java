@@ -18,8 +18,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * - POST /warehouse/check/submit - Submit kiểm kho
  * </p>
  *
- * NOTE: Some tests are disabled because they use MySQL-specific DATE_FORMAT function
- * which is not supported by H2 database. These tests should be run against MySQL.
+ * <p>
+ * NOTE: Uses custom H2 DATE_FORMAT function registered in H2TestConfig
+ * to simulate MySQL DATE_FORMAT behavior for testing purposes.
+ * </p>
  */
 @DisplayName("Warehouse Check Controller Integration Tests")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -34,7 +36,6 @@ class WarehouseCheckIT extends BaseWarehouseIT {
     @Test
     @Order(1)
     @DisplayName("GET /warehouse/check - Should return check history list")
-    @Disabled("Uses MySQL DATE_FORMAT function not supported by H2. Run against MySQL.")
     void testCheckList_shouldReturnHistoryList() throws Exception {
         long startTime = System.currentTimeMillis();
         String endpoint = "/warehouse/check";
@@ -52,7 +53,6 @@ class WarehouseCheckIT extends BaseWarehouseIT {
     @Test
     @Order(2)
     @DisplayName("GET /warehouse/check - Should have inventoryChecks attribute")
-    @Disabled("Uses MySQL DATE_FORMAT function not supported by H2. Run against MySQL.")
     void testCheckList_shouldHaveInventoryChecksAttribute() throws Exception {
         long startTime = System.currentTimeMillis();
         String endpoint = "/warehouse/check";
@@ -115,11 +115,10 @@ class WarehouseCheckIT extends BaseWarehouseIT {
 
     @Test
     @Order(5)
-    @DisplayName("GET /warehouse/check/detail?checkDate=2024-12-01 - Should return check details")
-    @Disabled("Uses MySQL DATE_FORMAT function not supported by H2. Run against MySQL.")
+    @DisplayName("GET /warehouse/check/detail?checkDate=2024-12-01 08:00:00 - Should return check details")
     void testCheckDetail_shouldReturnCheckDetails() throws Exception {
         long startTime = System.currentTimeMillis();
-        String endpoint = "/warehouse/check/detail?checkDate=2024-12-01";
+        String endpoint = "/warehouse/check/detail?checkDate=2024-12-01 08:00:00";
 
         MvcResult result = mockMvc.perform(get(endpoint))
                 .andDo(print())
@@ -134,10 +133,9 @@ class WarehouseCheckIT extends BaseWarehouseIT {
     @Test
     @Order(6)
     @DisplayName("GET /warehouse/check/detail - Should return correct checkDate")
-    @Disabled("Uses MySQL DATE_FORMAT function not supported by H2. Run against MySQL.")
     void testCheckDetail_shouldReturnCorrectCheckDate() throws Exception {
         long startTime = System.currentTimeMillis();
-        String checkDate = "2024-12-01";
+        String checkDate = "2024-12-01 08:00:00";
         String endpoint = "/warehouse/check/detail?checkDate=" + checkDate;
 
         MvcResult result = mockMvc.perform(get(endpoint))
