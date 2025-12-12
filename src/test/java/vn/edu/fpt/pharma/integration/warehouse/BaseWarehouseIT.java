@@ -12,6 +12,8 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.context.annotation.Import;
+import vn.edu.fpt.pharma.test.config.H2TestConfig;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -21,6 +23,7 @@ import java.time.format.DateTimeFormatter;
  * <p>
  * Features:
  * - Uses H2 in-memory database with MySQL mode
+ * - Registers custom H2 functions (DATE_FORMAT) for MySQL compatibility
  * - Auto-configures MockMvc for web layer testing
  * - Pre-configured with WAREHOUSE role for security
  * - Resets test data before each test method
@@ -29,6 +32,7 @@ import java.time.format.DateTimeFormatter;
  */
 @SpringBootTest
 @AutoConfigureMockMvc
+@Import(H2TestConfig.class)
 @ActiveProfiles("test")
 @TestPropertySource(properties = {
     "logging.config=classpath:logback-warehouse.xml"

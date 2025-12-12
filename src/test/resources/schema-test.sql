@@ -339,7 +339,7 @@ CREATE TABLE shift_assignments (
 
 CREATE TABLE shift_works (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    shift_assignment_id BIGINT NOT NULL,
+    assignment_id BIGINT NOT NULL,
     work_date DATE NOT NULL,
     check_in_time TIME,
     check_out_time TIME,
@@ -350,7 +350,7 @@ CREATE TABLE shift_works (
     created_by BIGINT,
     updated_by BIGINT,
     deleted BOOLEAN DEFAULT FALSE,
-    FOREIGN KEY (shift_assignment_id) REFERENCES shift_assignments(id)
+    FOREIGN KEY (assignment_id) REFERENCES shift_assignments(id)
 );
 
 -- ============================================================================
