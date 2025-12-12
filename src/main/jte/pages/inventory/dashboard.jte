@@ -59,22 +59,18 @@
 
         <section>
             <h3 class="text-xl font-semibold mb-4">Truy cập nhanh</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-                <a href="/inventory/import/list" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg flex items-center justify-center gap-2 shadow-md transform hover:scale-105 transition">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <a href="/inventory/import/create" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg flex items-center justify-center gap-2 shadow-md transform hover:scale-105 transition">
                     <span class="material-icons-outlined">add_circle_outline</span>
-                    Tạo phiếu nhập mới
+                    Tạo phiếu nhập
                 </a>
-                <a href="/inventory/export/list" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-4 px-6 rounded-lg flex items-center justify-center gap-2 shadow-md transform hover:scale-105 transition">
-                    <span class="material-icons-outlined">unarchive</span>
-                    Tạo phiếu xuất kho
+                <a href="/inventory/return/create" class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 px-6 rounded-lg flex items-center justify-center gap-2 shadow-md transform hover:scale-105 transition">
+                    <span class="material-icons-outlined">assignment_return</span>
+                    Tạo phiếu trả hàng
                 </a>
-                <a href="/inventory/check" class="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-lg flex items-center justify-center gap-2 shadow-md transform hover:scale-105 transition">
+                <a href="/inventory/check/create" class="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-lg flex items-center justify-center gap-2 shadow-md transform hover:scale-105 transition">
                     <span class="material-icons-outlined">checklist</span>
                     Tạo phiếu kiểm kho
-                </a>
-                <a href="/inventory/report" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-6 rounded-lg flex items-center justify-center gap-2 shadow-md transform hover:scale-105 transition">
-                    <span class="material-icons-outlined">assessment</span>
-                    Báo cáo tồn kho
                 </a>
             </div>
         </section>
@@ -82,4 +78,3 @@
 </div>
 </body>
 </html>
-

@@ -119,7 +119,7 @@
                 <label class="block text-sm font-medium mb-2">Loại phiếu trả <span class="text-red-500">*</span></label>
                 <select id="movementType" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
                     <option value="">-- Chọn loại phiếu trả --</option>
-                    <option value="BR_TO_WARE">Trả từ chi nhánh về kho tổng</option>
+                    <option value="BR_TO_WARE">Xuất trả cấp phát</option>
                     <option value="BR_TO_WARE2">Trả hàng hết hạn</option>
                 </select>
             </div>
