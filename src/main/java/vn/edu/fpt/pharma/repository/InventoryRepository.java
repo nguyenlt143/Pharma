@@ -23,6 +23,13 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>, Jpa
     int countLowStock();
 
     @Query(value = """
+        SELECT COUNT(*) FROM inventory 
+        WHERE branch_id = :branchId 
+          AND quantity <= min_stock
+        """, nativeQuery = true)
+    int countLowStockByBranch(@Param("branchId") Long branchId);
+
+    @Query(value = """
         SELECT 
             i.id as inventoryId,
             i.variant_id as variantId,

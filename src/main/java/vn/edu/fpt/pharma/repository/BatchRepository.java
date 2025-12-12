@@ -3,6 +3,7 @@ package vn.edu.fpt.pharma.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import vn.edu.fpt.pharma.entity.Batch;
 import java.util.Optional;
 
@@ -15,6 +16,14 @@ public interface BatchRepository extends JpaRepository<Batch, Long>, JpaSpecific
           AND b.expiry_date BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 90 DAY)
         """, nativeQuery = true)
     int countNearlyExpired();
+
+    @Query(value = """
+        SELECT COUNT(*) FROM batches b
+        JOIN inventory i ON i.batch_id = b.id
+        WHERE i.branch_id = :branchId
+          AND b.expiry_date BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 90 DAY)
+        """, nativeQuery = true)
+    int countNearlyExpiredByBranch(@Param("branchId") Long branchId);
 
     Optional<Batch> findByVariantId(Long variantId);
 

@@ -19,6 +19,12 @@ public interface StockAdjustmentRepository extends JpaRepository<StockAdjustment
     LocalDateTime findLastInventoryCheck();
 
     @Query(value = """
+        SELECT MAX(created_at) FROM stock_adjustments
+        WHERE brand_id = :branchId
+        """, nativeQuery = true)
+    LocalDateTime findLastInventoryCheckByBranch(@Param("branchId") Long branchId);
+
+    @Query(value = """
         SELECT 
             DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') as check_date,
             COUNT(DISTINCT variant_id) as checked_count

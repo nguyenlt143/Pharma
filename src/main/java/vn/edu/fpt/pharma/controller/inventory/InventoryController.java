@@ -204,26 +204,27 @@ public class InventoryController {
     }
 
     // -------------------- EXPORT --------------------
-    @GetMapping("/export/list")
-    public String exportList(
-            @RequestParam(required = false) String code,
-            @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate createdAt,
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            Model model
-    ) {
-        Long branchId = userDetails.getUser().getBranchId();
-
-        List<RequestFormVM> exports = requestFormService.searchExportForms(branchId, code, createdAt);
-        model.addAttribute("exports", exports);
-
-        return "pages/inventory/export_list";
-    }
-
-    @GetMapping("/export/detail/{id}")
-    public String exportDetail(@PathVariable Long id) {
-        return "pages/inventory/export_detail";
-    }
+    // NOT USED IN INVENTORY MANAGER ROLE - Commented out
+//    @GetMapping("/export/list")
+//    public String exportList(
+//            @RequestParam(required = false) String code,
+//            @RequestParam(required = false)
+//            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate createdAt,
+//            @AuthenticationPrincipal CustomUserDetails userDetails,
+//            Model model
+//    ) {
+//        Long branchId = userDetails.getUser().getBranchId();
+//
+//        List<RequestFormVM> exports = requestFormService.searchExportForms(branchId, code, createdAt);
+//        model.addAttribute("exports", exports);
+//
+//        return "pages/inventory/export_list";
+//    }
+//
+//    @GetMapping("/export/detail/{id}")
+//    public String exportDetail(@PathVariable Long id) {
+//        return "pages/inventory/export_detail";
+//    }
 
 
     // -------------------- CHECK INVENTORY --------------------
@@ -347,17 +348,19 @@ public class InventoryController {
         }
     }
 
-    // -------------------- CHECK INVENTORY --------------------
-    @GetMapping("/expiring_medicine")
-    public String expireMedicine() {
-        return "pages/inventory/expiring_medicine";
-    }
+    // -------------------- EXPIRING MEDICINE --------------------
+    // NOT USED IN INVENTORY MANAGER ROLE - Commented out
+//    @GetMapping("/expiring_medicine")
+//    public String expireMedicine() {
+//        return "pages/inventory/expiring_medicine";
+//    }
 
     // -------------------- REPORT --------------------
-    @GetMapping("/report")
-    public String reportPage() {
-        return "pages/inventory/report_overview";
-    }
+    // NOT USED IN INVENTORY MANAGER ROLE - Commented out
+//    @GetMapping("/report")
+//    public String reportPage() {
+//        return "pages/inventory/report_overview";
+//    }
 
     // -------------------- RETURN REQUEST LIST/DETAIL --------------------
     @GetMapping("/return/list")
