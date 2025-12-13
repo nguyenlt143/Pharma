@@ -26,6 +26,7 @@
                 </a>
             </div>
             <p class="text-gray-600 mt-2">Chọn thuốc từ kho chi nhánh để trả về kho tổng</p>
+            <!-- Removed UI note about deletion to keep screen clean -->
         </div>
 
         <!-- Medicines from Branch -->
@@ -243,6 +244,7 @@ $(document).on('click', '.add-medicine-btn', function() {
         strength: row.data('strength') || '',
         unit: row.data('unit') || '',
         availableQty: row.data('available-qty'),
+        // default to maximum available
         quantity: row.data('available-qty')
     };
 
@@ -298,6 +300,7 @@ function renderSelectedItems() {
             '<td class="px-3 py-2 text-center">' +
                 '<button type="button" class="remove-medicine-btn text-red-600 hover:text-red-800" data-key="' + key + '">' +
                     '<span class="material-icons-outlined text-sm">delete</span>' +
+                '</button>' +
                 '</button>' +
             '</td>' +
             '</tr>';
