@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.pharma.dto.manager.ShiftRequest;
 import vn.edu.fpt.pharma.dto.manager.ShiftResponse;
 import vn.edu.fpt.pharma.entity.Shift;
+import vn.edu.fpt.pharma.repository.ShiftAssignmentRepository;
 import vn.edu.fpt.pharma.repository.ShiftRepository;
 import vn.edu.fpt.pharma.service.ShiftService;
 
@@ -22,9 +23,11 @@ import java.util.stream.Collectors;
 public class ShiftServiceImpl implements ShiftService {
 
     private final ShiftRepository repo;
+    private final ShiftAssignmentRepository shiftAssignmentRepository;
 
-    public ShiftServiceImpl(ShiftRepository repo) {
+    public ShiftServiceImpl(ShiftRepository repo, ShiftAssignmentRepository shiftAssignmentRepository) {
         this.repo = repo;
+        this.shiftAssignmentRepository = shiftAssignmentRepository;
     }
 
     @Override
@@ -51,6 +54,13 @@ public class ShiftServiceImpl implements ShiftService {
         } else {
             s = new Shift();
         }
+
+        // Validate duplicate name
+        repo.findByNameAndBranchId(request.getName(), branchId).ifPresent(existing -> {
+            if (!existing.getId().equals(request.getId())) {
+                throw new IllegalArgumentException("Tên ca làm việc đã tồn tại");
+            }
+        });
 
         LocalTime st = parseLocalTime(request.getStartTime());
         LocalTime et = parseLocalTime(request.getEndTime());
@@ -81,12 +91,23 @@ public class ShiftServiceImpl implements ShiftService {
 
     @Override
     public void delete(Long id) {
+        if (!shiftAssignmentRepository.findByShiftId(id).isEmpty()) {
+            throw new IllegalStateException("Ca làm việc có nhân viên, không thể xóa");
+        }
         // soft delete handled by @SQLDelete on entity
         repo.deleteById(id);
     }
 
     @Override
     public void restore(Long id) {
+        Shift shiftToRestore = repo.findById(id).orElseThrow(() -> new RuntimeException("Ca làm việc không tồn tại"));
+        List<Shift> overlapping = repo.findOverlappingShifts(shiftToRestore.getBranchId(), shiftToRestore.getStartTime(), shiftToRestore.getEndTime(), id);
+        if (!overlapping.isEmpty()) {
+            String overlappingNames = overlapping.stream()
+                    .map(shift -> shift.getName() + " (" + shift.getStartTime() + " - " + shift.getEndTime() + ")")
+                    .collect(Collectors.joining(", "));
+            throw new ShiftOverlapException(overlappingNames);
+        }
         repo.restoreById(id);
     }
 

@@ -14,6 +14,7 @@ import vn.edu.fpt.pharma.dto.manager.UserRequest;
 import vn.edu.fpt.pharma.dto.user.ProfileVM;
 import vn.edu.fpt.pharma.dto.user.UserVM;
 import vn.edu.fpt.pharma.entity.Role;
+import vn.edu.fpt.pharma.entity.ShiftAssignment;
 import vn.edu.fpt.pharma.entity.User;
 import vn.edu.fpt.pharma.exception.EntityInUseException;
 import vn.edu.fpt.pharma.repository.RoleRepository;
@@ -23,6 +24,7 @@ import vn.edu.fpt.pharma.service.AuditService;
 import vn.edu.fpt.pharma.service.UserService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository> implements UserService, UserDetailsService {
@@ -207,8 +209,12 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
 
     @Override
     public void delete(Long id) {
-        if (shiftAssignmentRepository.existsByUserIdAndDeletedFalse(id)) {
-            throw new EntityInUseException("Nhân viên", "ca làm việc");
+        List<ShiftAssignment> assignments = shiftAssignmentRepository.findByUserId(id);
+        if (!assignments.isEmpty()) {
+            String shiftDetails = assignments.stream()
+                    .map(assignment -> assignment.getShift().getName())
+                    .collect(Collectors.joining(", "));
+            throw new EntityInUseException("Nhân viên", "ca làm việc: " + shiftDetails);
         }
 
         // Nếu xóa Manager, xóa userId khỏi Branch

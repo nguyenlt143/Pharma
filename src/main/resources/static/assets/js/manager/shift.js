@@ -188,13 +188,11 @@ document.addEventListener("DOMContentLoaded", () => {
                         // Validation errors - display field-level feedback
                         displayFieldErrors(errorData.errors);
                         focusFirstInvalidField();
-                        // Do NOT show toast for field-level validation errors
-                        if (!errorData.errors || Object.keys(errorData.errors).length === 0) {
-                            if (errorData.message) showToast(errorData.message, 4000, 'error');
-                        }
-                    } else {
+                    } else if (errorData.message) {
                         // Business logic error - show toast only
-                        showToast(errorData.message || "Lỗi khi lưu ca làm việc", 4000, 'error');
+                        showToast(errorData.message, 4000, 'error');
+                    } else {
+                        showToast("Lỗi khi lưu ca làm việc", 4000, 'error');
                     }
                 } else {
                     const error = await res.text();
@@ -206,6 +204,24 @@ document.addEventListener("DOMContentLoaded", () => {
             showToast("Có lỗi xảy ra khi lưu ca làm việc!", 3000, 'error');
         }
     };
+
+    function clearFieldErrors() {
+        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        document.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+    }
+
+    function displayFieldErrors(errors) {
+        for (const [field, message] of Object.entries(errors)) {
+            const input = document.getElementById(field);
+            const errorDiv = document.getElementById(`${field}-error`);
+            if (input) {
+                input.classList.add('is-invalid');
+            }
+            if (errorDiv) {
+                errorDiv.textContent = message;
+            }
+        }
+    }
 
     // helper: focus first invalid field after showing errors
     function focusFirstInvalidField() {

@@ -103,12 +103,12 @@ content = @`
                     </label>
 
                     <label>Số điện thoại
-                        <input id="phoneNumber" name="phoneNumber" type="tel">
+                        <input id="phoneNumber" name="phoneNumber" type="tel" pattern="0[0-9]{9}" title="Số điện thoại phải có 10 chữ số và bắt đầu bằng số 0.">
                         <div class="invalid-feedback" id="phoneNumber-error"></div>
                     </label>
 
                     <label id="passwordWrapper">Mật khẩu <span class="required">*</span>
-                        <input id="password" name="password" type="password">
+                        <input id="password" name="password" type="password" pattern=".{6,100}" title="Mật khẩu phải có từ 6 đến 100 ký tự.">
                         <div class="invalid-feedback" id="password-error"></div>
                     </label>
                 </div>

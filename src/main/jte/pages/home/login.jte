@@ -24,7 +24,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen w-full bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+<body class="min-h-screen w-full bg-gradient-to-br from-blue-50 [Write a concise vision statement that summarizes the purpose and intent of the new product and describes what the world will be like when it includes the product. The vision statement should reflect a balanced view that will satisfy the needs of diverse customers as well as those of the developing organization. It may be somewhat idealistic, but it should be grounded in the realities of existing or anticipated customer markets, enterprise architectures, organizational strategic directions, and cost and resource limitations]forto-indigo-100 flex items-center justify-center p-4 sm:p-6 lg:p-8">
 
 <!-- Main Card Container -->
 <div class="bg-white w-full max-w-5xl h-[600px] rounded-3xl shadow-2xl overflow-hidden flex relative">
