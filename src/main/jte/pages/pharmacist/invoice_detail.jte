@@ -4,16 +4,20 @@
 @param java.util.List<vn.edu.fpt.pharma.dto.invoice.MedicineItemVM> medicines
 
 @template.layouts.layout_test(
-    headContent = @`
-        <link rel="stylesheet" href="/assets/css/pharmacist/datatable_enhanced.css">
-        <link rel="stylesheet" href="/assets/css/pharmacist/invoice_detail.css">
-    `,
-    content = @`
+headContent = @`
+    <link rel="stylesheet" href="/assets/css/pharmacist/datatable_enhanced.css">
+    <link rel="stylesheet" href="/assets/css/pharmacist/invoice_detail.css">
+`,
+content = @`
     <div class="content-wrapper">
         <!-- Page Header -->
         <header class="page-header">
             <h1 class="page-title">Chi tiết Hóa đơn</h1>
             <div class="page-actions">
+                <button onclick="printInvoice()" class="btn btn-primary" style="margin-right: 10px;">
+                    <span class="material-icons" style="vertical-align: middle; font-size: 18px;">print</span>
+                    In hóa đơn
+                </button>
                 <a href="/pharmacist/invoices" class="btn btn-secondary">← Quay lại</a>
             </div>
         </header>
@@ -34,7 +38,9 @@
 
             <div class="info-section">
                 <h3>Thông tin hóa đơn</h3>
+                <p><strong>Mã hóa đơn:</strong> ${invoice.invoiceCode()}</p>
                 <p><strong>Ngày tạo:</strong> ${invoice.createdAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))}</p>
+                <p><strong>Thanh toán:</strong> ${invoice.paymentMethod().equals("cash") ? "Tiền mặt" : "Chuyển khoản"}</p>
                 <p><strong>Tổng tiền:</strong> ${String.format("%,.0f", invoice.totalPrice())} VNĐ</p>
                 @if(invoice.description() != null && !invoice.description().isEmpty())
                     <p><strong>Ghi chú:</strong> ${invoice.description()}</p>
@@ -42,36 +48,42 @@
             </div>
         </div>
 
-            <!-- Medicine List -->
-            <div class="medicine-list">
-                <h3>Danh sách thuốc</h3>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>STT</th>
-                            <th>Tên thuốc</th>
-                            <th>KĐG</th>
-                            <th>Số lượng</th>
-                            <th>Đơn giá</th>
-                            <th>Thành tiền</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for(var i = 0; i < medicines.size(); i++)
-                            !{var medicine = medicines.get(i);}
-                            <tr>
-                                <td>${i + 1}</td>
-                                <td>${medicine.medicineName()} ${medicine.strength()} </td>
-                                <td>${medicine.unitName()}</td>
-                                <td>${medicine.quantity()}</td>
-                                <td>${String.format("%,.0f", medicine.unitPrice())} VNĐ</td>
-                                <td>${String.format("%,.0f", medicine.unitPrice() * medicine.quantity())} VNĐ</td>
-                            </tr>
-                        @endfor
-                    </tbody>
-                </table>
-            </div>
+        <!-- Medicine List -->
+        <div class="medicine-list">
+            <h3>Danh sách thuốc</h3>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên thuốc</th>
+                    <th>KĐG</th>
+                    <th>Số lượng</th>
+                    <th>Đơn giá</th>
+                    <th>Thành tiền</th>
+                </tr>
+                </thead>
+                <tbody>
+                @for(var i = 0; i < medicines.size(); i++)
+                    !{var medicine = medicines.get(i);}
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${medicine.medicineName()} ${medicine.strength()} </td>
+                        <td>${medicine.unitName()}</td>
+                        <td>${medicine.quantity()}</td>
+                        <td>${String.format("%,.0f", medicine.unitPrice())} VNĐ</td>
+                        <td>${String.format("%,.0f", medicine.unitPrice() * medicine.quantity())} VNĐ</td>
+                    </tr>
+                @endfor
+                </tbody>
+            </table>
         </div>
-    `,
-    pageScript = @``
+    </div>
+`,
+pageScript = @`
+    <script>
+        // Current user info for invoice
+        window.currentUserName = '${user.getUser().getFullName()}';
+    </script>
+    <script src="/assets/js/pharmacist/invoice_detal.js"></script>
+`
 )

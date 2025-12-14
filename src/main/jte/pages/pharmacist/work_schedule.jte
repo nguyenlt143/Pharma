@@ -40,27 +40,24 @@ content = @`
                 <div class="schedule-table">
                     <div class="table-header">
                         <div class="header-cell empty-cell"></div>
-                        <div class="table-header">
-                            @for(LocalDate d = start; !d.isAfter(end); d = d.plusDays(1))
-                                !{
-                                    String dayName = switch(d.getDayOfWeek().getValue()) {
-                                        case 1 -> "Thứ Hai";
-                                        case 2 -> "Thứ Ba";
-                                        case 3 -> "Thứ Tư";
-                                        case 4 -> "Thứ Năm";
-                                        case 5 -> "Thứ Sáu";
-                                        case 6 -> "Thứ Bảy";
-                                        case 7 -> "Chủ Nhật";
-                                        default -> "";
-                                    };
-                                }
-                                <div class="header-cell">
-                                    ${dayName}
-                                    <br>
-                                    ${d.format(DateTimeFormatter.ofPattern("dd/MM"))}
-                                </div>
-                            @endfor
-                        </div>
+                        @for(LocalDate d = start; !d.isAfter(end); d = d.plusDays(1))
+                            !{
+                                String dayName = switch(d.getDayOfWeek().getValue()) {
+                                    case 1 -> "Thứ Hai";
+                                    case 2 -> "Thứ Ba";
+                                    case 3 -> "Thứ Tư";
+                                    case 4 -> "Thứ Năm";
+                                    case 5 -> "Thứ Sáu";
+                                    case 6 -> "Thứ Bảy";
+                                    case 7 -> "Chủ Nhật";
+                                    default -> "";
+                                };
+                            }
+                            <div class="header-cell">
+                                <span class="day-name">${dayName}</span>
+                                <span class="day-date">${d.format(DateTimeFormatter.ofPattern("dd/MM"))}</span>
+                            </div>
+                        @endfor
                     </div>
 
                     <div class="table-body">
@@ -69,14 +66,37 @@ content = @`
                                 <div class="row-label">${summaries.get(i).shiftName()}</div>
 
                                 @for(LocalDate d = start; !d.isAfter(end); d = d.plusDays(1))
+                                    !{
+                                        Boolean hasShift = summaries.get(i).days().get(d);
+                                    }
                                     <div class="table-cell">
-                                        @if(summaries.get(i).days().getOrDefault(d, false))
-                                            <span class="material-icons check-icon">check_circle</span>
+                                        @if(hasShift == null)
+                                            <span class="material-icons status-icon unknown-icon" title="Không có dữ liệu">help_outline</span>
+                                        @elseif(hasShift)
+                                            <span class="material-icons status-icon check-icon" title="Có ca làm việc">check_circle</span>
+                                        @else
+                                            <span class="material-icons status-icon no-shift-icon" title="Không có ca">remove_circle</span>
                                         @endif
                                     </div>
                                 @endfor
                             </div>
                         @endfor
+                    </div>
+
+                    <!-- Status Legend -->
+                    <div class="status-legend">
+                        <div class="legend-item">
+                            <span class="material-icons status-icon check-icon">check_circle</span>
+                            <span>Có ca làm việc</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="material-icons status-icon no-shift-icon">remove_circle</span>
+                            <span>Không có ca</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="material-icons status-icon unknown-icon">help_outline</span>
+                            <span>Chưa có dữ liệu</span>
+                        </div>
                     </div>
                 </div>
             </div>

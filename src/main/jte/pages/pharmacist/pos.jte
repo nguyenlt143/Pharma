@@ -1,5 +1,6 @@
 @param String keyword
 @param Boolean inShift
+@param vn.edu.fpt.pharma.config.CustomUserDetails user
 @template.layouts.layout_test(
     headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/pos.css">`,
     content = @`
@@ -148,7 +149,7 @@
                                 <span class="payment-value" id="totalAmount">0</span>
                             </div>
 
-                            <div class="form-group">
+                            <div class="form-group" id="paidAmountGroup">
                                 <label class="form-label">
                                     Khách thanh toán (F8) <span class="required">*</span>
                                 </label>
@@ -175,53 +176,8 @@
                                 <div class="invalid-feedback" id="paymentMethod-error"></div>
                             </div>
 
-                            <!-- QR Code Section for Bank Transfer -->
-                            <div id="qrCodeSection" class="qr-code-section" style="display: none;">
-                                <div class="qr-header">
-                                    <h4 class="qr-title">Vui lòng quét mã QR bên dưới để thanh toán</h4>
-                                    <p class="qr-subtitle">Số tiền và nội dung chuyển khoản đã được điền sẵn, bạn không cần nhập lại.</p>
-                                </div>
 
-                                <div class="qr-code-container">
-                                    <div class="qr-placeholder">
-                                        <img id="qrCodeImage" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNTAgNTBIMTUwVjE1MEg1MFY1MFoiIGZpbGw9ImJsYWNrIi8+CjxyZWN0IHg9IjcwIiB5PSI3MCIgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4="
-                                             alt="QR Code"
-                                             class="qr-code-img">
-                                    </div>
-                                </div>
-
-                                <div class="qr-instructions">
-                                    <ul class="instruction-list">
-                                        <li>
-                                            <span class="material-icons">check_circle</span>
-                                            Hệ thống tự điền đúng số tiền
-                                        </li>
-                                        <li>
-                                            <span class="material-icons">check_circle</span>
-                                            Không cần nhập nội dung hay số tài khoản
-                                        </li>
-                                        <li>
-                                            <span class="material-icons">check_circle</span>
-                                            Chỉ cần quét và xác nhận trên ứng dụng ngân hàng
-                                        </li>
-                                    </ul>
-                                </div>
-
-                                <div class="qr-bank-info" style="margin-top: 16px; padding: 12px; background: rgba(59, 130, 246, 0.1); border-radius: 8px; border: 1px solid #3b82f6;">
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 14px; color: #1e293b;">
-                                        <div><strong>Ngân hàng:</strong> Vietcombank (VCB)</div>
-                                        <div><strong>Số TK:</strong> <span id="qrAccountNumber">0123456789</span></div>
-                                        <div><strong>Tên TK:</strong> Nhà Thuốc ABC</div>
-                                        <div><strong>Nội dung:</strong> <span id="qrInvoiceCode">HD...</span></div>
-                                    </div>
-                                </div>
-
-                                <div class="qr-amount-display" style="margin-top: 12px; padding: 12px; background: rgba(34, 197, 94, 0.1); border-radius: 8px; border: 1px solid #22c55e;">
-                                    <strong style="color: #1e293b; font-size: 16px;">Tổng tiền: <span id="qrDisplayAmount">0</span> VNĐ</strong>
-                                </div>
-                            </div>
-
-                            <div class="payment-row">
+                            <div class="payment-row" id="changeAmountRow">
                                 <span class="payment-label">Tiền thừa trả khách</span>
                                 <span class="payment-value" id="changeAmount">0</span>
                             </div>
@@ -247,7 +203,107 @@
                 </div>
             </div>
         </section>
+
+        <!-- QR Code Modal Popup -->
+        <div id="qrModal" class="qr-modal" style="display: none;">
+            <div class="qr-modal-overlay"></div>
+            <div class="qr-modal-content">
+                <div class="qr-modal-header">
+                    <h3 class="qr-modal-title">
+                        <span class="material-icons">qr_code_2</span>
+                        Quét mã QR để thanh toán
+                    </h3>
+                    <button class="qr-modal-close" id="closeQrModal" title="Đóng">
+                        <span class="material-icons">close</span>
+                    </button>
+                </div>
+
+                <div class="qr-modal-body">
+                    <div class="qr-info-badge">
+                        <span class="material-icons">info</span>
+                        <span>Số tiền và nội dung chuyển khoản đã được điền sẵn</span>
+                    </div>
+
+                    <div class="qr-code-display">
+                        <div class="qr-code-wrapper">
+                            <img id="qrCodeImage"
+                                 src=""
+                                 alt="QR Code"
+                                 class="qr-code-img">
+                            <div class="qr-loading" id="qrLoading">
+                                <div class="spinner"></div>
+                                <span>Đang tạo mã QR...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="qr-amount-highlight">
+                        <span class="qr-amount-label">Số tiền thanh toán</span>
+                        <span class="qr-amount-value" id="qrDisplayAmount">0 ₫</span>
+                    </div>
+
+                    <div class="qr-bank-details">
+                        <div class="qr-bank-row">
+                            <span class="qr-bank-label">
+                                <span class="material-icons">account_balance</span>
+                                Ngân hàng
+                            </span>
+                            <span class="qr-bank-value" id="qrBankName">Techcombank (TCB)</span>
+                        </div>
+                        <div class="qr-bank-row">
+                            <span class="qr-bank-label">
+                                <span class="material-icons">credit_card</span>
+                                Số tài khoản
+                            </span>
+                            <span class="qr-bank-value" id="qrAccountNumber">19038197626011</span>
+                        </div>
+                        <div class="qr-bank-row">
+                            <span class="qr-bank-label">
+                                <span class="material-icons">person</span>
+                                Chủ tài khoản
+                            </span>
+                            <span class="qr-bank-value" id="qrAccountName">LE TUNG NGUYEN</span>
+                        </div>
+                        <div class="qr-bank-row">
+                            <span class="qr-bank-label">
+                                <span class="material-icons">description</span>
+                                Nội dung
+                            </span>
+                            <span class="qr-bank-value" id="qrInvoiceCode">HD...</span>
+                        </div>
+                    </div>
+
+                    <div class="qr-instructions-compact">
+                        <div class="instruction-step">
+                            <span class="step-number">1</span>
+                            <span>Mở app ngân hàng</span>
+                        </div>
+                        <div class="instruction-step">
+                            <span class="step-number">2</span>
+                            <span>Quét mã QR</span>
+                        </div>
+                        <div class="instruction-step">
+                            <span class="step-number">3</span>
+                            <span>Xác nhận thanh toán</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="qr-modal-footer">
+                    <button class="qr-btn-primary" id="closeQrModalBtn">
+                        <span class="material-icons">close</span>
+                        Đóng
+                    </button>
+                </div>
+            </div>
+        </div>
     `,
-    pageScript = @`<script src="/assets/js/pharmacist/pos.js" defer></script>`
+    pageScript = @`
+        <script>
+            // Current user info for invoice
+            window.currentUserName = '${user.getUser().getFullName()}';
+        </script>
+        <script src="/assets/js/pharmacist/pos.js" defer></script>
+    `
 )
 

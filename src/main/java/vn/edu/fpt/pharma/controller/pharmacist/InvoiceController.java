@@ -99,4 +99,28 @@ public class InvoiceController {
             return "redirect:/pharmacist/invoices";
         }
     }
+
+    /**
+     * API endpoint to get invoice detail as JSON (for printing)
+     */
+    @GetMapping("api/detail")
+    @ResponseBody
+    public ResponseEntity<?> getInvoiceDetailJson(@RequestParam("invoiceId") Long invoiceId) {
+        try {
+            InvoiceDetailVM invoiceDetail = invoiceService.getInvoiceDetail(invoiceId);
+
+            if (invoiceDetail == null) {
+                return ResponseEntity.badRequest().body(
+                    java.util.Map.of("error", "Invoice not found")
+                );
+            }
+
+            return ResponseEntity.ok(invoiceDetail);
+        } catch (Exception e) {
+            log.error("Error fetching invoice detail JSON for ID: {}", invoiceId, e);
+            return ResponseEntity.internalServerError().body(
+                java.util.Map.of("error", e.getMessage())
+            );
+        }
+    }
 }

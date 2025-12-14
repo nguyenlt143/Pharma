@@ -53,6 +53,7 @@ public class PharmacistController {
 
         model.addAttribute("inShift", inShift);
         model.addAttribute("keyword", "");
+        model.addAttribute("user", userDetails);
         return "pages/pharmacist/pos";
     }
 

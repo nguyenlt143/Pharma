@@ -136,12 +136,14 @@ public class InvoiceServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
         List<MedicineItemVM> listMedicine = invoiceDetailService.getListMedicine(invoiceId);
 
         return new InvoiceDetailVM(
+                info.getInvoiceCode(),
                 info.getBranchName(),
                 info.getBranchAddress(),
                 info.getCustomerName(),
                 info.getCustomerPhone(),
                 info.getCreatedAt(),
                 info.getTotalPrice(),
+                info.getPaymentMethod(),
                 info.getDescription(),
                 listMedicine
         );
