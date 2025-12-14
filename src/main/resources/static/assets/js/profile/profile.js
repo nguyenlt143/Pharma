@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const emailField = document.getElementById('email');
     const phoneField = document.getElementById('phone');
     const currentPasswordField = document.getElementById('currentPassword');
-    const passwordField = document.getElementById('password');
     const confirmPasswordField = document.getElementById('confirmPassword');
 
     // Avatar upload elements
@@ -173,6 +172,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return null;
             }
         },
+        },
         currentPassword: {
             validate: (value) => {
                 // Current password is required only if user wants to change password
@@ -190,25 +190,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 return null;
             }
-        },
-        password: {
-            validate: (value) => {
-                // Password is optional (for change password)
-                if (!value || value.trim() === '') {
-                    return null;
-                }
-                if (value.length < 6) {
-                    return 'Mật khẩu phải có ít nhất 6 ký tự';
-                }
-                if (value.length > 100) {
-                    return 'Mật khẩu không được vượt quá 100 ký tự';
-                }
-                return null;
-            }
-        },
-        confirmPassword: {
-            validate: (value) => {
-                const password = passwordField.value;
                 // Only validate if password is provided
                 if (!password || password.trim() === '') {
                     return null;
@@ -305,15 +286,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!validateField(emailField)) isValid = false;
 
         // Validate optional fields only if they have value
-        if (phoneField && phoneField.value.trim() !== '') {
+        if (phoneField.value.trim() !== '') {
             if (!validateField(phoneField)) isValid = false;
         }
 
-        // If user wants to change password, validate current password and new passwords
-        if (passwordField && passwordField.value.trim() !== '') {
-            if (currentPasswordField && !validateField(currentPasswordField)) isValid = false;
+        if (passwordField.value.trim() !== '') {
             if (!validateField(passwordField)) isValid = false;
-            if (confirmPasswordField && !validateField(confirmPasswordField)) isValid = false;
+            if (!validateField(confirmPasswordField)) isValid = false;
         }
 
         return isValid;
@@ -326,15 +305,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         fullNameField.addEventListener('blur', function() {
-            validateField(this);
+        if (phoneField && phoneField.value.trim() !== '') {
         });
     }
 
-    if (emailField) {
-        emailField.addEventListener('input', function() {
-            validateField(this);
+        // If user wants to change password, validate current password and new passwords
+        if (passwordField && passwordField.value.trim() !== '') {
+            if (currentPasswordField && !validateField(currentPasswordField)) isValid = false;
         });
-
+            if (confirmPasswordField && !validateField(confirmPasswordField)) isValid = false;
         emailField.addEventListener('blur', function() {
             validateField(this);
         });
@@ -356,6 +335,27 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    if (passwordField) {
+        passwordField.addEventListener('input', function() {
+            if (this.value.trim() !== '') {
+                validateField(this);
+                // Also validate confirm password if it has value
+                if (confirmPasswordField && confirmPasswordField.value.trim() !== '') {
+                    validateField(confirmPasswordField);
+                }
+            } else {
+                clearValidation(this);
+                if (confirmPasswordField) {
+                    clearValidation(confirmPasswordField);
+                }
+            }
+        });
+
+        passwordField.addEventListener('blur', function() {
+            if (this.value.trim() !== '') {
+                validateField(this);
+            }
+        });
     if (currentPasswordField) {
         currentPasswordField.addEventListener('input', function() {
             // Validate current password if new password is provided
@@ -374,67 +374,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    if (passwordField) {
-        passwordField.addEventListener('input', function() {
-            if (this.value.trim() !== '') {
-                validateField(this);
-                // Also validate current password and confirm password if they have values
-                if (currentPasswordField) {
-                    validateField(currentPasswordField);
-                }
-                if (confirmPasswordField && confirmPasswordField.value.trim() !== '') {
-                    validateField(confirmPasswordField);
-                }
-            } else {
-                clearValidation(this);
-                if (currentPasswordField) {
-                    clearValidation(currentPasswordField);
-                }
-                if (confirmPasswordField) {
-                    clearValidation(confirmPasswordField);
-                }
-            }
-        });
-
-        passwordField.addEventListener('blur', function() {
-            if (this.value.trim() !== '') {
-                validateField(this);
-            }
-        });
-    }
-
-    if (confirmPasswordField) {
-        confirmPasswordField.addEventListener('input', function() {
-            if (passwordField && passwordField.value.trim() !== '') {
-                validateField(this);
-            } else {
-                clearValidation(this);
-            }
-        });
-
-        confirmPasswordField.addEventListener('blur', function() {
-            if (passwordField && passwordField.value.trim() !== '') {
-                validateField(this);
-            }
-        });
-    }
-
     // Form submission validation
     if (form) {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-
-            // Remove was-validated class first
-            form.classList.remove('was-validated');
-
+                // Also validate current password and confirm password if they have values
+                if (currentPasswordField) {
+                    validateField(currentPasswordField);
+                }
             // Validate all fields
             if (validateForm()) {
                 // Show loading state
                 const submitBtn = form.querySelector('button[type="submit"]');
                 if (submitBtn) {
-                    const originalText = submitBtn.textContent;
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = 'Đang lưu...';
+                if (currentPasswordField) {
+                    clearValidation(currentPasswordField);
+                }
                     submitBtn.style.opacity = '0.6';
                     submitBtn.style.cursor = 'not-allowed';
                 }
@@ -459,14 +414,13 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
 
             // Clear all validation states
-            [fullNameField, emailField, phoneField, currentPasswordField, passwordField, confirmPasswordField].forEach(field => {
+            [fullNameField, emailField, phoneField, passwordField, confirmPasswordField].forEach(field => {
                 if (field) {
                     clearValidation(field);
                 }
             });
 
             // Reset password fields
-            if (currentPasswordField) currentPasswordField.value = '';
             if (passwordField) passwordField.value = '';
             if (confirmPasswordField) confirmPasswordField.value = '';
         });
@@ -505,14 +459,14 @@ document.addEventListener('DOMContentLoaded', function() {
             alert.style.opacity = '0';
             setTimeout(() => alert.remove(), 300);
         });
-
+            [fullNameField, emailField, phoneField, currentPasswordField, passwordField, confirmPasswordField].forEach(field => {
         closeBtn.addEventListener('mouseenter', function() {
             this.style.opacity = '1';
         });
 
         closeBtn.addEventListener('mouseleave', function() {
             this.style.opacity = '0.5';
-        });
+            if (currentPasswordField) currentPasswordField.value = '';
 
         alert.style.position = 'relative';
         alert.appendChild(closeBtn);
