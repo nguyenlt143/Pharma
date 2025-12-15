@@ -123,6 +123,14 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
         Role role = roleRepository.findById(req.getRoleId())
                 .orElseThrow(() -> new RuntimeException("Vai trò không tồn tại"));
 
+        // Password is required for new users
+        if (req.getPassword() == null || req.getPassword().isBlank()) {
+            throw new RuntimeException("Mật khẩu là bắt buộc khi tạo người dùng mới");
+        }
+        if (req.getPassword().length() < 6) {
+            throw new RuntimeException("Mật khẩu phải có ít nhất 6 ký tự");
+        }
+
         // Validate: Mỗi chi nhánh chỉ có tối đa 1 MANAGER (roleId = 3)
         if (req.getRoleId() == 3L && req.getBranchId() != null) {
             boolean hasManager = userRepository.existsByRoleIdAndBranchIdAndDeletedFalse(3L, req.getBranchId());
@@ -134,7 +142,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
         User user = new User();
         user.setFullName(req.getFullName());
         user.setUserName(req.getUserName());
-        user.setPassword(req.getPassword() == null ? null : passwordEncoder.encode(req.getPassword()));
+        user.setPassword(passwordEncoder.encode(req.getPassword()));
         user.setEmail(req.getEmail());
         user.setPhoneNumber(req.getPhoneNumber());
         user.setBranchId(req.getBranchId());

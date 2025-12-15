@@ -147,8 +147,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const idVal = document.getElementById("shiftId").value || null;
 
-        const startTime = document.getElementById("startTime").value;
-        const endTime = document.getElementById("endTime").value;
+        const startTime = document.getElementById("startTime").value.trim();
+        const endTime = document.getElementById("endTime").value.trim();
 
         // Frontend validation: end time must be after start time
         if (startTime && endTime && endTime <= startTime) {
@@ -161,10 +161,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const payload = {
             id: idVal,
-            name: document.getElementById("shiftName").value,
+            name: document.getElementById("shiftName").value.trim(),
             startTime: startTime,
             endTime: endTime,
-            note: document.getElementById("note").value
+            note: document.getElementById("note").value.trim()
         };
 
         try {

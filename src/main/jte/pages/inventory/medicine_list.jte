@@ -37,13 +37,8 @@
                     <input id="filterExpiring" type="checkbox" class="rounded border-gray-300"> Sắp hết hạn (≤ 1 tháng)
                 </label>
                 <label class="inline-flex items-center gap-2 text-sm text-gray-700">
-                    <input id="filterLowStock" type="checkbox" class="rounded border-gray-300"> Sắp hết hàng (< 10)
+                    <input id="filterLowStock" type="checkbox" class="rounded border-gray-300"> Sắp hết hàng
                 </label>
-                <div class="ml-auto flex items-center gap-2 text-xs text-gray-500">
-                    <span class="w-3 h-3 bg-red-200 border border-red-500 inline-block"></span> <span>≤ 1 tuần</span>
-                    <span class="w-3 h-3 bg-orange-200 border border-orange-500 inline-block ml-3"></span> <span>1 tuần - 1 tháng</span>
-                    <span class="w-3 h-3 bg-yellow-200 border border-yellow-500 inline-block ml-3"></span> <span>Tồn kho < 10</span>
-                </div>
             </div>
         </div>
 

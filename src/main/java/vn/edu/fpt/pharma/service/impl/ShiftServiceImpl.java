@@ -14,6 +14,8 @@ import vn.edu.fpt.pharma.exception.ShiftOverlapException;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -55,8 +57,9 @@ public class ShiftServiceImpl implements ShiftService {
             s = new Shift();
         }
 
+        String trimmedName = request.getName().trim();
         // Validate duplicate name
-        repo.findByNameAndBranchId(request.getName(), branchId).ifPresent(existing -> {
+        repo.findByNameAndBranchId(trimmedName, branchId).ifPresent(existing -> {
             if (!existing.getId().equals(request.getId())) {
                 throw new IllegalArgumentException("Tên ca làm việc đã tồn tại");
             }
@@ -67,8 +70,7 @@ public class ShiftServiceImpl implements ShiftService {
 
         // Validate end time is after start time
         if (et.isBefore(st) || et.equals(st)) {
-            throw new InvalidTimeRangeException(request.getStartTime(), request.getEndTime(),
-                "Giờ kết thúc phải lớn hơn giờ bắt đầu");
+            throw new InvalidTimeRangeException("Giờ kết thúc phải lớn hơn giờ bắt đầu");
         }
 
         // Validate no overlapping shifts
@@ -77,11 +79,11 @@ public class ShiftServiceImpl implements ShiftService {
             String overlappingNames = overlapping.stream()
                     .map(shift -> shift.getName() + " (" + shift.getStartTime() + " - " + shift.getEndTime() + ")")
                     .collect(Collectors.joining(", "));
-            throw new ShiftOverlapException(overlappingNames);
+            throw new ShiftOverlapException("Ca làm việc bị trùng với: " + overlappingNames);
         }
 
         s.setBranchId(branchId);
-        s.setName(request.getName());
+        s.setName(trimmedName);
         s.setNote(request.getNote());
         s.setStartTime(st);
         s.setEndTime(et);
@@ -130,15 +132,18 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     private LocalTime parseLocalTime(String str) {
-        if (str == null) return LocalTime.MIDNIGHT;
+        if (str == null || str.isBlank()) {
+            throw new IllegalArgumentException("Thời gian không được để trống");
+        }
         try {
-            return LocalTime.parse(str);
-        } catch (Exception ex) {
-            // try adding seconds
+            // First, try to parse as HH:mm
+            return LocalTime.parse(str, DateTimeFormatter.ofPattern("H:mm"));
+        } catch (DateTimeParseException e1) {
             try {
-                return LocalTime.parse(str + ":00");
-            } catch (Exception ex2) {
-                return LocalTime.MIDNIGHT;
+                // If that fails, try to parse as HH:mm:ss
+                return LocalTime.parse(str, DateTimeFormatter.ofPattern("HH:mm:ss"));
+            } catch (DateTimeParseException e2) {
+                throw new IllegalArgumentException("Định dạng thời gian không hợp lệ. Vui lòng sử dụng HH:mm hoặc HH:mm:ss");
             }
         }
     }
