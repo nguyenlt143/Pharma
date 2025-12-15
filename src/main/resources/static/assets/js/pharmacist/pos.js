@@ -220,6 +220,16 @@ if (searchInput) {
   searchInput.addEventListener('input', () => {
   try {
     console.log('Search input triggered');
+
+    // Check if user is in shift
+    const inShiftAttr = document.body.getAttribute('data-in-shift');
+    const isInShift = inShiftAttr === 'true';
+
+    if (!isInShift) {
+      resultContainer.innerHTML = '<div style="color: #ff9800; padding: 20px; text-align: center; background: #fff3e0; border-radius: 8px; margin: 10px;"><i class="material-icons" style="font-size: 48px;">schedule</i><br><strong>Bạn không trong ca làm việc</strong><br>Vui lòng liên hệ quản lý để được phân ca</div>';
+      return;
+    }
+
     clearTimeout(debounceTimer);
 
     debounceTimer = setTimeout(() => {
@@ -276,6 +286,15 @@ function addEventListenersToMedicineCards() {
     medicineCards.forEach(card => {
         const medicineName = card.dataset.medicineName;
         card.addEventListener('click', () => {
+            // Check if user is in shift
+            const inShiftAttr = document.body.getAttribute('data-in-shift');
+            const isInShift = inShiftAttr === 'true';
+
+            if (!isInShift) {
+                showToast('Không thể xem', 'Bạn phải trong ca làm việc mới được xem chi tiết thuốc', 'error', 4000);
+                return;
+            }
+
             const medicineId = card.dataset.medicineId;
             const detailsContainer = card.querySelector('.variant-details');
             const isDisplayed = detailsContainer.style.display === 'block';
@@ -503,6 +522,15 @@ function addItemToPrescription(inventoryData, button) {
     try {
         console.log('Adding item to prescription:', inventoryData);
 
+        // VALIDATION 0: Check if user is in shift
+        const inShiftAttr = document.body.getAttribute('data-in-shift');
+        const isInShift = inShiftAttr === 'true';
+
+        if (!isInShift) {
+            showToast('Không thể thêm', 'Bạn phải trong ca làm việc mới được thêm sản phẩm', 'error', 5000);
+            return;
+        }
+
         // Validate inventory data
         if (!inventoryData.inventoryId) {
             showToast('Lỗi', 'Không tìm thấy thông tin sản phẩm', 'error');
@@ -696,6 +724,17 @@ function addPrescriptionActionListeners() {
 
     document.querySelectorAll('.unit-select').forEach(select => {
         select.addEventListener('change', (e) => {
+            // Check shift status first
+            const inShiftAttr = document.body.getAttribute('data-in-shift');
+            const isInShift = inShiftAttr === 'true';
+
+            if (!isInShift) {
+                showToast('Không thể thay đổi', 'Bạn phải trong ca làm việc mới được thay đổi đơn vị', 'error', 5000);
+                const index = parseInt(e.target.closest('tr').rowIndex - 1, 10);
+                e.target.value = prescriptionItems[index]?.selectedMultiplier || 1;
+                return;
+            }
+
             const index = parseInt(e.target.closest('tr').rowIndex - 1, 10);
             const multiplier = parseInt(e.target.value, 10);
 
@@ -721,6 +760,16 @@ function addPrescriptionActionListeners() {
     // Quantity change with validation
     document.querySelectorAll('.quantity-input').forEach(input => {
         input.addEventListener('change', (e) => {
+            // Check shift status first
+            const inShiftAttr = document.body.getAttribute('data-in-shift');
+            const isInShift = inShiftAttr === 'true';
+
+            if (!isInShift) {
+                showToast('Không thể thay đổi', 'Bạn phải trong ca làm việc mới được thay đổi số lượng', 'error', 5000);
+                e.target.value = prescriptionItems.find(p => p.inventoryId === e.target.dataset.inventoryId)?.quantity || 1;
+                return;
+            }
+
             const inventoryId = e.target.dataset.inventoryId;
             let newQuantity = parseInt(e.target.value, 10);
             const item = prescriptionItems.find(p => p.inventoryId === inventoryId);
@@ -800,6 +849,15 @@ function addPrescriptionActionListeners() {
     // Delete item buttons
     document.querySelectorAll('.delete-item-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
+            // Check shift status first
+            const inShiftAttr = document.body.getAttribute('data-in-shift');
+            const isInShift = inShiftAttr === 'true';
+
+            if (!isInShift) {
+                showToast('Không thể xóa', 'Bạn phải trong ca làm việc mới được xóa sản phẩm', 'error', 5000);
+                return;
+            }
+
             const index = parseInt(e.target.dataset.index);
 
             // Remove item without confirmation
@@ -825,6 +883,15 @@ const clearAllBtn = document.getElementById('clearAllBtn');
 if (clearAllBtn) {
     clearAllBtn.addEventListener('click', () => {
         if (prescriptionItems.length === 0) {
+            return;
+        }
+
+        // Check shift status first
+        const inShiftAttr = document.body.getAttribute('data-in-shift');
+        const isInShift = inShiftAttr === 'true';
+
+        if (!isInShift) {
+            showToast('Không thể xóa', 'Bạn phải trong ca làm việc mới được xóa tất cả sản phẩm', 'error', 5000);
             return;
         }
 
@@ -2395,10 +2462,114 @@ function updatePaymentTotals() {
     validatePaymentForm();
 }
 
+// Function to disable POS interactions when not in shift
+function disablePOSInteractions() {
+    const inShiftAttr = document.body.getAttribute('data-in-shift');
+    const isInShift = inShiftAttr === 'true';
+
+    if (!isInShift) {
+        // Disable search input
+        const searchInput = document.querySelector('.search-input');
+        if (searchInput) {
+            searchInput.disabled = true;
+            searchInput.placeholder = 'Bạn cần có ca làm việc để tìm kiếm';
+            searchInput.style.cursor = 'not-allowed';
+            searchInput.style.backgroundColor = '#f5f5f5';
+        }
+
+        // Disable search button
+        const searchButton = document.getElementById('search-button');
+        if (searchButton) {
+            searchButton.disabled = true;
+            searchButton.style.cursor = 'not-allowed';
+            searchButton.style.opacity = '0.5';
+        }
+
+        // Disable all form inputs
+        const formInputs = document.querySelectorAll('#paymentForm input, #paymentForm select, #paymentForm textarea');
+        formInputs.forEach(input => {
+            input.disabled = true;
+            input.style.cursor = 'not-allowed';
+            input.style.backgroundColor = '#f5f5f5';
+        });
+
+        // Disable payment button
+        const payButton = document.getElementById('payButton');
+        if (payButton) {
+            payButton.disabled = true;
+            payButton.style.cursor = 'not-allowed';
+            payButton.style.opacity = '0.5';
+            payButton.textContent = 'Không thể thanh toán (Ngoài ca)';
+        }
+
+        // Disable clear all button
+        const clearAllBtn = document.getElementById('clearAllBtn');
+        if (clearAllBtn) {
+            clearAllBtn.disabled = true;
+            clearAllBtn.style.cursor = 'not-allowed';
+            clearAllBtn.style.opacity = '0.5';
+        }
+
+        // Add overlay message to prescription table
+        const prescriptionSection = document.querySelector('.prescription-section');
+        if (prescriptionSection && !document.getElementById('shift-overlay')) {
+            const overlay = document.createElement('div');
+            overlay.id = 'shift-overlay';
+            overlay.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(255, 255, 255, 0.85);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                pointer-events: all;
+            `;
+
+            const message = document.createElement('div');
+            message.style.cssText = `
+                padding: 30px 40px;
+                background: #ff9800;
+                color: white;
+                border-radius: 8px;
+                font-size: 18px;
+                font-weight: bold;
+                text-align: center;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            `;
+            message.innerHTML = `
+                <i class="material-icons" style="font-size: 48px; margin-bottom: 10px;">schedule</i><br>
+                Bạn không trong ca làm việc<br>
+                <small style="font-size: 14px; font-weight: normal;">Vui lòng liên hệ quản lý để được phân ca</small>
+            `;
+
+            overlay.appendChild(message);
+            prescriptionSection.style.position = 'relative';
+            prescriptionSection.appendChild(overlay);
+        }
+
+        console.log('POS interactions disabled - User not in shift');
+    }
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize Clear All button state
     updateClearAllButtonState();
+
+    // Disable interactions if not in shift
+    disablePOSInteractions();
+
+    // Initialize payment method to cash (default)
+    const paymentMethodSelect = document.getElementById('paymentMethod');
+    if (paymentMethodSelect && paymentMethodSelect.value === 'cash') {
+        // Trigger change event to show/hide appropriate fields
+        const event = new Event('change');
+        paymentMethodSelect.dispatchEvent(event);
+    }
 
     // Initialize other components if needed
     console.log('POS system initialized');

@@ -89,9 +89,7 @@ content = @`
                                         Boolean hasShift = summaries.get(i).days().get(d);
                                     }
                                     <div class="table-cell">
-                                        @if(hasShift == null)
-                                            <span class="material-icons status-icon unknown-icon" title="Không có dữ liệu">help_outline</span>
-                                        @elseif(hasShift)
+                                        @if(hasShift != null && hasShift)
                                             <span class="material-icons status-icon check-icon" title="Có ca làm việc">check_circle</span>
                                         @else
                                             <span class="material-icons status-icon no-shift-icon" title="Không có ca">remove_circle</span>
@@ -111,10 +109,6 @@ content = @`
                         <div class="legend-item">
                             <span class="material-icons status-icon no-shift-icon">remove_circle</span>
                             <span>Không có ca</span>
-                        </div>
-                        <div class="legend-item">
-                            <span class="material-icons status-icon unknown-icon">help_outline</span>
-                            <span>Chưa có dữ liệu</span>
                         </div>
                     </div>
                 </div>

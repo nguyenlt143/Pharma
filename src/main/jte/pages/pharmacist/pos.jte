@@ -177,8 +177,7 @@
                                     Phương thức thanh toán <span class="required">*</span>
                                 </label>
                                 <select class="form-select" id="paymentMethod" name="paymentMethod" required>
-                                    <option value="">-- Chọn phương thức --</option>
-                                    <option value="cash">Tiền mặt</option>
+                                    <option value="cash" selected>Tiền mặt</option>
                                     <option value="transfer">Chuyển khoản</option>
                                 </select>
                                 <div class="invalid-feedback" id="paymentMethod-error"></div>
