@@ -2,7 +2,15 @@
 @param Boolean inShift
 @param vn.edu.fpt.pharma.config.CustomUserDetails user
 @template.layouts.layout_test(
-    headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/pos.css">`,
+    headContent = @`
+        <link rel="stylesheet" href="/assets/css/pharmacist/pos.css">
+        <script>
+            // Set inShift status in body attribute for JS validation
+            document.addEventListener('DOMContentLoaded', function() {
+                document.body.setAttribute('data-in-shift', '${inShift}');
+            });
+        </script>
+    `,
     content = @`
     @if(!inShift)
         <div class="shift-warning" id="shift-warning"

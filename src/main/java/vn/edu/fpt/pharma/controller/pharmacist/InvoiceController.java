@@ -16,11 +16,8 @@ import vn.edu.fpt.pharma.dto.DataTableRequest;
 import vn.edu.fpt.pharma.dto.DataTableResponse;
 import vn.edu.fpt.pharma.dto.invoice.InvoiceDetailVM;
 import vn.edu.fpt.pharma.dto.invoice.InvoiceVM;
-import vn.edu.fpt.pharma.service.InvoiceDetailService;
 import vn.edu.fpt.pharma.service.InvoiceService;
 import vn.edu.fpt.pharma.util.StringUtils;
-
-import java.util.List;
 
 @Slf4j
 @Controller // RE-ENABLED for invoice viewing
@@ -81,6 +78,16 @@ public class InvoiceController {
             // Check if invoice was found
             if (invoiceDetailVM == null) {
                 redirectAttributes.addFlashAttribute("error", "Không tìm thấy hóa đơn với ID: " + invoiceId);
+                return "redirect:/pharmacist/invoices";
+            }
+
+            // AUTHORIZATION CHECK: Verify user has permission to view this invoice
+            // Invoice must belong to the same user or same branch
+            if (!invoiceDetailVM.userId().equals(userDetails.getId()) &&
+                !invoiceDetailVM.branchId().equals(userDetails.getUser().getBranchId())) {
+                log.warn("User {} attempted to access invoice {} without permission",
+                    userDetails.getId(), invoiceId);
+                redirectAttributes.addFlashAttribute("error", "Bạn không có quyền xem hóa đơn này");
                 return "redirect:/pharmacist/invoices";
             }
 

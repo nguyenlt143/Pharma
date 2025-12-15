@@ -1074,6 +1074,12 @@ function validatePaymentForm() {
     const totalAmount = getTotalAmount();
     const paymentMethod = document.getElementById('paymentMethod')?.value;
 
+    // VALIDATION 3: Validate payment method is valid value
+    if (paymentMethod && !['cash', 'transfer'].includes(paymentMethod)) {
+        showError('paymentMethod', 'Phương thức thanh toán không hợp lệ');
+        return false;
+    }
+
     // Build validations array based on payment method
     const validations = [
         validateField('customerName', {
@@ -1287,6 +1293,15 @@ document.addEventListener('DOMContentLoaded', function() {
         paymentForm.addEventListener('submit', function(e) {
             e.preventDefault();
 
+            // VALIDATION 1: Check if user is in shift
+            const inShiftAttr = document.body.getAttribute('data-in-shift');
+            const isInShift = inShiftAttr === 'true';
+
+            if (!isInShift) {
+                showToast('Lỗi', 'Bạn phải trong ca làm việc mới được thanh toán', 'error', 5000);
+                return;
+            }
+
             if (!validatePaymentForm()) {
                 showAlert('error', 'Vui lòng kiểm tra lại thông tin đã nhập');
                 return;
@@ -1305,10 +1320,24 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!customerName) customerName = 'Khách lẻ';
             if (!phoneNumber) phoneNumber = 'Không có';
 
+            const totalAmount = getTotalAmount();
+
+            // VALIDATION 2: Validate totalAmount khớp với tổng items
+            const calculatedTotal = prescriptionItems.reduce((sum, item) =>
+                sum + (item.quantity * item.currentPrice), 0);
+
+            if (Math.abs(calculatedTotal - totalAmount) > 0.01) {
+                showToast('Lỗi',
+                    `Tổng tiền không khớp. Tính toán: ${calculatedTotal.toLocaleString('vi-VN')} VNĐ, ` +
+                    `Hiển thị: ${totalAmount.toLocaleString('vi-VN')} VNĐ`,
+                    'error', 5000);
+                return;
+            }
+
             const formData = {
                 customerName: customerName,
                 phoneNumber: phoneNumber,
-                totalAmount: getTotalAmount(),
+                totalAmount: totalAmount,
                 paymentMethod: document.getElementById('paymentMethod').value,
                 note: document.getElementById('note').value.trim(),
                 items: prescriptionItems.map(item => ({

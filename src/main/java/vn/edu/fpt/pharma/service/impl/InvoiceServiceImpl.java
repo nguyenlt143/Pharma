@@ -135,10 +135,16 @@ public class InvoiceServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
 
         List<MedicineItemVM> listMedicine = invoiceDetailService.getListMedicine(invoiceId);
 
+        // Get invoice entity to retrieve branchId and userId
+        Invoice invoice = repository.findById(invoiceId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn"));
+
         return new InvoiceDetailVM(
                 info.getInvoiceCode(),
                 info.getBranchName(),
                 info.getBranchAddress(),
+                invoice.getBranchId(),      // Added for authorization
+                invoice.getUserId(),         // Added for authorization
                 info.getCustomerName(),
                 info.getCustomerPhone(),
                 info.getCreatedAt(),
@@ -151,6 +157,35 @@ public class InvoiceServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
 
     @Override
     public Invoice createInvoice(InvoiceCreateRequest req) {
+        // VALIDATION 1: Validate user đang trong ca làm việc
+        Long shiftWorkId = userContext.getShiftWorkId();
+        if (shiftWorkId == null) {
+            throw new RuntimeException("Bạn phải trong ca làm việc mới có thể tạo hóa đơn");
+        }
+
+        // VALIDATION 2: Validate totalAmount khớp với tổng items
+        double calculatedTotal = req.getItems().stream()
+                .mapToDouble(item -> item.getQuantity() * item.getUnitPrice())
+                .sum();
+
+        // Allow small floating point difference (0.01 VND)
+        if (Math.abs(calculatedTotal - req.getTotalAmount()) > 0.01) {
+            throw new RuntimeException(
+                String.format("Tổng tiền không khớp. Tính toán: %.2f, Yêu cầu: %.2f",
+                    calculatedTotal, req.getTotalAmount())
+            );
+        }
+
+        // VALIDATION 3: Check duplicate inventoryId trong items
+        long distinctInventoryIds = req.getItems().stream()
+                .map(InvoiceItemRequest::getInventoryId)
+                .distinct()
+                .count();
+
+        if (distinctInventoryIds != req.getItems().size()) {
+            throw new RuntimeException("Danh sách sản phẩm có inventoryId trùng lặp");
+        }
+
         // Set default customer name if empty
         String customerName = req.getCustomerName();
         if (customerName == null || customerName.trim().isEmpty()) {
