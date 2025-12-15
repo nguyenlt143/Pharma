@@ -26,22 +26,16 @@ public class StockAdjustmentServiceImpl extends BaseServiceImpl<StockAdjustment,
     private final InventoryRepository inventoryRepository;
     private final InventoryMovementRepository inventoryMovementRepository;
     private final InventoryMovementDetailRepository inventoryMovementDetailRepository;
-    private final vn.edu.fpt.pharma.service.RequestFormService requestFormService;
-    private final vn.edu.fpt.pharma.service.InventoryMovementService inventoryMovementService;
 
     public StockAdjustmentServiceImpl(StockAdjustmentRepository repository, AuditService auditService,
                                     InventoryRepository inventoryRepository,
                                     InventoryMovementRepository inventoryMovementRepository,
-                                    InventoryMovementDetailRepository inventoryMovementDetailRepository,
-                                    vn.edu.fpt.pharma.service.RequestFormService requestFormService,
-                                    vn.edu.fpt.pharma.service.InventoryMovementService inventoryMovementService) {
+                                    InventoryMovementDetailRepository inventoryMovementDetailRepository) {
         super(repository, auditService);
         this.stockAdjustmentRepository = repository;
         this.inventoryRepository = inventoryRepository;
         this.inventoryMovementRepository = inventoryMovementRepository;
         this.inventoryMovementDetailRepository = inventoryMovementDetailRepository;
-        this.requestFormService = requestFormService;
-        this.inventoryMovementService = inventoryMovementService;
     }
 
     @Override
@@ -90,20 +84,17 @@ public class StockAdjustmentServiceImpl extends BaseServiceImpl<StockAdjustment,
             Long before = inv.getQuantity() != null ? inv.getQuantity() : 0L;
             Long after = item.getCountedQuantity() != null ? item.getCountedQuantity() : 0L;
 
-            // Validate: số lượng kiểm không được âm
             if (after < 0) {
                 throw new IllegalArgumentException("Số lượng kiểm không được âm cho thuốc: " + inv.getVariant().getMedicine().getName());
             }
 
-            // Validate: số lượng kiểm không được vượt quá số tồn (chỉ áp dụng cho chi nhánh, không áp dụng cho kho tổng)
             boolean isWarehouse = branchId.equals(1L);
             if (!isWarehouse && after > before) {
                 throw new IllegalArgumentException("Số lượng kiểm (" + after + ") không được vượt quá số tồn hệ thống (" + before + ") cho thuốc: " + inv.getVariant().getMedicine().getName());
             }
 
-            Long diff = after - before;
+            long diff = after - before;
 
-            // Ghi nhận stock adjustment
             StockAdjustment adj = StockAdjustment.builder()
                     .BrandId(branchId)
                     .variantId(item.getVariantId())
@@ -113,6 +104,7 @@ public class StockAdjustmentServiceImpl extends BaseServiceImpl<StockAdjustment,
                     .differenceQuantity(diff)
                     .reason(request.getNote() != null ? request.getNote() : "Kiểm kho")
                     .build();
+            adj.setCreatedBy(userId);
             stockAdjustmentRepository.save(adj);
 
             // Tạo InventoryMovementDetail cho từng thuốc bị điều chỉnh

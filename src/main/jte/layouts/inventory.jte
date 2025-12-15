@@ -3,6 +3,7 @@
 <aside class="w-64 bg-[#0F172A] text-white flex flex-col">
     <div class="p-4 border-b border-gray-700">
         <h1 class="text-xl font-bold">PharmaSys</h1>
+        <p class="text-xs text-gray-400">Quản lý kho chi nhánh</p>
     </div>
 
     <nav class="flex-1 mt-4">
@@ -62,17 +63,8 @@
 
     <!-- Logout Section -->
     <div class="p-4 border-t border-gray-700">
-        <div class="flex items-center gap-3 mb-3">
-            <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                <span class="material-icons-outlined">person</span>
-            </div>
-            <div class="flex-1">
-                <p class="text-sm font-semibold">Người dùng</p>
-                <p class="text-xs text-gray-400">Inventory Manager</p>
-            </div>
-        </div>
         <form action="/logout" method="post" class="w-full">
-            <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 transition-colors">
+            <button type="submit" class=" text-white px-4 py-2 rounded-md flex items-left justify-center gap-2 transition-colors">
                 <span class="material-icons-outlined">logout</span>
                 <span>Đăng xuất</span>
             </button>

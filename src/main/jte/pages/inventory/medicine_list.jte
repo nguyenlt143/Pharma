@@ -8,6 +8,24 @@
     <title>Danh sách thuốc trong kho</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <style>
+        #medicineTableBody tr {
+            height: 60px;
+        }
+        #medicineTableBody td {
+            vertical-align: middle;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+        #medicineTableBody td:first-child,
+        #medicineTableBody td:nth-child(2),
+        #medicineTableBody td:nth-child(9),
+        #medicineTableBody td:last-child {
+            white-space: normal;
+        }
+    </style>
 </head>
 <body class="bg-gray-100 font-sans text-gray-900">
 <div class="flex h-screen">
@@ -121,6 +139,13 @@
             </table>
         </div>
 
+        <div id="paginationContainer" class="mt-4 flex items-center justify-between bg-white p-4 rounded-lg shadow">
+            <div class="text-sm text-gray-600">
+                Hiển thị <span id="showingFrom">1</span> - <span id="showingTo">10</span> trong tổng số <span id="totalItems">0</span> thuốc
+            </div>
+            <div class="flex gap-2" id="paginationButtons"></div>
+        </div>
+
         <div id="bulkActionBar" class="mt-4 p-4 border border-blue-200 bg-blue-50 rounded-lg hidden">
             <div class="flex flex-wrap items-center gap-4">
                 <div class="text-sm">Đã chọn: <strong id="selectedCount" class="text-blue-600">0</strong> thuốc</div>
@@ -150,6 +175,103 @@ const defaultQtyInput = document.getElementById('defaultQty');
 const createImportBtn = document.getElementById('createImportFromList');
 const createReturnBtn = document.getElementById('createReturnFromList');
 
+let currentPage = 1;
+const itemsPerPage = 10;
+
+function initializeCategoryFilter() {
+  const categories = new Set();
+  document.querySelectorAll('#medicineTableBody tr').forEach(row => {
+    // Lấy từ data-category (backend truyền sang)
+    let cat = row.dataset.category ? row.dataset.category.trim() : '';
+    if (cat && cat !== '-' && cat.toLowerCase() !== 'null') categories.add(cat);
+    // Lấy từ text cell (nếu có)
+    const catCell = row.querySelector('td:nth-child(11)');
+    if (catCell) {
+      const span = catCell.querySelector('.text-xs');
+      let cellCat = span ? span.textContent.trim() : catCell.textContent.trim();
+      if (cellCat && cellCat !== '-' && cellCat.toLowerCase() !== 'null') categories.add(cellCat);
+    }
+  });
+  // Xóa hết option cũ trừ option đầu tiên
+  while (categoryFilterEl.options.length > 1) categoryFilterEl.remove(1);
+  const sorted = Array.from(categories).sort((a,b) => a.localeCompare(b, 'vi'));
+  sorted.forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat.toLowerCase();
+    opt.textContent = cat;
+    categoryFilterEl.appendChild(opt);
+  });
+}
+
+function getAllRows() {
+  return Array.from(document.querySelectorAll('#medicineTableBody tr')).filter(row => {
+    return row.querySelector('.row-select') !== null;
+  });
+}
+
+function getVisibleRows() {
+  return getAllRows().filter(row => row.style.display !== 'none');
+}
+
+function updatePagination() {
+  const visibleRows = getVisibleRows();
+  const totalItems = visibleRows.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+  if (currentPage < 1) currentPage = 1;
+
+  const startIdx = (currentPage - 1) * itemsPerPage;
+  const endIdx = startIdx + itemsPerPage;
+
+  visibleRows.forEach((row, idx) => {
+    if (idx >= startIdx && idx < endIdx) {
+      row.classList.remove('hidden');
+    } else {
+      row.classList.add('hidden');
+    }
+  });
+
+  document.getElementById('totalItems').textContent = totalItems;
+  document.getElementById('showingFrom').textContent = totalItems > 0 ? startIdx + 1 : 0;
+  document.getElementById('showingTo').textContent = Math.min(endIdx, totalItems);
+
+  const paginationButtons = document.getElementById('paginationButtons');
+  paginationButtons.innerHTML = '';
+
+  if (totalPages <= 1) return;
+
+  const prevBtn = document.createElement('button');
+  prevBtn.innerHTML = '&laquo; Trước';
+  prevBtn.className = 'px-3 py-1 border rounded-md ' + (currentPage === 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-100');
+  prevBtn.disabled = currentPage === 1;
+  prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; updatePagination(); } };
+  paginationButtons.appendChild(prevBtn);
+
+  const maxButtons = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+  let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
+  if (endPage - startPage < maxButtons - 1) {
+    startPage = Math.max(1, endPage - maxButtons + 1);
+  }
+
+  for (let i = startPage; i <= endPage; i++) {
+    const pageBtn = document.createElement('button');
+    pageBtn.textContent = i;
+    pageBtn.className = 'px-3 py-1 border rounded-md ' + (i === currentPage ? 'bg-blue-600 text-white' : 'bg-white hover:bg-gray-100');
+    pageBtn.onclick = () => { currentPage = i; updatePagination(); };
+    paginationButtons.appendChild(pageBtn);
+  }
+
+  const nextBtn = document.createElement('button');
+  nextBtn.innerHTML = 'Sau &raquo;';
+  nextBtn.className = 'px-3 py-1 border rounded-md ' + (currentPage === totalPages ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-100');
+  nextBtn.disabled = currentPage === totalPages;
+  nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; updatePagination(); } };
+  paginationButtons.appendChild(nextBtn);
+}
+
 function applyFilters() {
   const term = (searchInputEl.value || '').toLowerCase().trim();
   const categoryTerm = (categoryFilterEl.value || '').toLowerCase().trim();
@@ -171,13 +293,15 @@ function applyFilters() {
     if (ok && wantLowStock) ok = lowStock;
     row.style.display = ok ? '' : 'none';
   });
+  currentPage = 1;
+  updatePagination();
   updateBulkBar();
 }
 
 function updateBulkBar() {
   let count = 0;
   document.querySelectorAll('#medicineTableBody tr').forEach(row => {
-    if (row.style.display === 'none') return;
+    if (row.style.display === 'none' || row.classList.contains('hidden')) return;
     const cb = row.querySelector('.row-select');
     if (cb && cb.checked) count++;
   });
@@ -207,7 +331,7 @@ document.getElementById('medicineTableBody').addEventListener('change', e => {
 function collectSelected(forType) {
   const items = [];
   document.querySelectorAll('#medicineTableBody tr').forEach(row => {
-    if (row.style.display === 'none') return;
+    if (row.style.display === 'none' || row.classList.contains('hidden')) return;
     const cb = row.querySelector('.row-select');
     if (!cb || !cb.checked) return;
     const availableQty = parseInt(row.dataset.availableQty || '0');
@@ -236,7 +360,10 @@ function collectSelected(forType) {
 createImportBtn.addEventListener('click', () => collectSelected('import'));
 createReturnBtn.addEventListener('click', () => collectSelected('return'));
 
-applyFilters(); // initial
+// Gọi lại initializeCategoryFilter khi trang load
+initializeCategoryFilter();
+applyFilters();
+updatePagination();
 </script>
 </body>
 </html>
