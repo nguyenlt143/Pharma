@@ -27,8 +27,7 @@ public class ProfileUpdateRequest {
     private String currentPassword;
 
     // New password (optional - only if changing password)
-    // Note: No @Size validation here because we want to allow empty string when user doesn't change password
-    // Frontend JS validates length when user actually enters a password
+    @Size(min = 6, max = 30, message = "Mật khẩu mới phải có từ 6 đến 30 ký tự", groups = PasswordChange.class)
     private String password;
 
     private String confirmPassword;
@@ -36,11 +35,6 @@ public class ProfileUpdateRequest {
     // Avatar data as base64 string
     private String avatarData;
 
-    @AssertTrue(message = "Mật khẩu xác nhận không khớp")
-    public boolean isPasswordMatching() {
-        if (password == null || password.isEmpty()) {
-            return true; // Không đổi mật khẩu
-        }
-        return password.equals(confirmPassword);
-    }
+    // Validation group for password change
+    public interface PasswordChange {}
 }

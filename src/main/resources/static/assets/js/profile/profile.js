@@ -172,7 +172,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return null;
             }
         },
-        },
         currentPassword: {
             validate: (value) => {
                 // Current password is required only if user wants to change password
@@ -186,11 +185,36 @@ document.addEventListener('DOMContentLoaded', function() {
                     return 'Vui lòng nhập mật khẩu hiện tại để đổi mật khẩu';
                 }
                 if (value.length < 6) {
-                    return 'Mật khẩu phải có ít nhất 6 ký tự';
+                    return 'Mật khẩu hiện tại phải có ít nhất 6 ký tự';
                 }
                 return null;
             }
+        },
+        password: {
+            validate: (value) => {
+                // Password is optional - only validate if provided
+                if (!value || value.trim() === '') {
+                    return null;
+                }
+                if (value.length < 6) {
+                    return 'Mật khẩu mới phải có ít nhất 6 ký tự';
+                }
+                if (value.length > 30) {
+                    return 'Mật khẩu không được vượt quá 30 ký tự';
+                }
+                // Check for at least one letter and one number (optional but recommended)
+                const hasLetter = /[a-zA-Z]/.test(value);
+                const hasNumber = /[0-9]/.test(value);
+                if (!hasLetter || !hasNumber) {
+                    return 'Mật khẩu nên có ít nhất một chữ cái và một số';
+                }
+                return null;
+            }
+        },
+        confirmPassword: {
+            validate: (value) => {
                 // Only validate if password is provided
+                const password = passwordField ? passwordField.value : '';
                 if (!password || password.trim() === '') {
                     return null;
                 }
@@ -286,13 +310,18 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!validateField(emailField)) isValid = false;
 
         // Validate optional fields only if they have value
-        if (phoneField.value.trim() !== '') {
+        if (phoneField && phoneField.value.trim() !== '') {
             if (!validateField(phoneField)) isValid = false;
         }
 
-        if (passwordField.value.trim() !== '') {
+        // If user wants to change password
+        if (passwordField && passwordField.value.trim() !== '') {
+            // Validate current password (required when changing password)
+            if (currentPasswordField && !validateField(currentPasswordField)) isValid = false;
+            // Validate new password
             if (!validateField(passwordField)) isValid = false;
-            if (!validateField(confirmPasswordField)) isValid = false;
+            // Validate confirm password
+            if (confirmPasswordField && !validateField(confirmPasswordField)) isValid = false;
         }
 
         return isValid;
@@ -305,15 +334,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         fullNameField.addEventListener('blur', function() {
-        if (phoneField && phoneField.value.trim() !== '') {
+            validateField(this);
         });
     }
 
-        // If user wants to change password, validate current password and new passwords
-        if (passwordField && passwordField.value.trim() !== '') {
-            if (currentPasswordField && !validateField(currentPasswordField)) isValid = false;
+    if (emailField) {
+        emailField.addEventListener('input', function() {
+            validateField(this);
         });
-            if (confirmPasswordField && !validateField(confirmPasswordField)) isValid = false;
+
         emailField.addEventListener('blur', function() {
             validateField(this);
         });
@@ -339,12 +368,19 @@ document.addEventListener('DOMContentLoaded', function() {
         passwordField.addEventListener('input', function() {
             if (this.value.trim() !== '') {
                 validateField(this);
+                // Also validate current password if it has value
+                if (currentPasswordField) {
+                    validateField(currentPasswordField);
+                }
                 // Also validate confirm password if it has value
                 if (confirmPasswordField && confirmPasswordField.value.trim() !== '') {
                     validateField(confirmPasswordField);
                 }
             } else {
                 clearValidation(this);
+                if (currentPasswordField) {
+                    clearValidation(currentPasswordField);
+                }
                 if (confirmPasswordField) {
                     clearValidation(confirmPasswordField);
                 }
@@ -356,6 +392,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 validateField(this);
             }
         });
+    }
+
+    if (confirmPasswordField) {
+        confirmPasswordField.addEventListener('input', function() {
+            if (this.value.trim() !== '') {
+                validateField(this);
+            } else {
+                clearValidation(this);
+            }
+        });
+
+        confirmPasswordField.addEventListener('blur', function() {
+            if (this.value.trim() !== '') {
+                validateField(this);
+            }
+        });
+    }
     if (currentPasswordField) {
         currentPasswordField.addEventListener('input', function() {
             // Validate current password if new password is provided
@@ -378,18 +431,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (form) {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-                // Also validate current password and confirm password if they have values
-                if (currentPasswordField) {
-                    validateField(currentPasswordField);
-                }
+
             // Validate all fields
             if (validateForm()) {
                 // Show loading state
                 const submitBtn = form.querySelector('button[type="submit"]');
                 if (submitBtn) {
-                if (currentPasswordField) {
-                    clearValidation(currentPasswordField);
-                }
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Đang lưu...';
                     submitBtn.style.opacity = '0.6';
                     submitBtn.style.cursor = 'not-allowed';
                 }
@@ -414,15 +463,19 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
 
             // Clear all validation states
-            [fullNameField, emailField, phoneField, passwordField, confirmPasswordField].forEach(field => {
+            [fullNameField, emailField, phoneField, currentPasswordField, passwordField, confirmPasswordField].forEach(field => {
                 if (field) {
                     clearValidation(field);
                 }
             });
 
             // Reset password fields
+            if (currentPasswordField) currentPasswordField.value = '';
             if (passwordField) passwordField.value = '';
             if (confirmPasswordField) confirmPasswordField.value = '';
+
+            // Reload the page to reset form
+            window.location.reload();
         });
     }
 
@@ -459,14 +512,14 @@ document.addEventListener('DOMContentLoaded', function() {
             alert.style.opacity = '0';
             setTimeout(() => alert.remove(), 300);
         });
-            [fullNameField, emailField, phoneField, currentPasswordField, passwordField, confirmPasswordField].forEach(field => {
+
         closeBtn.addEventListener('mouseenter', function() {
             this.style.opacity = '1';
         });
 
         closeBtn.addEventListener('mouseleave', function() {
             this.style.opacity = '0.5';
-            if (currentPasswordField) currentPasswordField.value = '';
+        });
 
         alert.style.position = 'relative';
         alert.appendChild(closeBtn);

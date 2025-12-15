@@ -160,7 +160,7 @@ content = @`
                                                class="form-input"
                                                placeholder="Để trống nếu không muốn đổi"
                                                minlength="6"
-                                               maxlength="100">
+                                               maxlength="30">
                                         <div class="invalid-feedback" id="password-error"></div>
                                     </div>
 

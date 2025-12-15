@@ -262,8 +262,8 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
             if (profileUpdateRequest.getPassword().length() < 6) {
                 throw new RuntimeException("Mật khẩu mới phải có ít nhất 6 ký tự");
             }
-            if (profileUpdateRequest.getPassword().length() > 100) {
-                throw new RuntimeException("Mật khẩu mới không được vượt quá 100 ký tự");
+            if (profileUpdateRequest.getPassword().length() > 30) {
+                throw new RuntimeException("Mật khẩu mới không được vượt quá 30 ký tự");
             }
 
             // Verify current password when changing password
