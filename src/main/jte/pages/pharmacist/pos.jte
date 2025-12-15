@@ -79,7 +79,7 @@
 
                         <tfoot>
                         <tr class="table-footer">
-                            <td colspan="4" class="table-cell text-right">Tổng tiền</td>
+                            <td colspan="5" class="table-cell text-right" style="font-weight: bold;">Tổng tiền</td>
                             <td class="table-cell text-right">
                                 <div class="total-amount">0.00</div>
                                 <div class="vat-info">VAT: 0 (0%)</div>

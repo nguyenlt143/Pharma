@@ -27,12 +27,31 @@ content = @`
 
                     <div class="control-group">
                         <label class="control-label">Tuần</label>
-                        <select class="control-select week-select">
-                            <option>
-                                ${start.format(DateTimeFormatter.ofPattern("dd/MM"))}
-                                To
-                                ${end.format(DateTimeFormatter.ofPattern("dd/MM"))}
-                            </option>
+                        <select class="control-select week-select" id="weekSelect">
+                            !{
+                                LocalDate today = LocalDate.now();
+                                LocalDate currentWeekStart = today.with(java.time.DayOfWeek.MONDAY);
+                            }
+                            @for(int weekOffset = -4; weekOffset <= 3; weekOffset++)
+                                !{
+                                    LocalDate weekStart = currentWeekStart.plusWeeks(weekOffset);
+                                    LocalDate weekEnd = weekStart.plusDays(6);
+                                    boolean isSelected = weekStart.equals(start);
+                                    String weekStartStr = weekStart.toString();
+                                    String weekEndStr = weekEnd.toString();
+                                    String weekStartDisplay = weekStart.format(DateTimeFormatter.ofPattern("dd/MM"));
+                                    String weekEndDisplay = weekEnd.format(DateTimeFormatter.ofPattern("dd/MM"));
+                                }
+                                @if(isSelected)
+                                    <option value="${weekStartStr}:${weekEndStr}" selected>
+                                        ${weekStartDisplay} - ${weekEndDisplay}
+                                    </option>
+                                @else
+                                    <option value="${weekStartStr}:${weekEndStr}">
+                                        ${weekStartDisplay} - ${weekEndDisplay}
+                                    </option>
+                                @endif
+                            @endfor
                         </select>
                     </div>
                 </div>
@@ -102,5 +121,22 @@ content = @`
             </div>
         </div>
 `,
-pageScript = @` <script src="/assets/js/pharmacist/work_schedule.js" defer></script>`
+pageScript = @`
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const weekSelect = document.getElementById('weekSelect');
+
+    if (weekSelect) {
+        weekSelect.addEventListener('change', function() {
+            const selectedValue = this.value; // Format: "yyyy-MM-dd:yyyy-MM-dd"
+            const [startDate, endDate] = selectedValue.split(':');
+
+            // Reload trang với tham số start và end
+            window.location.href = '/pharmacist/work?start=' + startDate + '&end=' + endDate;
+        });
+    }
+});
+</script>
+<script src="/assets/js/pharmacist/work_schedule.js" defer></script>
+`
 )
