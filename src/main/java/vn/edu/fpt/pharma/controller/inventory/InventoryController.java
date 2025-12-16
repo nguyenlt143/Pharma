@@ -326,6 +326,20 @@ public class InventoryController {
         return "pages/inventory/medicine_list";
     }
 
+    @PostMapping("/api/inventory/{inventoryId}/min-stock")
+    @ResponseBody
+    public ResponseEntity<?> updateMinStock(@PathVariable Long inventoryId, @RequestBody Map<String, Object> body,
+                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        try {
+            if (!body.containsKey("minStock")) return ResponseEntity.badRequest().body(Map.of("success", false, "message", "minStock is required"));
+            Long minStock = body.get("minStock") == null ? null : Long.valueOf(body.get("minStock").toString());
+            inventoryService.updateMinStock(inventoryId, minStock);
+            return ResponseEntity.ok(Map.of("success", true));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
     @PostMapping("/medicine/delete-out-of-stock")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> deleteOutOfStockMedicines(

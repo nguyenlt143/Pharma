@@ -22,7 +22,7 @@ public class ImportExportServiceImpl implements ImportExportService {
     @Override
     public Double calculateTotalInventoryValue(Long branchId) {
         try {
-            Double total = inventoryRepository.calculateTotalValue(branchId);
+            Double total = inventoryRepository  .calculateTotalValue(branchId);
             return total != null ? total : 0.0;
         } catch (Exception e) {
             System.err.println("Error calculating total inventory value: " + e.getMessage());

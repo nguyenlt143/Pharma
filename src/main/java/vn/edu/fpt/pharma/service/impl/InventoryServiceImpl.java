@@ -26,7 +26,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<Inventory, Long, Inven
         try {
             List<Object[]> results = inventoryRepository.findMedicinesByBranch(branchId);
 
-            return results.stream().map(row -> {
+            var vms = results.stream().map(row -> {
                 try {
                     InventoryMedicineVM vm = new InventoryMedicineVM();
 
@@ -55,9 +55,15 @@ public class InventoryServiceImpl extends BaseServiceImpl<Inventory, Long, Inven
                     }
 
                     vm.setQuantity(row[10] != null ? ((Number) row[10]).longValue() : 0L);
-                    vm.setUnit(row[11] != null ? row[11].toString() : "");
-                    vm.setCategoryName(row[12] != null ? row[12].toString() : "");
-                    vm.setBranchId(row[13] != null ? ((Number) row[13]).longValue() : null);
+                    // column order in repository: ... quantity (10), unit (11), categoryName (12), categoryId (13), branchId (14), minStock (15)
+                    vm.setUnit(row.length > 11 && row[11] != null ? row[11].toString() : "");
+                    vm.setCategoryName(row.length > 12 && row[12] != null ? row[12].toString() : "");
+                    // categoryId is available at 13 but not used in VM here
+                    vm.setBranchId(row.length > 14 && row[14] != null ? ((Number) row[14]).longValue() : null);
+                    // minStock at index 15
+                    if (row.length > 15 && row[15] != null) {
+                        try { vm.setMinStock(((Number) row[15]).longValue()); } catch (Exception ex) { /* ignore */ }
+                    }
 
                     return vm;
                 } catch (Exception e) {
@@ -66,6 +72,18 @@ public class InventoryServiceImpl extends BaseServiceImpl<Inventory, Long, Inven
                     return new InventoryMedicineVM();
                 }
             }).toList();
+
+            // Debug: print first few vm minStock values to help verify
+            try {
+                for (int i = 0; i < Math.min(5, vms.size()); i++) {
+                    InventoryMedicineVM s = vms.get(i);
+                    System.out.println("[DBG] VM#" + i + " inventoryId=" + s.getInventoryId() + " minStock=" + s.getMinStock());
+                }
+            } catch (Exception ex) {
+                // ignore
+            }
+
+            return vms;
         } catch (Exception e) {
             System.err.println("Error fetching inventory medicines: " + e.getMessage());
             e.printStackTrace();
@@ -108,5 +126,13 @@ public class InventoryServiceImpl extends BaseServiceImpl<Inventory, Long, Inven
         inventoryRepository.deleteAll(outOfStockItems);
 
         return count;
+    }
+
+    @Override
+    public Inventory updateMinStock(Long inventoryId, Long minStock) {
+        Inventory inv = inventoryRepository.findById(inventoryId).orElse(null);
+        if (inv == null) throw new IllegalArgumentException("Inventory not found: " + inventoryId);
+        inv.setMinStock(minStock);
+        return inventoryRepository.save(inv);
     }
 }

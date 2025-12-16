@@ -24,5 +24,5 @@ public class InventoryMedicineVM {
     private String unit;
     private String categoryName;
     private Long branchId;
+    private Long minStock;
 }
-

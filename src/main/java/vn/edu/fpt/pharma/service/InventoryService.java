@@ -13,4 +13,7 @@ public interface InventoryService extends BaseService<Inventory, Long> {
 
     // Delete inventory items with quantity = 0 from branch
     int deleteOutOfStockFromBranch(Long branchId);
+
+    // Update the min stock value for an inventory item
+    Inventory updateMinStock(Long inventoryId, Long minStock);
 }

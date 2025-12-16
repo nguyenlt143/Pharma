@@ -78,6 +78,7 @@
                     <th class="px-3 py-2 text-left">Mã lô</th>
                     <th class="px-3 py-2 text-left">HSD</th>
                     <th class="px-3 py-2 text-center">Tồn kho</th>
+                    <th class="px-3 py-2 text-center">Số lượng tối thiểu</th>
                     <th class="px-3 py-2 text-left">Nhà SX</th>
                     <th class="px-3 py-2 text-left">Danh mục</th>
                     <th class="px-3 py-2 text-center">Cảnh báo</th>
@@ -118,6 +119,9 @@
                                 @else - @endif
                             </td>
                             <td class="px-3 py-2 text-center font-semibold">@if(item.getQuantity() != null)${item.getQuantity()}@else0@endif @if(item.getUnit() != null)${item.getUnit()}@endif</td>
+                            <td class="px-3 py-2 text-center">
+                                <input type="number" min="0" class="min-stock-input w-24 border border-gray-300 rounded px-2 py-1 text-center" data-inventory-id="@if(item.getInventoryId() != null)${item.getInventoryId()}@endif" value="@if(item.getMinStock() != null)${item.getMinStock()}@else${""}@endif">
+                            </td>
                             <td class="px-3 py-2">${item.getManufacturer()}</td>
                             <td class="px-3 py-2">@if(item.getCategoryName() != null)<span class="text-xs bg-blue-100 px-2 py-1 rounded">${item.getCategoryName()}</span>@else-@endif</td>
                             <td class="px-3 py-2 text-center">
@@ -326,6 +330,29 @@ selectAllCheckbox.addEventListener('change', () => {
 
 document.getElementById('medicineTableBody').addEventListener('change', e => {
   if (e.target.classList.contains('row-select')) updateBulkBar();
+});
+
+// Save min-stock when input changes
+document.getElementById('medicineTableBody').addEventListener('change', (e) => {
+  if (e.target && e.target.classList && e.target.classList.contains('min-stock-input')) {
+    const input = e.target;
+    const inventoryId = input.dataset.inventoryId;
+    const raw = input.value;
+    const value = raw === '' ? null : Number(raw);
+    // POST to server
+    fetch('/inventory/api/inventory/' + inventoryId + '/min-stock', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ minStock: value })
+    }).then(res => res.json()).then(data => {
+      if (!data || data.success !== true) {
+        alert('Lưu số lượng tối thiểu thất bại: ' + (data && data.message ? data.message : ''));
+      }
+    }).catch(err => {
+      console.error('Error saving minStock', err);
+      alert('Lưu số lượng tối thiểu thất bại');
+    });
+  }
 });
 
 function collectSelected(forType) {
