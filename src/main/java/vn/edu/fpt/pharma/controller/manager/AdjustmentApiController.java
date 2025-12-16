@@ -63,17 +63,13 @@ public class AdjustmentApiController {
                           && m.getCreatedAt().isAfter(thirtyDaysAgo))
                 .toList();
 
-        // Calculate total value
+        // Calculate total value from snapCost * quantity
         double totalValue = 0.0;
         for (InventoryMovement m : adjustments) {
-            if (m.getTotalMoney() != null) {
-                totalValue += m.getTotalMoney();
-            }
+            totalValue += calculateTotalMoney(m);
         }
         for (InventoryMovement m : expiredReturns) {
-            if (m.getTotalMoney() != null) {
-                totalValue += m.getTotalMoney();
-            }
+            totalValue += calculateTotalMoney(m);
         }
 
         summary.put("adjustmentCount", adjustments.size());
@@ -132,12 +128,13 @@ public class AdjustmentApiController {
             dailyData.putIfAbsent(date, new HashMap<>());
             Map<String, Double> dayData = dailyData.get(date);
 
-            Double t = m.getTotalMoney() != null ? m.getTotalMoney() : 0.0;
+            // Calculate total from snapCost * quantity
+            Double totalMoney = calculateTotalMoney(m);
 
             if (m.getMovementType() == MovementType.INVENTORY_ADJUSTMENT) {
-                dayData.put("adjustments", dayData.getOrDefault("adjustments", 0.0) + t);
+                dayData.put("adjustments", dayData.getOrDefault("adjustments", 0.0) + totalMoney);
             } else if (m.getMovementType() == MovementType.BR_TO_WARE2) {
-                dayData.put("expiredReturns", dayData.getOrDefault("expiredReturns", 0.0) + t);
+                dayData.put("expiredReturns", dayData.getOrDefault("expiredReturns", 0.0) + totalMoney);
             }
         }
 
@@ -202,13 +199,16 @@ public class AdjustmentApiController {
 
         List<Map<String, Object>> activities = new ArrayList<>();
         for (InventoryMovement mv : movements) {
+            // Calculate total from snapCost * quantity
+            double totalMoney = calculateTotalMoney(mv);
+
             Map<String, Object> activity = new HashMap<>();
             activity.put("id", mv.getId());
             activity.put("code", "#MV" + String.format("%03d", mv.getId()));
             activity.put("type", mv.getMovementType().name()); // Return type code for frontend mapping
             activity.put("creator", "-");
-            activity.put("totalMoney", mv.getTotalMoney());
-            activity.put("totalValueFormatted", importExportService.formatCurrencyReadable(mv.getTotalMoney()));
+            activity.put("totalMoney", totalMoney);
+            activity.put("totalValueFormatted", importExportService.formatCurrencyReadable(totalMoney));
             activity.put("timeAgo", importExportService.formatTimeAgo(mv.getCreatedAt()));
             activity.put("detailUrl", "/api/manager/adjustments/detail/" + mv.getId());
 
@@ -259,8 +259,11 @@ public class AdjustmentApiController {
                 .map(b -> b.getName())
                 .orElse("-");
         detail.put("branchName", branchName);
-        detail.put("totalMoney", mv.getTotalMoney());
-        detail.put("totalValueFormatted", importExportService.formatCurrencyReadable(mv.getTotalMoney()));
+
+        // Calculate total from snapCost * quantity
+        double totalMoney = calculateTotalMoney(mv);
+        detail.put("totalMoney", totalMoney);
+        detail.put("totalValueFormatted", importExportService.formatCurrencyReadable(totalMoney));
 
         List<InventoryMovementDetail> details = mv.getInventoryMovementDetails();
         long totalQty = details != null ? details.stream()
@@ -287,6 +290,24 @@ public class AdjustmentApiController {
         detail.put("details", items);
 
         return ResponseEntity.ok(detail);
+    }
+
+    // -------------------- Helper Methods --------------------
+
+    /**
+     * Calculate total money from inventory movement details using snapCost * quantity
+     * @param movement InventoryMovement to calculate total for
+     * @return Total money calculated from details
+     */
+    private double calculateTotalMoney(InventoryMovement movement) {
+        if (movement == null || movement.getInventoryMovementDetails() == null) {
+            return 0.0;
+        }
+
+        return movement.getInventoryMovementDetails().stream()
+                .filter(d -> d.getQuantity() != null && d.getSnapCost() != null)
+                .mapToDouble(d -> d.getQuantity() * d.getSnapCost())
+                .sum();
     }
 }
 
