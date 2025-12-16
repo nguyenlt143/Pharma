@@ -89,7 +89,6 @@ content = @`
                     <label>Vai trò <span class="required">*</span>
                         <select id="roleId" name="roleId" required>
                             <option value="">-- Chọn vai trò --</option>
-                            <option value="2">Chủ doanh nghiệp (Owner)</option>
                             <option value="3">Quản lý chi nhánh (Manager)</option>
                             <option value="5">Nhân viên kho tổng (Warehouse)</option>
                         </select>
@@ -126,4 +125,3 @@ content = @`
     <!-- Simple toast container -->
     <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 `)
-

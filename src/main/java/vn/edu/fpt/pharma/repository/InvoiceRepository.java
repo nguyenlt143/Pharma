@@ -235,12 +235,14 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     // -----------------------------
     @Query(value = """
             SELECT\s
+                i.invoice_code,
                 b.name AS branch_name,
                 b.address AS branch_address,
                 COALESCE(c.name, 'Khách lẻ') AS customer_name,
                 COALESCE(c.phone, 'Không có') AS customer_phone,
                 i.created_at,
                 i.total_price,
+                i.payment_method,
                 i.description
             FROM invoices i
             LEFT JOIN customers c ON i.customer_id = c.id

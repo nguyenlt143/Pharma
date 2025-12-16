@@ -10,6 +10,8 @@ import lombok.Data;
 @Data
 public class UserRequest {
 
+    private Long id;
+
     @NotBlank(message = "Tên đăng nhập là bắt buộc")
     @Size(min = 4, max = 30, message = "Tên đăng nhập phải từ 4-30 ký tự")
     private String userName;

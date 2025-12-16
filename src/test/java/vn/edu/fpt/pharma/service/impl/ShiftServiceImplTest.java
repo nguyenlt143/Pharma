@@ -21,6 +21,8 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import vn.edu.fpt.pharma.exception.InvalidTimeRangeException;
+import vn.edu.fpt.pharma.exception.ShiftOverlapException;
 
 /**
  * Comprehensive unit tests for ShiftServiceImpl
@@ -284,7 +286,7 @@ class ShiftServiceImplTest extends BaseServiceTest {
 
             // Act & Assert - will throw because midnight (00:00) is before 08:00
             assertThatThrownBy(() -> shiftService.save(request, branchId))
-                    .isInstanceOf(IllegalArgumentException.class)
+                    .isInstanceOf(InvalidTimeRangeException.class)
                     .hasMessage("Giờ kết thúc phải lớn hơn giờ bắt đầu");
         }
 
@@ -340,7 +342,7 @@ class ShiftServiceImplTest extends BaseServiceTest {
 
             // Act & Assert - both will be midnight, so endTime == startTime
             assertThatThrownBy(() -> shiftService.save(request, branchId))
-                    .isInstanceOf(IllegalArgumentException.class)
+                    .isInstanceOf(InvalidTimeRangeException.class)
                     .hasMessage("Giờ kết thúc phải lớn hơn giờ bắt đầu");
         }
 
@@ -355,7 +357,7 @@ class ShiftServiceImplTest extends BaseServiceTest {
 
             // Act & Assert
             assertThatThrownBy(() -> shiftService.save(request, branchId))
-                    .isInstanceOf(IllegalArgumentException.class)
+                    .isInstanceOf(InvalidTimeRangeException.class)
                     .hasMessage("Giờ kết thúc phải lớn hơn giờ bắt đầu");
 
             verify(repo, never()).save(any());
@@ -372,7 +374,7 @@ class ShiftServiceImplTest extends BaseServiceTest {
 
             // Act & Assert
             assertThatThrownBy(() -> shiftService.save(request, branchId))
-                    .isInstanceOf(IllegalArgumentException.class)
+                    .isInstanceOf(InvalidTimeRangeException.class)
                     .hasMessage("Giờ kết thúc phải lớn hơn giờ bắt đầu");
 
             verify(repo, never()).save(any());
@@ -419,7 +421,7 @@ class ShiftServiceImplTest extends BaseServiceTest {
 
             // Act & Assert
             assertThatThrownBy(() -> shiftService.save(request, branchId))
-                    .isInstanceOf(IllegalArgumentException.class)
+                    .isInstanceOf(ShiftOverlapException.class)
                     .hasMessageContaining("Ca làm việc bị trùng thời gian với:")
                     .hasMessageContaining("Ca trưa");
 
@@ -452,7 +454,7 @@ class ShiftServiceImplTest extends BaseServiceTest {
 
             // Act & Assert
             assertThatThrownBy(() -> shiftService.save(request, branchId))
-                    .isInstanceOf(IllegalArgumentException.class)
+                    .isInstanceOf(ShiftOverlapException.class)
                     .hasMessageContaining("Ca 1")
                     .hasMessageContaining("Ca 2");
         }
@@ -562,7 +564,7 @@ class ShiftServiceImplTest extends BaseServiceTest {
 
             // Act & Assert - Current implementation doesn't support cross-midnight
             assertThatThrownBy(() -> shiftService.save(request, branchId))
-                    .isInstanceOf(IllegalArgumentException.class)
+                    .isInstanceOf(InvalidTimeRangeException.class)
                     .hasMessage("Giờ kết thúc phải lớn hơn giờ bắt đầu");
         }
     }

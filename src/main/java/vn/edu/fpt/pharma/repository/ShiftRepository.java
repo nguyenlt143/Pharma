@@ -20,6 +20,8 @@ public interface ShiftRepository extends JpaRepository<Shift, Long>, JpaSpecific
     @Query(value = "SELECT * FROM shifts s WHERE (:q IS NULL OR lower(s.name) LIKE lower(concat('%', :q, '%'))) AND (:branchId IS NULL OR s.branch_id = :branchId)", nativeQuery = true)
     List<Shift> searchIncludingDeleted(@Param("q") String q, @Param("branchId") Long branchId);
 
+    Optional<Shift> findByNameAndBranchId(String name, Long branchId);
+
     @Modifying
     @Transactional
     @Query(value = "UPDATE shifts SET deleted = false WHERE id = :id", nativeQuery = true)

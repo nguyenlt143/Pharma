@@ -5,12 +5,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record InvoiceDetailVM(
+    String invoiceCode,
     String branchName,
     String branchAddress,
+    Long branchId,             // Added for authorization check
+    Long userId,               // Added for authorization check
     String customerName,
     String customerPhone,
     LocalDateTime createdAt,    // Changed from invoiceDate
     BigDecimal totalPrice,     // Changed from totalAmount
+    String paymentMethod,
     String description,        // Changed from note
     List<MedicineItemVM> medicines
 ){

@@ -27,12 +27,31 @@ content = @`
 
                     <div class="control-group">
                         <label class="control-label">Tuần</label>
-                        <select class="control-select week-select">
-                            <option>
-                                ${start.format(DateTimeFormatter.ofPattern("dd/MM"))}
-                                To
-                                ${end.format(DateTimeFormatter.ofPattern("dd/MM"))}
-                            </option>
+                        <select class="control-select week-select" id="weekSelect">
+                            !{
+                                LocalDate today = LocalDate.now();
+                                LocalDate currentWeekStart = today.with(java.time.DayOfWeek.MONDAY);
+                            }
+                            @for(int weekOffset = -4; weekOffset <= 3; weekOffset++)
+                                !{
+                                    LocalDate weekStart = currentWeekStart.plusWeeks(weekOffset);
+                                    LocalDate weekEnd = weekStart.plusDays(6);
+                                    boolean isSelected = weekStart.equals(start);
+                                    String weekStartStr = weekStart.toString();
+                                    String weekEndStr = weekEnd.toString();
+                                    String weekStartDisplay = weekStart.format(DateTimeFormatter.ofPattern("dd/MM"));
+                                    String weekEndDisplay = weekEnd.format(DateTimeFormatter.ofPattern("dd/MM"));
+                                }
+                                @if(isSelected)
+                                    <option value="${weekStartStr}:${weekEndStr}" selected>
+                                        ${weekStartDisplay} - ${weekEndDisplay}
+                                    </option>
+                                @else
+                                    <option value="${weekStartStr}:${weekEndStr}">
+                                        ${weekStartDisplay} - ${weekEndDisplay}
+                                    </option>
+                                @endif
+                            @endfor
                         </select>
                     </div>
                 </div>
@@ -40,27 +59,24 @@ content = @`
                 <div class="schedule-table">
                     <div class="table-header">
                         <div class="header-cell empty-cell"></div>
-                        <div class="table-header">
-                            @for(LocalDate d = start; !d.isAfter(end); d = d.plusDays(1))
-                                !{
-                                    String dayName = switch(d.getDayOfWeek().getValue()) {
-                                        case 1 -> "Thứ Hai";
-                                        case 2 -> "Thứ Ba";
-                                        case 3 -> "Thứ Tư";
-                                        case 4 -> "Thứ Năm";
-                                        case 5 -> "Thứ Sáu";
-                                        case 6 -> "Thứ Bảy";
-                                        case 7 -> "Chủ Nhật";
-                                        default -> "";
-                                    };
-                                }
-                                <div class="header-cell">
-                                    ${dayName}
-                                    <br>
-                                    ${d.format(DateTimeFormatter.ofPattern("dd/MM"))}
-                                </div>
-                            @endfor
-                        </div>
+                        @for(LocalDate d = start; !d.isAfter(end); d = d.plusDays(1))
+                            !{
+                                String dayName = switch(d.getDayOfWeek().getValue()) {
+                                    case 1 -> "Thứ Hai";
+                                    case 2 -> "Thứ Ba";
+                                    case 3 -> "Thứ Tư";
+                                    case 4 -> "Thứ Năm";
+                                    case 5 -> "Thứ Sáu";
+                                    case 6 -> "Thứ Bảy";
+                                    case 7 -> "Chủ Nhật";
+                                    default -> "";
+                                };
+                            }
+                            <div class="header-cell">
+                                <span class="day-name">${dayName}</span>
+                                <span class="day-date">${d.format(DateTimeFormatter.ofPattern("dd/MM"))}</span>
+                            </div>
+                        @endfor
                     </div>
 
                     <div class="table-body">
@@ -69,18 +85,52 @@ content = @`
                                 <div class="row-label">${summaries.get(i).shiftName()}</div>
 
                                 @for(LocalDate d = start; !d.isAfter(end); d = d.plusDays(1))
+                                    !{
+                                        Boolean hasShift = summaries.get(i).days().get(d);
+                                    }
                                     <div class="table-cell">
-                                        @if(summaries.get(i).days().getOrDefault(d, false))
-                                            <span class="material-icons check-icon">check_circle</span>
+                                        @if(hasShift != null && hasShift)
+                                            <span class="material-icons status-icon check-icon" title="Có ca làm việc">check_circle</span>
+                                        @else
+                                            <span class="material-icons status-icon no-shift-icon" title="Không có ca">remove_circle</span>
                                         @endif
                                     </div>
                                 @endfor
                             </div>
                         @endfor
                     </div>
+
+                    <!-- Status Legend -->
+                    <div class="status-legend">
+                        <div class="legend-item">
+                            <span class="material-icons status-icon check-icon">check_circle</span>
+                            <span>Có ca làm việc</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="material-icons status-icon no-shift-icon">remove_circle</span>
+                            <span>Không có ca</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 `,
-pageScript = @` <script src="/assets/js/pharmacist/work_schedule.js" defer></script>`
+pageScript = @`
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const weekSelect = document.getElementById('weekSelect');
+
+    if (weekSelect) {
+        weekSelect.addEventListener('change', function() {
+            const selectedValue = this.value; // Format: "yyyy-MM-dd:yyyy-MM-dd"
+            const [startDate, endDate] = selectedValue.split(':');
+
+            // Reload trang với tham số start và end
+            window.location.href = '/pharmacist/work?start=' + startDate + '&end=' + endDate;
+        });
+    }
+});
+</script>
+<script src="/assets/js/pharmacist/work_schedule.js" defer></script>
+`
 )

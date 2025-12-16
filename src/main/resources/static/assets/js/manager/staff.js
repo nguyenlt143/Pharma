@@ -73,14 +73,9 @@
                 document.getElementById('roleId').value = data.roleId || '';
                 document.getElementById('email').value = data.email || '';
                 document.getElementById('phoneNumber').value = data.phoneNumber || '';
-                const branchEl = document.getElementById('branchId');
-                if (branchEl) branchEl.value = data.branchId || '';
-                const imageEl = document.getElementById('imageUrl');
-                if (imageEl) imageEl.value = data.imageUrl || '';
-                // hide password on edit
-                passwordWrapper.style.display = 'none';
-                // hide role on edit (still keep enabled so value is submitted)
-                if (roleWrapper) roleWrapper.style.display = 'none';
+                // show password and role on edit
+                passwordWrapper.style.display = '';
+                if (roleWrapper) roleWrapper.style.display = '';
             }
         }
 
@@ -115,8 +110,46 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             });
-            if (!res.ok) throw new Error('Tạo thất bại');
-            return await res.json();
+            if (res.ok) {
+                return await res.json();
+            }
+            let errorData = null;
+            try {
+                const contentType = res.headers.get('content-type') || '';
+                if (contentType.includes('application/json')) {
+                    errorData = await res.json();
+                } else {
+                    const txt = await res.text();
+                    errorData = { message: txt };
+                }
+            } catch (_) {
+                errorData = { message: 'Tạo thất bại' };
+            }
+
+            // Normalize and try to map generic message to field-level error
+            const error = new Error(errorData.message || 'Tạo thất bại');
+            error.data = errorData;
+            // If backend returned explicit errors map, use it. Otherwise always try to map message -> field errors
+            if (errorData && typeof errorData === 'object') {
+                if (errorData.errors && typeof errorData.errors === 'object') {
+                    error.isValidation = true;
+                }
+                // Always attempt to map message text into field errors (useful for 409 or other statuses)
+                if (errorData.message && typeof errorData.message === 'string') {
+                    const m = errorData.message.toLowerCase();
+                    const mapped = {};
+                    if (m.includes('tên đăng nhập') || m.includes('username') || m.includes('user name')) mapped['userName'] = errorData.message;
+                    if (m.includes('email')) mapped['email'] = errorData.message;
+                    if (m.includes('số điện thoại') || m.includes('phone')) mapped['phoneNumber'] = errorData.message;
+                    if (m.includes('mật khẩu') || m.includes('password')) mapped['password'] = errorData.message;
+                    if (Object.keys(mapped).length > 0) {
+                        // merge with any existing errors
+                        error.data.errors = Object.assign({}, error.data.errors || {}, mapped);
+                        error.isValidation = true;
+                    }
+                }
+            }
+            throw error;
         }
 
         async function updateStaff(id, payload) {
@@ -125,8 +158,30 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             });
-            if (!res.ok) throw new Error('Cập nhật thất bại');
-            return await res.json();
+            if (res.ok) {
+                return await res.json();
+            }
+            const errorData = await res.json().catch(() => ({ message: 'Cập nhật thất bại' }));
+            const error = new Error(errorData.message || 'Cập nhật thất bại');
+            error.data = errorData;
+            if (errorData && typeof errorData === 'object') {
+                if (errorData.errors && typeof errorData.errors === 'object') {
+                    error.isValidation = true;
+                }
+                if (errorData.message && typeof errorData.message === 'string') {
+                    const m = errorData.message.toLowerCase();
+                    const mapped = {};
+                    if (m.includes('tên đăng nhập') || m.includes('username') || m.includes('user name')) mapped['userName'] = errorData.message;
+                    if (m.includes('email')) mapped['email'] = errorData.message;
+                    if (m.includes('số điện thoại') || m.includes('phone')) mapped['phoneNumber'] = errorData.message;
+                    if (m.includes('mật khẩu') || m.includes('password')) mapped['password'] = errorData.message;
+                    if (Object.keys(mapped).length > 0) {
+                        error.data.errors = Object.assign({}, error.data.errors || {}, mapped);
+                        error.isValidation = true;
+                    }
+                }
+            }
+            throw error;
         }
 
         async function deleteStaff(id) {
@@ -280,6 +335,77 @@
                 .replaceAll('"', '&quot;')
                 .replaceAll("'", '&#39;');
         }
+        
+        function clearFieldErrors() {
+            document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            document.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+        }
+
+        function displayFieldErrors(errors) {
+            for (const [field, message] of Object.entries(errors)) {
+                const input = document.getElementById(field);
+                const errorDiv = document.getElementById(`${field}-error`);
+                if (input) {
+                    input.classList.add('is-invalid');
+                }
+                if (errorDiv) {
+                    errorDiv.textContent = message;
+                }
+            }
+        }
+
+        function validateForm() {
+            let isValid = true;
+            const errors = {};
+            
+            // Basic required check
+            ['userName', 'fullName', 'roleId'].forEach(id => {
+                const input = document.getElementById(id);
+                if (!input.value) {
+                    isValid = false;
+                    errors[id] = 'Trường này là bắt buộc.';
+                }
+            });
+
+            // Password validation (only if creating or password has value)
+            const password = document.getElementById('password');
+            // If creating a new staff (no id), password is required -> show same field-level error
+            if (!staffIdInput.value) {
+                if (!password.value || password.value.trim() === '') {
+                    isValid = false;
+                    errors['password'] = 'Trường này là bắt buộc.';
+                } else if (!password.checkValidity()) {
+                    isValid = false;
+                    errors['password'] = password.title;
+                }
+            } else {
+                // On update, only validate password if user entered a value
+                if (password.value && !password.checkValidity()) {
+                    isValid = false;
+                    errors['password'] = password.title;
+                }
+            }
+
+            // Email format
+            const email = document.getElementById('email');
+            if (email.value && !email.checkValidity()) {
+                isValid = false;
+                errors['email'] = 'Email không hợp lệ.';
+            }
+
+            // Phone number format
+            const phone = document.getElementById('phoneNumber');
+            if (phone.value && !phone.checkValidity()) {
+                isValid = false;
+                errors['phoneNumber'] = phone.title; // Use the title attribute for the error message
+            }
+
+            clearFieldErrors();
+            if (!isValid) {
+                displayFieldErrors(errors);
+            }
+            return isValid;
+        }
 
         function setupEventListeners() {
             // events
@@ -320,17 +446,19 @@
             // submit
             staffForm.addEventListener('submit', async (ev) => {
                 ev.preventDefault();
-                clearFieldErrors();
+                if (!validateForm()) {
+                    focusFirstInvalidField();
+                    return;
+                }
 
                 const form = new FormData(staffForm);
                 const payload = {
+                    id: form.get('id'),
                     userName: form.get('userName'),
                     fullName: form.get('fullName'),
                     roleId: Number(form.get('roleId') || null),
                     email: form.get('email')?.trim() || null,
                     phoneNumber: form.get('phoneNumber')?.trim() || null,
-                    branchId: form.get('branchId') ? Number(form.get('branchId')) : null,
-                    imageUrl: form.get('imageUrl'),
                     password: form.get('password') || undefined
                 };
 

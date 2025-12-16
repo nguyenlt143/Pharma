@@ -14,7 +14,9 @@ import vn.edu.fpt.pharma.dto.manager.UserRequest;
 import vn.edu.fpt.pharma.dto.user.ProfileVM;
 import vn.edu.fpt.pharma.dto.user.UserVM;
 import vn.edu.fpt.pharma.entity.Role;
+import vn.edu.fpt.pharma.entity.ShiftAssignment;
 import vn.edu.fpt.pharma.entity.User;
+import vn.edu.fpt.pharma.exception.DuplicateEntityException;
 import vn.edu.fpt.pharma.exception.EntityInUseException;
 import vn.edu.fpt.pharma.repository.RoleRepository;
 import vn.edu.fpt.pharma.repository.ShiftAssignmentRepository;
@@ -23,6 +25,7 @@ import vn.edu.fpt.pharma.service.AuditService;
 import vn.edu.fpt.pharma.service.UserService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository> implements UserService, UserDetailsService {
@@ -107,19 +110,33 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
 
     @Override
     public UserDto create(UserRequest req) {
+        // Trim inputs
+        if (req.getUserName() != null) req.setUserName(req.getUserName().trim());
+        if (req.getEmail() != null) req.setEmail(req.getEmail().trim());
+        if (req.getPhoneNumber() != null) req.setPhoneNumber(req.getPhoneNumber().trim());
+        if (req.getFullName() != null) req.setFullName(req.getFullName().trim());
+
         if (userRepository.existsByUserNameIgnoreCase(req.getUserName())) {
-            throw new RuntimeException("Tên đăng nhập đã tồn tại");
+            throw new DuplicateEntityException("User", "userName", req.getUserName(), "Tên đăng nhập đã tồn tại");
         }
-        if (req.getEmail() != null && !req.getEmail().trim().isEmpty()
+        if (req.getEmail() != null && !req.getEmail().isEmpty()
                 && userRepository.existsByEmailIgnoreCase(req.getEmail())) {
-            throw new RuntimeException("Email đã tồn tại");
+            throw new DuplicateEntityException("User", "email", req.getEmail(), "Email đã tồn tại");
         }
-        if (req.getPhoneNumber() != null && !req.getPhoneNumber().trim().isEmpty()
+        if (req.getPhoneNumber() != null && !req.getPhoneNumber().isEmpty()
                 && userRepository.existsByPhoneNumber(req.getPhoneNumber())) {
-            throw new RuntimeException("Số điện thoại đã tồn tại");
+            throw new DuplicateEntityException("User", "phoneNumber", req.getPhoneNumber(), "Số điện thoại đã tồn tại");
         }
         Role role = roleRepository.findById(req.getRoleId())
                 .orElseThrow(() -> new RuntimeException("Vai trò không tồn tại"));
+
+        // Password is required for new users
+        if (req.getPassword() == null || req.getPassword().isBlank()) {
+            throw new RuntimeException("Mật khẩu là bắt buộc khi tạo người dùng mới");
+        }
+        if (req.getPassword().length() < 6) {
+            throw new RuntimeException("Mật khẩu phải có ít nhất 6 ký tự");
+        }
 
         // Validate: Mỗi chi nhánh chỉ có tối đa 1 MANAGER (roleId = 3)
         if (req.getRoleId() == 3L && req.getBranchId() != null) {
@@ -132,7 +149,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
         User user = new User();
         user.setFullName(req.getFullName());
         user.setUserName(req.getUserName());
-        user.setPassword(req.getPassword() == null ? null : passwordEncoder.encode(req.getPassword()));
+        user.setPassword(passwordEncoder.encode(req.getPassword()));
         user.setEmail(req.getEmail());
         user.setPhoneNumber(req.getPhoneNumber());
         user.setBranchId(req.getBranchId());
@@ -156,19 +173,25 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Nhân viên không tồn tại"));
 
+        // Trim inputs on update as well
+        if (req.getUserName() != null) req.setUserName(req.getUserName().trim());
+        if (req.getEmail() != null) req.setEmail(req.getEmail().trim());
+        if (req.getPhoneNumber() != null) req.setPhoneNumber(req.getPhoneNumber().trim());
+        if (req.getFullName() != null) req.setFullName(req.getFullName().trim());
+
         if (!user.getUserName().equalsIgnoreCase(req.getUserName())
                 && userRepository.existsByUserNameIgnoreCase(req.getUserName())) {
-            throw new RuntimeException("Tên đăng nhập đã tồn tại");
+            throw new DuplicateEntityException("User", "userName", req.getUserName(), "Tên đăng nhập đã tồn tại");
         }
-        if (req.getEmail() != null && !req.getEmail().trim().isEmpty()
+        if (req.getEmail() != null && !req.getEmail().isEmpty()
                 && !equalsIgnoreCase(user.getEmail(), req.getEmail())
                 && userRepository.existsByEmailIgnoreCaseAndIdNot(req.getEmail(), id)) {
-            throw new RuntimeException("Email đã tồn tại");
+            throw new DuplicateEntityException("User", "email", req.getEmail(), "Email đã tồn tại");
         }
-        if (req.getPhoneNumber() != null && !req.getPhoneNumber().trim().isEmpty()
+        if (req.getPhoneNumber() != null && !req.getPhoneNumber().isEmpty()
                 && !equals(user.getPhoneNumber(), req.getPhoneNumber())
                 && userRepository.existsByPhoneNumberAndIdNot(req.getPhoneNumber(), id)) {
-            throw new RuntimeException("Số điện thoại đã tồn tại");
+            throw new DuplicateEntityException("User", "phoneNumber", req.getPhoneNumber(), "Số điện thoại đã tồn tại");
         }
 
         // Validate: Nếu đổi role thành MANAGER hoặc đổi branch của MANAGER
@@ -207,8 +230,12 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
 
     @Override
     public void delete(Long id) {
-        if (shiftAssignmentRepository.existsByUserIdAndDeletedFalse(id)) {
-            throw new EntityInUseException("Nhân viên", "ca làm việc");
+        List<ShiftAssignment> assignments = shiftAssignmentRepository.findByUserId(id);
+        if (!assignments.isEmpty()) {
+            String shiftDetails = assignments.stream()
+                    .map(assignment -> assignment.getShift().getName())
+                    .collect(Collectors.joining(", "));
+            throw new EntityInUseException("Nhân viên", "ca làm việc: " + shiftDetails);
         }
 
         // Nếu xóa Manager, xóa userId khỏi Branch
@@ -248,8 +275,8 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
             if (profileUpdateRequest.getPassword().length() < 6) {
                 throw new RuntimeException("Mật khẩu mới phải có ít nhất 6 ký tự");
             }
-            if (profileUpdateRequest.getPassword().length() > 100) {
-                throw new RuntimeException("Mật khẩu mới không được vượt quá 100 ký tự");
+            if (profileUpdateRequest.getPassword().length() > 30) {
+                throw new RuntimeException("Mật khẩu mới không được vượt quá 30 ký tự");
             }
 
             // Verify current password when changing password
@@ -263,13 +290,13 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
 
         // Validate email uniqueness
         if (userRepository.existsByEmailIgnoreCaseAndIdNot(profileUpdateRequest.getEmail(), id)) {
-            throw new RuntimeException("Email đã được sử dụng bởi người dùng khác");
+            throw new DuplicateEntityException("User", "email", profileUpdateRequest.getEmail(), "Email đã được sử dụng bởi người dùng khác");
         }
 
         // Validate phone uniqueness (if provided)
         if (profileUpdateRequest.getPhone() != null && !profileUpdateRequest.getPhone().trim().isEmpty()) {
             if (userRepository.existsByPhoneNumberAndIdNot(profileUpdateRequest.getPhone(), id)) {
-                throw new RuntimeException("Số điện thoại đã được sử dụng bởi người dùng khác");
+                throw new DuplicateEntityException("User", "phoneNumber", profileUpdateRequest.getPhone(), "Số điện thoại đã được sử dụng bởi người dùng khác");
             }
         }
 

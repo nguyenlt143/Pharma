@@ -664,12 +664,34 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
                     variant.getId(), batch.getBatchCode(), item.getQuantity());
 
             // 5. Decrease branch inventory immediately (trừ tồn kho chi nhánh)
-            branchInventory.setQuantity(branchInventory.getQuantity() - item.getQuantity());
+            long previousQty = branchInventory.getQuantity();
+            branchInventory.setQuantity(previousQty - item.getQuantity());
             inventoryRepository.save(branchInventory);
             log.info("Decreased branch inventory: {} from {} to {}",
-                    batch.getBatchCode(),
-                    branchInventory.getQuantity() + item.getQuantity(),
-                    branchInventory.getQuantity());
+                    batch.getBatchCode(), previousQty, branchInventory.getQuantity());
+
+            // 6. If batch is expired as of today, remove from branch inventory entirely
+            if (batch.getExpiryDate() != null) {
+                java.time.LocalDate expired = batch.getExpiryDate();
+                java.time.LocalDate today = java.time.LocalDate.now();
+                if (!expired.isAfter(today)) { // expired on or before today
+                    try {
+                        Long invId = branchInventory.getId();
+                        inventoryRepository.delete(branchInventory);
+                        log.warn("Deleted expired inventory entry id={} for branch {} variant {} batch {} (expired on {})",
+                                invId,
+                                sourceBranch.getName(),
+                                variant.getId(),
+                                batch.getBatchCode(),
+                                expired);
+                    } catch (Exception ex) {
+                        log.error("Failed to delete expired inventory entry id={}: {}", branchInventory.getId(), ex.getMessage());
+                        // As a fallback, ensure quantity is zero
+                        branchInventory.setQuantity(0L);
+                        inventoryRepository.save(branchInventory);
+                    }
+                }
+            }
         }
 
         log.info("Return movement {} created successfully with {} items",

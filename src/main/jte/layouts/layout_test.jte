@@ -12,9 +12,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản Lý Nhà Thuốc</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Inter:wght@400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/owner/layout.css">
     <link rel="stylesheet" href="/assets/css/pharmacist/layout.css">
+    <!-- Pharmacist Layout Test Styles - Extracted to separate CSS file -->
+    <link rel="stylesheet" href="/assets/css/pharmacist/layout_test.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.bootstrap5.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
@@ -34,9 +37,8 @@
     <!-- Sidebar -->
     <aside class="sidebar">
         <header class="sidebar-header">
-            <h1 class="sidebar-title">
-                PharmaSys
-            </h1>
+            <h1 class="sidebar-title">PharmaSys</h1>
+            <p class="sidebar-subtitle">Dược sĩ</p>
         </header>
 
         <nav class="sidebar-nav">

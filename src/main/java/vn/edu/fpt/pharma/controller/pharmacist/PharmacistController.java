@@ -53,6 +53,7 @@ public class PharmacistController {
 
         model.addAttribute("inShift", inShift);
         model.addAttribute("keyword", "");
+        model.addAttribute("user", userDetails);
         return "pages/pharmacist/pos";
     }
 
@@ -70,13 +71,25 @@ public class PharmacistController {
 
     @PostMapping("/pos/api/invoices")
     public ResponseEntity<?> createInvoice(@Valid @RequestBody InvoiceCreateRequest req) {
-        Invoice invoice = invoiceService.createInvoice(req);
+        try {
+            Invoice invoice = invoiceService.createInvoice(req);
 
-        return ResponseEntity.ok(Map.of(
-                "id", invoice.getId(),
-                "invoiceCode", invoice.getInvoiceCode(),
-                "message", "Thanh toán thành công"
-        ));
+            return ResponseEntity.ok(Map.of(
+                    "id", invoice.getId(),
+                    "invoiceCode", invoice.getInvoiceCode(),
+                    "message", "Thanh toán thành công"
+            ));
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            log.error("Validation error creating invoice: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of(
+                    "error", e.getMessage()
+            ));
+        } catch (Exception e) {
+            log.error("Error creating invoice", e);
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "error", "Lỗi tạo hóa đơn: " + e.getMessage()
+            ));
+        }
     }
 
     @GetMapping("/work")

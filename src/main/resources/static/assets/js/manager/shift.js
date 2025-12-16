@@ -61,8 +61,23 @@ document.addEventListener("DOMContentLoaded", () => {
         shiftModal.classList.remove("hidden");
         document.getElementById("shiftId").value = s.id || "";
         document.getElementById("shiftName").value = s.name || "";
-        document.getElementById("startTime").value = s.startTime || "";
-        document.getElementById("endTime").value = s.endTime || "";
+        // Populate hour/minute inputs from shift time if available
+        if (s.startTime) {
+            const st = formatToHHMM(s.startTime).split(":");
+            document.getElementById("startHour").value = st[0];
+            document.getElementById("startMinute").value = st[1];
+        } else {
+            document.getElementById("startHour").value = "";
+            document.getElementById("startMinute").value = "00";
+        }
+        if (s.endTime) {
+            const et = formatToHHMM(s.endTime).split(":");
+            document.getElementById("endHour").value = et[0];
+            document.getElementById("endMinute").value = et[1];
+        } else {
+            document.getElementById("endHour").value = "";
+            document.getElementById("endMinute").value = "00";
+        }
         document.getElementById("note").value = s.note || "";
         document.getElementById("modalTitle").textContent = s.id ? "Chỉnh sửa ca làm việc" : "Thêm ca làm việc mới";
     }
@@ -113,11 +128,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     <button class="btn btn-info" onclick="viewEmployees(${s.id})">👥 Xem nhân viên</button>
                 `;
 
+            const dispStart = s.startTime ? formatToHHMM(s.startTime) : "";
+            const dispEnd = s.endTime ? formatToHHMM(s.endTime) : "";
+
             return `
             <tr>
                 <td>${s.name}</td>
-                <td>${s.startTime}</td>
-                <td>${s.endTime}</td>
+                <td>${dispStart}</td>
+                <td>${dispEnd}</td>
                 <td>${s.note || ""}</td>
                 <td class="text-center">${statusBadge}</td>
                 <td class="text-center action-buttons">${actionButtons}</td>
@@ -147,31 +165,66 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const idVal = document.getElementById("shiftId").value || null;
 
-        const startTime = document.getElementById("startTime").value;
-        const endTime = document.getElementById("endTime").value;
+        // Read hour/minute inputs
+        const startHourRaw = document.getElementById("startHour").value;
+        const startMinuteRaw = document.getElementById("startMinute").value;
+        const endHourRaw = document.getElementById("endHour").value;
+        const endMinuteRaw = document.getElementById("endMinute").value;
+
+        // Basic validation for hour fields
+        const shNum = Number(startHourRaw);
+        const ehNum = Number(endHourRaw);
+        const smNum = Number(startMinuteRaw);
+        const emNum = Number(endMinuteRaw);
+        if (!Number.isInteger(shNum) || shNum < 0 || shNum > 23) {
+            displayFieldErrors({ 'startTime': 'Giờ bắt đầu phải là số nguyên từ 0 đến 23' });
+            focusFirstInvalidField();
+            return;
+        }
+        if (!Number.isInteger(ehNum) || ehNum < 0 || ehNum > 23) {
+            displayFieldErrors({ 'endTime': 'Giờ kết thúc phải là số nguyên từ 0 đến 23' });
+            focusFirstInvalidField();
+            return;
+        }
+        // Validate minutes
+        if (!Number.isInteger(smNum) || smNum < 0 || smNum > 59) {
+            displayFieldErrors({ 'startTime': 'Phút bắt đầu phải là số từ 0 đến 59' });
+            focusFirstInvalidField();
+            return;
+        }
+        if (!Number.isInteger(emNum) || emNum < 0 || emNum > 59) {
+            displayFieldErrors({ 'endTime': 'Phút kết thúc phải là số từ 0 đến 59' });
+            focusFirstInvalidField();
+            return;
+        }
+
+        // Build HH:mm strings
+        const startTime = (shNum < 10 ? '0' + shNum : '' + shNum) + ':' + (smNum < 10 ? '0' + smNum : '' + smNum);
+        const endTime = (ehNum < 10 ? '0' + ehNum : '' + ehNum) + ':' + (emNum < 10 ? '0' + emNum : '' + emNum);
 
         // Frontend validation: end time must be after start time
-        if (startTime && endTime && endTime <= startTime) {
-            displayFieldErrors({
-                'endTime': 'Giờ kết thúc phải lớn hơn giờ bắt đầu'
-            });
+        const startMinutes = shNum * 60 + smNum;
+        const endMinutes = ehNum * 60 + emNum;
+        if (endMinutes <= startMinutes) {
+            // Use the existing displayFieldErrors to show the error on the end-time line
+            displayFieldErrors({ 'endTime': 'Giờ kết thúc phải lớn hơn giờ bắt đầu' });
             focusFirstInvalidField();
             return;
         }
 
         const payload = {
             id: idVal,
-            name: document.getElementById("shiftName").value,
+            name: document.getElementById("shiftName").value.trim(),
             startTime: startTime,
             endTime: endTime,
-            note: document.getElementById("note").value
+            note: document.getElementById("note").value.trim()
         };
 
         try {
             const url = payload.id ? `/api/manager/shifts/${payload.id}` : "/api/manager/shifts";
             const res = await fetch(url, {
                 method: payload.id ? "PUT" : "POST",
-                headers: {"Content-Type": "application/json"},
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             });
 
@@ -188,13 +241,11 @@ document.addEventListener("DOMContentLoaded", () => {
                         // Validation errors - display field-level feedback
                         displayFieldErrors(errorData.errors);
                         focusFirstInvalidField();
-                        // Do NOT show toast for field-level validation errors
-                        if (!errorData.errors || Object.keys(errorData.errors).length === 0) {
-                            if (errorData.message) showToast(errorData.message, 4000, 'error');
-                        }
-                    } else {
+                    } else if (errorData.message) {
                         // Business logic error - show toast only
-                        showToast(errorData.message || "Lỗi khi lưu ca làm việc", 4000, 'error');
+                        showToast(errorData.message, 4000, 'error');
+                    } else {
+                        showToast("Lỗi khi lưu ca làm việc", 4000, 'error');
                     }
                 } else {
                     const error = await res.text();
@@ -206,6 +257,41 @@ document.addEventListener("DOMContentLoaded", () => {
             showToast("Có lỗi xảy ra khi lưu ca làm việc!", 3000, 'error');
         }
     };
+
+    function clearFieldErrors() {
+        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        document.querySelectorAll('.invalid-feedback').forEach(el => { el.textContent = ''; el.style.setProperty('display', 'none', 'important'); });
+    }
+
+    function displayFieldErrors(errors) {
+        for (const [field, message] of Object.entries(errors)) {
+            // Map logical field names to actual input elements
+            let inputs = [];
+            if (field === 'startTime') {
+                inputs = [document.getElementById('startHour'), document.getElementById('startMinute')];
+            } else if (field === 'endTime') {
+                inputs = [document.getElementById('endHour'), document.getElementById('endMinute')];
+            } else {
+                const single = document.getElementById(field);
+                if (single) inputs = [single];
+            }
+
+            // Add invalid class to all related inputs (same behavior as other validations)
+            inputs.forEach(input => {
+                if (input) input.classList.add('is-invalid');
+            });
+
+            // Populate the error div so it displays like other field errors
+            const errorDiv = document.getElementById(`${field}-error`);
+            if (errorDiv) {
+                errorDiv.textContent = message;
+                // show the error div; leave visual styling to CSS so it matches other errors
+                try { errorDiv.style.setProperty('display', 'block', 'important'); } catch (_) { errorDiv.style.display = 'block'; }
+                errorDiv.setAttribute('role', 'alert');
+                errorDiv.setAttribute('aria-live', 'assertive');
+            }
+        }
+    }
 
     // helper: focus first invalid field after showing errors
     function focusFirstInvalidField() {
@@ -279,8 +365,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 const shiftRes = await fetch(`/api/manager/shifts/${shiftId}`);
                 if (shiftRes.ok) {
                     const s = await shiftRes.json();
-                    const st = s.startTime ? s.startTime : "";
-                    const et = s.endTime ? s.endTime : "";
+                    const st = s.startTime ? formatToHHMM(s.startTime) : "";
+                    const et = s.endTime ? formatToHHMM(s.endTime) : "";
                     const titleText = `${s.name || "Ca"} ${st || et ? `(${st} - ${et})` : ""}`.trim();
                     const titleEl = document.getElementById("shiftEmployeeTitle");
                     if (titleEl) titleEl.innerText = titleText;
@@ -445,3 +531,56 @@ document.addEventListener("DOMContentLoaded", () => {
     // Load shifts when page loads
     loadShifts();
 });
+
+// Helper: normalize various time inputs to 24-hour HH:mm format
+function normalizeTimeTo24(input) {
+    if (!input) return "";
+    let s = input.trim();
+    // If already in HH:mm or H:mm(:ss), return HH:mm
+    const hhmm = s.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+    if (hhmm) {
+        let h = parseInt(hhmm[1], 10);
+        let m = hhmm[2];
+        return (h < 10 ? '0' + h : '' + h) + ':' + m;
+    }
+    // Match 12h formats like '12:00 AM', '12 PM', '9:30pm', '9 PM'
+    const ampm = s.match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM|am|pm|Am|Pm|aM|pM)?$/);
+    if (ampm) {
+        let hour = parseInt(ampm[1], 10);
+        let minute = ampm[2] ? ampm[2] : '00';
+        const meridiem = (ampm[3] || '').toUpperCase();
+        if (meridiem === 'AM') {
+            if (hour === 12) hour = 0;
+        } else if (meridiem === 'PM') {
+            if (hour !== 12) hour += 12;
+        }
+        if (hour < 0) hour = 0;
+        if (hour > 23) hour = hour % 24;
+        const hh = hour < 10 ? '0' + hour : '' + hour;
+        return hh + ':' + minute;
+    }
+    // Fallback: try Date parsing
+    try {
+        const d = new Date('1970-01-01T' + s);
+        if (!isNaN(d.getTime())) {
+            const hh = d.getHours();
+            const mm = d.getMinutes();
+            return (hh < 10 ? '0' + hh : '' + hh) + ':' + (mm < 10 ? '0' + mm : '' + mm);
+        }
+    } catch (_) {}
+    return s; // return as-is
+}
+
+// Helper: format any time-like string to HH:mm for display
+function formatToHHMM(input) {
+    if (!input) return "";
+    const normalized = normalizeTimeTo24(input);
+    // Ensure HH:mm (pad if necessary)
+    const m = normalized.match(/^(\d{1,2}):(\d{2})$/);
+    if (m) {
+        const h = parseInt(m[1], 10);
+        const mm = m[2];
+        return (h < 10 ? '0' + h : '' + h) + ':' + mm;
+    }
+    return normalized;
+}

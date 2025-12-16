@@ -16,11 +16,8 @@ import vn.edu.fpt.pharma.dto.DataTableRequest;
 import vn.edu.fpt.pharma.dto.DataTableResponse;
 import vn.edu.fpt.pharma.dto.invoice.InvoiceDetailVM;
 import vn.edu.fpt.pharma.dto.invoice.InvoiceVM;
-import vn.edu.fpt.pharma.service.InvoiceDetailService;
 import vn.edu.fpt.pharma.service.InvoiceService;
 import vn.edu.fpt.pharma.util.StringUtils;
-
-import java.util.List;
 
 @Slf4j
 @Controller // RE-ENABLED for invoice viewing
@@ -84,6 +81,16 @@ public class InvoiceController {
                 return "redirect:/pharmacist/invoices";
             }
 
+            // AUTHORIZATION CHECK: Verify user has permission to view this invoice
+            // Invoice must belong to the same user or same branch
+            if (!invoiceDetailVM.userId().equals(userDetails.getId()) &&
+                !invoiceDetailVM.branchId().equals(userDetails.getUser().getBranchId())) {
+                log.warn("User {} attempted to access invoice {} without permission",
+                    userDetails.getId(), invoiceId);
+                redirectAttributes.addFlashAttribute("error", "Bạn không có quyền xem hóa đơn này");
+                return "redirect:/pharmacist/invoices";
+            }
+
             // Check if customer info is properly handled
             log.info("Invoice detail retrieved - Customer: {}, Phone: {}",
                     invoiceDetailVM.customerName(), invoiceDetailVM.customerPhone());
@@ -97,6 +104,30 @@ public class InvoiceController {
             log.error("Error retrieving invoice detail for ID: {}", invoiceId, e);
             redirectAttributes.addFlashAttribute("error", "Lỗi khi xem chi tiết hóa đơn: " + e.getMessage());
             return "redirect:/pharmacist/invoices";
+        }
+    }
+
+    /**
+     * API endpoint to get invoice detail as JSON (for printing)
+     */
+    @GetMapping("api/detail")
+    @ResponseBody
+    public ResponseEntity<?> getInvoiceDetailJson(@RequestParam("invoiceId") Long invoiceId) {
+        try {
+            InvoiceDetailVM invoiceDetail = invoiceService.getInvoiceDetail(invoiceId);
+
+            if (invoiceDetail == null) {
+                return ResponseEntity.badRequest().body(
+                    java.util.Map.of("error", "Invoice not found")
+                );
+            }
+
+            return ResponseEntity.ok(invoiceDetail);
+        } catch (Exception e) {
+            log.error("Error fetching invoice detail JSON for ID: {}", invoiceId, e);
+            return ResponseEntity.internalServerError().body(
+                java.util.Map.of("error", e.getMessage())
+            );
         }
     }
 }

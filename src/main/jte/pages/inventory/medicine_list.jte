@@ -37,13 +37,8 @@
                     <input id="filterExpiring" type="checkbox" class="rounded border-gray-300"> Sắp hết hạn (≤ 1 tháng)
                 </label>
                 <label class="inline-flex items-center gap-2 text-sm text-gray-700">
-                    <input id="filterLowStock" type="checkbox" class="rounded border-gray-300"> Sắp hết hàng (< 10)
+                    <input id="filterLowStock" type="checkbox" class="rounded border-gray-300"> Sắp hết hàng
                 </label>
-                <div class="ml-auto flex items-center gap-2 text-xs text-gray-500">
-                    <span class="w-3 h-3 bg-red-200 border border-red-500 inline-block"></span> <span>≤ 1 tuần</span>
-                    <span class="w-3 h-3 bg-orange-200 border border-orange-500 inline-block ml-3"></span> <span>1 tuần - 1 tháng</span>
-                    <span class="w-3 h-3 bg-yellow-200 border border-yellow-500 inline-block ml-3"></span> <span>Tồn kho < 10</span>
-                </div>
             </div>
         </div>
 
@@ -124,16 +119,12 @@
         <div id="bulkActionBar" class="mt-4 p-4 border border-blue-200 bg-blue-50 rounded-lg hidden">
             <div class="flex flex-wrap items-center gap-4">
                 <div class="text-sm">Đã chọn: <strong id="selectedCount" class="text-blue-600">0</strong> thuốc</div>
-                <label class="flex items-center gap-2 text-sm">
-                    <span>Số lượng mặc định:</span>
-                    <input id="defaultQty" type="number" min="1" value="1" class="w-20 border border-gray-300 rounded px-2 py-1 text-center">
-                </label>
                 <div class="ml-auto flex gap-2">
                     <button id="createImportFromList" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm flex items-center gap-1"><span class="material-icons-outlined text-sm">inventory_2</span>Tạo phiếu nhập</button>
                     <button id="createReturnFromList" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm flex items-center gap-1"><span class="material-icons-outlined text-sm">assignment_return</span>Tạo phiếu trả</button>
                 </div>
             </div>
-            <p class="text-xs text-gray-500 mt-2">Chỉ chọn các dòng đang hiển thị. Có thể điều chỉnh số lượng ở bước tạo phiếu.</p>
+            <p class="text-xs text-gray-500 mt-2">Chỉ chọn các dòng đang hiển thị. Số lượng sẽ lấy tối đa theo tồn kho hiện có của từng dòng.</p>
         </div>
     </main>
 </div>
@@ -146,7 +137,6 @@ const filterLowStock = document.getElementById('filterLowStock');
 const selectAllCheckbox = document.getElementById('selectAll');
 const bulkBar = document.getElementById('bulkActionBar');
 const selectedCountSpan = document.getElementById('selectedCount');
-const defaultQtyInput = document.getElementById('defaultQty');
 const createImportBtn = document.getElementById('createImportFromList');
 const createReturnBtn = document.getElementById('createReturnFromList');
 
@@ -211,7 +201,8 @@ function collectSelected(forType) {
     const cb = row.querySelector('.row-select');
     if (!cb || !cb.checked) return;
     const availableQty = parseInt(row.dataset.availableQty || '0');
-    const qty = Math.min(Math.max(parseInt(defaultQtyInput.value || '1'), 1), availableQty);
+    // Quantity defaults to maximum available for selected line
+    const qty = availableQty;
     items.push({
       variantId: Number(row.dataset.variantId),
       batchId: row.dataset.batchId ? Number(row.dataset.batchId) : null,

@@ -8,7 +8,6 @@ const phoneInput = document.querySelector('.customer-info .form-group:nth-child(
 const paymentAmountInput = document.querySelector('.payment-details .form-input');
 const paymentMethodSelect = document.querySelector('#paymentMethod');
 const notesTextarea = document.querySelector('.form-textarea');
-const qrCodeSection = document.querySelector('#qrCodeSection');
 
 const resultContainer = document.querySelector('#medicine-list');
 
@@ -25,15 +24,194 @@ if (paymentMethodSelect) {
     paymentMethodSelect.addEventListener('change', function() {
         const selectedMethod = this.value;
 
+        const paidAmountGroup = document.getElementById('paidAmountGroup');
+        const changeAmountRow = document.getElementById('changeAmountRow');
+        const paidAmountInput = document.getElementById('paidAmount');
+
         if (selectedMethod === 'transfer') {
-            // Show QR popup instead of inline section
-            showQRCodePopup();
+            // Hide paid amount and change amount for transfer
+            if (paidAmountGroup) paidAmountGroup.style.display = 'none';
+            if (changeAmountRow) changeAmountRow.style.display = 'none';
+
+            // Remove required attribute for transfer
+            if (paidAmountInput) {
+                paidAmountInput.removeAttribute('required');
+                paidAmountInput.value = ''; // Clear value
+            }
+
+            // Show QR modal popup
+            showQRModal();
+        } else if (selectedMethod === 'cash') {
+            // Show paid amount and change amount for cash
+            if (paidAmountGroup) paidAmountGroup.style.display = 'block';
+            if (changeAmountRow) changeAmountRow.style.display = 'flex';
+
+            // Add required attribute for cash
+            if (paidAmountInput) {
+                paidAmountInput.setAttribute('required', 'required');
+            }
         } else {
-            // Close QR popup if open
-            closeQRCodePopup();
+            // Default - show fields
+            if (paidAmountGroup) paidAmountGroup.style.display = 'block';
+            if (changeAmountRow) changeAmountRow.style.display = 'flex';
+
+            // Add required attribute
+            if (paidAmountInput) {
+                paidAmountInput.setAttribute('required', 'required');
+            }
         }
     });
 }
+
+// QR Modal Elements
+const qrModal = document.getElementById('qrModal');
+const closeQrModalBtn = document.getElementById('closeQrModalBtn');
+const closeQrModal = document.getElementById('closeQrModal');
+
+// Function to show QR modal
+function showQRModal() {
+    if (!qrModal) {
+        console.error('QR Modal not found');
+        return;
+    }
+
+    const totalAmount = getTotalAmount();
+
+    if (totalAmount <= 0) {
+        showToast('Lỗi', 'Vui lòng thêm sản phẩm vào đơn trước khi thanh toán', 'error');
+        // Reset payment method
+        if (paymentMethodSelect) {
+            paymentMethodSelect.value = '';
+        }
+        return;
+    }
+
+    // Show modal with animation
+    qrModal.style.display = 'flex';
+    setTimeout(() => {
+        qrModal.classList.add('active');
+    }, 10);
+
+    // Generate QR code
+    generateQRCode();
+
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+}
+
+// Function to hide QR modal
+function hideQRModal() {
+    if (!qrModal) return;
+
+    qrModal.classList.remove('active');
+    setTimeout(() => {
+        qrModal.style.display = 'none';
+        document.body.style.overflow = '';
+    }, 300);
+}
+
+// Function to generate QR code with VietQR API
+function generateQRCode() {
+    const totalAmount = getTotalAmount();
+    const invoiceCode = 'HD' + Date.now(); // Generate invoice code
+
+    // VietQR API Configuration
+    const bankBin = '970407'; // Techcombank
+    const bankName = 'Techcombank (TCB)';
+    const accountNumber = '19038197626011';
+    const accountName = 'LE TUNG NGUYEN'; // Must be UPPERCASE, NO ACCENTS
+    const template = 'compact'; // compact, compact2, qr_only, print
+
+    // Update display amount
+    const qrDisplayAmount = document.getElementById('qrDisplayAmount');
+    if (qrDisplayAmount) {
+        qrDisplayAmount.textContent = totalAmount.toLocaleString('vi-VN') + ' ₫';
+    }
+
+    // Update invoice code
+    const qrInvoiceCode = document.getElementById('qrInvoiceCode');
+    if (qrInvoiceCode) {
+        qrInvoiceCode.textContent = invoiceCode;
+    }
+
+    // Update bank details
+    const qrBankName = document.getElementById('qrBankName');
+    if (qrBankName) {
+        qrBankName.textContent = bankName;
+    }
+
+    const qrAccountNumberEl = document.getElementById('qrAccountNumber');
+    if (qrAccountNumberEl) {
+        qrAccountNumberEl.textContent = accountNumber;
+    }
+
+    const qrAccountNameEl = document.getElementById('qrAccountName');
+    if (qrAccountNameEl) {
+        qrAccountNameEl.textContent = accountName;
+    }
+
+    // Show loading
+    const qrLoading = document.getElementById('qrLoading');
+    const qrCodeImage = document.getElementById('qrCodeImage');
+
+
+    // Generate VietQR URL
+    // Format: https://img.vietqr.io/image/{BANK_ID}-{ACCOUNT_NO}-{TEMPLATE}.{FORMAT}?amount={AMOUNT}&addInfo={INFO}&accountName={NAME}
+    const qrUrl = `https://img.vietqr.io/image/${bankBin}-${accountNumber}-${template}.jpg?amount=${totalAmount}&addInfo=${encodeURIComponent(invoiceCode)}&accountName=${encodeURIComponent(accountName)}`;
+
+    console.log('Generating QR Code:', { bankBin, accountNumber, totalAmount, invoiceCode, url: qrUrl });
+
+    // Load QR image
+    if (qrCodeImage) {
+        const img = new Image();
+
+        img.onload = function() {
+            qrCodeImage.src = qrUrl;
+            if (qrLoading) qrLoading.style.display = 'none';
+            if (qrCodeImage) qrCodeImage.style.display = 'block';
+            console.log('QR Code loaded successfully');
+        };
+
+        img.onerror = function() {
+            console.error('Failed to load QR code from VietQR API');
+            if (qrLoading) qrLoading.style.display = 'none';
+            if (qrCodeImage) {
+                qrCodeImage.style.display = 'block';
+                // Fallback placeholder
+                qrCodeImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNGM0Y0RjYiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzlDQTNBRiIgZm9udC1zaXplPSIxOCIgZm9udC1mYW1pbHk9IkFyaWFsIj5LaMO0bmcgdOG6oW8gxJHGsOG7o2MgbcOjIFFSPC90ZXh0Pjwvc3ZnPg==';
+            }
+            showToast('Cảnh báo', 'Không thể tải mã QR. Vui lòng thử lại.', 'warning');
+        };
+
+        img.src = qrUrl;
+    }
+}
+
+// Close modal event listeners
+if (closeQrModalBtn) {
+    closeQrModalBtn.addEventListener('click', hideQRModal);
+}
+
+if (closeQrModal) {
+    closeQrModal.addEventListener('click', hideQRModal);
+}
+
+// Click outside to close
+if (qrModal) {
+    qrModal.addEventListener('click', function(e) {
+        if (e.target === qrModal || e.target.classList.contains('qr-modal-overlay')) {
+            hideQRModal();
+        }
+    });
+}
+
+// ESC key to close
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && qrModal && qrModal.classList.contains('active')) {
+        hideQRModal();
+    }
+});
+
 
 let debounceTimer;
 
@@ -42,6 +220,16 @@ if (searchInput) {
   searchInput.addEventListener('input', () => {
   try {
     console.log('Search input triggered');
+
+    // Check if user is in shift
+    const inShiftAttr = document.body.getAttribute('data-in-shift');
+    const isInShift = inShiftAttr === 'true';
+
+    if (!isInShift) {
+      resultContainer.innerHTML = '<div style="color: #ff9800; padding: 20px; text-align: center; background: #fff3e0; border-radius: 8px; margin: 10px;"><i class="material-icons" style="font-size: 48px;">schedule</i><br><strong>Bạn không trong ca làm việc</strong><br>Vui lòng liên hệ quản lý để được phân ca</div>';
+      return;
+    }
+
     clearTimeout(debounceTimer);
 
     debounceTimer = setTimeout(() => {
@@ -98,6 +286,15 @@ function addEventListenersToMedicineCards() {
     medicineCards.forEach(card => {
         const medicineName = card.dataset.medicineName;
         card.addEventListener('click', () => {
+            // Check if user is in shift
+            const inShiftAttr = document.body.getAttribute('data-in-shift');
+            const isInShift = inShiftAttr === 'true';
+
+            if (!isInShift) {
+                showToast('Không thể xem', 'Bạn phải trong ca làm việc mới được xem chi tiết thuốc', 'error', 4000);
+                return;
+            }
+
             const medicineId = card.dataset.medicineId;
             const detailsContainer = card.querySelector('.variant-details');
             const isDisplayed = detailsContainer.style.display === 'block';
@@ -325,6 +522,15 @@ function addItemToPrescription(inventoryData, button) {
     try {
         console.log('Adding item to prescription:', inventoryData);
 
+        // VALIDATION 0: Check if user is in shift
+        const inShiftAttr = document.body.getAttribute('data-in-shift');
+        const isInShift = inShiftAttr === 'true';
+
+        if (!isInShift) {
+            showToast('Không thể thêm', 'Bạn phải trong ca làm việc mới được thêm sản phẩm', 'error', 5000);
+            return;
+        }
+
         // Validate inventory data
         if (!inventoryData.inventoryId) {
             showToast('Lỗi', 'Không tìm thấy thông tin sản phẩm', 'error');
@@ -518,6 +724,17 @@ function addPrescriptionActionListeners() {
 
     document.querySelectorAll('.unit-select').forEach(select => {
         select.addEventListener('change', (e) => {
+            // Check shift status first
+            const inShiftAttr = document.body.getAttribute('data-in-shift');
+            const isInShift = inShiftAttr === 'true';
+
+            if (!isInShift) {
+                showToast('Không thể thay đổi', 'Bạn phải trong ca làm việc mới được thay đổi đơn vị', 'error', 5000);
+                const index = parseInt(e.target.closest('tr').rowIndex - 1, 10);
+                e.target.value = prescriptionItems[index]?.selectedMultiplier || 1;
+                return;
+            }
+
             const index = parseInt(e.target.closest('tr').rowIndex - 1, 10);
             const multiplier = parseInt(e.target.value, 10);
 
@@ -543,6 +760,16 @@ function addPrescriptionActionListeners() {
     // Quantity change with validation
     document.querySelectorAll('.quantity-input').forEach(input => {
         input.addEventListener('change', (e) => {
+            // Check shift status first
+            const inShiftAttr = document.body.getAttribute('data-in-shift');
+            const isInShift = inShiftAttr === 'true';
+
+            if (!isInShift) {
+                showToast('Không thể thay đổi', 'Bạn phải trong ca làm việc mới được thay đổi số lượng', 'error', 5000);
+                e.target.value = prescriptionItems.find(p => p.inventoryId === e.target.dataset.inventoryId)?.quantity || 1;
+                return;
+            }
+
             const inventoryId = e.target.dataset.inventoryId;
             let newQuantity = parseInt(e.target.value, 10);
             const item = prescriptionItems.find(p => p.inventoryId === inventoryId);
@@ -622,6 +849,15 @@ function addPrescriptionActionListeners() {
     // Delete item buttons
     document.querySelectorAll('.delete-item-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
+            // Check shift status first
+            const inShiftAttr = document.body.getAttribute('data-in-shift');
+            const isInShift = inShiftAttr === 'true';
+
+            if (!isInShift) {
+                showToast('Không thể xóa', 'Bạn phải trong ca làm việc mới được xóa sản phẩm', 'error', 5000);
+                return;
+            }
+
             const index = parseInt(e.target.dataset.index);
 
             // Remove item without confirmation
@@ -647,6 +883,15 @@ const clearAllBtn = document.getElementById('clearAllBtn');
 if (clearAllBtn) {
     clearAllBtn.addEventListener('click', () => {
         if (prescriptionItems.length === 0) {
+            return;
+        }
+
+        // Check shift status first
+        const inShiftAttr = document.body.getAttribute('data-in-shift');
+        const isInShift = inShiftAttr === 'true';
+
+        if (!isInShift) {
+            showToast('Không thể xóa', 'Bạn phải trong ca làm việc mới được xóa tất cả sản phẩm', 'error', 5000);
             return;
         }
 
@@ -730,6 +975,10 @@ function clearPaymentForm() {
   paymentAmountInput.value = '';
   notesTextarea.value = '';
   paymentMethodSelect.selectedIndex = 0;
+
+  // Close QR modal if open
+  hideQRModal();
+
   const lastPaymentValue = document.querySelector('.payment-row:last-of-type .payment-value');
   if (lastPaymentValue) {
     lastPaymentValue.textContent = '0';
@@ -890,8 +1139,15 @@ function validatePaymentForm() {
     }
 
     const totalAmount = getTotalAmount();
+    const paymentMethod = document.getElementById('paymentMethod')?.value;
 
-    // Only validate when there are items
+    // VALIDATION 3: Validate payment method is valid value
+    if (paymentMethod && !['cash', 'transfer'].includes(paymentMethod)) {
+        showError('paymentMethod', 'Phương thức thanh toán không hợp lệ');
+        return false;
+    }
+
+    // Build validations array based on payment method
     const validations = [
         validateField('customerName', {
             required: false,
@@ -899,14 +1155,6 @@ function validatePaymentForm() {
         }),
 
         validatePhoneNumber('phoneNumber'),
-
-        validateField('paidAmount', {
-            required: true,
-            type: 'number',
-            min: totalAmount,
-            requiredMessage: 'Số tiền khách thanh toán không được để trống',
-            minMessage: `Số tiền thanh toán phải ít nhất ${totalAmount.toLocaleString('vi-VN')} VNĐ`
-        }),
 
         validateField('paymentMethod', {
             required: true,
@@ -918,6 +1166,19 @@ function validatePaymentForm() {
             maxLength: 500
         })
     ];
+
+    // Only validate paidAmount if payment method is cash
+    if (paymentMethod === 'cash') {
+        validations.push(
+            validateField('paidAmount', {
+                required: true,
+                type: 'number',
+                min: totalAmount,
+                requiredMessage: 'Số tiền khách thanh toán không được để trống',
+                minMessage: `Số tiền thanh toán phải ít nhất ${totalAmount.toLocaleString('vi-VN')} VNĐ`
+            })
+        );
+    }
 
     const isFormValid = validations.every(v => v);
 
@@ -1099,6 +1360,15 @@ document.addEventListener('DOMContentLoaded', function() {
         paymentForm.addEventListener('submit', function(e) {
             e.preventDefault();
 
+            // VALIDATION 1: Check if user is in shift
+            const inShiftAttr = document.body.getAttribute('data-in-shift');
+            const isInShift = inShiftAttr === 'true';
+
+            if (!isInShift) {
+                showToast('Lỗi', 'Bạn phải trong ca làm việc mới được thanh toán', 'error', 5000);
+                return;
+            }
+
             if (!validatePaymentForm()) {
                 showAlert('error', 'Vui lòng kiểm tra lại thông tin đã nhập');
                 return;
@@ -1117,10 +1387,24 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!customerName) customerName = 'Khách lẻ';
             if (!phoneNumber) phoneNumber = 'Không có';
 
+            const totalAmount = getTotalAmount();
+
+            // VALIDATION 2: Validate totalAmount khớp với tổng items
+            const calculatedTotal = prescriptionItems.reduce((sum, item) =>
+                sum + (item.quantity * item.currentPrice), 0);
+
+            if (Math.abs(calculatedTotal - totalAmount) > 0.01) {
+                showToast('Lỗi',
+                    `Tổng tiền không khớp. Tính toán: ${calculatedTotal.toLocaleString('vi-VN')} VNĐ, ` +
+                    `Hiển thị: ${totalAmount.toLocaleString('vi-VN')} VNĐ`,
+                    'error', 5000);
+                return;
+            }
+
             const formData = {
                 customerName: customerName,
                 phoneNumber: phoneNumber,
-                totalAmount: getTotalAmount(),
+                totalAmount: totalAmount,
                 paymentMethod: document.getElementById('paymentMethod').value,
                 note: document.getElementById('note').value.trim(),
                 items: prescriptionItems.map(item => ({
@@ -1386,6 +1670,437 @@ function closeSuccessPopup() {
 // Make closeSuccessPopup available globally
 window.closeSuccessPopup = closeSuccessPopup;
 
+// ============ INVOICE PRINTING FUNCTIONS ============
+
+/**
+ * Fetch full invoice details from API and print
+ * @param {number} invoiceId - Invoice ID from creation response
+ * @param {Object} paymentData - Original payment data for fallback
+ */
+function fetchInvoiceDetailsAndPrint(invoiceId, paymentData) {
+    // Fetch full invoice details from backend
+    fetch(`/pharmacist/invoices/api/detail?invoiceId=${invoiceId}`)
+        .then(res => {
+            if (!res.ok) {
+                throw new Error('Failed to fetch invoice details');
+            }
+            return res.json();
+        })
+        .then(invoiceDetail => {
+            // Print with real data from backend
+            printInvoice({
+                invoiceCode: paymentData.invoiceCode || 'N/A',
+                branchName: invoiceDetail.branchName || 'Nhà Thuốc',
+                branchAddress: invoiceDetail.branchAddress || 'Địa chỉ không có',
+                customerName: invoiceDetail.customerName || paymentData.customerName,
+                phoneNumber: invoiceDetail.customerPhone || paymentData.phoneNumber,
+                items: paymentData.items, // Use original items with full info
+                totalAmount: invoiceDetail.totalPrice || paymentData.totalAmount,
+                paymentMethod: paymentData.paymentMethod,
+                note: invoiceDetail.description || paymentData.note,
+                date: invoiceDetail.createdAt ? new Date(invoiceDetail.createdAt) : new Date(),
+                medicines: invoiceDetail.medicines // Backend medicine list
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching invoice details:', error);
+
+            // Fallback: Print with client-side data if API fails
+            console.warn('Printing with fallback data');
+            printInvoice({
+                invoiceCode: paymentData.invoiceCode || 'N/A',
+                branchName: 'Nhà Thuốc ABC',
+                branchAddress: 'Địa chỉ chưa cập nhật',
+                customerName: paymentData.customerName,
+                phoneNumber: paymentData.phoneNumber,
+                items: paymentData.items,
+                totalAmount: paymentData.totalAmount,
+                paymentMethod: paymentData.paymentMethod,
+                note: paymentData.note,
+                date: new Date()
+            });
+        });
+}
+
+/**
+ * Print invoice after successful payment
+ * @param {Object} invoiceData - Invoice data including items, customer info, etc.
+ */
+function printInvoice(invoiceData) {
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+
+    if (!printWindow) {
+        console.error('Popup blocked - cannot print invoice');
+        showToast('Lỗi', 'Vui lòng cho phép popup để in hóa đơn', 'error');
+        return;
+    }
+
+    // Format date and time
+    const date = new Date(invoiceData.date);
+    const formattedDate = date.toLocaleDateString('vi-VN');
+    const formattedTime = date.toLocaleTimeString('vi-VN');
+
+    // Format payment method
+    const paymentMethodText = invoiceData.paymentMethod === 'cash' ? 'Tiền mặt' : 'Chuyển khoản';
+
+    // Build items HTML
+    let itemsHTML = '';
+    let itemNumber = 1;
+
+    invoiceData.items.forEach(item => {
+        const itemTotal = item.quantity * item.unitPrice;
+
+        // Get medicine name from prescriptionItems or use inventoryId
+        const prescriptionItem = prescriptionItems.find(p => p.inventoryId === item.inventoryId);
+        const medicineName = prescriptionItem ? prescriptionItem.medicineName : `Thuốc #${item.inventoryId}`;
+        const medicineStrength = prescriptionItem && prescriptionItem.strength ? ` - ${prescriptionItem.strength}` : '';
+        const unitName = prescriptionItem ? prescriptionItem.baseUnitName : 'Đơn vị';
+
+        itemsHTML += `
+            <tr>
+                <td style="padding: 8px 4px; border-bottom: 1px dashed #ddd; text-align: center;">${itemNumber}</td>
+                <td style="padding: 8px 4px; border-bottom: 1px dashed #ddd;">
+                    ${medicineName}${medicineStrength}
+                </td>
+                <td style="padding: 8px 4px; border-bottom: 1px dashed #ddd; text-align: center;">${item.quantity}</td>
+                <td style="padding: 8px 4px; border-bottom: 1px dashed #ddd; text-align: center;">${unitName}</td>
+                <td style="padding: 8px 4px; border-bottom: 1px dashed #ddd; text-align: right;">
+                    ${item.unitPrice.toLocaleString('vi-VN')}
+                </td>
+                <td style="padding: 8px 4px; border-bottom: 1px dashed #ddd; text-align: right;">
+                    ${itemTotal.toLocaleString('vi-VN')}
+                </td>
+            </tr>
+        `;
+        itemNumber++;
+    });
+
+    // Create invoice HTML
+    const invoiceHTML = `
+        <!DOCTYPE html>
+        <html lang="vi">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Hóa đơn - ${invoiceData.invoiceCode}</title>
+            <style>
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+
+                body {
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    padding: 20px;
+                    max-width: 800px;
+                    margin: 0 auto;
+                    background: #f5f5f5;
+                }
+
+                .invoice-container {
+                    background: white;
+                    padding: 30px;
+                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                    border-radius: 8px;
+                }
+
+                .invoice-header {
+                    text-align: center;
+                    border-bottom: 3px solid #4338ca;
+                    padding-bottom: 20px;
+                    margin-bottom: 25px;
+                }
+
+                .store-name {
+                    font-size: 28px;
+                    font-weight: bold;
+                    color: #4338ca;
+                    margin-bottom: 5px;
+                }
+
+                .store-info {
+                    font-size: 13px;
+                    color: #666;
+                    line-height: 1.6;
+                }
+
+                .invoice-title {
+                    font-size: 24px;
+                    font-weight: bold;
+                    color: #1f2937;
+                    margin: 20px 0 10px;
+                    text-align: center;
+                }
+
+                .invoice-meta {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 15px;
+                    margin-bottom: 25px;
+                    padding: 15px;
+                    background: #f9fafb;
+                    border-radius: 6px;
+                }
+
+                .meta-item {
+                    font-size: 13px;
+                }
+
+                .meta-label {
+                    font-weight: 600;
+                    color: #4b5563;
+                    display: inline-block;
+                    width: 120px;
+                }
+
+                .meta-value {
+                    color: #1f2937;
+                }
+
+                .invoice-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-bottom: 20px;
+                }
+
+                .invoice-table th {
+                    background: #4338ca;
+                    color: white;
+                    padding: 12px 8px;
+                    text-align: left;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+
+                .invoice-table th:first-child,
+                .invoice-table td:first-child {
+                    text-align: center;
+                    width: 40px;
+                }
+
+                .invoice-table th:nth-child(3),
+                .invoice-table td:nth-child(3),
+                .invoice-table th:nth-child(4),
+                .invoice-table td:nth-child(4) {
+                    text-align: center;
+                    width: 80px;
+                }
+
+                .invoice-table th:nth-child(5),
+                .invoice-table td:nth-child(5),
+                .invoice-table th:nth-child(6),
+                .invoice-table td:nth-child(6) {
+                    text-align: right;
+                    width: 120px;
+                }
+
+                .invoice-table td {
+                    padding: 8px 4px;
+                    font-size: 13px;
+                    color: #374151;
+                }
+
+                .invoice-summary {
+                    margin-top: 20px;
+                    border-top: 2px solid #e5e7eb;
+                    padding-top: 15px;
+                }
+
+                .summary-row {
+                    display: flex;
+                    justify-content: space-between;
+                    padding: 8px 0;
+                    font-size: 14px;
+                }
+
+                .summary-row.total {
+                    font-size: 18px;
+                    font-weight: bold;
+                    color: #4338ca;
+                    border-top: 2px solid #4338ca;
+                    padding-top: 12px;
+                    margin-top: 8px;
+                }
+
+                .invoice-note {
+                    margin-top: 20px;
+                    padding: 12px;
+                    background: #fffbeb;
+                    border-left: 4px solid #f59e0b;
+                    border-radius: 4px;
+                }
+
+                .note-title {
+                    font-weight: 600;
+                    color: #92400e;
+                    margin-bottom: 5px;
+                    font-size: 13px;
+                }
+
+                .note-content {
+                    color: #78350f;
+                    font-size: 13px;
+                    line-height: 1.5;
+                }
+
+                .invoice-footer {
+                    margin-top: 30px;
+                    text-align: center;
+                    font-size: 12px;
+                    color: #6b7280;
+                    border-top: 1px dashed #d1d5db;
+                    padding-top: 20px;
+                }
+
+                .thank-you {
+                    font-size: 16px;
+                    font-weight: 600;
+                    color: #4338ca;
+                    margin-bottom: 10px;
+                }
+
+                @media print {
+                    body {
+                        background: white;
+                        padding: 0;
+                    }
+
+                    .invoice-container {
+                        box-shadow: none;
+                        padding: 10px;
+                    }
+
+                    .no-print {
+                        display: none !important;
+                    }
+                }
+
+                .print-button {
+                    background: #4338ca;
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 6px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    margin: 20px auto;
+                    display: block;
+                }
+
+                .print-button:hover {
+                    background: #3730a3;
+                }
+
+                @page {
+                    margin: 1cm;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="invoice-container">
+                <div class="invoice-header">
+                    <div class="store-name">${invoiceData.branchName || 'NHÀ THUỐC'}</div>
+                    <div class="store-info">
+                        Địa chỉ: ${invoiceData.branchAddress || 'Địa chỉ chưa cập nhật'}
+                    </div>
+                </div>
+
+                <div class="invoice-title">HÓA ĐƠN BÁN HÀNG</div>
+
+                <div class="invoice-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Mã hóa đơn:</span>
+                        <span class="meta-value"><strong>${invoiceData.invoiceCode}</strong></span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Ngày:</span>
+                        <span class="meta-value">${formattedDate} ${formattedTime}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Khách hàng:</span>
+                        <span class="meta-value">${invoiceData.customerName}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Số điện thoại:</span>
+                        <span class="meta-value">${invoiceData.phoneNumber}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Thanh toán:</span>
+                        <span class="meta-value">${paymentMethodText}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Nhân viên:</span>
+                        <span class="meta-value">${window.currentUserName || 'Nhân viên bán hàng'}</span>
+                    </div>
+                </div>
+
+                <table class="invoice-table">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Tên thuốc</th>
+                            <th>SL</th>
+                            <th>ĐVT</th>
+                            <th>Đơn giá</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${itemsHTML}
+                    </tbody>
+                </table>
+
+                <div class="invoice-summary">
+                    <div class="summary-row">
+                        <span>Tổng cộng:</span>
+                        <span>${invoiceData.totalAmount.toLocaleString('vi-VN')} ₫</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>TỔNG THANH TOÁN:</span>
+                        <span>${invoiceData.totalAmount.toLocaleString('vi-VN')} ₫</span>
+                    </div>
+                </div>
+
+                ${invoiceData.note ? `
+                    <div class="invoice-note">
+                        <div class="note-title">📝 Ghi chú:</div>
+                        <div class="note-content">${invoiceData.note}</div>
+                    </div>
+                ` : ''}
+
+                <div class="invoice-footer">
+                    <div class="thank-you">Cảm ơn quý khách! Hẹn gặp lại!</div>
+                    <div>Hóa đơn được tạo tự động từ hệ thống POS</div>
+                    <div style="margin-top: 5px;">Liên hệ: (028) 1234 5678 - contact@nhathuocabc.com</div>
+                </div>
+            </div>
+
+            <button class="print-button no-print" onclick="window.print()">
+                🖨️ In hóa đơn
+            </button>
+
+            <script>
+                // Auto print after 500ms
+                setTimeout(function() {
+                    window.print();
+                }, 500);
+
+                // Close window after printing (optional)
+                window.onafterprint = function() {
+                    // Uncomment next line if you want to auto-close after print
+                    // setTimeout(() => window.close(), 1000);
+                };
+            </script>
+        </body>
+        </html>
+    `;
+
+    printWindow.document.write(invoiceHTML);
+    printWindow.document.close();
+}
+
 function processPaymentWithValidation(paymentData) {
     const payButton = document.getElementById('payButton');
     if (payButton) {
@@ -1426,16 +2141,19 @@ function processPaymentWithValidation(paymentData) {
             paymentMethod: paymentData.paymentMethod
         });
 
+        // Fetch full invoice details then print
+        fetchInvoiceDetailsAndPrint(result.id, {
+            ...paymentData,
+            invoiceCode: result.invoiceCode
+        });
+
         // Complete form reset
         resetPaymentFormCompletely();
         prescriptionItems = [];
         renderPrescription();
 
-        // Hide QR code section
-        const qrCodeSection = document.querySelector('#qrCodeSection');
-        if (qrCodeSection) {
-            qrCodeSection.style.display = 'none';
-        }
+        // Hide QR modal if open
+        hideQRModal();
     })
     .catch(error => {
         console.error('Payment error:', error);
@@ -1744,10 +2462,114 @@ function updatePaymentTotals() {
     validatePaymentForm();
 }
 
+// Function to disable POS interactions when not in shift
+function disablePOSInteractions() {
+    const inShiftAttr = document.body.getAttribute('data-in-shift');
+    const isInShift = inShiftAttr === 'true';
+
+    if (!isInShift) {
+        // Disable search input
+        const searchInput = document.querySelector('.search-input');
+        if (searchInput) {
+            searchInput.disabled = true;
+            searchInput.placeholder = 'Bạn cần có ca làm việc để tìm kiếm';
+            searchInput.style.cursor = 'not-allowed';
+            searchInput.style.backgroundColor = '#f5f5f5';
+        }
+
+        // Disable search button
+        const searchButton = document.getElementById('search-button');
+        if (searchButton) {
+            searchButton.disabled = true;
+            searchButton.style.cursor = 'not-allowed';
+            searchButton.style.opacity = '0.5';
+        }
+
+        // Disable all form inputs
+        const formInputs = document.querySelectorAll('#paymentForm input, #paymentForm select, #paymentForm textarea');
+        formInputs.forEach(input => {
+            input.disabled = true;
+            input.style.cursor = 'not-allowed';
+            input.style.backgroundColor = '#f5f5f5';
+        });
+
+        // Disable payment button
+        const payButton = document.getElementById('payButton');
+        if (payButton) {
+            payButton.disabled = true;
+            payButton.style.cursor = 'not-allowed';
+            payButton.style.opacity = '0.5';
+            payButton.textContent = 'Không thể thanh toán (Ngoài ca)';
+        }
+
+        // Disable clear all button
+        const clearAllBtn = document.getElementById('clearAllBtn');
+        if (clearAllBtn) {
+            clearAllBtn.disabled = true;
+            clearAllBtn.style.cursor = 'not-allowed';
+            clearAllBtn.style.opacity = '0.5';
+        }
+
+        // Add overlay message to prescription table
+        const prescriptionSection = document.querySelector('.prescription-section');
+        if (prescriptionSection && !document.getElementById('shift-overlay')) {
+            const overlay = document.createElement('div');
+            overlay.id = 'shift-overlay';
+            overlay.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(255, 255, 255, 0.85);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                pointer-events: all;
+            `;
+
+            const message = document.createElement('div');
+            message.style.cssText = `
+                padding: 30px 40px;
+                background: #ff9800;
+                color: white;
+                border-radius: 8px;
+                font-size: 18px;
+                font-weight: bold;
+                text-align: center;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            `;
+            message.innerHTML = `
+                <i class="material-icons" style="font-size: 48px; margin-bottom: 10px;">schedule</i><br>
+                Bạn không trong ca làm việc<br>
+                <small style="font-size: 14px; font-weight: normal;">Vui lòng liên hệ quản lý để được phân ca</small>
+            `;
+
+            overlay.appendChild(message);
+            prescriptionSection.style.position = 'relative';
+            prescriptionSection.appendChild(overlay);
+        }
+
+        console.log('POS interactions disabled - User not in shift');
+    }
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize Clear All button state
     updateClearAllButtonState();
+
+    // Disable interactions if not in shift
+    disablePOSInteractions();
+
+    // Initialize payment method to cash (default)
+    const paymentMethodSelect = document.getElementById('paymentMethod');
+    if (paymentMethodSelect && paymentMethodSelect.value === 'cash') {
+        // Trigger change event to show/hide appropriate fields
+        const event = new Event('change');
+        paymentMethodSelect.dispatchEvent(event);
+    }
 
     // Initialize other components if needed
     console.log('POS system initialized');
