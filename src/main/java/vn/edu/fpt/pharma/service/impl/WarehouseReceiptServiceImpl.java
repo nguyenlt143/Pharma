@@ -43,7 +43,7 @@ public class WarehouseReceiptServiceImpl implements WarehouseReceiptService {
                 .supplier(supplier)
                 .sourceBranchId(null) // Supplier không có branch
                 .destinationBranchId(1L) // Warehouse có branchId = 1
-                .movementStatus(MovementStatus.RECEIVED) // Nhập trực tiếp, không cần phê duyệt
+                .movementStatus(MovementStatus.CLOSED) // Nhập trực tiếp, hoàn tất ngay
                 .totalMoney(0.0)
                 .build();
 

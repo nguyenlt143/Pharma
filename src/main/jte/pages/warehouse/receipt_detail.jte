@@ -44,10 +44,14 @@ content = @`
                                 Phiếu Xuất
                             @elseif(receipt.getType().equals("BR_TO_WARE"))
                                 Chuyển Về Kho Tổng
+                            @elseif(receipt.getType().equals("BR_TO_WARE2"))
+                                Hàng Hết Hạn
                             @elseif(receipt.getType().equals("WARE_TO_SUP"))
                                 Trả Hàng
                             @elseif(receipt.getType().equals("DISPOSAL"))
                                 Xuất Hủy
+                            @elseif(receipt.getType().equals("INVENTORY_ADJUSTMENT"))
+                                Kiểm Kho
                             @else
                                 Không xác định
                             @endif
@@ -161,9 +165,15 @@ content = @`
                         <button class="approve-button" onclick="approveReceipt(${receipt.getId()})">Chấp nhận</button>
                         <button class="cancel-button" onclick="cancelReceipt(${receipt.getId()})">Từ chối</button>
                     @elseif(receipt.getStatus().equals("APPROVED"))
-                        <button class="ship-button" onclick="shipReceipt(${receipt.getId()})">Gửi hàng</button>
+                        <%-- Không hiển thị nút "Gửi hàng" cho phiếu kiểm kho --%>
+                        @if(!receipt.getType().equals("INVENTORY_ADJUSTMENT"))
+                            <button class="ship-button" onclick="shipReceipt(${receipt.getId()})">Gửi hàng</button>
+                        @endif
                     @elseif(receipt.getStatus().equals("SHIPPED"))
-                        <button class="receive-button" onclick="receiveReceipt(${receipt.getId()})">Đã nhận</button>
+                        <%-- Không hiển thị nút "Đã nhận" cho phiếu xuất WARE_TO_BR vì warehouse không phải bên nhận --%>
+                        @if(!receipt.getType().equals("WARE_TO_BR"))
+                            <button class="receive-button" onclick="receiveReceipt(${receipt.getId()})">Đã nhận</button>
+                        @endif
                     @elseif(receipt.getStatus().equals("RECEIVED"))
                         <button class="approve-button disabled" disabled>Đã nhận</button>
                     @elseif(receipt.getStatus().equals("CANCELLED"))
@@ -253,4 +263,3 @@ pageScript = @`
     </script>
 `
 )
-

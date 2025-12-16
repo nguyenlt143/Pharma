@@ -72,7 +72,7 @@ public class StockAdjustmentServiceImpl extends BaseServiceImpl<StockAdjustment,
                 .movementType(MovementType.INVENTORY_ADJUSTMENT)
                 .sourceBranchId(branchId)
                 .destinationBranchId(branchId)
-                .movementStatus(MovementStatus.APPROVED)
+                .movementStatus(MovementStatus.CLOSED)
                 .totalMoney(0.0)
                 .build();
         movement = inventoryMovementRepository.save(movement);
