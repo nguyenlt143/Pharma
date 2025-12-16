@@ -9,6 +9,44 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentPage = 0;
     let pageSize = 10;
 
+    // FIX: Detect request type from URL and initialize filter
+    function detectRequestTypeFromURL() {
+        const path = window.location.pathname;
+
+        if (path.includes('/import')) {
+            return 'IMPORT';
+        } else if (path.includes('/return')) {
+            return 'RETURN';
+        }
+        return ''; // Empty string for "all requests"
+    }
+
+    // Initialize type filter based on current URL
+    currentFilters.type = detectRequestTypeFromURL();
+    console.log('Request List: Type filter initialized from URL:', currentFilters.type || 'ALL');
+
+    // Highlight active tab based on current URL
+    function highlightActiveTabFromURL() {
+        const path = window.location.pathname;
+        const tabs = document.querySelectorAll('.tab');
+
+        tabs.forEach(tab => {
+            const link = tab.querySelector('.tab-link');
+            if (link) {
+                const href = link.getAttribute('href');
+                // Check if current path matches this tab's href
+                if (href === path) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            }
+        });
+    }
+
+    // Highlight the correct tab on page load
+    highlightActiveTabFromURL();
+
     // Initialize dropdown default selections
     function initializeDropdowns() {
         // Set first item (Tất cả) as selected by default for branch filter
