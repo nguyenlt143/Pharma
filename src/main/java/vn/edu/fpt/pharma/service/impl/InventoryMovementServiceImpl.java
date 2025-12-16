@@ -7,6 +7,7 @@ import vn.edu.fpt.pharma.base.BaseServiceImpl;
 import vn.edu.fpt.pharma.constant.BranchType;
 import vn.edu.fpt.pharma.constant.MovementStatus;
 import vn.edu.fpt.pharma.constant.MovementType;
+import vn.edu.fpt.pharma.dto.common.PageResponse;
 import vn.edu.fpt.pharma.dto.warehouse.ExportSubmitDTO;
 import vn.edu.fpt.pharma.dto.warehouse.InventoryMovementVM;
 import vn.edu.fpt.pharma.dto.warehouse.ReceiptDetailVM;
@@ -17,6 +18,7 @@ import vn.edu.fpt.pharma.repository.*;
 import vn.edu.fpt.pharma.service.AuditService;
 import vn.edu.fpt.pharma.service.InventoryMovementService;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -801,5 +803,24 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
                 savedMovement.getId(), dto.getItems().size());
 
         return savedMovement.getId();
+    }
+
+    @Override
+    public PageResponse<ReceiptListItem> getReceiptListPaginated(MovementType movementType, Long branchId, String status, int page, int size) {
+        List<ReceiptListItem> allReceipts = getReceiptList(movementType, branchId, status);
+
+        long totalElements = allReceipts.size();
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        // Calculate start and end indices
+        int start = page * size;
+        int end = Math.min(start + size, allReceipts.size());
+
+        // Get the sublist for current page
+        List<ReceiptListItem> pageContent = (start < allReceipts.size())
+            ? allReceipts.subList(start, end)
+            : Collections.emptyList();
+
+        return PageResponse.of(pageContent, totalElements, page, size);
     }
 }

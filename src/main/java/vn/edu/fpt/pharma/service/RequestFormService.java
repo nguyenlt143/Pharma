@@ -1,6 +1,7 @@
 package vn.edu.fpt.pharma.service;
 
 import vn.edu.fpt.pharma.base.BaseService;
+import vn.edu.fpt.pharma.dto.common.PageResponse;
 import vn.edu.fpt.pharma.dto.requestform.RequestFormVM;
 import vn.edu.fpt.pharma.dto.warehouse.ExportCreateDTO;
 import vn.edu.fpt.pharma.dto.warehouse.RequestDetailVM;
@@ -30,6 +31,12 @@ public interface RequestFormService extends BaseService<RequestForm, Long> {
     RequestList getDetailById(Long id);                 // Detail
     List<RequestDetailVM> getDetailsOfRequest(Long requestId);
     List<RequestList> getRequestList(String type, Long branchId, String status);  // filter
+
+    // Paginated Request List
+    PageResponse<RequestList> getAllRequestFormsPaginated(int page, int size);
+    PageResponse<RequestList> getImportRequestsPaginated(int page, int size);
+    PageResponse<RequestList> getReturnRequestsPaginated(int page, int size);
+    PageResponse<RequestList> getRequestListPaginated(String type, Long branchId, String status, int page, int size);
 
     // Return request management for inventory role
     List<vn.edu.fpt.pharma.dto.inventory.ReturnRequestVM> getReturnRequestsForBranch(Long branchId);

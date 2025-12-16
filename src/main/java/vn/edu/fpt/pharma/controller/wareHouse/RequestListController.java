@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import vn.edu.fpt.pharma.dto.common.PageResponse;
 import vn.edu.fpt.pharma.dto.warehouse.RequestList;
 import vn.edu.fpt.pharma.entity.Branch;
 import vn.edu.fpt.pharma.service.RequestFormService;
@@ -25,23 +26,41 @@ public class RequestListController {
     }
 
     @GetMapping("/list")
-    public String listAll(Model model) {
-        model.addAttribute("requests", requestFormService.getAllRequestForms());
+    public String listAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model
+    ) {
+        PageResponse<RequestList> pageResponse = requestFormService.getAllRequestFormsPaginated(page, size);
+        model.addAttribute("requests", pageResponse.content());
         model.addAttribute("branches", branchService.findAll());
+        model.addAttribute("pagination", pageResponse);
         return "pages/warehouse/request_list";
     }
 
     @GetMapping("/list/import")
-    public String listImport(Model model) {
-        model.addAttribute("requests", requestFormService.getImportRequests());
+    public String listImport(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model
+    ) {
+        PageResponse<RequestList> pageResponse = requestFormService.getImportRequestsPaginated(page, size);
+        model.addAttribute("requests", pageResponse.content());
         model.addAttribute("branches", branchService.findAll());
+        model.addAttribute("pagination", pageResponse);
         return "pages/warehouse/request_list";
     }
 
     @GetMapping("/list/return")
-    public String listReturn(Model model) {
-        model.addAttribute("requests", requestFormService.getReturnRequests());
+    public String listReturn(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model
+    ) {
+        PageResponse<RequestList> pageResponse = requestFormService.getReturnRequestsPaginated(page, size);
+        model.addAttribute("requests", pageResponse.content());
         model.addAttribute("branches", branchService.findAll());
+        model.addAttribute("pagination", pageResponse);
         return "pages/warehouse/request_list";
     }
 
@@ -67,11 +86,13 @@ public class RequestListController {
 
     @GetMapping("/list/filter")
     @org.springframework.web.bind.annotation.ResponseBody
-    public java.util.List<RequestList> filterRequests(
+    public PageResponse<RequestList> filterRequests(
             @RequestParam(required = false) String type,
             @RequestParam(required = false) Long branchId,
-            @RequestParam(required = false) String status
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        return requestFormService.getRequestList(type, branchId, status);
+        return requestFormService.getRequestListPaginated(type, branchId, status, page, size);
     }
 }

@@ -6,6 +6,7 @@ import vn.edu.fpt.pharma.constant.BranchType;
 import vn.edu.fpt.pharma.constant.RequestType;
 import vn.edu.fpt.pharma.constant.MovementType;
 import vn.edu.fpt.pharma.constant.MovementStatus;
+import vn.edu.fpt.pharma.dto.common.PageResponse;
 import vn.edu.fpt.pharma.dto.requestform.RequestFormVM;
 import vn.edu.fpt.pharma.dto.warehouse.ExportCreateDTO;
 import vn.edu.fpt.pharma.dto.warehouse.RequestDetailVM;
@@ -677,5 +678,45 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
                     return new RequestList(entity, branchName);
                 })
                 .toList();
+    }
+
+    @Override
+    public PageResponse<RequestList> getAllRequestFormsPaginated(int page, int size) {
+        List<RequestList> allRequests = getAllRequestForms();
+        return paginateList(allRequests, page, size);
+    }
+
+    @Override
+    public PageResponse<RequestList> getImportRequestsPaginated(int page, int size) {
+        List<RequestList> importRequests = getImportRequests();
+        return paginateList(importRequests, page, size);
+    }
+
+    @Override
+    public PageResponse<RequestList> getReturnRequestsPaginated(int page, int size) {
+        List<RequestList> returnRequests = getReturnRequests();
+        return paginateList(returnRequests, page, size);
+    }
+
+    @Override
+    public PageResponse<RequestList> getRequestListPaginated(String type, Long branchId, String status, int page, int size) {
+        List<RequestList> filteredRequests = getRequestList(type, branchId, status);
+        return paginateList(filteredRequests, page, size);
+    }
+
+    private PageResponse<RequestList> paginateList(List<RequestList> fullList, int page, int size) {
+        long totalElements = fullList.size();
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        // Calculate start and end indices
+        int start = page * size;
+        int end = Math.min(start + size, fullList.size());
+
+        // Get the sublist for current page
+        List<RequestList> pageContent = (start < fullList.size())
+            ? fullList.subList(start, end)
+            : Collections.emptyList();
+
+        return PageResponse.of(pageContent, totalElements, page, size);
     }
 }

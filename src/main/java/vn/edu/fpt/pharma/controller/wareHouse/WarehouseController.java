@@ -60,21 +60,31 @@ public class WarehouseController {
     }
 
     @GetMapping("/receipt-list")
-    public String receiptList(Model model) {
-        // Get all receipts initially
-        List<ReceiptListItem> receipts = inventoryMovementService.getReceiptList(null, null, null);
+    public String receiptList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model
+    ) {
+        // Get paginated receipts initially
+        vn.edu.fpt.pharma.dto.common.PageResponse<ReceiptListItem> pageResponse =
+            inventoryMovementService.getReceiptListPaginated(null, null, null, page, size);
         List<Branch> branches = branchService.findAll();
 
-        model.addAttribute("receipts", receipts);
+        model.addAttribute("receipts", pageResponse.content());
         model.addAttribute("branches", branches);
+        model.addAttribute("pagination", pageResponse);
 
         return "pages/warehouse/receipt_list";
     }
 
     // Alias for backward compatibility
     @GetMapping("/receipt/list")
-    public String receiptListAlias(Model model) {
-        return receiptList(model);
+    public String receiptListAlias(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model
+    ) {
+        return receiptList(page, size, model);
     }
 
     @GetMapping("/receipt-detail/{id}")
@@ -163,10 +173,12 @@ public class WarehouseController {
 
     @GetMapping("/receipt-list/filter")
     @ResponseBody
-    public List<ReceiptListItem> filterReceipts(
+    public vn.edu.fpt.pharma.dto.common.PageResponse<ReceiptListItem> filterReceipts(
             @RequestParam(required = false) String type,
             @RequestParam(required = false) Long branchId,
-            @RequestParam(required = false) String status
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
         MovementType movementType = null;
         if (type != null && !type.isEmpty()) {
@@ -177,7 +189,7 @@ public class WarehouseController {
             }
         }
 
-        return inventoryMovementService.getReceiptList(movementType, branchId, status);
+        return inventoryMovementService.getReceiptListPaginated(movementType, branchId, status, page, size);
     }
 
     // -------------------- CHECK INVENTORY --------------------

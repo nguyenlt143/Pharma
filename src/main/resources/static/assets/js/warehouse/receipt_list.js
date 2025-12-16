@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', function() {
         date: ''
     };
 
+    let currentPage = 0;
+    let pageSize = 10;
+
     // Tab switching functionality
     const tabs = document.querySelectorAll('.tab');
     tabs.forEach(tab => {
@@ -18,6 +21,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Update filter and fetch data
             currentFilters.type = this.getAttribute('data-type');
+            // FIX 1: Reset to page 1 when changing tabs
+            currentPage = 0;
             fetchReceipts();
         });
     });
@@ -41,6 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 branchFilter.querySelector('.filter-text').textContent = text;
                 currentFilters.branchId = value;
                 branchMenu.classList.remove('show');
+                currentPage = 0; // Reset to page 1 when filtering
                 fetchReceipts();
             });
         });
@@ -65,6 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 statusFilter.querySelector('.filter-text').textContent = text;
                 currentFilters.status = value;
                 statusMenu.classList.remove('show');
+                currentPage = 0; // Reset to page 1 when filtering
                 fetchReceipts();
             });
         });
@@ -89,6 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const formattedDate = new Date(selectedDate).toLocaleDateString('vi-VN');
                 dateFilter.querySelector('.filter-text').textContent = formattedDate;
                 currentFilters.date = selectedDate;
+                currentPage = 0; // Reset to page 1 when filtering
                 fetchReceipts();
             }
             this.style.display = 'none';
@@ -137,10 +145,15 @@ document.addEventListener('DOMContentLoaded', function() {
             params.append('date', currentFilters.date);
         }
 
+        // Add pagination parameters
+        params.append('page', currentPage);
+        params.append('size', pageSize);
+
         fetch(`/warehouse/receipt-list/filter?${params.toString()}`)
             .then(response => response.json())
             .then(data => {
-                updateTable(data);
+                updateTable(data.content);
+                updatePagination(data);
             })
             .catch(error => {
                 console.error('Error fetching receipts:', error);
@@ -196,8 +209,68 @@ document.addEventListener('DOMContentLoaded', function() {
         tabs.forEach(t => t.classList.remove('active'));
         tabs[0].classList.add('active');
 
-        // Refresh data
+        // Reset to page 1
+        currentPage = 0;
         fetchReceipts();
     }
-});
 
+    // Pagination event handlers
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.pagination-btn') && !e.target.closest('.pagination-btn').disabled) {
+            const btn = e.target.closest('.pagination-btn');
+            const page = parseInt(btn.getAttribute('data-page'));
+            if (!isNaN(page)) {
+                currentPage = page;
+                fetchReceipts();
+            }
+        }
+    });
+
+    // Page size change handler
+    const pageSizeSelect = document.getElementById('page-size-select');
+    if (pageSizeSelect) {
+        pageSizeSelect.addEventListener('change', function() {
+            pageSize = parseInt(this.value);
+            currentPage = 0; // Reset to first page
+            fetchReceipts();
+        });
+    }
+
+    // FIX 2: Update pagination controls with proper active state highlighting
+    function updatePagination(paginationData) {
+        const container = document.querySelector('.pagination-container');
+        if (!container) return;
+
+        // Update info
+        const infoEl = container.querySelector('.pagination-info');
+        if (infoEl) {
+            const start = paginationData.currentPage * paginationData.pageSize + 1;
+            const end = Math.min((paginationData.currentPage + 1) * paginationData.pageSize, paginationData.totalElements);
+            infoEl.textContent = `Hiển thị ${start} - ${end} / ${paginationData.totalElements} bản ghi`;
+        }
+
+        // FIX: Update pagination buttons to highlight current page correctly
+        // Only page number buttons should be highlighted, NOT navigation buttons
+        const paginationBtns = container.querySelectorAll('.pagination-btn');
+        paginationBtns.forEach(btn => {
+            const btnPage = parseInt(btn.getAttribute('data-page'));
+            const btnText = btn.textContent.trim();
+
+            // Remove active class from all buttons first
+            btn.classList.remove('active');
+
+            // Add active class ONLY to page number buttons (not Previous/Next arrows)
+            // Check: must have valid page number AND text is not arrow symbols
+            if (!isNaN(btnPage) && btnPage === paginationData.currentPage && !['‹', '›'].includes(btnText)) {
+                btn.classList.add('active');
+            }
+        });
+
+        // Show/hide pagination based on total elements
+        if (paginationData.totalElements <= paginationData.pageSize) {
+            container.style.display = 'none';
+        } else {
+            container.style.display = 'flex';
+        }
+    }
+});

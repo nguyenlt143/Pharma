@@ -1,10 +1,12 @@
 
 @import vn.edu.fpt.pharma.dto.warehouse.ReceiptListItem
 @import vn.edu.fpt.pharma.entity.Branch
+@import vn.edu.fpt.pharma.dto.common.PageResponse
 @import java.util.List
 
 @param List<ReceiptListItem> receipts
 @param List<Branch> branches
+@param PageResponse<ReceiptListItem> pagination
 
 @template.layouts.warehouse(
 headContent = @`
@@ -13,6 +15,7 @@ headContent = @`
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/warehouse/receipt_list.css">
+    <link rel="stylesheet" href="/assets/css/warehouse/pagination.css">
 `,
 content = @`
 <header class="header">
@@ -111,7 +114,7 @@ content = @`
                     <tr class="table-header">
                         <th class="table-cell header-cell">Chi Nhánh</th>
                         <th class="table-cell header-cell">Ngày tạo</th>
-                        <th class="table-cell header-cell">Loại Yêu Cầu</th>
+                        <th class="table-cell header-cell">Loại Phiếu</th>
                         <th class="table-cell header-cell">Trạng Thái</th>
                         <th class="table-cell header-cell"></th>
                     </tr>
@@ -139,6 +142,10 @@ content = @`
                     </tbody>
                 </table>
         </div>
+
+        @if(pagination != null)
+            @template.template.pagination(pagination = pagination, baseUrl = "/warehouse/receipt-list")
+        @endif
     </section>
 `,
 pageScript = @`
