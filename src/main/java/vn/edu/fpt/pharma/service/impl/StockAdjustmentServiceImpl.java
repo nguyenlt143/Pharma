@@ -113,7 +113,8 @@ public class StockAdjustmentServiceImpl extends BaseServiceImpl<StockAdjustment,
                         .movement(movement)
                         .variant(inv.getVariant())
                         .batch(inv.getBatch())
-                        .quantity(Math.abs(diff)) // Lưu giá trị tuyệt đối
+                        // Lưu giá trị có dấu: âm nếu giảm, dương nếu tăng
+                        .quantity(diff)
                         .price(0.0)
                         .snapCost(inv.getCostPrice() != null ? inv.getCostPrice() : 0.0)
                         .build();
