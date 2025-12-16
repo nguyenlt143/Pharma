@@ -10,6 +10,7 @@ import vn.edu.fpt.pharma.config.CustomUserDetails;
 import vn.edu.fpt.pharma.repository.*;
 import vn.edu.fpt.pharma.constant.RequestStatus;
 import vn.edu.fpt.pharma.constant.RequestType;
+import vn.edu.fpt.pharma.constant.MovementStatus;
 import vn.edu.fpt.pharma.constant.MovementType;
 import vn.edu.fpt.pharma.entity.Inventory;
 import vn.edu.fpt.pharma.entity.InventoryMovement;
@@ -171,6 +172,7 @@ public class OwnerInventoryApiController {
     @Transactional(readOnly = true)
     public ResponseEntity<List<Map<String, Object>>> getCategoryDistribution(
             @RequestParam(required = false) Long branchId,
+            @RequestParam(required = false) Long categoryId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         
         if (userDetails == null) {
@@ -181,8 +183,15 @@ public class OwnerInventoryApiController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        // Get all categories
-        List<Category> categories = categoryRepository.findAll();
+        // Get categories (filter by categoryId if provided)
+        List<Category> categories;
+        if (categoryId != null) {
+            categories = categoryRepository.findById(categoryId)
+                    .map(Collections::singletonList)
+                    .orElse(Collections.emptyList());
+        } else {
+            categories = categoryRepository.findAll();
+        }
         List<Map<String, Object>> result = new ArrayList<>();
         
         for (Category cat : categories) {
@@ -281,7 +290,7 @@ public class OwnerInventoryApiController {
                 branchRepository.findById(rf.getBranchId()).map(b -> b.getName()).orElse("-") : "-");
             activity.put("creator", "-"); // TODO: Get creator from request form
             activity.put("totalQty", 0); // TODO: Calculate from request form details
-            activity.put("status", rf.getRequestStatus() != null ? rf.getRequestStatus().name() : "-");
+            activity.put("status", rf.getRequestStatus() != null ? getRequestStatusLabel(rf.getRequestStatus()) : "-");
             activity.put("timeAgo", formatTimeAgo(rf.getCreatedAt()));
             activity.put("detailUrl", "/owner/request/" + rf.getId());
             activities.add(activity);
@@ -304,18 +313,15 @@ public class OwnerInventoryApiController {
                 branchRepository.findById(m.getDestinationBranchId()).map(b -> b.getName()).orElse("-") : "-");
             activity.put("creator", "-"); // TODO: Get creator
             activity.put("totalQty", 0); // TODO: Calculate from movement details
-            activity.put("status", m.getMovementStatus() != null ? m.getMovementStatus().name() : "-");
+            activity.put("status", m.getMovementStatus() != null ? getMovementStatusLabel(m.getMovementStatus()) : "-");
             activity.put("timeAgo", formatTimeAgo(m.getCreatedAt()));
             activity.put("detailUrl", "/owner/movement/" + m.getId());
             activities.add(activity);
         }
         
         // Sort by time and limit
-        activities.sort((a, b) -> {
-            String timeA = (String) a.get("timeAgo");
-            String timeB = (String) b.get("timeAgo");
-            return timeB.compareTo(timeA); // Most recent first
-        });
+        // Sort by created time (fallback: leave as-is if not available)
+        // (currently timeAgo là chuỗi, nên giữ thứ tự đã sắp xếp từ nguồn)
         
         return ResponseEntity.ok(activities.stream().limit(limit).collect(Collectors.toList()));
     }
@@ -396,6 +402,95 @@ public class OwnerInventoryApiController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+    }
+
+    /**
+     * Get inventory movement detail (bao gồm INVENTORY_ADJUSTMENT)
+     * GET /api/owner/inventory/movement/{id}
+     */
+    @GetMapping("/movement/{id}")
+    @Transactional(readOnly = true)
+    public ResponseEntity<Map<String, Object>> getInventoryMovementDetail(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        String role = userDetails.getRole();
+        if (role == null || (!role.equalsIgnoreCase("BUSINESS_OWNER") && !role.equalsIgnoreCase("OWNER"))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        Optional<InventoryMovement> optMovement = inventoryMovementRepository.findByIdWithDetails(id);
+        if (optMovement.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        InventoryMovement movement = optMovement.get();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", movement.getId());
+        response.put("code", "#MV" + String.format("%03d", movement.getId()));
+        response.put("type", getMovementTypeLabel(movement.getMovementType()));
+        response.put("status", movement.getMovementStatus() != null
+                ? getMovementStatusLabel(movement.getMovementStatus())
+                : "-");
+        response.put("createdAt", movement.getCreatedAt() != null
+                ? movement.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+                : "-");
+
+        Long branchId = movement.getDestinationBranchId() != null
+                ? movement.getDestinationBranchId()
+                : movement.getSourceBranchId();
+        response.put("branchId", branchId);
+        response.put("branchName", branchId != null
+                ? branchRepository.findById(branchId).map(b -> b.getName()).orElse("-")
+                : "-");
+
+        // Calculate total quantity from details
+        List<vn.edu.fpt.pharma.entity.InventoryMovementDetail> details =
+                movement.getInventoryMovementDetails() != null
+                        ? movement.getInventoryMovementDetails()
+                        : Collections.emptyList();
+
+        int totalQty = details.stream()
+                .mapToInt(d -> d.getQuantity() != null ? d.getQuantity().intValue() : 0)
+                .sum();
+        response.put("totalQty", totalQty);
+
+        // Format detail rows
+        List<Map<String, Object>> detailList = details.stream().map(d -> {
+            Map<String, Object> detail = new HashMap<>();
+            detail.put("quantity", d.getQuantity() != null ? d.getQuantity() : 0);
+
+            MedicineVariant variant = d.getVariant();
+            if (variant != null) {
+                detail.put("variantName", variant.getDosage_form() != null ? variant.getDosage_form() : "-");
+                Medicine med = variant.getMedicine();
+                if (med != null) {
+                    detail.put("medicineName", med.getName() != null ? med.getName() : "-");
+                } else {
+                    detail.put("medicineName", "-");
+                }
+                if (variant.getPackageUnitId() != null) {
+                    detail.put("unit", variant.getPackageUnitId().getName() != null
+                            ? variant.getPackageUnitId().getName()
+                            : "-");
+                } else {
+                    detail.put("unit", "-");
+                }
+            } else {
+                detail.put("medicineName", "-");
+                detail.put("variantName", "-");
+                detail.put("unit", "-");
+            }
+
+            return detail;
+        }).collect(Collectors.toList());
+        response.put("details", detailList);
+
+        return ResponseEntity.ok(response);
     }
 
     private Double calculateTotalInventoryValue(Long branchId) {
@@ -525,7 +620,7 @@ public class OwnerInventoryApiController {
         
         return dateTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
     }
-    
+
     private String getMovementTypeLabel(MovementType type) {
         if (type == null) return "-";
         switch (type) {
@@ -541,6 +636,42 @@ public class OwnerInventoryApiController {
                 return "Tiêu hủy";
             default:
                 return type.name();
+        }
+    }
+
+    private String getRequestStatusLabel(RequestStatus status) {
+        if (status == null) return "-";
+        switch (status) {
+            case REQUESTED:
+                return "Đã yêu cầu";
+            case CONFIRMED:
+                return "Đã xác nhận";
+            case RECEIVED:
+                return "Đã nhận";
+            case CANCELLED:
+                return "Đã hủy";
+            default:
+                return status.name();
+        }
+    }
+
+    private String getMovementStatusLabel(MovementStatus status) {
+        if (status == null) return "-";
+        switch (status) {
+            case DRAFT:
+                return "Nháp";
+            case APPROVED:
+                return "Đã duyệt";
+            case SHIPPED:
+                return "Đã gửi";
+            case RECEIVED:
+                return "Đã nhận";
+            case CANCELLED:
+                return "Đã hủy";
+            case CLOSED:
+                return "Đã đóng";
+            default:
+                return status.name();
         }
     }
 }

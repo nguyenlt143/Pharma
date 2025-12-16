@@ -107,7 +107,7 @@ function initDataTable() {
         ],
         order: [[0, 'desc']],
         language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/vi.json'
+            url: '/assets/datatable_vi.json'
         }
     });
 }
@@ -614,9 +614,16 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(res => {
                 if (res.ok) {
                     return res.json();
-                } else {
-                    throw new Error('Có lỗi xảy ra khi lưu thuốc');
                 }
+                // Try to read detailed error message from backend
+                return res.json()
+                    .then(err => {
+                        const msg = err.message || err.error || 'Có lỗi xảy ra khi lưu thuốc';
+                        throw new Error(msg);
+                    })
+                    .catch(() => {
+                        throw new Error('Có lỗi xảy ra khi lưu thuốc');
+                    });
             })
             .then(data => {
                 closeMedicineModal();
@@ -624,7 +631,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showToast(id ? 'Cập nhật thuốc thành công!' : 'Thêm thuốc mới thành công!', 'success');
             })
             .catch(err => {
-                showToast('Có lỗi xảy ra: ' + err.message, 'error');
+                showToast(err.message, 'error');
             });
         });
     }
@@ -670,9 +677,16 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(res => {
                 if (res.ok) {
                     return res.json();
-                } else {
-                    throw new Error('Có lỗi xảy ra khi lưu biến thể');
                 }
+                // Try to read detailed error message from backend
+                return res.json()
+                    .then(err => {
+                        const msg = err.message || err.error || 'Có lỗi xảy ra khi lưu biến thể';
+                        throw new Error(msg);
+                    })
+                    .catch(() => {
+                        throw new Error('Có lỗi xảy ra khi lưu biến thể');
+                    });
             })
             .then(data => {
                 cancelVariantForm();
@@ -680,7 +694,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showToast(variantId ? 'Cập nhật biến thể thành công!' : 'Thêm biến thể thành công!', 'success');
             })
             .catch(err => {
-                showToast('Có lỗi xảy ra: ' + err.message, 'error');
+                showToast(err.message, 'error');
             });
         });
     }

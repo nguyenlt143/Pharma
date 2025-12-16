@@ -63,6 +63,11 @@ public class MedicineServiceImpl extends BaseServiceImpl<Medicine, Long, Medicin
 
     @Override
     public MedicineResponse createMedicine(MedicineRequest request) {
+        // Validate duplicate by name (simple not-trùng check)
+        if (repository.existsByNameIgnoreCase(request.getMedicineName())) {
+            throw new IllegalArgumentException("Thuốc với tên này đã tồn tại");
+        }
+
         Category category = request.getCategoryId() != null ?
                 categoryRepository.findById(request.getCategoryId())
                         .orElseThrow(() -> new RuntimeException("Category not found")) : null;
@@ -84,6 +89,13 @@ public class MedicineServiceImpl extends BaseServiceImpl<Medicine, Long, Medicin
     public MedicineResponse updateMedicine(Long id, MedicineRequest request) {
         Medicine medicine = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Medicine not found"));
+
+        // If changing name, prevent duplicate by name
+        if (request.getMedicineName() != null &&
+                !request.getMedicineName().equalsIgnoreCase(medicine.getName()) &&
+                repository.existsByNameIgnoreCase(request.getMedicineName())) {
+            throw new IllegalArgumentException("Thuốc với tên này đã tồn tại");
+        }
 
         if (request.getCategoryId() != null) {
             Category category = categoryRepository.findById(request.getCategoryId())

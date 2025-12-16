@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.pharma.config.CustomUserDetails;
 import vn.edu.fpt.pharma.dto.dashboard.DailyRevenueItem;
 import vn.edu.fpt.pharma.dto.dashboard.DashboardRevenueResponse;
-import vn.edu.fpt.pharma.repository.InvoiceRepository;
+import vn.edu.fpt.pharma.dto.manager.DailyRevenue;
 import vn.edu.fpt.pharma.dto.manager.KpiData;
 import vn.edu.fpt.pharma.dto.manager.TopProductItem;
-import vn.edu.fpt.pharma.dto.manager.DailyRevenue;
+import vn.edu.fpt.pharma.repository.InventoryMovementRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,7 +26,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class DashboardApiController {
 
-    private final InvoiceRepository invoiceRepository;
+    // Owner dashboard: use inventory movements (WARE_TO_BR) instead of invoices
+    private final InventoryMovementRepository inventoryMovementRepository;
 
     /**
      * View revenue – Dashboard
@@ -49,12 +50,12 @@ public class DashboardApiController {
         LocalDateTime fromDate = firstOfMonth.atStartOfDay();
         LocalDateTime toDate = firstOfMonth.plusMonths(1).atStartOfDay();
 
-        KpiData kpi = invoiceRepository.sumRevenue(branchId, fromDate, toDate, null, null);
-        List<TopProductItem> tops = invoiceRepository.topCategories(branchId, fromDate, toDate, null, null, 
-                org.springframework.data.domain.PageRequest.of(0, 6));
+        // Doanh thu & lợi nhuận dựa trên phiếu cấp cho chi nhánh (inventory_movements)
+        KpiData kpi = inventoryMovementRepository.sumOwnerRevenue(branchId, fromDate, toDate);
+        List<TopProductItem> tops = inventoryMovementRepository.findOwnerTopCategories(branchId, fromDate, toDate, 6);
         
         // Get daily revenue data for chart (monthly breakdown)
-        List<DailyRevenue> dailyRevenues = invoiceRepository.getDailyRevenueByDate(branchId, fromDate, toDate, null, null);
+        List<DailyRevenue> dailyRevenues = inventoryMovementRepository.getOwnerDailyRevenue(branchId, fromDate, toDate);
         List<DailyRevenueItem> dailyRevenueItems = new ArrayList<>();
         for (DailyRevenue dr : dailyRevenues) {
             DailyRevenueItem item = DailyRevenueItem.builder()
@@ -111,7 +112,7 @@ public class DashboardApiController {
         LocalDateTime fromDate = firstOfMonth.atStartOfDay();
         LocalDateTime toDate = firstOfMonth.plusMonths(1).atStartOfDay();
 
-        KpiData kpi = invoiceRepository.sumRevenue(branchId, fromDate, toDate, null, null);
+        KpiData kpi = inventoryMovementRepository.sumOwnerRevenue(branchId, fromDate, toDate);
 
         Map<String, Object> response = new HashMap<>();
         response.put("totalProfit", kpi.getProfit());
