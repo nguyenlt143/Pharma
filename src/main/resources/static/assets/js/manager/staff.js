@@ -113,11 +113,41 @@
             if (res.ok) {
                 return await res.json();
             }
-            const errorData = await res.json().catch(() => ({ message: 'Tạo thất bại' }));
-            const error = new Error(errorData.message);
+            let errorData = null;
+            try {
+                const contentType = res.headers.get('content-type') || '';
+                if (contentType.includes('application/json')) {
+                    errorData = await res.json();
+                } else {
+                    const txt = await res.text();
+                    errorData = { message: txt };
+                }
+            } catch (_) {
+                errorData = { message: 'Tạo thất bại' };
+            }
+
+            // Normalize and try to map generic message to field-level error
+            const error = new Error(errorData.message || 'Tạo thất bại');
             error.data = errorData;
-            if (res.status === 400 && errorData.errors) {
-                error.isValidation = true;
+            // If backend returned explicit errors map, use it. Otherwise always try to map message -> field errors
+            if (errorData && typeof errorData === 'object') {
+                if (errorData.errors && typeof errorData.errors === 'object') {
+                    error.isValidation = true;
+                }
+                // Always attempt to map message text into field errors (useful for 409 or other statuses)
+                if (errorData.message && typeof errorData.message === 'string') {
+                    const m = errorData.message.toLowerCase();
+                    const mapped = {};
+                    if (m.includes('tên đăng nhập') || m.includes('username') || m.includes('user name')) mapped['userName'] = errorData.message;
+                    if (m.includes('email')) mapped['email'] = errorData.message;
+                    if (m.includes('số điện thoại') || m.includes('phone')) mapped['phoneNumber'] = errorData.message;
+                    if (m.includes('mật khẩu') || m.includes('password')) mapped['password'] = errorData.message;
+                    if (Object.keys(mapped).length > 0) {
+                        // merge with any existing errors
+                        error.data.errors = Object.assign({}, error.data.errors || {}, mapped);
+                        error.isValidation = true;
+                    }
+                }
             }
             throw error;
         }
@@ -132,10 +162,24 @@
                 return await res.json();
             }
             const errorData = await res.json().catch(() => ({ message: 'Cập nhật thất bại' }));
-            const error = new Error(errorData.message);
+            const error = new Error(errorData.message || 'Cập nhật thất bại');
             error.data = errorData;
-            if (res.status === 400 && errorData.errors) {
-                error.isValidation = true;
+            if (errorData && typeof errorData === 'object') {
+                if (errorData.errors && typeof errorData.errors === 'object') {
+                    error.isValidation = true;
+                }
+                if (errorData.message && typeof errorData.message === 'string') {
+                    const m = errorData.message.toLowerCase();
+                    const mapped = {};
+                    if (m.includes('tên đăng nhập') || m.includes('username') || m.includes('user name')) mapped['userName'] = errorData.message;
+                    if (m.includes('email')) mapped['email'] = errorData.message;
+                    if (m.includes('số điện thoại') || m.includes('phone')) mapped['phoneNumber'] = errorData.message;
+                    if (m.includes('mật khẩu') || m.includes('password')) mapped['password'] = errorData.message;
+                    if (Object.keys(mapped).length > 0) {
+                        error.data.errors = Object.assign({}, error.data.errors || {}, mapped);
+                        error.isValidation = true;
+                    }
+                }
             }
             throw error;
         }
@@ -325,8 +369,18 @@
 
             // Password validation (only if creating or password has value)
             const password = document.getElementById('password');
-            if (!staffIdInput.value || password.value) {
-                if (!password.checkValidity()) {
+            // If creating a new staff (no id), password is required -> show same field-level error
+            if (!staffIdInput.value) {
+                if (!password.value || password.value.trim() === '') {
+                    isValid = false;
+                    errors['password'] = 'Trường này là bắt buộc.';
+                } else if (!password.checkValidity()) {
+                    isValid = false;
+                    errors['password'] = password.title;
+                }
+            } else {
+                // On update, only validate password if user entered a value
+                if (password.value && !password.checkValidity()) {
                     isValid = false;
                     errors['password'] = password.title;
                 }

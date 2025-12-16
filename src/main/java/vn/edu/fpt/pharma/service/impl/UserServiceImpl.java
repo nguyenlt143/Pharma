@@ -16,6 +16,7 @@ import vn.edu.fpt.pharma.dto.user.UserVM;
 import vn.edu.fpt.pharma.entity.Role;
 import vn.edu.fpt.pharma.entity.ShiftAssignment;
 import vn.edu.fpt.pharma.entity.User;
+import vn.edu.fpt.pharma.exception.DuplicateEntityException;
 import vn.edu.fpt.pharma.exception.EntityInUseException;
 import vn.edu.fpt.pharma.repository.RoleRepository;
 import vn.edu.fpt.pharma.repository.ShiftAssignmentRepository;
@@ -116,15 +117,15 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
         if (req.getFullName() != null) req.setFullName(req.getFullName().trim());
 
         if (userRepository.existsByUserNameIgnoreCase(req.getUserName())) {
-            throw new RuntimeException("Tên đăng nhập đã tồn tại");
+            throw new DuplicateEntityException("User", "userName", req.getUserName(), "Tên đăng nhập đã tồn tại");
         }
         if (req.getEmail() != null && !req.getEmail().isEmpty()
                 && userRepository.existsByEmailIgnoreCase(req.getEmail())) {
-            throw new RuntimeException("Email đã tồn tại");
+            throw new DuplicateEntityException("User", "email", req.getEmail(), "Email đã tồn tại");
         }
         if (req.getPhoneNumber() != null && !req.getPhoneNumber().isEmpty()
                 && userRepository.existsByPhoneNumber(req.getPhoneNumber())) {
-            throw new RuntimeException("Số điện thoại đã tồn tại");
+            throw new DuplicateEntityException("User", "phoneNumber", req.getPhoneNumber(), "Số điện thoại đã tồn tại");
         }
         Role role = roleRepository.findById(req.getRoleId())
                 .orElseThrow(() -> new RuntimeException("Vai trò không tồn tại"));
@@ -180,17 +181,17 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
 
         if (!user.getUserName().equalsIgnoreCase(req.getUserName())
                 && userRepository.existsByUserNameIgnoreCase(req.getUserName())) {
-            throw new RuntimeException("Tên đăng nhập đã tồn tại");
+            throw new DuplicateEntityException("User", "userName", req.getUserName(), "Tên đăng nhập đã tồn tại");
         }
         if (req.getEmail() != null && !req.getEmail().isEmpty()
                 && !equalsIgnoreCase(user.getEmail(), req.getEmail())
                 && userRepository.existsByEmailIgnoreCaseAndIdNot(req.getEmail(), id)) {
-            throw new RuntimeException("Email đã tồn tại");
+            throw new DuplicateEntityException("User", "email", req.getEmail(), "Email đã tồn tại");
         }
         if (req.getPhoneNumber() != null && !req.getPhoneNumber().isEmpty()
                 && !equals(user.getPhoneNumber(), req.getPhoneNumber())
                 && userRepository.existsByPhoneNumberAndIdNot(req.getPhoneNumber(), id)) {
-            throw new RuntimeException("Số điện thoại đã tồn tại");
+            throw new DuplicateEntityException("User", "phoneNumber", req.getPhoneNumber(), "Số điện thoại đã tồn tại");
         }
 
         // Validate: Nếu đổi role thành MANAGER hoặc đổi branch của MANAGER
@@ -289,13 +290,13 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
 
         // Validate email uniqueness
         if (userRepository.existsByEmailIgnoreCaseAndIdNot(profileUpdateRequest.getEmail(), id)) {
-            throw new RuntimeException("Email đã được sử dụng bởi người dùng khác");
+            throw new DuplicateEntityException("User", "email", profileUpdateRequest.getEmail(), "Email đã được sử dụng bởi người dùng khác");
         }
 
         // Validate phone uniqueness (if provided)
         if (profileUpdateRequest.getPhone() != null && !profileUpdateRequest.getPhone().trim().isEmpty()) {
             if (userRepository.existsByPhoneNumberAndIdNot(profileUpdateRequest.getPhone(), id)) {
-                throw new RuntimeException("Số điện thoại đã được sử dụng bởi người dùng khác");
+                throw new DuplicateEntityException("User", "phoneNumber", profileUpdateRequest.getPhone(), "Số điện thoại đã được sử dụng bởi người dùng khác");
             }
         }
 

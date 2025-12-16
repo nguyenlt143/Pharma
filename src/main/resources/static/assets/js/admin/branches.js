@@ -3,7 +3,7 @@
    API base: /api/admin/accounts/branches
 */
 (() => {
-    const API_BASE = '/api/admin/accounts/branches';
+    const API_BASE = '/api/admin/branches';
     const tableBody = document.getElementById('branchTableBody');
     const searchInput = document.getElementById('searchInput');
     const btnCreate = document.getElementById('btnCreateBranch');
@@ -80,24 +80,38 @@
         modal.classList.remove('hidden');
         modal.setAttribute('aria-hidden', 'false');
 
+        populateBranchTypeOptions();
+        const branchTypeSelect = document.getElementById('branchType');
+
         if (mode === 'create') {
             modalTitle.textContent = 'Tạo chi nhánh';
             branchIdInput.value = '';
             branchForm.reset();
-            // ensure select options exist
-            populateBranchTypeOptions();
+            branchTypeSelect.disabled = false;
+            return;
+        }
+
+        // edit
+        modalTitle.textContent = 'Chỉnh sửa chi nhánh';
+        branchIdInput.value = data.id || '';
+        document.getElementById('name').value = data.name || '';
+        document.getElementById('address').value = data.address || '';
+        if (data.branchType === 'HEAD_QUARTER') {
+            branchTypeSelect.innerHTML = '';
+
+            const opt = document.createElement('option');
+            opt.value = 'HEAD_QUARTER';
+            opt.textContent = branchTypeLabels['HEAD_QUARTER']; // "Tổng công ty"
+            branchTypeSelect.appendChild(opt);
+
+            branchTypeSelect.value = 'HEAD_QUARTER';
+            branchTypeSelect.disabled = true;
         } else {
-            modalTitle.textContent = 'Chỉnh sửa chi nhánh';
-            branchIdInput.value = data.id || '';
-            document.getElementById('name').value = data.name || '';
-            // ensure select options exist
-            populateBranchTypeOptions();
-            // if branchType is not allowed (e.g. HEAD_QUARTER), fallback to BRANCH
-            const btype = allowedBranchTypes.includes(data.branchType) ? data.branchType : allowedBranchTypes[0];
-            document.getElementById('branchType').value = btype || '';
-            document.getElementById('address').value = data.address || '';
+            branchTypeSelect.disabled = false;
+            branchTypeSelect.value = data.branchType || '';
         }
     }
+
 
     function closeModal() {
         modal.classList.add('hidden');

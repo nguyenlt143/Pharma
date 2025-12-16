@@ -60,17 +60,23 @@ content = @`
                     <label>Tên ca <span class="required">*</span>
                         <input type="text" id="shiftName" name="shiftName" placeholder="VD: Ca Sáng" required>
 
-                        <div class="invalid-feedback" id="shiftName-error"></div>
                     </label>
+                    <div class="invalid-feedback" id="shiftName-error"></div>
 
                     <label>Giờ bắt đầu <span class="required">*</span>
-                        <input type="time" id="startTime" name="startTime" required>
-                        <div class="invalid-feedback" id="startTime-error"></div>
+                        <div class="time-inputs">
+                            <input type="number" id="startHour" name="startHour" min="0" max="23" placeholder="0-23" required style="width:80px;" aria-describedby="startTime-error"> :
+                            <input type="number" id="startMinute" name="startMinute" min="0" max="59" placeholder="0-59" required style="width:80px;">
+                            <div class="invalid-feedback" id="startTime-error"></div>
+                        </div>
                     </label>
 
                     <label>Giờ kết thúc <span class="required">*</span>
-                        <input type="time" id="endTime" name="endTime" required>
-                        <div class="invalid-feedback" id="endTime-error"></div>
+                        <div class="time-inputs">
+                            <input type="number" id="endHour" name="endHour" min="0" max="23" placeholder="0-23" required style="width:80px;" aria-describedby="endTime-error"> :
+                            <input type="number" id="endMinute" name="endMinute" min="0" max="59" placeholder="0-59" required style="width:80px;">
+                            <div class="invalid-feedback" id="endTime-error"></div>
+                        </div>
                     </label>
 
                     <label style="grid-column: 1 / -1;">Ghi chú

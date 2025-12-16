@@ -61,9 +61,23 @@ document.addEventListener("DOMContentLoaded", () => {
         shiftModal.classList.remove("hidden");
         document.getElementById("shiftId").value = s.id || "";
         document.getElementById("shiftName").value = s.name || "";
-        // Normalize displayed values to HH:mm
-        document.getElementById("startTime").value = s.startTime ? formatToHHMM(s.startTime) : "";
-        document.getElementById("endTime").value = s.endTime ? formatToHHMM(s.endTime) : "";
+        // Populate hour/minute inputs from shift time if available
+        if (s.startTime) {
+            const st = formatToHHMM(s.startTime).split(":");
+            document.getElementById("startHour").value = st[0];
+            document.getElementById("startMinute").value = st[1];
+        } else {
+            document.getElementById("startHour").value = "";
+            document.getElementById("startMinute").value = "00";
+        }
+        if (s.endTime) {
+            const et = formatToHHMM(s.endTime).split(":");
+            document.getElementById("endHour").value = et[0];
+            document.getElementById("endMinute").value = et[1];
+        } else {
+            document.getElementById("endHour").value = "";
+            document.getElementById("endMinute").value = "00";
+        }
         document.getElementById("note").value = s.note || "";
         document.getElementById("modalTitle").textContent = s.id ? "Chỉnh sửa ca làm việc" : "Thêm ca làm việc mới";
     }
@@ -151,27 +165,51 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const idVal = document.getElementById("shiftId").value || null;
 
-        // Read raw inputs
-        const startTimeRaw = document.getElementById("startTime").value;
-        const endTimeRaw = document.getElementById("endTime").value;
+        // Read hour/minute inputs
+        const startHourRaw = document.getElementById("startHour").value;
+        const startMinuteRaw = document.getElementById("startMinute").value;
+        const endHourRaw = document.getElementById("endHour").value;
+        const endMinuteRaw = document.getElementById("endMinute").value;
 
-        // Normalize to HH:mm (24-hour)
-        const startTime = normalizeTimeTo24(startTimeRaw);
-        const endTime = normalizeTimeTo24(endTimeRaw);
+        // Basic validation for hour fields
+        const shNum = Number(startHourRaw);
+        const ehNum = Number(endHourRaw);
+        const smNum = Number(startMinuteRaw);
+        const emNum = Number(endMinuteRaw);
+        if (!Number.isInteger(shNum) || shNum < 0 || shNum > 23) {
+            displayFieldErrors({ 'startTime': 'Giờ bắt đầu phải là số nguyên từ 0 đến 23' });
+            focusFirstInvalidField();
+            return;
+        }
+        if (!Number.isInteger(ehNum) || ehNum < 0 || ehNum > 23) {
+            displayFieldErrors({ 'endTime': 'Giờ kết thúc phải là số nguyên từ 0 đến 23' });
+            focusFirstInvalidField();
+            return;
+        }
+        // Validate minutes
+        if (!Number.isInteger(smNum) || smNum < 0 || smNum > 59) {
+            displayFieldErrors({ 'startTime': 'Phút bắt đầu phải là số từ 0 đến 59' });
+            focusFirstInvalidField();
+            return;
+        }
+        if (!Number.isInteger(emNum) || emNum < 0 || emNum > 59) {
+            displayFieldErrors({ 'endTime': 'Phút kết thúc phải là số từ 0 đến 59' });
+            focusFirstInvalidField();
+            return;
+        }
+
+        // Build HH:mm strings
+        const startTime = (shNum < 10 ? '0' + shNum : '' + shNum) + ':' + (smNum < 10 ? '0' + smNum : '' + smNum);
+        const endTime = (ehNum < 10 ? '0' + ehNum : '' + ehNum) + ':' + (emNum < 10 ? '0' + emNum : '' + emNum);
 
         // Frontend validation: end time must be after start time
-        if (startTime && endTime) {
-            const sh = Number(startTime.split(":")[0] || 0);
-            const sm = Number(startTime.split(":")[1] || 0);
-            const eh = Number(endTime.split(":")[0] || 0);
-            const em = Number(endTime.split(":")[1] || 0);
-            const startMinutes = sh * 60 + sm;
-            const endMinutes = eh * 60 + em;
-            if (endMinutes <= startMinutes) {
-                displayFieldErrors({ 'endTime': 'Giờ kết thúc phải lớn hơn giờ bắt đầu' });
-                focusFirstInvalidField();
-                return;
-            }
+        const startMinutes = shNum * 60 + smNum;
+        const endMinutes = ehNum * 60 + emNum;
+        if (endMinutes <= startMinutes) {
+            // Use the existing displayFieldErrors to show the error on the end-time line
+            displayFieldErrors({ 'endTime': 'Giờ kết thúc phải lớn hơn giờ bắt đầu' });
+            focusFirstInvalidField();
+            return;
         }
 
         const payload = {
@@ -222,18 +260,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function clearFieldErrors() {
         document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-        document.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+        document.querySelectorAll('.invalid-feedback').forEach(el => { el.textContent = ''; el.style.setProperty('display', 'none', 'important'); });
     }
 
     function displayFieldErrors(errors) {
         for (const [field, message] of Object.entries(errors)) {
-            const input = document.getElementById(field);
-            const errorDiv = document.getElementById(`${field}-error`);
-            if (input) {
-                input.classList.add('is-invalid');
+            // Map logical field names to actual input elements
+            let inputs = [];
+            if (field === 'startTime') {
+                inputs = [document.getElementById('startHour'), document.getElementById('startMinute')];
+            } else if (field === 'endTime') {
+                inputs = [document.getElementById('endHour'), document.getElementById('endMinute')];
+            } else {
+                const single = document.getElementById(field);
+                if (single) inputs = [single];
             }
+
+            // Add invalid class to all related inputs (same behavior as other validations)
+            inputs.forEach(input => {
+                if (input) input.classList.add('is-invalid');
+            });
+
+            // Populate the error div so it displays like other field errors
+            const errorDiv = document.getElementById(`${field}-error`);
             if (errorDiv) {
                 errorDiv.textContent = message;
+                // show the error div; leave visual styling to CSS so it matches other errors
+                try { errorDiv.style.setProperty('display', 'block', 'important'); } catch (_) { errorDiv.style.display = 'block'; }
+                errorDiv.setAttribute('role', 'alert');
+                errorDiv.setAttribute('aria-live', 'assertive');
             }
         }
     }

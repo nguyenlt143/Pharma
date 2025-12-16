@@ -22,9 +22,16 @@
     const branchIdSelect = document.getElementById('branchId');
     const toastEl = document.getElementById('toast');
 
+    // Role labels and keep a copy of the original role select options so we can restore later
+    const roleLabels = {
+        '2': 'OWNER',
+        '3': 'MANAGER',
+        '5': 'WAREHOUSE'
+    };
+    const originalRoleOptions = roleIdSelect ? roleIdSelect.innerHTML : '';
+
     let allAccounts = [];
     let filteredAccounts = [];
-    let allBranches = [];
     let currentPage = 1;
     let recordsPerPage = 25;
     let showDeleted = false;
@@ -86,8 +93,15 @@
             modalTitle.textContent = 'Tạo tài khoản';
             accountIdInput.value = '';
             accountForm.reset();
-                // Always show password field on create
+            // Always show password field on create
             if (passwordWrapper) passwordWrapper.style.display = '';
+            // Restore role select to original options and ensure enabled
+            try {
+                if (roleIdSelect) {
+                    roleIdSelect.innerHTML = originalRoleOptions;
+                    roleIdSelect.disabled = false;
+                }
+            } catch (_) {}
             updateBranchFieldVisibility();
         } else {
             modalTitle.textContent = 'Chỉnh sửa tài khoản';
@@ -101,7 +115,25 @@
                 'MANAGER': '3',
                 'WAREHOUSE': '5'
             };
-            roleIdSelect.value = roleMap[data.roleName] || '';
+            const roleId = roleMap[data.roleName] || '';
+            // If it's OWNER, show a single temporary option and disable select (view-only)
+            if (roleId === '2') {
+                try {
+                    // replace options with a single temporary option for OWNER
+                    roleIdSelect.innerHTML = '';
+                    const opt = document.createElement('option');
+                    opt.value = '2';
+                    opt.textContent = roleLabels['2'] || 'OWNER';
+                    roleIdSelect.appendChild(opt);
+                    roleIdSelect.value = '2';
+                    roleIdSelect.disabled = true;
+                } catch (_) { /* ignore DOM errors */ }
+            } else {
+                // restore original options and set the value
+                try { roleIdSelect.innerHTML = originalRoleOptions; } catch (_) {}
+                roleIdSelect.value = roleId || '';
+                roleIdSelect.disabled = false;
+            }
 
             document.getElementById('email').value = data.email || '';
             document.getElementById('phoneNumber').value = data.phoneNumber || '';
@@ -127,7 +159,15 @@
         try {
             const url = showDeleted ? `${API_BASE}?showDeleted=true` : API_BASE;
             const res = await fetch(url);
-            if (!res.ok) throw new Error('Lỗi khi lấy danh sách');
+            if (!res.ok) {
+                const ct = res.headers.get('content-type') || '';
+                if (ct.includes('application/json')) {
+                    const data = await res.json();
+                    throw new Error(data.message || 'Lỗi khi lấy danh sách');
+                }
+                const txt = await res.text();
+                throw new Error(txt || 'Lỗi khi lấy danh sách');
+            }
             allAccounts = await res.json();
             applySearchAndRender();
         } catch (e) {
@@ -136,31 +176,16 @@
         }
     }
 
-    async function fetchBranches() {
-        try {
-            const res = await fetch(`${API_BASE}/branches`);
-            if (!res.ok) throw new Error('Lỗi khi lấy danh sách chi nhánh');
-            allBranches = await res.json();
-            populateBranchDropdown();
-        } catch (e) {
-            console.error(e);
-            showToast('Không thể tải danh sách chi nhánh', 3000, 'error');
-        }
-    }
-
-    function populateBranchDropdown() {
-        branchIdSelect.innerHTML = '<option value="">-- Chọn chi nhánh --</option>';
-        allBranches.forEach(branch => {
-            const option = document.createElement('option');
-            option.value = branch.id;
-            option.textContent = branch.name;
-            branchIdSelect.appendChild(option);
-        });
-    }
-
     async function fetchById(id) {
         const res = await fetch(`${API_BASE}/${id}`);
-        if (!res.ok) throw new Error('Không tìm thấy tài khoản');
+        if (!res.ok) {
+            const ct = res.headers.get('content-type') || '';
+            if (ct.includes('application/json')) {
+                const data = await res.json();
+                throw new Error(data.message || 'Không tìm thấy tài khoản');
+            }
+            throw new Error('Không tìm thấy tài khoản');
+        }
         return await res.json();
     }
 
@@ -171,6 +196,16 @@
             body: JSON.stringify(payload),
         });
         if (!res.ok) {
+            const ct = res.headers.get('content-type') || '';
+            if (ct.includes('application/json')) {
+                const data = await res.json();
+                if (data.errors) {
+                    // convert field errors to single message for toast
+                    const first = Object.values(data.errors)[0];
+                    throw new Error(first || data.message || 'Tạo thất bại');
+                }
+                throw new Error(data.message || 'Tạo thất bại');
+            }
             const errorText = await res.text();
             throw new Error(errorText || 'Tạo thất bại');
         }
@@ -184,6 +219,15 @@
             body: JSON.stringify(payload),
         });
         if (!res.ok) {
+            const ct = res.headers.get('content-type') || '';
+            if (ct.includes('application/json')) {
+                const data = await res.json();
+                if (data.errors) {
+                    const first = Object.values(data.errors)[0];
+                    throw new Error(first || data.message || 'Cập nhật thất bại');
+                }
+                throw new Error(data.message || 'Cập nhật thất bại');
+            }
             const errorText = await res.text();
             throw new Error(errorText || 'Cập nhật thất bại');
         }
@@ -193,6 +237,11 @@
     async function deleteAccount(id) {
         const res = await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
         if (!res.ok) {
+            const ct = res.headers.get('content-type') || '';
+            if (ct.includes('application/json')) {
+                const data = await res.json();
+                throw new Error(data.message || 'Xoá thất bại');
+            }
             const errorText = await res.text();
             throw new Error(errorText || 'Xoá thất bại');
         }
@@ -381,6 +430,13 @@
         // Modal close
         modalClose.addEventListener('click', () => {
             Array.from(accountForm.elements).forEach(el => el.disabled = false);
+            // restore role select enabled and original options when closing
+            try {
+                if (roleIdSelect) {
+                    roleIdSelect.disabled = false;
+                    roleIdSelect.innerHTML = originalRoleOptions;
+                }
+            } catch (_) {}
             document.getElementById('btnSave').style.display = '';
             document.getElementById('btnCancel').textContent = 'Hủy';
             closeModal();
@@ -454,6 +510,5 @@
 
     // Initial load
     setupEventListeners();
-    fetchBranches();
     fetchAll();
 })();
