@@ -677,4 +677,107 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
 
         return savedMovement.getId();
     }
+
+    @Override
+    @Transactional
+    public Long createDisposalMovement(vn.edu.fpt.pharma.dto.warehouse.DisposalRequestDTO dto) {
+        log.info("Creating disposal movement with {} items", dto.getItems().size());
+
+        // 1. Source: Warehouse (branch_id = 1)
+        Long warehouseBranchId = 1L;
+        Branch warehouseBranch = branchRepository.findById(warehouseBranchId)
+                .orElseThrow(() -> new RuntimeException("Warehouse branch not found"));
+
+        // 2. Destination: Disposal warehouse (branch_id = 2)
+        Long disposalBranchId = 2L;
+        Branch disposalBranch = branchRepository.findById(disposalBranchId)
+                .orElseThrow(() -> new RuntimeException("Disposal warehouse not found"));
+
+        // 3. Create InventoryMovement with DISPOSAL type and CLOSED status
+        InventoryMovement movement = InventoryMovement.builder()
+                .movementType(MovementType.DISPOSAL)
+                .sourceBranchId(warehouseBranch.getId())
+                .destinationBranchId(disposalBranch.getId())
+                .movementStatus(MovementStatus.CLOSED)
+                .totalMoney(0.0)
+                .build();
+
+        InventoryMovement savedMovement = movementRepository.save(movement);
+        log.info("Created disposal movement with ID: {}, status: CLOSED", savedMovement.getId());
+
+        // 4. Create InventoryMovementDetails and update inventories
+        for (vn.edu.fpt.pharma.dto.warehouse.DisposalRequestDTO.DisposalItemDTO item : dto.getItems()) {
+            // Get entities
+            MedicineVariant variant = variantRepository.findById(item.getVariantId())
+                    .orElseThrow(() -> new RuntimeException("Variant not found: " + item.getVariantId()));
+
+            Batch batch = batchRepository.findById(item.getBatchId())
+                    .orElseThrow(() -> new RuntimeException("Batch not found: " + item.getBatchId()));
+
+            Inventory warehouseInventory = inventoryRepository.findById(item.getInventoryId())
+                    .orElseThrow(() -> new RuntimeException("Inventory not found: " + item.getInventoryId()));
+
+            // Validate warehouse inventory has enough quantity
+            if (warehouseInventory.getQuantity() < item.getQuantity()) {
+                throw new RuntimeException(String.format(
+                    "Insufficient warehouse inventory: batch %s has %d but requested %d",
+                    batch.getBatchCode(), warehouseInventory.getQuantity(), item.getQuantity()
+                ));
+            }
+
+            // Get cost price from warehouse inventory
+            Double snapCost = warehouseInventory.getCostPrice();
+
+            // Create movement detail
+            InventoryMovementDetail movementDetail = InventoryMovementDetail.builder()
+                    .movement(savedMovement)
+                    .variant(variant)
+                    .batch(batch)
+                    .quantity(item.getQuantity().longValue())
+                    .price(0.0)
+                    .snapCost(snapCost)
+                    .build();
+
+            movementDetailRepository.save(movementDetail);
+            log.info("Created disposal movement detail: variant={}, batch={}, qty={}",
+                    variant.getId(), batch.getBatchCode(), item.getQuantity());
+
+            // 5. Decrease warehouse inventory
+            warehouseInventory.setQuantity(warehouseInventory.getQuantity() - item.getQuantity());
+            inventoryRepository.save(warehouseInventory);
+            log.info("Decreased warehouse inventory: {} from {} to {}",
+                    batch.getBatchCode(),
+                    warehouseInventory.getQuantity() + item.getQuantity(),
+                    warehouseInventory.getQuantity());
+
+            // 6. Increase disposal warehouse inventory (or create if not exists)
+            Inventory disposalInventory = inventoryRepository.findByBranchIdAndVariantIdAndBatchId(
+                    disposalBranch.getId(), variant.getId(), batch.getId()
+            ).orElse(null);
+
+            if (disposalInventory == null) {
+                // Create new inventory in disposal warehouse
+                disposalInventory = Inventory.builder()
+                        .batch(batch)
+                        .branch(disposalBranch)
+                        .quantity(item.getQuantity().longValue())
+                        .costPrice(snapCost)
+                        .build();
+                log.info("Created new disposal inventory for batch {}", batch.getBatchCode());
+            } else {
+                // Update existing inventory
+                disposalInventory.setQuantity(disposalInventory.getQuantity() + item.getQuantity());
+                log.info("Increased disposal inventory: {} from {} to {}",
+                        batch.getBatchCode(),
+                        disposalInventory.getQuantity() - item.getQuantity(),
+                        disposalInventory.getQuantity());
+            }
+            inventoryRepository.save(disposalInventory);
+        }
+
+        log.info("Disposal movement {} created successfully with {} items",
+                savedMovement.getId(), dto.getItems().size());
+
+        return savedMovement.getId();
+    }
 }

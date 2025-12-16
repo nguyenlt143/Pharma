@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import vn.edu.fpt.pharma.constant.MovementType;
+import vn.edu.fpt.pharma.dto.warehouse.DisposalRequestDTO;
 import vn.edu.fpt.pharma.dto.warehouse.ExportCreateDTO;
 import vn.edu.fpt.pharma.dto.warehouse.InventoryMovementDetailVM;
 import vn.edu.fpt.pharma.dto.warehouse.InventoryMovementVM;
@@ -276,6 +277,45 @@ public class WarehouseController {
     @GetMapping("/price")
     public String priceList(Model model) {
         return "pages/warehouse/price_list";
+    }
+
+    // -------------------- DISPOSAL MANAGEMENT --------------------
+    @GetMapping("/disposal/create")
+    public String disposalCreate(Model model) {
+        // Load medicines from warehouse (branch_id = 1)
+        List<InventoryMedicineVM> medicines = inventoryService.getInventoryMedicinesByBranch(1L);
+        model.addAttribute("medicines", medicines);
+        return "pages/warehouse/medicine_disposal";
+    }
+
+    @PostMapping("/disposal/create")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> createDisposal(
+            @org.springframework.web.bind.annotation.RequestBody vn.edu.fpt.pharma.dto.warehouse.DisposalRequestDTO request
+    ) {
+        try {
+            // Create disposal movement
+            Long movementId = inventoryMovementService.createDisposalMovement(request);
+            String code = "DISPOSAL-" + String.format("%06d", movementId);
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Tạo phiếu xuất hủy thành công",
+                "code", code,
+                "movementId", movementId
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", e.getMessage()
+            ));
+        }
+    }
+
+    @GetMapping("/disposal/success")
+    public String disposalSuccess(@RequestParam String code, Model model) {
+        model.addAttribute("code", code);
+        return "pages/warehouse/disposal_success";
     }
 
     // -------------------- MEDICINE MANAGEMENT --------------------

@@ -31,4 +31,7 @@ public interface InventoryMovementService extends BaseService<InventoryMovement,
 
     // For Inventory role - create return to warehouse
     Long createReturnMovement(vn.edu.fpt.pharma.dto.inventory.ReturnRequestDTO dto);
+
+    // For Warehouse role - create disposal movement
+    Long createDisposalMovement(vn.edu.fpt.pharma.dto.warehouse.DisposalRequestDTO dto);
 }

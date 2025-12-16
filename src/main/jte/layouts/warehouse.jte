@@ -65,6 +65,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="/warehouse/disposal/create" class="nav-link">
+                        <span class="material-icons nav-icon">delete_forever</span>
+                        <span class="nav-text">Tạo phiếu xuất hủy</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="/warehouse/inventory" class="nav-link">
                         <span class="material-icons nav-icon">inventory_2</span>
                         <span class="nav-text">Thuốc tồn kho</span>
