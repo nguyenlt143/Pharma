@@ -105,7 +105,8 @@ function initDataTable() {
                 }
             }
         ],
-        order: [[0, 'desc']],
+        // Mặc định sắp xếp ID tăng dần (1 -> mới nhất)
+        order: [[0, 'asc']],
         language: {
             url: '/assets/datatable_vi.json'
         }
