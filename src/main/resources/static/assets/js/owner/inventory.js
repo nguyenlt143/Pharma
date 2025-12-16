@@ -124,9 +124,15 @@ function loadInventoryMovements() {
 
 function loadCategoryDistribution() {
     const branchId = document.getElementById('branchSelect')?.value || '';
-    const params = branchId ? `?branchId=${branchId}` : '';
-    
-    fetch(`/api/owner/inventory/categories${params}`)
+    const categoryId = document.getElementById('categorySelect')?.value || '';
+
+    const params = new URLSearchParams();
+    if (branchId) params.append('branchId', branchId);
+    if (categoryId) params.append('categoryId', categoryId);
+
+    const query = params.toString() ? `?${params.toString()}` : '';
+
+    fetch(`/api/owner/inventory/categories${query}`)
         .then(res => res.json())
         .then(data => {
             updateCategoryChart(data);
@@ -393,11 +399,19 @@ function updateRecentActivities(activities) {
     }
     
     tbody.innerHTML = activities.map(act => {
-        // Extract ID from detailUrl (e.g., "/owner/request/1" -> 1)
-        const urlMatch = (act.detailUrl || '').match(/\/(\d+)$/);
-        const requestId = urlMatch ? urlMatch[1] : null;
-        const onClick = requestId ? `onclick="viewRequestDetail(${requestId}); return false;"` : '';
-        
+        const url = act.detailUrl || '';
+        const idMatch = url.match(/\/(\d+)$/);
+        const id = idMatch ? idMatch[1] : null;
+        let onClick = '';
+
+        if (id) {
+            if (url.includes('/owner/request/')) {
+                onClick = `onclick="viewRequestDetail(${id}); return false;"`;
+            } else if (url.includes('/owner/movement/')) {
+                onClick = `onclick="viewMovementDetail(${id}); return false;"`;
+            }
+        }
+
         return `
         <tr>
             <td><span class="mono">${act.code || ''}</span></td>
@@ -469,6 +483,89 @@ function viewRequestDetail(id) {
                         <div style="font-size: 14px; color: #111827; padding: 12px; background: #F9FAFB; border-radius: 8px;">${data.note}</div>
                     </div>
                     ` : ''}
+                    <div>
+                        <div style="font-size: 14px; font-weight: 600; color: #111827; margin-bottom: 12px;">Danh sách thuốc</div>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #F9FAFB; border-bottom: 1px solid #E5E7EB;">
+                                    <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6B7280;">Tên thuốc</th>
+                                    <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6B7280;">Biến thể</th>
+                                    <th style="padding: 12px; text-align: right; font-size: 12px; font-weight: 600; color: #6B7280;">Số lượng</th>
+                                    <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6B7280;">Đơn vị</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${(data.details || []).map(d => `
+                                    <tr style="border-bottom: 1px solid #F3F4F6;">
+                                        <td style="padding: 12px; font-size: 14px; color: #111827;">${d.medicineName || '-'}</td>
+                                        <td style="padding: 12px; font-size: 14px; color: #6B7280;">${d.variantName || '-'}</td>
+                                        <td style="padding: 12px; text-align: right; font-size: 14px; font-weight: 500; color: #111827;">${d.quantity || 0}</td>
+                                        <td style="padding: 12px; font-size: 14px; color: #6B7280;">${d.unit || '-'}</td>
+                                    </tr>
+                                `).join('')}
+                                ${(!data.details || data.details.length === 0) ? `
+                                    <tr>
+                                        <td colspan="4" style="padding: 24px; text-align: center; color: #9CA3AF;">Không có dữ liệu</td>
+                                    </tr>
+                                ` : ''}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        })
+        .catch(err => {
+            content.innerHTML = `<div style="text-align: center; color: #EF4444; padding: 40px;">Lỗi: ${err.message}</div>`;
+        });
+}
+
+function viewMovementDetail(id) {
+    const modal = document.getElementById('requestDetailModal');
+    const content = document.getElementById('requestDetailContent');
+
+    if (!modal || !content) return;
+
+    // Show modal with loading
+    content.innerHTML = '<div style="text-align: center; color: #6B7280; padding: 40px;">Đang tải...</div>';
+    modal.style.display = 'flex';
+
+    fetch(`/api/owner/inventory/movement/${id}`)
+        .then(res => {
+            if (!res.ok) throw new Error('Không thể tải chi tiết');
+            return res.json();
+        })
+        .then(data => {
+            const statusClass = (data.status || '').toLowerCase();
+            const typeClass = (data.type || '').toLowerCase().replace(/\s+/g, '');
+
+            content.innerHTML = `
+                <div style="display: grid; gap: 20px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Mã phiếu</div>
+                            <div style="font-size: 16px; font-weight: 600; color: #111827;">${data.code || '-'}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Loại</div>
+                            <div><span class="badge ${typeClass}">${data.type || '-'}</span></div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Chi nhánh</div>
+                            <div style="font-size: 16px; font-weight: 500; color: #111827;">${data.branchName || '-'}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Trạng thái</div>
+                            <div><span class="status ${statusClass}">${data.status || '-'}</span></div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Ngày tạo</div>
+                            <div style="font-size: 14px; color: #111827;">${data.createdAt || '-'}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Tổng số lượng</div>
+                            <div style="font-size: 16px; font-weight: 600; color: #111827;">${data.totalQty || 0}</div>
+                        </div>
+                    </div>
                     <div>
                         <div style="font-size: 14px; font-weight: 600; color: #111827; margin-bottom: 12px;">Danh sách thuốc</div>
                         <table style="width: 100%; border-collapse: collapse;">

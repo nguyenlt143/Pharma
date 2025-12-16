@@ -6,7 +6,8 @@ if (typeof $ !== 'undefined') {
     $(document).ready(function() {
         loadBranches();
         initDataTable();
-        // Don't auto-load report, wait for user to click button or after filters are loaded
+        bindFilterEvents();
+        // Auto load lần đầu với filter mặc định
         setTimeout(() => {
             loadReport();
         }, 500);
@@ -20,6 +21,7 @@ if (typeof $ !== 'undefined') {
                 clearInterval(checkJQuery);
                 loadBranches();
                 initDataTable();
+                bindFilterEvents();
                 setTimeout(() => {
                     loadReport();
                 }, 500);
@@ -74,9 +76,28 @@ function initDataTable() {
         searching: false,
         ordering: true,
         language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/vi.json'
+            url: '/assets/datatable_vi.json'
         }
     });
+}
+
+// Khi thay đổi filter (tháng, chi nhánh) thì tự động tải lại báo cáo,
+// không bắt buộc người dùng phải bấm nút "Tải báo cáo"
+function bindFilterEvents() {
+    const periodInput = document.getElementById('periodInput');
+    const branchSelect = document.getElementById('branchSelect');
+
+    if (periodInput) {
+        periodInput.addEventListener('change', () => {
+            loadReport();
+        });
+    }
+
+    if (branchSelect) {
+        branchSelect.addEventListener('change', () => {
+            loadReport();
+        });
+    }
 }
 
 function loadReport() {

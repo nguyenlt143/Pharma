@@ -12,4 +12,6 @@ public interface SupplierRepository extends JpaRepository<Supplier, Long>, JpaSp
     
     @Query("SELECT COUNT(im) FROM InventoryMovement im WHERE im.supplier.id = :supplierId")
     long countInventoryMovementsBySupplierId(@Param("supplierId") Long supplierId);
+
+    boolean existsByNameIgnoreCase(String name);
 }

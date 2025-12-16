@@ -29,4 +29,6 @@ public interface MedicineRepository extends JpaRepository<Medicine, Long>, JpaSp
         LIMIT 20
         """, nativeQuery = true)
     List<Object[]> searchMedicinesByKeyword(@Param("keyword") String keyword);
+
+    boolean existsByNameIgnoreCase(String name);
 }

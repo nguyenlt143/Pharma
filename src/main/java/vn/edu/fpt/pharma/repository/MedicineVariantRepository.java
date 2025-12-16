@@ -67,4 +67,24 @@ public interface MedicineVariantRepository extends JpaRepository<MedicineVariant
         ORDER BY v.strength
         """, nativeQuery = true)
     List<Object[]> findVariantsByMedicineIdWithDetails(@Param("medicineId") Long medicineId);
+
+    @Query("""
+        SELECT COUNT(v) FROM MedicineVariant v
+        WHERE v.medicine.id = :medicineId
+          AND LOWER(COALESCE(v.dosage_form, '')) = LOWER(COALESCE(:dosageForm, ''))
+          AND LOWER(COALESCE(v.dosage, '')) = LOWER(COALESCE(:dosage, ''))
+          AND LOWER(COALESCE(v.strength, '')) = LOWER(COALESCE(:strength, ''))
+          AND ((:packageUnitId IS NULL AND v.packageUnitId IS NULL) OR (v.packageUnitId.id = :packageUnitId))
+          AND ((:baseUnitId IS NULL AND v.baseUnitId IS NULL) OR (v.baseUnitId.id = :baseUnitId))
+          AND COALESCE(v.quantityPerPackage, 0) = COALESCE(:quantityPerPackage, 0)
+    """)
+    long countDuplicateVariant(
+            @Param("medicineId") Long medicineId,
+            @Param("dosageForm") String dosageForm,
+            @Param("dosage") String dosage,
+            @Param("strength") String strength,
+            @Param("packageUnitId") Long packageUnitId,
+            @Param("baseUnitId") Long baseUnitId,
+            @Param("quantityPerPackage") Double quantityPerPackage
+    );
 }

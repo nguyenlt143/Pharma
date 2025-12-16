@@ -51,6 +51,11 @@ public class SupplierServiceImpl extends BaseServiceImpl<Supplier, Long, Supplie
 
     @Override
     public SupplierResponse createSupplier(SupplierRequest request) {
+        // Check duplicate supplier name (case-insensitive)
+        if (repository.existsByNameIgnoreCase(request.getSupplierName())) {
+            throw new IllegalArgumentException("Tên nhà cung cấp đã tồn tại");
+        }
+
         Supplier supplier = Supplier.builder()
                 .name(request.getSupplierName())
                 .phone(request.getPhone())
@@ -65,7 +70,14 @@ public class SupplierServiceImpl extends BaseServiceImpl<Supplier, Long, Supplie
     public SupplierResponse updateSupplier(Long id, SupplierRequest request) {
         Supplier existing = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Supplier not found"));
-        
+
+        // Nếu user gửi tên mới, kiểm tra trùng tên với nhà cung cấp khác
+        if (request.getSupplierName() != null &&
+                !request.getSupplierName().equalsIgnoreCase(existing.getName()) &&
+                repository.existsByNameIgnoreCase(request.getSupplierName())) {
+            throw new IllegalArgumentException("Tên nhà cung cấp đã tồn tại");
+        }
+
         if (request.getSupplierName() != null) existing.setName(request.getSupplierName());
         if (request.getPhone() != null) existing.setPhone(request.getPhone());
         if (request.getAddress() != null) existing.setAddress(request.getAddress());

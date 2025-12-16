@@ -58,6 +58,20 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                 unitRepository.findById(request.getPackageUnitId())
                         .orElseThrow(() -> new RuntimeException("Package unit not found")) : null;
 
+        // Prevent duplicate variant with same full data
+        long duplicateCount = medicineVariantRepository.countDuplicateVariant(
+                request.getMedicineId(),
+                request.getDosageForm(),
+                request.getDosage(),
+                request.getStrength(),
+                request.getPackageUnitId(),
+                request.getBaseUnitId(),
+                request.getQuantityPerPackage()
+        );
+        if (duplicateCount > 0) {
+            throw new IllegalArgumentException("Biến thể thuốc với thông tin này đã tồn tại");
+        }
+
         MedicineVariant variant = MedicineVariant.builder()
                 .medicine(medicine)
                 .dosage_form(request.getDosageForm())
