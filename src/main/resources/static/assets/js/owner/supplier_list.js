@@ -56,7 +56,7 @@ function initDataTable() {
         ],
         order: [[0, 'desc']],
         language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/vi.json'
+            url: '/assets/datatable_vi.json'
         }
     });
 }
@@ -167,21 +167,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             })
-            .then(res => {
-                if (res.ok) {
-                    return res.json();
-                } else {
-                    throw new Error('Có lỗi xảy ra khi lưu nhà cung cấp');
-                }
-            })
-            .then(data => {
-                closeSupplierModal();
-                supplierTable.ajax.reload();
-                showToast(id ? 'Cập nhật nhà cung cấp thành công!' : 'Thêm nhà cung cấp mới thành công!', 'success');
-            })
-            .catch(err => {
-                showToast('Có lỗi xảy ra: ' + err.message, 'error');
-            });
+                .then(res => {
+                    if (res.ok) {
+                        return res.json();
+                    }
+                    // Try to parse error body for detailed message
+                    return res.json()
+                        .then(err => {
+                            const msg = err.message || err.error || 'Có lỗi xảy ra khi lưu nhà cung cấp';
+                            throw new Error(msg);
+                        })
+                        .catch(() => {
+                            throw new Error('Có lỗi xảy ra khi lưu nhà cung cấp');
+                        });
+                })
+                .then(data => {
+                    closeSupplierModal();
+                    supplierTable.ajax.reload();
+                    showToast(id ? 'Cập nhật nhà cung cấp thành công!' : 'Thêm nhà cung cấp mới thành công!', 'success');
+                })
+                .catch(err => {
+                    showToast(err.message, 'error');
+                });
         });
     }
 

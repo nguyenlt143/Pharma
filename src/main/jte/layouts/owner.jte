@@ -50,6 +50,12 @@
                         <span class="nav-text">Báo cáo kho</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="/owner/inventory/current" class="nav-link">
+                        <span class="material-icons nav-icon">medication</span>
+                        <span class="nav-text">Kho hiện tại</span>
+                    </a>
+                </li>
             </ul>
         </nav>
 

@@ -88,4 +88,10 @@ public class OwnerController {
         
         return "pages/owner/inventory";
     }
+
+    // --- Kho hiện tại ---
+    @GetMapping("/inventory/current")
+    public String currentInventory() {
+        return "pages/owner/inventory_current";
+    }
 }
