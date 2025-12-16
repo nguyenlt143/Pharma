@@ -61,8 +61,9 @@ document.addEventListener("DOMContentLoaded", () => {
         shiftModal.classList.remove("hidden");
         document.getElementById("shiftId").value = s.id || "";
         document.getElementById("shiftName").value = s.name || "";
-        document.getElementById("startTime").value = s.startTime || "";
-        document.getElementById("endTime").value = s.endTime || "";
+        // Normalize displayed values to HH:mm
+        document.getElementById("startTime").value = s.startTime ? formatToHHMM(s.startTime) : "";
+        document.getElementById("endTime").value = s.endTime ? formatToHHMM(s.endTime) : "";
         document.getElementById("note").value = s.note || "";
         document.getElementById("modalTitle").textContent = s.id ? "Chỉnh sửa ca làm việc" : "Thêm ca làm việc mới";
     }
@@ -113,11 +114,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     <button class="btn btn-info" onclick="viewEmployees(${s.id})">👥 Xem nhân viên</button>
                 `;
 
+            const dispStart = s.startTime ? formatToHHMM(s.startTime) : "";
+            const dispEnd = s.endTime ? formatToHHMM(s.endTime) : "";
+
             return `
             <tr>
                 <td>${s.name}</td>
-                <td>${s.startTime}</td>
-                <td>${s.endTime}</td>
+                <td>${dispStart}</td>
+                <td>${dispEnd}</td>
                 <td>${s.note || ""}</td>
                 <td class="text-center">${statusBadge}</td>
                 <td class="text-center action-buttons">${actionButtons}</td>
@@ -147,16 +151,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const idVal = document.getElementById("shiftId").value || null;
 
-        const startTime = document.getElementById("startTime").value.trim();
-        const endTime = document.getElementById("endTime").value.trim();
+        // Read raw inputs
+        const startTimeRaw = document.getElementById("startTime").value;
+        const endTimeRaw = document.getElementById("endTime").value;
+
+        // Normalize to HH:mm (24-hour)
+        const startTime = normalizeTimeTo24(startTimeRaw);
+        const endTime = normalizeTimeTo24(endTimeRaw);
 
         // Frontend validation: end time must be after start time
-        if (startTime && endTime && endTime <= startTime) {
-            displayFieldErrors({
-                'endTime': 'Giờ kết thúc phải lớn hơn giờ bắt đầu'
-            });
-            focusFirstInvalidField();
-            return;
+        if (startTime && endTime) {
+            const sh = Number(startTime.split(":")[0] || 0);
+            const sm = Number(startTime.split(":")[1] || 0);
+            const eh = Number(endTime.split(":")[0] || 0);
+            const em = Number(endTime.split(":")[1] || 0);
+            const startMinutes = sh * 60 + sm;
+            const endMinutes = eh * 60 + em;
+            if (endMinutes <= startMinutes) {
+                displayFieldErrors({ 'endTime': 'Giờ kết thúc phải lớn hơn giờ bắt đầu' });
+                focusFirstInvalidField();
+                return;
+            }
         }
 
         const payload = {
@@ -171,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const url = payload.id ? `/api/manager/shifts/${payload.id}` : "/api/manager/shifts";
             const res = await fetch(url, {
                 method: payload.id ? "PUT" : "POST",
-                headers: {"Content-Type": "application/json"},
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             });
 
@@ -295,8 +310,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 const shiftRes = await fetch(`/api/manager/shifts/${shiftId}`);
                 if (shiftRes.ok) {
                     const s = await shiftRes.json();
-                    const st = s.startTime ? s.startTime : "";
-                    const et = s.endTime ? s.endTime : "";
+                    const st = s.startTime ? formatToHHMM(s.startTime) : "";
+                    const et = s.endTime ? formatToHHMM(s.endTime) : "";
                     const titleText = `${s.name || "Ca"} ${st || et ? `(${st} - ${et})` : ""}`.trim();
                     const titleEl = document.getElementById("shiftEmployeeTitle");
                     if (titleEl) titleEl.innerText = titleText;
@@ -461,3 +476,56 @@ document.addEventListener("DOMContentLoaded", () => {
     // Load shifts when page loads
     loadShifts();
 });
+
+// Helper: normalize various time inputs to 24-hour HH:mm format
+function normalizeTimeTo24(input) {
+    if (!input) return "";
+    let s = input.trim();
+    // If already in HH:mm or H:mm(:ss), return HH:mm
+    const hhmm = s.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+    if (hhmm) {
+        let h = parseInt(hhmm[1], 10);
+        let m = hhmm[2];
+        return (h < 10 ? '0' + h : '' + h) + ':' + m;
+    }
+    // Match 12h formats like '12:00 AM', '12 PM', '9:30pm', '9 PM'
+    const ampm = s.match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM|am|pm|Am|Pm|aM|pM)?$/);
+    if (ampm) {
+        let hour = parseInt(ampm[1], 10);
+        let minute = ampm[2] ? ampm[2] : '00';
+        const meridiem = (ampm[3] || '').toUpperCase();
+        if (meridiem === 'AM') {
+            if (hour === 12) hour = 0;
+        } else if (meridiem === 'PM') {
+            if (hour !== 12) hour += 12;
+        }
+        if (hour < 0) hour = 0;
+        if (hour > 23) hour = hour % 24;
+        const hh = hour < 10 ? '0' + hour : '' + hour;
+        return hh + ':' + minute;
+    }
+    // Fallback: try Date parsing
+    try {
+        const d = new Date('1970-01-01T' + s);
+        if (!isNaN(d.getTime())) {
+            const hh = d.getHours();
+            const mm = d.getMinutes();
+            return (hh < 10 ? '0' + hh : '' + hh) + ':' + (mm < 10 ? '0' + mm : '' + mm);
+        }
+    } catch (_) {}
+    return s; // return as-is
+}
+
+// Helper: format any time-like string to HH:mm for display
+function formatToHHMM(input) {
+    if (!input) return "";
+    const normalized = normalizeTimeTo24(input);
+    // Ensure HH:mm (pad if necessary)
+    const m = normalized.match(/^(\d{1,2}):(\d{2})$/);
+    if (m) {
+        const h = parseInt(m[1], 10);
+        const mm = m[2];
+        return (h < 10 ? '0' + h : '' + h) + ':' + mm;
+    }
+    return normalized;
+}

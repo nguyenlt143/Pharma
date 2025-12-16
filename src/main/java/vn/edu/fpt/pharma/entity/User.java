@@ -19,6 +19,8 @@ import vn.edu.fpt.pharma.base.BaseEntity;
 public class User extends BaseEntity<Long> {
     @Column(unique = true, nullable = false)
     private String userName;
+
+    @Column(nullable = false)
     private String password;
     private String fullName;
     @ManyToOne(fetch = FetchType.EAGER)
@@ -29,4 +31,13 @@ public class User extends BaseEntity<Long> {
     private String email;
     @Column(columnDefinition = "LONGTEXT")
     private String imageUrl;
+
+    @PrePersist
+    @PreUpdate
+    private void trimFields() {
+        if (this.userName != null) this.userName = this.userName.trim();
+        if (this.fullName != null) this.fullName = this.fullName.trim();
+        if (this.email != null) this.email = this.email.trim();
+        if (this.phoneNumber != null) this.phoneNumber = this.phoneNumber.trim();
+    }
 }

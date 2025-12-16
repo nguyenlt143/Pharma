@@ -11,6 +11,7 @@ import vn.edu.fpt.pharma.repository.ShiftRepository;
 import vn.edu.fpt.pharma.repository.ShiftWorkRepository;
 import vn.edu.fpt.pharma.service.AuditService;
 import vn.edu.fpt.pharma.service.ShiftAssignmentService;
+import vn.edu.fpt.pharma.exception.ShiftOverlapException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -56,6 +57,19 @@ public class ShiftAssignmentServiceImpl extends BaseServiceImpl<ShiftAssignment,
         // Prevent duplicate
         ShiftAssignment existing = findByShiftIdAndUserId(shiftId, userId);
         if (existing != null) return existing;
+
+        // Check overlapping assignments for the same user across other shifts
+        List<ShiftAssignment> userAssignments = repository.findByUserId(userId);
+        for (ShiftAssignment sa : userAssignments) {
+            Shift other = sa.getShift();
+            if (other == null) continue;
+            // Two shifts overlap if start < other.end && end > other.start
+            if (shift.getStartTime() != null && shift.getEndTime() != null && other.getStartTime() != null && other.getEndTime() != null) {
+                if (shift.getStartTime().isBefore(other.getEndTime()) && shift.getEndTime().isAfter(other.getStartTime())) {
+                    throw new ShiftOverlapException("Nhân viên đã được phân công vào ca trùng khớp: " + other.getName());
+                }
+            }
+        }
 
         ShiftAssignment sa = new ShiftAssignment();
         sa.setShift(shift);

@@ -109,14 +109,20 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
 
     @Override
     public UserDto create(UserRequest req) {
+        // Trim inputs
+        if (req.getUserName() != null) req.setUserName(req.getUserName().trim());
+        if (req.getEmail() != null) req.setEmail(req.getEmail().trim());
+        if (req.getPhoneNumber() != null) req.setPhoneNumber(req.getPhoneNumber().trim());
+        if (req.getFullName() != null) req.setFullName(req.getFullName().trim());
+
         if (userRepository.existsByUserNameIgnoreCase(req.getUserName())) {
             throw new RuntimeException("Tên đăng nhập đã tồn tại");
         }
-        if (req.getEmail() != null && !req.getEmail().trim().isEmpty()
+        if (req.getEmail() != null && !req.getEmail().isEmpty()
                 && userRepository.existsByEmailIgnoreCase(req.getEmail())) {
             throw new RuntimeException("Email đã tồn tại");
         }
-        if (req.getPhoneNumber() != null && !req.getPhoneNumber().trim().isEmpty()
+        if (req.getPhoneNumber() != null && !req.getPhoneNumber().isEmpty()
                 && userRepository.existsByPhoneNumber(req.getPhoneNumber())) {
             throw new RuntimeException("Số điện thoại đã tồn tại");
         }
@@ -166,16 +172,22 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRepository>
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Nhân viên không tồn tại"));
 
+        // Trim inputs on update as well
+        if (req.getUserName() != null) req.setUserName(req.getUserName().trim());
+        if (req.getEmail() != null) req.setEmail(req.getEmail().trim());
+        if (req.getPhoneNumber() != null) req.setPhoneNumber(req.getPhoneNumber().trim());
+        if (req.getFullName() != null) req.setFullName(req.getFullName().trim());
+
         if (!user.getUserName().equalsIgnoreCase(req.getUserName())
                 && userRepository.existsByUserNameIgnoreCase(req.getUserName())) {
             throw new RuntimeException("Tên đăng nhập đã tồn tại");
         }
-        if (req.getEmail() != null && !req.getEmail().trim().isEmpty()
+        if (req.getEmail() != null && !req.getEmail().isEmpty()
                 && !equalsIgnoreCase(user.getEmail(), req.getEmail())
                 && userRepository.existsByEmailIgnoreCaseAndIdNot(req.getEmail(), id)) {
             throw new RuntimeException("Email đã tồn tại");
         }
-        if (req.getPhoneNumber() != null && !req.getPhoneNumber().trim().isEmpty()
+        if (req.getPhoneNumber() != null && !req.getPhoneNumber().isEmpty()
                 && !equals(user.getPhoneNumber(), req.getPhoneNumber())
                 && userRepository.existsByPhoneNumberAndIdNot(req.getPhoneNumber(), id)) {
             throw new RuntimeException("Số điện thoại đã tồn tại");

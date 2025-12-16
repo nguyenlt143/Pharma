@@ -19,6 +19,7 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.Locale;
 
 @Service
 @Transactional
@@ -135,16 +136,34 @@ public class ShiftServiceImpl implements ShiftService {
         if (str == null || str.isBlank()) {
             throw new IllegalArgumentException("Thời gian không được để trống");
         }
-        try {
-            // First, try to parse as HH:mm
-            return LocalTime.parse(str, DateTimeFormatter.ofPattern("H:mm"));
-        } catch (DateTimeParseException e1) {
+
+        // Normalize whitespace
+        String s = str.trim();
+
+        // Try multiple patterns: 24-hour and 12-hour (AM/PM) formats
+        DateTimeFormatter[] formatters = new DateTimeFormatter[] {
+                DateTimeFormatter.ofPattern("H:mm"),
+                DateTimeFormatter.ofPattern("HH:mm:ss"),
+                DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH),
+                DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH),
+                DateTimeFormatter.ofPattern("h a", Locale.ENGLISH),
+                DateTimeFormatter.ofPattern("ha", Locale.ENGLISH),
+                DateTimeFormatter.ofPattern("h:mm:ss a", Locale.ENGLISH)
+        };
+
+        for (DateTimeFormatter fmt : formatters) {
             try {
-                // If that fails, try to parse as HH:mm:ss
-                return LocalTime.parse(str, DateTimeFormatter.ofPattern("HH:mm:ss"));
-            } catch (DateTimeParseException e2) {
-                throw new IllegalArgumentException("Định dạng thời gian không hợp lệ. Vui lòng sử dụng HH:mm hoặc HH:mm:ss");
+                return LocalTime.parse(s, fmt);
+            } catch (DateTimeParseException ignored) {
+                // try next
             }
+        }
+
+        // As a last resort, try parsing ISO LocalTime
+        try {
+            return LocalTime.parse(s);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Định dạng thời gian không hợp lệ. Vui lòng sử dụng định dạng giờ hợp lệ (ví dụ: 08:00, 20:30, 12:00 AM, 12:00 PM)");
         }
     }
 }
