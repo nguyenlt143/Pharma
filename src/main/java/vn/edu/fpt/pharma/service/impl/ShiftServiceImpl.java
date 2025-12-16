@@ -103,7 +103,8 @@ public class ShiftServiceImpl implements ShiftService {
 
     @Override
     public void restore(Long id) {
-        Shift shiftToRestore = repo.findById(id).orElseThrow(() -> new RuntimeException("Ca làm việc không tồn tại"));
+        Shift shiftToRestore = repo.findByIdIncludingDeleted(id)
+                .orElseThrow(() -> new RuntimeException("Ca làm việc không tồn tại"));
         List<Shift> overlapping = repo.findOverlappingShifts(shiftToRestore.getBranchId(), shiftToRestore.getStartTime(), shiftToRestore.getEndTime(), id);
         if (!overlapping.isEmpty()) {
             String overlappingNames = overlapping.stream()

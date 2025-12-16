@@ -56,6 +56,9 @@
         function openModal(mode = 'create', data = null) {
             modal.classList.remove('hidden');
             modal.setAttribute('aria-hidden', 'false');
+
+            clearFieldErrors();
+
             const roleEl = document.getElementById('roleId');
             const roleWrapper = roleEl ? roleEl.closest('label') : null;
             if (mode === 'create') {
@@ -142,6 +145,7 @@
                     if (m.includes('email')) mapped['email'] = errorData.message;
                     if (m.includes('số điện thoại') || m.includes('phone')) mapped['phoneNumber'] = errorData.message;
                     if (m.includes('mật khẩu') || m.includes('password')) mapped['password'] = errorData.message;
+                    if (m.includes('chi nhánh') || m.includes('manager')) mapped['roleId'] = errorData.message;
                     if (Object.keys(mapped).length > 0) {
                         // merge with any existing errors
                         error.data.errors = Object.assign({}, error.data.errors || {}, mapped);
@@ -175,6 +179,7 @@
                     if (m.includes('email')) mapped['email'] = errorData.message;
                     if (m.includes('số điện thoại') || m.includes('phone')) mapped['phoneNumber'] = errorData.message;
                     if (m.includes('mật khẩu') || m.includes('password')) mapped['password'] = errorData.message;
+                    if (m.includes('chi nhánh') || m.includes('manager')) mapped['roleId'] = errorData.message;
                     if (Object.keys(mapped).length > 0) {
                         error.data.errors = Object.assign({}, error.data.errors || {}, mapped);
                         error.isValidation = true;
@@ -338,18 +343,37 @@
         
         function clearFieldErrors() {
             document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-            document.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+            document.querySelectorAll('.invalid-feedback').forEach(el => {
+                el.textContent = '';
+                el.style.setProperty('display', 'none', 'important');
+            });
         }
 
         function displayFieldErrors(errors) {
+            console.log('displayFieldErrors called with:', errors);
             for (const [field, message] of Object.entries(errors)) {
+                console.log(`Processing field: ${field}, message: ${message}`);
                 const input = document.getElementById(field);
-                const errorDiv = document.getElementById(`${field}-error`);
                 if (input) {
+                    console.log(`Adding .is-invalid to input: ${field}`);
                     input.classList.add('is-invalid');
+                } else {
+                    console.warn(`Input not found: ${field}`);
                 }
+
+                const errorDiv = document.getElementById(`${field}-error`);
                 if (errorDiv) {
+                    console.log(`Displaying error message for ${field}`);
                     errorDiv.textContent = message;
+                    try {
+                        errorDiv.style.setProperty('display', 'block', 'important');
+                    } catch (_) {
+                        errorDiv.style.display = 'block';
+                    }
+                    errorDiv.setAttribute('role', 'alert');
+                    errorDiv.setAttribute('aria-live', 'assertive');
+                } else {
+                    console.warn(`Error div not found: ${field}-error`);
                 }
             }
         }
@@ -446,6 +470,8 @@
             // submit
             staffForm.addEventListener('submit', async (ev) => {
                 ev.preventDefault();
+                clearFieldErrors();
+
                 if (!validateForm()) {
                     focusFirstInvalidField();
                     return;
@@ -478,21 +504,22 @@
                     closeModal();
                     await fetchAll();
                 } catch (e) {
-                    console.error(e);
+                    console.log('Submit error:', e);
+                    console.log('Error data:', e.data);
+                    console.log('Error data.errors:', e.data?.errors);
 
-                    if (e.isValidation && e.data) {
-                        // Validation errors - display field-level feedback
-                        if (e.data.errors) {
-                            displayFieldErrors(e.data.errors);
-                            focusFirstInvalidField();
-                        }
-                        // Do NOT show toast for field-level validation errors
-                        // but if there's a general message and no field-level errors, show it
-                        if (!e.data.errors || Object.keys(e.data.errors).length === 0) {
-                            if (e.data.message) showToast(e.data.message, 4000, 'error');
-                        }
+                    // Check if error has field-level errors
+                    if (e.data && e.data.errors && typeof e.data.errors === 'object' && Object.keys(e.data.errors).length > 0) {
+                        console.log('Displaying field errors:', e.data.errors);
+                        displayFieldErrors(e.data.errors);
+                        focusFirstInvalidField();
+                    } else if (e.isValidation && e.data?.errors) {
+                        console.log('Displaying validation errors:', e.data.errors);
+                        displayFieldErrors(e.data.errors);
+                        focusFirstInvalidField();
                     } else {
-                        // Business logic or other errors - show toast only
+                        // Generic error - show toast
+                        console.log('Displaying toast for generic error');
                         showToast(e.message || e.data?.message || 'Lỗi khi lưu', 3000, 'error');
                     }
                 }

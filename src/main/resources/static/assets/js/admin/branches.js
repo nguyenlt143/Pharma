@@ -80,6 +80,7 @@
         modal.classList.remove('hidden');
         modal.setAttribute('aria-hidden', 'false');
 
+        clearFieldErrors();
         populateBranchTypeOptions();
         const branchTypeSelect = document.getElementById('branchType');
 
@@ -139,8 +140,21 @@
             body: JSON.stringify(payload),
         });
         if (!res.ok) {
-            const errorText = await res.text();
-            throw new Error(errorText || 'Tạo thất bại');
+            const contentType = res.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                const errorData = await res.json();
+                // Check if it's field-level errors (object with field names)
+                if (typeof errorData === 'object' && !errorData.message) {
+                    const err = new Error('Validation failed');
+                    err.errors = errorData;
+                    throw err;
+                } else {
+                    throw new Error(errorData.message || 'Tạo thất bại');
+                }
+            } else {
+                const errorText = await res.text();
+                throw new Error(errorText || 'Tạo thất bại');
+            }
         }
         return await res.json();
     }
@@ -152,8 +166,21 @@
             body: JSON.stringify(payload),
         });
         if (!res.ok) {
-            const errorText = await res.text();
-            throw new Error(errorText || 'Cập nhật thất bại');
+            const contentType = res.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                const errorData = await res.json();
+                // Check if it's field-level errors (object with field names)
+                if (typeof errorData === 'object' && !errorData.message) {
+                    const err = new Error('Validation failed');
+                    err.errors = errorData;
+                    throw err;
+                } else {
+                    throw new Error(errorData.message || 'Cập nhật thất bại');
+                }
+            } else {
+                const errorText = await res.text();
+                throw new Error(errorText || 'Cập nhật thất bại');
+            }
         }
         return await res.json();
     }
@@ -304,7 +331,6 @@
         });
     }
 
-    // helpers
     function escapeHtml(s) {
         if (!s) return '';
         return String(s)
@@ -313,6 +339,50 @@
             .replaceAll('>', '&gt;')
             .replaceAll('"', '&quot;')
             .replaceAll("'", '&#39;');
+    }
+
+    function clearFieldErrors() {
+        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        document.querySelectorAll('.invalid-feedback').forEach(el => {
+            el.textContent = '';
+            el.style.setProperty('display', 'none', 'important');
+        });
+    }
+
+    function displayFieldErrors(errors) {
+        for (const [field, message] of Object.entries(errors)) {
+            const input = document.getElementById(field);
+            if (input) {
+                input.classList.add('is-invalid');
+            }
+
+            const errorDiv = document.getElementById(`${field}-error`);
+            if (errorDiv) {
+                errorDiv.textContent = message;
+                try {
+                    errorDiv.style.setProperty('display', 'block', 'important');
+                } catch (_) {
+                    errorDiv.style.display = 'block';
+                }
+                errorDiv.setAttribute('role', 'alert');
+                errorDiv.setAttribute('aria-live', 'assertive');
+            }
+        }
+    }
+
+    function focusFirstInvalidField() {
+        const first = document.querySelector('.is-invalid');
+        if (first) {
+            try {
+                if (typeof first.scrollIntoView === 'function') {
+                    first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                first.focus();
+            } catch (_) {
+                // Fallback if scrollIntoView fails
+                first.focus();
+            }
+        }
     }
 
     function setupEventListeners() {
@@ -352,6 +422,8 @@
         // Form submit
         branchForm.addEventListener('submit', async (ev) => {
             ev.preventDefault();
+            clearFieldErrors();
+
             const form = new FormData(branchForm);
             const payload = {
                 name: form.get('name'),
@@ -372,7 +444,14 @@
                 await fetchAll();
             } catch (e) {
                 console.error(e);
-                showToast(e.message || 'Lỗi khi lưu', 3000, 'error');
+                // Check if error has field-level errors
+                if (e.errors && typeof e.errors === 'object') {
+                    displayFieldErrors(e.errors);
+                    focusFirstInvalidField();
+                } else {
+                    // Generic error - show toast
+                    showToast(e.message || 'Lỗi khi lưu', 3000, 'error');
+                }
             }
         });
 

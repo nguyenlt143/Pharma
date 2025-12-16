@@ -11,6 +11,7 @@ public interface ShiftWorkService {
     List<ShiftWorkResponse> findByShiftAndDate(Long shiftId, LocalDate date);
     ShiftWorkResponse assignToShift(Long shiftId, ShiftWorkAssignRequest req);
     void removeShiftWork(Long id);
+    void restore(Long id);
 
     List<ShiftSummaryVM> getSummary(Long branchId, Long userId, LocalDate start, LocalDate end);
 

@@ -78,5 +78,10 @@ public class ManagerController {
         return "pages/manager/shift";
     }
 
+    @GetMapping("/report/adjustments")
+    public String adjustmentsReportPage() {
+        return "pages/manager/adjustments";
+    }
+
 }
 

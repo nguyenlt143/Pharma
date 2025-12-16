@@ -12,10 +12,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MedicineRequest {
-    @NotBlank(message = "Medicine name is required")
+    @NotBlank(message = "Tên thuốc không được để trống")
     private String medicineName;
     
-    @NotNull(message = "Category ID is required")
+    @NotNull(message = "Danh mục thuốc là bắt buộc")
     private Long categoryId;
     
     private String activeIngredient;

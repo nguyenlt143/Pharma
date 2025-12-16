@@ -1,139 +1,400 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const dateFromInput = document.getElementById('dateFrom');
-    const dateToInput = document.getElementById('dateTo');
-    const typeFilter = document.getElementById('typeFilter');
-    const filterBtn = document.getElementById('filterBtn');
-    const reportTableBody = document.getElementById('reportTableBody');
-    const prevPageBtn = document.getElementById('prev-page');
-    const nextPageBtn = document.getElementById('next-page');
-    const pageInfo = document.getElementById('page-info');
+// Manager Adjustments & Expired Returns JavaScript
+let adjustmentChart;
+let chartType = 'bar';
+let allActivities = [];
+let filteredActivities = [];
+let currentActivityFilter = 'all';
+let currentPage = 1;
+let recordsPerPage = 10;
 
-    const adjTotalEl = document.getElementById('adjustment-total');
-    const expTotalEl = document.getElementById('expired-total');
-    const grandTotalEl = document.getElementById('grand-total');
+document.addEventListener('DOMContentLoaded', () => {
+    loadAdjustmentSummary();
+    loadAdjustmentMovements();
+    loadRecentActivities();
 
-    let currentPage = 1;
-    const pageSize = 10;
+    // Chart type toggle
+    const chartBarBtn = document.getElementById('chartBarBtn');
+    const chartLineBtn = document.getElementById('chartLineBtn');
 
-    function formatDate(dateString) {
-        if (!dateString) return '';
-        const date = new Date(dateString);
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
+    if (chartBarBtn) {
+        chartBarBtn.addEventListener('click', () => {
+            chartType = 'bar';
+            chartBarBtn.classList.add('active');
+            chartLineBtn?.classList.remove('active');
+            loadAdjustmentMovements();
+        });
+        chartBarBtn.classList.add('active');
     }
 
-    function fetchTotals(from, to, type) {
-        const url = new URL('/api/manager/adjustments/totals', window.location.origin);
-        url.searchParams.append('from', from);
-        url.searchParams.append('to', to);
-        if (type && type !== 'all') url.searchParams.append('type', type);
-
-        return fetch(url)
-            .then(resp => resp.ok ? resp.json() : Promise.reject('Failed to load totals'))
-            .catch(err => {
-                console.error('Error fetching totals:', err);
-                return { adjustmentTotal: 0, expiredReturnTotal: 0, grandTotal: 0 };
-            });
-    }
-
-    function fetchAdjustments(page = 1) {
-        const from = dateFromInput.value;
-        const to = dateToInput.value;
-        let type = typeFilter.value;
-
-        if (!from || !to) {
-            alert('Vui lòng chọn cả ngày bắt đầu và ngày kết thúc.');
-            return;
-        }
-
-        // Map UI type to backend enum names if needed
-        if (type === 'adjustment') type = 'ADJUSTMENT';
-        if (type === 'expired_return') type = 'EXPIRED_RETURN';
-        if (type === 'all') type = null;
-
-        const url = new URL('/api/manager/adjustments', window.location.origin);
-        url.searchParams.append('from', from);
-        url.searchParams.append('to', to);
-        url.searchParams.append('page', page - 1); // Spring Page is 0-indexed
-        url.searchParams.append('size', pageSize);
-        if (type) {
-            url.searchParams.append('type', type);
-        }
-
-        fetch(url)
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.json();
-            })
-            .then(data => {
-                renderTable(data.content);
-                renderPagination(data);
-                currentPage = data.number + 1;
-
-                // fetch and render totals
-                fetchTotals(from, to, type)
-                    .then(t => {
-                        adjTotalEl.textContent = t.adjustmentTotal ? t.adjustmentTotal.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : '0';
-                        expTotalEl.textContent = t.expiredReturnTotal ? t.expiredReturnTotal.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : '0';
-                        grandTotalEl.textContent = t.grandTotal ? t.grandTotal.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : '0';
-                    });
-            })
-            .catch(error => console.error('Error fetching adjustments:', error));
-    }
-
-    function renderTable(adjustments) {
-        reportTableBody.innerHTML = '';
-        if (!adjustments || adjustments.length === 0) {
-            reportTableBody.innerHTML = '<tr><td colspan="7" class="text-center">Không có dữ liệu</td></tr>';
-            return;
-        }
-
-        adjustments.forEach(adj => {
-            const typeLabel = adj.type === 'ADJUSTMENT' ? 'Điều chỉnh' : 'Trả hàng hết hạn';
-            const row = `
-                <tr>
-                    <td>${formatDate(adj.createdAt)}</td>
-                    <td>${typeLabel}</td>
-                    <td>Sản phẩm ID: ${adj.variantId || ''}</td>
-                    <td>${adj.batchId || ''}</td>
-                    <td>${(adj.reason || '').trim()}</td>
-                    <td>${adj.differenceQuantity || 0}</td>
-                    <td>${adj.createdBy || ''}</td>
-                </tr>
-            `;
-            reportTableBody.innerHTML += row;
+    if (chartLineBtn) {
+        chartLineBtn.addEventListener('click', () => {
+            chartType = 'line';
+            chartLineBtn.classList.add('active');
+            chartBarBtn?.classList.remove('active');
+            loadAdjustmentMovements();
         });
     }
 
-    function renderPagination(pageData) {
-        pageInfo.textContent = `Trang ${pageData.number + 1} / ${pageData.totalPages}`;
-        prevPageBtn.disabled = pageData.first;
-        nextPageBtn.disabled = pageData.last;
+    // Range change handler - auto reload
+    const rangeSelect = document.getElementById('rangeSelect');
+    if (rangeSelect) {
+        rangeSelect.addEventListener('change', () => {
+            loadAdjustmentMovements();
+        });
     }
 
-    filterBtn.addEventListener('click', () => fetchAdjustments(1));
+    // Type filter change handler
+    const typeFilter = document.getElementById('typeFilter');
+    if (typeFilter) {
+        typeFilter.addEventListener('change', () => {
+            currentActivityFilter = typeFilter.value;
+            loadRecentActivities();
+        });
+    }
 
-    prevPageBtn.addEventListener('click', () => {
-        if (currentPage > 1) {
-            fetchAdjustments(currentPage - 1);
-        }
-    });
+    // Modal close
+    const modalClose = document.getElementById('modalClose');
+    const detailModal = document.getElementById('detailModal');
+    if (modalClose && detailModal) {
+        modalClose.addEventListener('click', () => {
+            detailModal.classList.add('hidden');
+        });
+        detailModal.addEventListener('click', (e) => {
+            if (e.target === detailModal) {
+                detailModal.classList.add('hidden');
+            }
+        });
+    }
 
-    nextPageBtn.addEventListener('click', () => {
-        const totalPages = parseInt(pageInfo.textContent.split('/')[1].trim());
-        if (currentPage < totalPages) {
-            fetchAdjustments(currentPage + 1);
-        }
-    });
-
-    // Set default dates
-    const today = new Date();
-    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    dateFromInput.value = firstDayOfMonth.toISOString().split('T')[0];
-    dateToInput.value = today.toISOString().split('T')[0];
-
-    // Initial fetch
-    fetchAdjustments();
+    // Pagination
+    setupPagination();
 });
+
+function loadAdjustmentSummary() {
+    fetch('/api/manager/adjustments/summary')
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json();
+        })
+        .then(data => {
+            const adjustmentCountEl = document.getElementById('adjustmentCount');
+            const expiredReturnCountEl = document.getElementById('expiredReturnCount');
+            const totalValueEl = document.getElementById('totalValue');
+
+            if (adjustmentCountEl) adjustmentCountEl.textContent = data.adjustmentCount || 0;
+            if (expiredReturnCountEl) expiredReturnCountEl.textContent = data.expiredReturnCount || 0;
+            if (totalValueEl) totalValueEl.textContent = data.totalValueFormatted || '0đ';
+        })
+        .catch(err => {
+            console.error('Failed to load adjustment summary', err);
+            showError('Không thể tải tổng quan');
+        });
+}
+
+function loadAdjustmentMovements() {
+    const range = document.getElementById('rangeSelect')?.value || 'week';
+    const type = document.getElementById('typeFilter')?.value || 'all';
+    const params = new URLSearchParams({ range, type });
+
+    fetch(`/api/manager/adjustments/movements?${params}`)
+        .then(res => {
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            return res.json();
+        })
+        .then(data => {
+            renderAdjustmentChart(data);
+        })
+        .catch(err => {
+            console.error('Failed to load adjustment movements', err);
+            showError('Không thể tải dữ liệu biến động');
+        });
+}
+
+function renderAdjustmentChart(data) {
+    console.log('Rendering chart with data:', data);
+    const ctx = document.getElementById('adjustmentChart');
+    if (!ctx) {
+        console.error('Chart canvas not found!');
+        return;
+    }
+
+    if (adjustmentChart) {
+        adjustmentChart.destroy();
+    }
+
+    console.log('Chart.js loaded:', typeof Chart !== 'undefined');
+    console.log('Chart type:', chartType);
+    console.log('Labels:', data.labels);
+    console.log('Adjustments:', data.adjustments);
+    console.log('Expired Returns:', data.expiredReturns);
+
+    const chartConfig = {
+        type: chartType,
+        data: {
+            labels: data.labels || [],
+            datasets: [
+                {
+                    label: 'Kiểm kho',
+                    data: data.adjustments || [],
+                    backgroundColor: chartType === 'bar' ? 'rgba(59, 130, 246, 0.8)' : 'rgba(59, 130, 246, 0.2)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: chartType === 'line'
+                },
+                {
+                    label: 'Trả hàng hết hạn',
+                    data: data.expiredReturns || [],
+                    backgroundColor: chartType === 'bar' ? 'rgba(239, 68, 68, 0.8)' : 'rgba(239, 68, 68, 0.2)',
+                    borderColor: 'rgba(239, 68, 68, 1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: chartType === 'line'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 15,
+                        font: { size: 13 }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            label += formatCurrency(context.parsed.y);
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return formatCurrency(value);
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    adjustmentChart = new Chart(ctx, chartConfig);
+}
+
+function loadRecentActivities() {
+    const type = currentActivityFilter;
+    const params = new URLSearchParams({ limit: 100, type });
+
+    fetch(`/api/manager/adjustments/activities?${params}`)
+        .then(res => {
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            return res.json();
+        })
+        .then(data => {
+            allActivities = data;
+            filteredActivities = data;
+            currentPage = 1;
+            renderActivitiesPage();
+        })
+        .catch(err => {
+            console.error('Failed to load activities', err);
+            showError('Không thể tải hoạt động gần đây');
+        });
+}
+
+function renderActivitiesPage() {
+    const tbody = document.getElementById('activitiesTableBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+
+    if (!filteredActivities || filteredActivities.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">Không có dữ liệu</td></tr>';
+        updatePaginationControls();
+        return;
+    }
+
+    const startIndex = (currentPage - 1) * recordsPerPage;
+    const endIndex = startIndex + recordsPerPage;
+    const pageData = filteredActivities.slice(startIndex, endIndex);
+
+    pageData.forEach(activity => {
+        const tr = document.createElement('tr');
+        const typeDisplay = getTypeDisplayName(activity.type);
+        const badgeClass = getTypeBadgeClass(activity.type);
+
+        tr.innerHTML = `
+            <td>${escapeHtml(activity.code)}</td>
+            <td><span class="badge ${badgeClass}">${escapeHtml(typeDisplay)}</span></td>
+            <td>${escapeHtml(activity.totalValueFormatted || '-')}</td>
+            <td>${escapeHtml(activity.timeAgo || '-')}</td>
+            <td class="text-center">
+                <button class="btn btn-sm btn-primary" onclick="viewDetail(${activity.id})">Xem</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    updatePaginationControls();
+}
+
+function getTypeDisplayName(type) {
+    const typeMap = {
+        'INVENTORY_ADJUSTMENT': 'Kiểm kho',
+        'BR_TO_WARE2': 'Trả hàng hết hạn'
+    };
+    return typeMap[type] || type;
+}
+
+function getTypeBadgeClass(type) {
+    const classMap = {
+        'INVENTORY_ADJUSTMENT': 'adjustment',
+        'BR_TO_WARE2': 'expired-return'
+    };
+    return classMap[type] || '';
+}
+
+function setupPagination() {
+    const prevBtn = document.getElementById('prev-page');
+    const nextBtn = document.getElementById('next-page');
+
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderActivitiesPage();
+            }
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            const totalPages = Math.ceil(filteredActivities.length / recordsPerPage) || 1;
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderActivitiesPage();
+            }
+        });
+    }
+}
+
+function updatePaginationControls() {
+    const pageInfo = document.getElementById('page-info');
+    const prevBtn = document.getElementById('prev-page');
+    const nextBtn = document.getElementById('next-page');
+
+    const totalRecords = filteredActivities.length;
+    const totalPages = Math.ceil(totalRecords / recordsPerPage) || 1;
+
+    if (pageInfo) pageInfo.textContent = `Trang ${currentPage} / ${totalPages}`;
+    if (prevBtn) prevBtn.disabled = currentPage === 1;
+    if (nextBtn) nextBtn.disabled = currentPage === totalPages;
+}
+
+window.viewDetail = function(id) {
+    fetch(`/api/manager/adjustments/detail/${id}`)
+        .then(res => {
+            if (!res.ok) throw new Error('Không thể tải chi tiết');
+            return res.json();
+        })
+        .then(data => {
+            showDetailModal(data);
+        })
+        .catch(err => {
+            console.error('Failed to load detail', err);
+            showError('Không thể tải chi tiết');
+        });
+};
+
+function showDetailModal(data) {
+    const modal = document.getElementById('detailModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+
+    if (!modal || !modalBody) return;
+
+    modalTitle.textContent = `Chi tiết ${data.code || ''}`;
+
+    const typeDisplay = getTypeDisplayName(data.type);
+    const badgeClass = getTypeBadgeClass(data.type);
+
+    let detailsHtml = '<div class="detail-info">';
+    detailsHtml += `<div class="detail-row"><strong>Mã:</strong> ${escapeHtml(data.code || '-')}</div>`;
+    detailsHtml += `<div class="detail-row"><strong>Loại:</strong> <span class="badge ${badgeClass}">${escapeHtml(typeDisplay)}</span></div>`;
+    detailsHtml += `<div class="detail-row"><strong>Chi nhánh:</strong> ${escapeHtml(data.branchName || '-')}</div>`;
+    detailsHtml += `<div class="detail-row"><strong>Tổng giá trị:</strong> ${escapeHtml(data.totalValueFormatted || '-')}</div>`;
+    detailsHtml += `<div class="detail-row"><strong>Tổng số lượng:</strong> ${data.totalQty || 0}</div>`;
+    detailsHtml += '</div>';
+
+    if (data.details && data.details.length > 0) {
+        detailsHtml += '<h4 style="margin-top: 20px;">Chi tiết sản phẩm</h4>';
+        detailsHtml += '<table class="table" style="margin-top: 10px;">';
+        detailsHtml += '<thead><tr><th>Thuốc</th><th>Biến thể</th><th>Lô</th><th>SL</th><th>Đơn giá</th><th>Thành tiền</th></tr></thead>';
+        detailsHtml += '<tbody>';
+        data.details.forEach(item => {
+            detailsHtml += '<tr>';
+            detailsHtml += `<td>${escapeHtml(item.medicineName || '-')}</td>`;
+            detailsHtml += `<td>${escapeHtml(item.variantName || '-')}</td>`;
+            detailsHtml += `<td>${escapeHtml(item.batchCode || '-')}</td>`;
+            detailsHtml += `<td>${item.quantity || 0}</td>`;
+            detailsHtml += `<td>${formatCurrency(item.price || 0)}</td>`;
+            detailsHtml += `<td>${formatCurrency(item.subtotal || 0)}</td>`;
+            detailsHtml += '</tr>';
+        });
+        detailsHtml += '</tbody></table>';
+    }
+
+    modalBody.innerHTML = detailsHtml;
+    modal.classList.remove('hidden');
+}
+
+function formatCurrency(value) {
+    if (value == null || isNaN(value)) return '0 ₫';
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+        minimumFractionDigits: 0
+    }).format(value);
+}
+
+function escapeHtml(s) {
+    if (!s) return '';
+    return String(s)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+}
+
+function showError(message) {
+    const toast = document.getElementById('toast');
+    if (toast) {
+        toast.textContent = message;
+        toast.classList.remove('hidden');
+        toast.classList.add('error');
+        setTimeout(() => {
+            toast.classList.add('hidden');
+            toast.classList.remove('error');
+        }, 3000);
+    } else {
+        alert(message);
+    }
+}
+

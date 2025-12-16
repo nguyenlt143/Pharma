@@ -80,10 +80,12 @@ content = @`
                 <div class="form-grid">
                     <label>Username <span class="required">*</span>
                         <input id="userName" name="userName" required>
+                        <div class="invalid-feedback" id="userName-error"></div>
                     </label>
 
                     <label>Họ tên <span class="required">*</span>
                         <input id="fullName" name="fullName" required>
+                        <div class="invalid-feedback" id="fullName-error"></div>
                     </label>
 
                     <label>Vai trò <span class="required">*</span>
@@ -92,6 +94,7 @@ content = @`
                             <option value="3">Quản lý chi nhánh (Manager)</option>
                             <option value="5">Nhân viên kho tổng (Warehouse)</option>
                         </select>
+                        <div class="invalid-feedback" id="roleId-error"></div>
                     </label>
 
                     <label id="branchWrapper">Chi nhánh <span class="required">*</span>
@@ -99,18 +102,22 @@ content = @`
                             <option value="">-- Chọn chi nhánh --</option>
                             <!-- populated by accounts.js -->
                         </select>
+                        <div class="invalid-feedback" id="branchId-error"></div>
                     </label>
 
                     <label>Email
                         <input id="email" name="email" type="email">
+                        <div class="invalid-feedback" id="email-error"></div>
                     </label>
 
                     <label>Số điện thoại
-                        <input id="phoneNumber" name="phoneNumber" type="tel">
+                        <input id="phoneNumber" name="phoneNumber" type="tel" pattern="0[0-9]{9}" title="Số điện thoại phải có 10 chữ số và bắt đầu bằng số 0.">
+                        <div class="invalid-feedback" id="phoneNumber-error"></div>
                     </label>
 
                     <label id="passwordWrapper">Mật khẩu <span class="required">*</span>
                         <input id="password" name="password" type="password">
+                        <div class="invalid-feedback" id="password-error"></div>
                     </label>
                 </div>
 

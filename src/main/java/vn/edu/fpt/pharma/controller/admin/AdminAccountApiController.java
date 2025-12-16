@@ -6,8 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.pharma.dto.manager.UserDto;
 import vn.edu.fpt.pharma.dto.manager.UserRequest;
-import vn.edu.fpt.pharma.entity.Branch;
-import vn.edu.fpt.pharma.repository.BranchRepository;
 import vn.edu.fpt.pharma.service.UserService;
 import vn.edu.fpt.pharma.service.MedicineVariantService;
 
@@ -47,7 +45,9 @@ public class AdminAccountApiController {
         try {
             return ResponseEntity.ok(userService.create(req));
         } catch (RuntimeException e) {
-            return ResponseEntity.status(400).body(e.getMessage());
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(400).body(errorResponse);
         }
     }
 
@@ -57,7 +57,9 @@ public class AdminAccountApiController {
         try {
             return ResponseEntity.ok(userService.update(id, req));
         } catch (RuntimeException e) {
-            return ResponseEntity.status(400).body(e.getMessage());
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(400).body(errorResponse);
         }
     }
 
@@ -68,7 +70,9 @@ public class AdminAccountApiController {
             userService.delete(id);
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
-            return ResponseEntity.status(400).body(e.getMessage());
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(400).body(errorResponse);
         }
     }
 

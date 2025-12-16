@@ -27,6 +27,9 @@ public interface ShiftRepository extends JpaRepository<Shift, Long>, JpaSpecific
     @Query(value = "UPDATE shifts SET deleted = false WHERE id = :id", nativeQuery = true)
     void restoreById(@Param("id") Long id);
 
+    @Query(value = "SELECT * FROM shifts WHERE id = :id", nativeQuery = true)
+    Optional<Shift> findByIdIncludingDeleted(@Param("id") Long id);
+
     @Query("""
     SELECT s
     FROM Shift s
