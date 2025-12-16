@@ -45,6 +45,16 @@ public class WarehouseController {
     private final RequestFormService requestFormService;
     private final InventoryService inventoryService;
     private final StockAdjustmentService stockAdjustmentService;
+    private final vn.edu.fpt.pharma.service.DashboardService dashboardService;
+
+    // -------------------- DASHBOARD --------------------
+    @GetMapping("/dashboard")
+    public String dashboard(Model model) {
+        var data = dashboardService.getWarehouseDashboardData();
+        model.addAllAttributes(data);
+        return "pages/warehouse/dashboard";
+    }
+
     @GetMapping("/receipt/create")
     public String receiptCreate(Model model) {
         // Tạo ViewModel rỗng cho form mới
