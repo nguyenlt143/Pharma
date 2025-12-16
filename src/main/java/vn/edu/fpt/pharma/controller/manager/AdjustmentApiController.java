@@ -30,6 +30,7 @@ public class AdjustmentApiController {
 
     // -------------------- Summary --------------------
     @GetMapping("/summary")
+    @Transactional(readOnly = true)
     public ResponseEntity<Map<String, Object>> getAdjustmentSummary(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
@@ -44,31 +45,24 @@ public class AdjustmentApiController {
 
         Map<String, Object> summary = new HashMap<>();
 
-        // Count adjustments in last 30 days
+        // Count adjustments in last 30 days using optimized query
         LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
-        List<InventoryMovement> adjustments = inventoryMovementRepository.findAll().stream()
-                .filter(m -> m.getMovementType() == MovementType.INVENTORY_ADJUSTMENT
-                          && m.getSourceBranchId() != null
-                          && m.getSourceBranchId().equals(branchId)
-                          && m.getCreatedAt() != null
-                          && m.getCreatedAt().isAfter(thirtyDaysAgo))
+        List<MovementType> adjustmentTypes = List.of(MovementType.INVENTORY_ADJUSTMENT, MovementType.BR_TO_WARE2);
+        List<InventoryMovement> movements = inventoryMovementRepository
+                .findMovementsWithDetailsSinceByBranchAndTypes(thirtyDaysAgo, branchId, adjustmentTypes);
+
+        // Separate by type
+        List<InventoryMovement> adjustments = movements.stream()
+                .filter(m -> m.getMovementType() == MovementType.INVENTORY_ADJUSTMENT)
                 .toList();
 
-        // Count expired returns in last 30 days
-        List<InventoryMovement> expiredReturns = inventoryMovementRepository.findAll().stream()
-                .filter(m -> m.getMovementType() == MovementType.BR_TO_WARE2
-                          && m.getSourceBranchId() != null
-                          && m.getSourceBranchId().equals(branchId)
-                          && m.getCreatedAt() != null
-                          && m.getCreatedAt().isAfter(thirtyDaysAgo))
+        List<InventoryMovement> expiredReturns = movements.stream()
+                .filter(m -> m.getMovementType() == MovementType.BR_TO_WARE2)
                 .toList();
 
         // Calculate total value from snapCost * quantity
         double totalValue = 0.0;
-        for (InventoryMovement m : adjustments) {
-            totalValue += calculateTotalMoney(m);
-        }
-        for (InventoryMovement m : expiredReturns) {
+        for (InventoryMovement m : movements) {
             totalValue += calculateTotalMoney(m);
         }
 
@@ -104,10 +98,13 @@ public class AdjustmentApiController {
             default -> fromDate = now.minusWeeks(1);
         }
 
-        List<InventoryMovement> movements = inventoryMovementRepository.findMovementsSinceByBranch(fromDate, branchId);
+        // Use optimized query with eager loading
+        List<MovementType> adjustmentTypes = List.of(MovementType.INVENTORY_ADJUSTMENT, MovementType.BR_TO_WARE2);
+        List<InventoryMovement> allMovements = inventoryMovementRepository
+                .findMovementsWithDetailsSinceByBranchAndTypes(fromDate, branchId, adjustmentTypes);
 
-        // Filter by adjustment types and optional type parameter
-        movements = movements.stream()
+        // Filter by optional type parameter
+        List<InventoryMovement> movements = allMovements.stream()
                 .filter(m -> {
                     boolean isAdjustment = m.getMovementType() == MovementType.INVENTORY_ADJUSTMENT;
                     boolean isExpiredReturn = m.getMovementType() == MovementType.BR_TO_WARE2;
@@ -117,7 +114,7 @@ public class AdjustmentApiController {
                     } else if ("expired_return".equalsIgnoreCase(type)) {
                         return isExpiredReturn;
                     } else {
-                        return isAdjustment || isExpiredReturn;
+                        return true; // Already filtered by query
                     }
                 })
                 .toList();
@@ -174,8 +171,13 @@ public class AdjustmentApiController {
         }
 
         // Return recent adjustments and expired returns from this branch
-        List<InventoryMovement> movements = inventoryMovementRepository.findAll().stream()
-                .filter(mv -> mv.getSourceBranchId() != null && mv.getSourceBranchId().equals(branchId))
+        // Use a reasonable time range for performance (e.g., last 3 months)
+        LocalDateTime threeMonthsAgo = LocalDateTime.now().minusMonths(3);
+        List<MovementType> adjustmentTypes = List.of(MovementType.INVENTORY_ADJUSTMENT, MovementType.BR_TO_WARE2);
+
+        List<InventoryMovement> movements = inventoryMovementRepository
+                .findMovementsWithDetailsSinceByBranchAndTypes(threeMonthsAgo, branchId, adjustmentTypes)
+                .stream()
                 .filter(mv -> {
                     boolean isAdjustment = mv.getMovementType() == MovementType.INVENTORY_ADJUSTMENT;
                     boolean isExpiredReturn = mv.getMovementType() == MovementType.BR_TO_WARE2;
@@ -185,7 +187,7 @@ public class AdjustmentApiController {
                     } else if ("BR_TO_WARE2".equalsIgnoreCase(type)) {
                         return isExpiredReturn;
                     } else {
-                        return isAdjustment || isExpiredReturn;
+                        return true; // Already filtered by query
                     }
                 })
                 .sorted((a, b) -> {

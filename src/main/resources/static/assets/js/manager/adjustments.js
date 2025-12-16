@@ -79,6 +79,7 @@ function loadAdjustmentSummary() {
             return res.json();
         })
         .then(data => {
+            console.log('Summary data received:', data);
             const adjustmentCountEl = document.getElementById('adjustmentCount');
             const expiredReturnCountEl = document.getElementById('expiredReturnCount');
             const totalValueEl = document.getElementById('totalValue');
@@ -86,6 +87,8 @@ function loadAdjustmentSummary() {
             if (adjustmentCountEl) adjustmentCountEl.textContent = data.adjustmentCount || 0;
             if (expiredReturnCountEl) expiredReturnCountEl.textContent = data.expiredReturnCount || 0;
             if (totalValueEl) totalValueEl.textContent = data.totalValueFormatted || '0đ';
+
+            console.log('Summary updated - Adjustments:', data.adjustmentCount, 'Expired Returns:', data.expiredReturnCount, 'Total:', data.totalValueFormatted);
         })
         .catch(err => {
             console.error('Failed to load adjustment summary', err);

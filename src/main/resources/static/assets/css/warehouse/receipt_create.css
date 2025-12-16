@@ -584,6 +584,31 @@ body {
     font-size: 14px;
 }
 
+/* Input Validation Styles */
+.is-invalid {
+    border-color: #EF4444 !important;
+    background-color: #FEF2F2 !important;
+}
+
+.is-invalid:focus {
+    outline: none;
+    border-color: #DC2626 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.invalid-feedback {
+    display: none;
+    color: #EF4444;
+    font-size: 12px;
+    line-height: 16px;
+    margin-top: 4px;
+}
+
+.is-invalid + .invalid-feedback,
+.is-invalid ~ .invalid-feedback {
+    display: block;
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
     .form-row {

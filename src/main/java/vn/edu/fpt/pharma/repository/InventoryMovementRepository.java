@@ -37,6 +37,19 @@ public interface InventoryMovementRepository extends JpaRepository<InventoryMove
            "ORDER BY im.createdAt")
     List<InventoryMovement> findMovementsSinceByBranch(@Param("fromDate") LocalDateTime fromDate, @Param("branchId") Long branchId);
 
+    // New: fetch movements with details for summary (adjustment & expired returns)
+    @Query("SELECT DISTINCT im FROM InventoryMovement im " +
+           "LEFT JOIN FETCH im.inventoryMovementDetails imd " +
+           "WHERE im.createdAt >= :fromDate " +
+           "AND im.sourceBranchId = :branchId " +
+           "AND im.movementType IN :types " +
+           "ORDER BY im.createdAt")
+    List<InventoryMovement> findMovementsWithDetailsSinceByBranchAndTypes(
+            @Param("fromDate") LocalDateTime fromDate,
+            @Param("branchId") Long branchId,
+            @Param("types") List<MovementType> types);
+
+
     // New: find inventory movement associated with a request form id (with details eagerly loaded)
     @Query("SELECT im FROM InventoryMovement im " +
            "LEFT JOIN FETCH im.inventoryMovementDetails imd " +
