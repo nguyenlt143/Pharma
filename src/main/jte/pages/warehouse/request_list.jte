@@ -90,6 +90,7 @@ content = @`
                         <div class="dropdown-item" data-value="">Tất cả</div>
                         <div class="dropdown-item" data-value="REQUESTED">Đang duyệt</div>
                         <div class="dropdown-item" data-value="CONFIRMED">Chấp nhận</div>
+                        <div class="dropdown-item" data-value="RECEIVED">Hoàn thành</div>
                         <div class="dropdown-item" data-value="CANCELLED">Từ chối</div>
                     </div>
                 </div>
@@ -137,6 +138,8 @@ content = @`
                                         <div class="status-button pending">Đang duyệt</div>
                                     @elseif(request.requestStatus().equals("CONFIRMED"))
                                         <div class="status-button approved">Chấp nhận</div>
+                                    @elseif(request.requestStatus().equals("RECEIVED"))
+                                        <div class="status-button completed">Hoàn thành</div>
                                     @elseif(request.requestStatus().equals("CANCELLED"))
                                         <div class="status-button rejected">Từ chối</div>
                                     @else

@@ -316,6 +316,10 @@ body {
     background-color: #5cb85c;
 }
 
+.status-button.completed {
+    background-color: #17a2b8;
+}
+
 .status-button.rejected {
     background-color: #d9534f;
 }

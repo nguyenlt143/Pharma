@@ -454,13 +454,12 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
             // For now, we just mark as SHIPPED (đang giao)
         }
 
-        // 8. Do NOT update request status - keep it as CONFIRMED
-        // The request status should remain CONFIRMED even after creating export slip
-        // if (requestForm != null) {
-        //     requestForm.setRequestStatus(RequestStatus.RECEIVED);
-        //     requestFormRepository.save(requestForm);
-        //     log.info("Updated request form {} to RECEIVED", requestForm.getId());
-        // }
+        // 8. Update request status to RECEIVED when export slip is created successfully
+        if (requestForm != null && requestForm.getRequestStatus() == vn.edu.fpt.pharma.constant.RequestStatus.CONFIRMED) {
+            requestForm.setRequestStatus(vn.edu.fpt.pharma.constant.RequestStatus.RECEIVED);
+            requestFormRepository.save(requestForm);
+            log.info("Updated request form {} to RECEIVED after creating export slip", requestForm.getId());
+        }
 
         log.info("Export movement {} created successfully with {} items",
                 savedMovement.getId(), dto.getDetails().size());

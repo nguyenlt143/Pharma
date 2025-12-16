@@ -52,11 +52,14 @@ content = @`
                 <div class="tab" data-type="BR_TO_WARE">
                     <span class="tab-text">Chuyển Về Kho Tổng</span>
                 </div>
-                <div class="tab" data-type="WARE_TO_SUP">
-                    <span class="tab-text">Trả Hàng</span>
+                <div class="tab" data-type="BR_TO_WARE2">
+                    <span class="tab-text">Hàng Hết Hạn</span>
                 </div>
                 <div class="tab" data-type="DISPOSAL">
                     <span class="tab-text">Xuất Hủy</span>
+                </div>
+                <div class="tab" data-type="INVENTORY_ADJUSTMENT">
+                    <span class="tab-text">Kiểm Kho</span>
                 </div>
             </div>
         </section>
