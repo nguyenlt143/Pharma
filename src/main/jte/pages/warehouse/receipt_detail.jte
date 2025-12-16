@@ -162,8 +162,18 @@ content = @`
                 </div>
                 <div class="footer-actions">
                     @if(receipt.getStatus().equals("DRAFT"))
-                        <button class="approve-button" onclick="approveReceipt(${receipt.getId()})">Chấp nhận</button>
-                        <button class="cancel-button" onclick="cancelReceipt(${receipt.getId()})">Từ chối</button>
+                        <%-- Phiếu BR_TO_WARE/BR_TO_WARE2 được điều khiển bởi Return Request, không có nút trực tiếp --%>
+                        @if(receipt.getType().equals("BR_TO_WARE") || receipt.getType().equals("BR_TO_WARE2"))
+                            <div style="text-align: center; padding: 10px; background-color: #FEF3C7; border-radius: 5px; margin: 10px 0;">
+                                <span style="color: #92400E; font-size: 14px;">
+                                    <i class="material-icons" style="font-size: 16px; vertical-align: middle;">info</i>
+                                    Phiếu này được quản lý qua Yêu cầu trả hàng. Vui lòng duyệt/từ chối yêu cầu tương ứng.
+                                </span>
+                            </div>
+                        @else
+                            <button class="approve-button" onclick="approveReceipt(${receipt.getId()})">Chấp nhận</button>
+                            <button class="cancel-button" onclick="cancelReceipt(${receipt.getId()})">Từ chối</button>
+                        @endif
                     @elseif(receipt.getStatus().equals("APPROVED"))
                         <%-- Không hiển thị nút "Gửi hàng" cho phiếu kiểm kho --%>
                         @if(!receipt.getType().equals("INVENTORY_ADJUSTMENT"))
