@@ -96,6 +96,7 @@
                             data-variant-id="${item.getVariantId()}"
                             data-batch-id="${item.getBatchId()}"
                             data-inventory-id="@if(item.getInventoryId() != null)${item.getInventoryId()}@endif"
+                            data-min-stock="@if(item.getMinStock() != null)${item.getMinStock()}@else${""}@endif"
                             data-unit="@if(item.getUnit() != null)${item.getUnit()}@endif"
                             data-available-qty="${item.getQuantity()}"
                             data-low-stock="${item.getQuantity() != null && item.getQuantity() < 10}"
@@ -371,6 +372,7 @@ function collectSelected(forType) {
       strength: row.dataset.strength || '',
       unit: row.dataset.unit || '',
       batchCode: row.dataset.batchCode || '',
+      minStock: (row.dataset.minStock && row.dataset.minStock !== '') ? Number(row.dataset.minStock) : null,
       availableQty: availableQty,
       quantity: qty
     });

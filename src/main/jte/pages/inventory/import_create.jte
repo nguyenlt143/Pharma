@@ -58,7 +58,8 @@
                                     data-strength="@if(m.getStrength() != null)${m.getStrength()}@endif"
                                     data-dosage-form="@if(m.getDosageForm() != null)${m.getDosageForm()}@endif"
                                     data-manufacturer="@if(m.getManufacturer() != null)${m.getManufacturer()}@endif"
-                                    data-branch-stock="@if(m.getCategoryName() != null)${m.getCategoryName()}@else0@endif"
+                                    data-branch-stock="@if(m.getBranchStock() != null)${m.getBranchStock()}@else0@endif"
+                                    data-min-stock="@if(m.getMinStock() != null)${m.getMinStock()}@else${""}@endif"
                                     data-unit="@if(m.getUnit() != null)${m.getUnit()}@endif">
                                     <td class="px-3 py-2">
                                         <div class="font-medium text-gray-900">${m.getMedicineName()}</div>
@@ -67,7 +68,7 @@
                                     <td class="px-3 py-2 text-xs">@if(m.getActiveIngredient() != null)${m.getActiveIngredient()}@else-@endif</td>
                                     <td class="px-3 py-2 text-xs">@if(m.getStrength() != null)${m.getStrength()}@else-@endif</td>
                                     <td class="px-3 py-2 text-center font-semibold text-blue-600">
-                                        @if(m.getCategoryName() != null)${m.getCategoryName()}@else0@endif @if(m.getUnit() != null)${m.getUnit()}@endif
+                                        @if(m.getBranchStock() != null)${m.getBranchStock()}@else0@endif @if(m.getUnit() != null)${m.getUnit()}@endif
                                     </td>
                                     <td class="px-3 py-2 text-center">
                                         <button class="add-medicine-btn text-sm text-blue-600 hover:text-blue-800 font-medium" type="button">
@@ -97,6 +98,7 @@
                             <th class="px-4 py-3 text-left">Tên thuốc</th>
                             <th class="px-4 py-3 text-left">Hoạt chất</th>
                             <th class="px-4 py-3 text-left">Hàm lượng</th>
+                            <th class="px-4 py-3 text-center">Số lượng tối thiểu</th>
                             <th class="px-4 py-3 text-center">Tồn kho chi nhánh</th>
                             <th class="px-4 py-3 text-center">Số lượng yêu cầu</th>
                             <th class="px-4 py-3 text-center">Xóa</th>
@@ -104,7 +106,7 @@
                     </thead>
                     <tbody id="selectedMedicinesList" class="divide-y">
                         <tr id="emptyRow">
-                            <td colspan="7" class="px-4 py-6 text-center text-gray-500">
+                            <td colspan="8" class="px-4 py-6 text-center text-gray-500">
                                 Chưa có thuốc nào được chọn. Vui lòng chọn thuốc từ danh sách bên trên.
                             </td>
                         </tr>
@@ -164,6 +166,7 @@
             const quantity = (typeof it.quantity === 'number' && it.quantity > 0) ? it.quantity : 1;
             
             const branchStock = (typeof it.branchStock === 'number') ? it.branchStock : 0;
+            const minStock = (typeof it.minStock === 'number') ? it.minStock : null;
             const unit = it.unit || '';
             
             tr.innerHTML = ''
@@ -171,6 +174,7 @@
                 + '<td class="px-4 py-3 font-medium">' + (it.medicineName || '') + '</td>'
                 + '<td class="px-4 py-3 text-sm">' + (it.activeIngredient || '-') + '</td>'
                 + '<td class="px-4 py-3 text-sm">' + (it.strength || '-') + '</td>'
+                + '<td class="px-4 py-3 text-center text-sm text-gray-700">' + (minStock !== null ? minStock : '-') + '</td>'
                 + '<td class="px-4 py-3 text-center font-semibold text-blue-600">' + branchStock + ' ' + unit + '</td>'
                 + '<td class="px-4 py-3 text-center">'
                 +   '<input type="number" class="qty-input border border-gray-300 rounded px-2 py-1 text-center w-24"'

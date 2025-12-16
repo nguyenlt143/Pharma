@@ -89,6 +89,12 @@ public class InventoryController {
         for (InventoryMedicineVM bm : branchMedicines) {
             branchStockMap.merge(bm.getVariantId(), bm.getQuantity(), Long::sum);
         }
+        // Create a map of minStock by variantId+batchId for branch
+        Map<String, Long> branchMinStockMap = new java.util.HashMap<>();
+        for (InventoryMedicineVM bm : branchMedicines) {
+            String key = (bm.getVariantId() != null ? bm.getVariantId() : "") + ":" + (bm.getBatchId() != null ? bm.getBatchId() : "");
+            if (bm.getMinStock() != null) branchMinStockMap.put(key, bm.getMinStock());
+        }
         
         // Add branchStock to warehouse medicines
         for (InventoryMedicineVM wm : warehouseMedicines) {
@@ -96,9 +102,13 @@ public class InventoryController {
             Long branchStock = branchStockMap.getOrDefault(wm.getVariantId(), 0L);
             // We need to pass branchStock to the view - use a map or extend DTO
             wm.setBranchId(branchId); // Store branchId
-            // Store branchStock in categoryName temporarily (or create new field)
-            wm.setCategoryName(branchStock.toString()); // Temporary hack
-        }
+            wm.setBranchStock(branchStock);
+            // set minStock from branch inventory if available (match by variantId + batchId)
+            String key = (wm.getVariantId() != null ? wm.getVariantId() : "") + ":" + (wm.getBatchId() != null ? wm.getBatchId() : "");
+            if (branchMinStockMap.containsKey(key)) {
+                wm.setMinStock(branchMinStockMap.get(key));
+            }
+         }
         
         model.addAttribute("medicines", warehouseMedicines);
         model.addAttribute("branchId", branchId);

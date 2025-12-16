@@ -25,4 +25,5 @@ public class InventoryMedicineVM {
     private String categoryName;
     private Long branchId;
     private Long minStock;
+    private Long branchStock;
 }
