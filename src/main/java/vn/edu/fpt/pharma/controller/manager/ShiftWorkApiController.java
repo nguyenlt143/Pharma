@@ -41,4 +41,16 @@ public class ShiftWorkApiController {
         shiftWorkService.removeShiftWork(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/shift-works/{id}/restore")
+    public ResponseEntity<?> restore(@PathVariable Long id) {
+        try {
+            shiftWorkService.restore(id);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(400).body(java.util.Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(java.util.Map.of("message", "Lỗi khi khôi phục ca làm việc"));
+        }
+    }
 }

@@ -67,17 +67,23 @@
     function updateBranchFieldVisibility() {
         const roleId = roleIdSelect.value;
         // Role ID 2 = OWNER - no branch required (chi nhánh tổng)
-        // Role ID 5 = WAREHOUSE - no branch required (kho tổng)
+        // Role ID 5 = WAREHOUSE - no branch required (kho tổng, auto set branchId=1)
         // Role ID 3 = MANAGER - branch required
-        if (roleId === '2' || roleId === '5') {
-            // OWNER or WAREHOUSE - hide branch field (thuộc chi nhánh tổng)
+        if (roleId === '2') {
+            // OWNER - hide branch field (thuộc chi nhánh tổng)
             branchWrapper.style.display = 'none';
             branchIdSelect.removeAttribute('required');
             branchIdSelect.value = '';
+        } else if (roleId === '5') {
+            // WAREHOUSE - hide branch field and auto set to branch 1 (kho tổng)
+            branchWrapper.style.display = 'none';
+            branchIdSelect.removeAttribute('required');
+            branchIdSelect.value = '1';
         } else if (roleId === '3') {
             // MANAGER - show and require branch
             branchWrapper.style.display = '';
             branchIdSelect.setAttribute('required', 'required');
+            loadBranches();
         } else {
             // No role selected - hide
             branchWrapper.style.display = 'none';
@@ -88,6 +94,8 @@
     function openModal(mode = 'create', data = null) {
         modal.classList.remove('hidden');
         modal.setAttribute('aria-hidden', 'false');
+
+        clearFieldErrors();
 
         if (mode === 'create') {
             modalTitle.textContent = 'Tạo tài khoản';
@@ -195,21 +203,47 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
         });
-        if (!res.ok) {
+        if (res.ok) {
+            return await res.json();
+        }
+
+        let errorData = null;
+        try {
             const ct = res.headers.get('content-type') || '';
             if (ct.includes('application/json')) {
-                const data = await res.json();
-                if (data.errors) {
-                    // convert field errors to single message for toast
-                    const first = Object.values(data.errors)[0];
-                    throw new Error(first || data.message || 'Tạo thất bại');
-                }
-                throw new Error(data.message || 'Tạo thất bại');
+                errorData = await res.json();
+            } else {
+                const txt = await res.text();
+                errorData = { message: txt };
             }
-            const errorText = await res.text();
-            throw new Error(errorText || 'Tạo thất bại');
+        } catch (_) {
+            errorData = { message: 'Tạo thất bại' };
         }
-        return await res.json();
+
+        // Create error and map message to field errors
+        const error = new Error(errorData.message || 'Tạo thất bại');
+        error.data = errorData;
+
+        if (errorData && typeof errorData === 'object') {
+            if (errorData.errors && typeof errorData.errors === 'object') {
+                error.isValidation = true;
+            }
+            // Map message text to field errors
+            if (errorData.message && typeof errorData.message === 'string') {
+                const m = errorData.message.toLowerCase();
+                const mapped = {};
+                if (m.includes('tên đăng nhập') || m.includes('username') || m.includes('user name')) mapped['userName'] = errorData.message;
+                if (m.includes('email')) mapped['email'] = errorData.message;
+                if (m.includes('số điện thoại') || m.includes('phone')) mapped['phoneNumber'] = errorData.message;
+                if (m.includes('mật khẩu') || m.includes('password')) mapped['password'] = errorData.message;
+                if (m.includes('chi nhánh') || m.includes('manager')) mapped['branchId'] = errorData.message;
+                if (Object.keys(mapped).length > 0) {
+                    error.data.errors = Object.assign({}, error.data.errors || {}, mapped);
+                    error.isValidation = true;
+                }
+            }
+        }
+        throw error;
     }
 
     async function updateAccount(id, payload) {
@@ -218,20 +252,45 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
         });
-        if (!res.ok) {
+        if (res.ok) {
+            return await res.json();
+        }
+
+        let errorData = null;
+        try {
             const ct = res.headers.get('content-type') || '';
             if (ct.includes('application/json')) {
-                const data = await res.json();
-                if (data.errors) {
-                    const first = Object.values(data.errors)[0];
-                    throw new Error(first || data.message || 'Cập nhật thất bại');
-                }
-                throw new Error(data.message || 'Cập nhật thất bại');
+                errorData = await res.json();
+            } else {
+                const txt = await res.text();
+                errorData = { message: txt };
             }
-            const errorText = await res.text();
-            throw new Error(errorText || 'Cập nhật thất bại');
+        } catch (_) {
+            errorData = { message: 'Cập nhật thất bại' };
         }
-        return await res.json();
+
+        const error = new Error(errorData.message || 'Cập nhật thất bại');
+        error.data = errorData;
+
+        if (errorData && typeof errorData === 'object') {
+            if (errorData.errors && typeof errorData.errors === 'object') {
+                error.isValidation = true;
+            }
+            if (errorData.message && typeof errorData.message === 'string') {
+                const m = errorData.message.toLowerCase();
+                const mapped = {};
+                if (m.includes('tên đăng nhập') || m.includes('username') || m.includes('user name')) mapped['userName'] = errorData.message;
+                if (m.includes('email')) mapped['email'] = errorData.message;
+                if (m.includes('số điện thoại') || m.includes('phone')) mapped['phoneNumber'] = errorData.message;
+                if (m.includes('mật khẩu') || m.includes('password')) mapped['password'] = errorData.message;
+                if (m.includes('chi nhánh') || m.includes('manager')) mapped['branchId'] = errorData.message;
+                if (Object.keys(mapped).length > 0) {
+                    error.data.errors = Object.assign({}, error.data.errors || {}, mapped);
+                    error.isValidation = true;
+                }
+            }
+        }
+        throw error;
     }
 
     async function deleteAccount(id) {
@@ -260,6 +319,30 @@
             throw new Error(errorText || 'Khôi phục thất bại');
         }
         return;
+    }
+
+    async function loadBranches() {
+        try {
+            const res = await fetch('/api/admin/branches');
+            if (!res.ok) throw new Error('Không thể tải danh sách chi nhánh');
+            const branches = await res.json();
+
+            // Clear existing options except the first placeholder
+            branchIdSelect.innerHTML = '<option value="">-- Chọn chi nhánh --</option>';
+
+            // Add branch options
+            branches.forEach(branch => {
+                if (!branch.deleted) {
+                    const option = document.createElement('option');
+                    option.value = branch.id;
+                    option.textContent = branch.name;
+                    branchIdSelect.appendChild(option);
+                }
+            });
+        } catch (e) {
+            console.error('Error loading branches:', e);
+            showToast('Không thể tải danh sách chi nhánh', 3000, 'error');
+        }
     }
 
     // Render & Pagination
@@ -398,6 +481,50 @@
             .replaceAll("'", '&#39;');
     }
 
+    function clearFieldErrors() {
+        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        document.querySelectorAll('.invalid-feedback').forEach(el => {
+            el.textContent = '';
+            el.style.setProperty('display', 'none', 'important');
+        });
+    }
+
+    function displayFieldErrors(errors) {
+        for (const [field, message] of Object.entries(errors)) {
+            const input = document.getElementById(field);
+            if (input) {
+                input.classList.add('is-invalid');
+            }
+
+            const errorDiv = document.getElementById(`${field}-error`);
+            if (errorDiv) {
+                errorDiv.textContent = message;
+                try {
+                    errorDiv.style.setProperty('display', 'block', 'important');
+                } catch (_) {
+                    errorDiv.style.display = 'block';
+                }
+                errorDiv.setAttribute('role', 'alert');
+                errorDiv.setAttribute('aria-live', 'assertive');
+            }
+        }
+    }
+
+    function focusFirstInvalidField() {
+        const first = document.querySelector('.is-invalid');
+        if (first) {
+            try {
+                if (typeof first.scrollIntoView === 'function') {
+                    first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                first.focus();
+            } catch (_) {
+                // Fallback if scrollIntoView fails
+                first.focus();
+            }
+        }
+    }
+
     function setupEventListeners() {
         // Create button
         btnCreate.addEventListener('click', () => openModal('create'));
@@ -448,16 +575,25 @@
         // Form submit
         accountForm.addEventListener('submit', async (ev) => {
             ev.preventDefault();
+            clearFieldErrors();
+
             const form = new FormData(accountForm);
+            const roleId = Number(form.get('roleId') || null);
+
             const payload = {
                 userName: form.get('userName'),
                 fullName: form.get('fullName'),
-                roleId: Number(form.get('roleId') || null),
+                roleId: roleId,
                 email: form.get('email')?.trim() || null,
                 phoneNumber: form.get('phoneNumber')?.trim() || null,
                 branchId: form.get('branchId') ? Number(form.get('branchId')) : null,
                 password: form.get('password') || undefined
             };
+
+            // Auto set branchId=1 for Warehouse role
+            if (roleId === 5) {
+                payload.branchId = 1;
+            }
 
             const id = accountIdInput.value;
             try {
@@ -475,7 +611,14 @@
                 await fetchAll();
             } catch (e) {
                 console.error(e);
-                showToast(e.message || 'Lỗi khi lưu', 3000, 'error');
+                // Check if error has field-level errors
+                if (e.data && e.data.errors && typeof e.data.errors === 'object') {
+                    displayFieldErrors(e.data.errors);
+                    focusFirstInvalidField();
+                } else {
+                    // Generic error - show toast
+                    showToast(e.message || e.data?.message || 'Lỗi khi lưu', 3000, 'error');
+                }
             }
         });
 

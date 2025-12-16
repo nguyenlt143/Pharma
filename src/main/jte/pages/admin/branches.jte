@@ -76,6 +76,7 @@ content = @`
                 <div class="form-grid">
                     <label>Tên chi nhánh <span class="required">*</span>
                         <input id="name" name="name" required placeholder="VD: Chi nhánh Hà Nội">
+                        <div class="invalid-feedback" id="name-error"></div>
                     </label>
 
                     <label>Loại chi nhánh <span class="required">*</span>
@@ -85,10 +86,12 @@ content = @`
                             <option value="BRANCH">Chi nhánh</option>
                             <option value="DISPOSAL_AREA">Khu vực hủy</option>
                         </select>
+                        <div class="invalid-feedback" id="branchType-error"></div>
                     </label>
 
                     <label class="full-width">Địa chỉ <span class="required">*</span>
                         <input id="address" name="address" required placeholder="VD: 123 Đường ABC, Quận XYZ">
+                        <div class="invalid-feedback" id="address-error"></div>
                     </label>
                 </div>
 

@@ -66,6 +66,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="/manager/report/adjustments" class="nav-link">
+                        <span class="material-icons nav-icon">edit_note</span>
+                        <span class="nav-text">Kiểm kho & Trả hàng</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="/manager/shift" class="nav-link">
                         <span class="material-icons nav-icon">schedule</span>
                         <span class="nav-text">Ca làm việc</span>

@@ -2,6 +2,7 @@ package vn.edu.fpt.pharma.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import vn.edu.fpt.pharma.entity.ShiftWork;
@@ -63,4 +64,24 @@ public interface ShiftWorkRepository extends JpaRepository<ShiftWork, Long>, Jpa
             LocalDate today,
             LocalTime now
     );
+
+    @Modifying
+    @Query(value = "UPDATE shift_works SET deleted = false WHERE id = :id", nativeQuery = true)
+    void restoreById(@Param("id") Long id);
+
+    @Query(value = "SELECT * FROM shift_works WHERE id = :id", nativeQuery = true)
+    Optional<ShiftWork> findByIdIncludingDeleted(@Param("id") Long id);
+
+    @Query(value = """
+        SELECT * FROM shift_works sw
+        JOIN shift_assignments sa ON sw.assignment_id = sa.id
+        WHERE sa.shift_id = :shiftId 
+          AND sa.user_id = :userId 
+          AND sw.work_date = :workDate
+          AND sw.deleted = false
+    """, nativeQuery = true)
+    Optional<ShiftWork> findActiveByShiftIdAndUserIdAndWorkDate(
+            @Param("shiftId") Long shiftId,
+            @Param("userId") Long userId,
+            @Param("workDate") LocalDate workDate);
 }
