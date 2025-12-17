@@ -1,6 +1,7 @@
 package vn.edu.fpt.pharma.dto.manager;
 
 import lombok.Data;
+import java.math.BigDecimal;
 
 @Data
 public class TopProductItem {
@@ -13,6 +14,24 @@ public class TopProductItem {
     public TopProductItem(String name, long value) {
         this.name = name;
         this.value = value;
+        this.percentage = 0.0;
+    }
+
+    public TopProductItem(String name, Double value) {
+        this.name = name;
+        this.value = value != null ? value.longValue() : 0L;
+        this.percentage = 0.0;
+    }
+
+    public TopProductItem(String name, BigDecimal value) {
+        this.name = name;
+        this.value = value != null ? value.longValue() : 0L;
+        this.percentage = 0.0;
+    }
+
+    public TopProductItem(String name, Number value) {
+        this.name = name;
+        this.value = value != null ? value.longValue() : 0L;
         this.percentage = 0.0;
     }
 }
