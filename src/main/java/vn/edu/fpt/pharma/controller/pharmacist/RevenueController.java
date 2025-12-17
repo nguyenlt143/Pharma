@@ -20,7 +20,6 @@ import vn.edu.fpt.pharma.dto.DataTableResponse;
 import vn.edu.fpt.pharma.dto.reveuce.RevenueDetailVM;
 import vn.edu.fpt.pharma.dto.reveuce.RevenueShiftVM;
 import vn.edu.fpt.pharma.dto.reveuce.RevenueVM;
-import vn.edu.fpt.pharma.service.InvoiceDetailService;
 import vn.edu.fpt.pharma.service.RevenueService;
 import vn.edu.fpt.pharma.util.StringUtils;
 
@@ -34,7 +33,6 @@ import java.util.Map;
 public class RevenueController {
 
     private final RevenueService revenueService; // RE-ENABLED
-    private final InvoiceDetailService invoiceDetailService; // RE-ENABLED
 
     @GetMapping("/revenues")
     public String revenues(Model model){
@@ -114,12 +112,24 @@ public class RevenueController {
 
             // Determine which is month and which is year
             int month, year;
-            if (part1 > 12 || (part2 <= 12 && part2 > 0 && part1 > 1900)) {
-                // part1 is year, part2 is month
+            if (part1 >= 1000) {
+                // part1 looks like a full year (YYYY format), part2 is month
                 year = part1;
                 month = part2;
+            } else if (part2 >= 1000) {
+                // part2 looks like a full year (YYYY format), part1 is month
+                month = part1;
+                year = part2;
+            } else if (part1 > 12) {
+                // part1 is definitely year (> 12), part2 is month
+                year = part1;
+                month = part2;
+            } else if (part2 > 12) {
+                // part2 is definitely year (> 12), part1 is month
+                month = part1;
+                year = part2;
             } else {
-                // part1 is month, part2 is year
+                // part1 is month, part2 is year (default case MM/YY)
                 month = part1;
                 year = part2;
             }
