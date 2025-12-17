@@ -1,15 +1,14 @@
 package vn.edu.fpt.pharma.controller.owner;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.pharma.config.CustomUserDetails;
-import vn.edu.fpt.pharma.dto.manager.InvoiceSummary;
 import vn.edu.fpt.pharma.dto.manager.KpiData;
-import vn.edu.fpt.pharma.repository.InvoiceRepository;
+import vn.edu.fpt.pharma.dto.manager.TopProductItem;
+import vn.edu.fpt.pharma.repository.InventoryMovementRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,7 +23,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ReportApiController {
 
-    private final InvoiceRepository invoiceRepository;
+    private final InventoryMovementRepository inventoryMovementRepository;
 
     /**
      * View detail revenue – Report
@@ -47,17 +46,17 @@ public class ReportApiController {
         LocalDateTime from = firstOfMonth.atStartOfDay();
         LocalDateTime to = firstOfMonth.plusMonths(1).atStartOfDay();
 
-        // Tổng quan KPI (doanh thu, lợi nhuận, số đơn)
-        KpiData kpi = invoiceRepository.sumRevenue(branchId, from, to, null, null);
+        // Tổng quan KPI (doanh thu, lợi nhuận, số đơn) - dựa trên inventory movements như Dashboard
+        KpiData kpi = inventoryMovementRepository.sumOwnerRevenue(branchId, from, to);
 
-        // Doanh thu theo danh mục thuốc
-        List<Object[]> categoryRows = invoiceRepository.categoryRevenue(branchId, from, to, null, null, Pageable.unpaged());
+        // Doanh thu theo danh mục thuốc - dựa trên inventory movements
+        List<TopProductItem> topCategories = inventoryMovementRepository.findOwnerTopCategories(branchId, from, to, 20);
         List<Map<String, Object>> categories = new ArrayList<>();
-        for (Object[] row : categoryRows) {
-            Map<String, Object> item = new HashMap<>();
-            item.put("categoryName", row[0]);
-            item.put("revenue", row[1]);
-            categories.add(item);
+        for (TopProductItem item : topCategories) {
+            Map<String, Object> cat = new HashMap<>();
+            cat.put("categoryName", item.getName());
+            cat.put("revenue", item.getValue());
+            categories.add(cat);
         }
 
         Map<String, Object> response = new HashMap<>();
@@ -90,27 +89,13 @@ public class ReportApiController {
         LocalDateTime from = firstOfMonth.atStartOfDay();
         LocalDateTime to = firstOfMonth.plusMonths(1).atStartOfDay();
 
-        KpiData kpi = invoiceRepository.sumRevenue(branchId, from, to, null, null);
-        List<InvoiceSummary> invoices = invoiceRepository.findInvoicesForReport(branchId, from, to, null, null);
+        // Sử dụng inventory movements như Dashboard
+        KpiData kpi = inventoryMovementRepository.sumOwnerRevenue(branchId, from, to);
 
         Map<String, Object> response = new HashMap<>();
         response.put("totalProfit", kpi.getProfit());
         response.put("totalRevenue", kpi.getRevenue());
         response.put("totalOrders", kpi.getOrderCount());
-        response.put("invoices", invoices);
-        
-        // Calculate profit details
-        List<Map<String, Object>> profitDetails = new ArrayList<>();
-        for (InvoiceSummary invoice : invoices) {
-            Map<String, Object> detail = new HashMap<>();
-            detail.put("invoiceId", invoice.getId());
-            detail.put("invoiceCode", invoice.getCode());
-            detail.put("date", invoice.getCreatedAt());
-            detail.put("revenue", invoice.getTotalAmount());
-            detail.put("profit", invoice.getProfit());
-            profitDetails.add(detail);
-        }
-        response.put("profitDetails", profitDetails);
 
         return ResponseEntity.ok(response);
     }

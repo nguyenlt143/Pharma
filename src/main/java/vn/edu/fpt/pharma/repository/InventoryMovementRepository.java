@@ -138,7 +138,7 @@ public interface InventoryMovementRepository extends JpaRepository<InventoryMove
     // Top product categories by quantity in movements WARE_TO_BR (for product stats)
     @Query("""
         SELECT new vn.edu.fpt.pharma.dto.manager.TopProductItem(
-            c.name, SUM(imd.quantity)
+            c.name, SUM(imd.price * imd.quantity)
         )
         FROM InventoryMovement im
         JOIN im.inventoryMovementDetails imd
@@ -151,7 +151,7 @@ public interface InventoryMovementRepository extends JpaRepository<InventoryMove
           AND im.createdAt < :toDate
           AND (:branchId IS NULL OR im.destinationBranchId = :branchId)
         GROUP BY c.id, c.name
-        ORDER BY SUM(imd.quantity) DESC
+        ORDER BY SUM(imd.price * imd.quantity) DESC
         """)
     List<TopProductItem> findOwnerTopCategories(
             @Param("branchId") Long branchId,
