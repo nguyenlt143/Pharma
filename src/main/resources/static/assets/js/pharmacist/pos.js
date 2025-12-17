@@ -1,3 +1,12 @@
+// Helper function to format date as D/M/Y
+function formatDateDMY(date) {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
 // DOM Elements
 const searchInput = document.querySelector('.search-input');
 const searchButton = document.querySelector('.search-button');
@@ -641,13 +650,17 @@ function renderPrescription() {
         const row = document.createElement('tr');
 
         const medicineDisplayName = item.strength ? `${item.medicineName} - ${item.strength}` : item.medicineName;
+        const formattedExpiryDate = item.expiryDate ? formatDateDMY(item.expiryDate) : 'N/A';
 
         row.innerHTML = `
             <td>${index + 1}</td>
             <td>
                 <div class="medicine-info">
                     <div class="medicine-title">${medicineDisplayName}</div>
-                    <div class="medicine-detail">Lô: ${item.batchNumber} - HSD: ${item.expiryDate}</div>
+                    <div class="medicine-detail">
+                        <span class="batch-info">Lô: ${item.batchNumber}</span>
+                        <span class="expiry-date-info">HSD: ${formattedExpiryDate}</span>
+                    </div>
                 </div>
             </td>
             <td>
