@@ -293,50 +293,103 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
         movementRepository.save(movement);
         log.info("Updated movement {} status to RECEIVED", id);
 
-        // 2. Add inventory to destination branch (only for WARE_TO_BR type)
+        // 2. Add inventory to destination branch based on movement type
         if (movement.getMovementType() == MovementType.WARE_TO_BR && movement.getDestinationBranchId() != null) {
-            Branch destinationBranch = branchRepository.findById(movement.getDestinationBranchId())
-                    .orElseThrow(() -> new RuntimeException("Destination branch not found"));
-
-            for (InventoryMovementDetail detail : movement.getInventoryMovementDetails()) {
-                // Find or create inventory at destination branch
-                Inventory branchInventory = inventoryRepository
-                        .findByBranchIdAndVariantIdAndBatchId(
-                                movement.getDestinationBranchId(),
-                                detail.getVariant().getId(),
-                                detail.getBatch().getId()
-                        )
-                        .orElseGet(() -> {
-                            // Create new inventory if not exists
-                            Inventory newInventory = Inventory.builder()
-                                    .branch(destinationBranch)
-                                    .variant(detail.getVariant())
-                                    .batch(detail.getBatch())
-                                    .quantity(0L)
-                                    .costPrice(detail.getSnapCost()) // Use original cost from warehouse
-                                    .build();
-                            log.info("Created new inventory for branch {} variant {} batch {}",
-                                    destinationBranch.getName(),
-                                    detail.getVariant().getId(),
-                                    detail.getBatch().getBatchCode());
-                            return newInventory;
-                        });
-
-                // Add quantity to branch inventory
-                branchInventory.setQuantity(branchInventory.getQuantity() + detail.getQuantity());
-                inventoryRepository.save(branchInventory);
-
-                log.info("Added {} units of variant {} batch {} to branch {} inventory (new total: {})",
-                        detail.getQuantity(),
-                        detail.getVariant().getId(),
-                        detail.getBatch().getBatchCode(),
-                        destinationBranch.getName(),
-                        branchInventory.getQuantity());
-            }
-
-            log.info("Completed inventory addition for movement {} to branch {}",
-                    id, destinationBranch.getName());
+            // Warehouse to Branch: Add to branch inventory
+            addInventoryToBranch(movement);
+        } else if ((movement.getMovementType() == MovementType.BR_TO_WARE ||
+                    movement.getMovementType() == MovementType.BR_TO_WARE2) &&
+                   movement.getDestinationBranchId() != null) {
+            // Branch to Warehouse (return): Add to warehouse inventory
+            addInventoryToWarehouse(movement);
         }
+    }
+
+    private void addInventoryToBranch(InventoryMovement movement) {
+        Branch destinationBranch = branchRepository.findById(movement.getDestinationBranchId())
+                .orElseThrow(() -> new RuntimeException("Destination branch not found"));
+
+        for (InventoryMovementDetail detail : movement.getInventoryMovementDetails()) {
+            // Find or create inventory at destination branch
+            Inventory branchInventory = inventoryRepository
+                    .findByBranchIdAndVariantIdAndBatchId(
+                            movement.getDestinationBranchId(),
+                            detail.getVariant().getId(),
+                            detail.getBatch().getId()
+                    )
+                    .orElseGet(() -> {
+                        // Create new inventory if not exists
+                        Inventory newInventory = Inventory.builder()
+                                .branch(destinationBranch)
+                                .variant(detail.getVariant())
+                                .batch(detail.getBatch())
+                                .quantity(0L)
+                                .costPrice(detail.getSnapCost()) // Use original cost from warehouse
+                                .build();
+                        log.info("Created new inventory for branch {} variant {} batch {}",
+                                destinationBranch.getName(),
+                                detail.getVariant().getId(),
+                                detail.getBatch().getBatchCode());
+                        return newInventory;
+                    });
+
+            // Add quantity to branch inventory
+            branchInventory.setQuantity(branchInventory.getQuantity() + detail.getQuantity());
+            inventoryRepository.save(branchInventory);
+
+            log.info("Added {} units of variant {} batch {} to branch {} inventory (new total: {})",
+                    detail.getQuantity(),
+                    detail.getVariant().getId(),
+                    detail.getBatch().getBatchCode(),
+                    destinationBranch.getName(),
+                    branchInventory.getQuantity());
+        }
+
+        log.info("Completed inventory addition for movement {} to branch {}",
+                movement.getId(), destinationBranch.getName());
+    }
+
+    private void addInventoryToWarehouse(InventoryMovement movement) {
+        Branch warehouseBranch = branchRepository.findById(movement.getDestinationBranchId())
+                .orElseThrow(() -> new RuntimeException("Warehouse branch not found"));
+
+        for (InventoryMovementDetail detail : movement.getInventoryMovementDetails()) {
+            // Find or create inventory at warehouse
+            Inventory warehouseInventory = inventoryRepository
+                    .findByBranchIdAndVariantIdAndBatchId(
+                            movement.getDestinationBranchId(),
+                            detail.getVariant().getId(),
+                            detail.getBatch().getId()
+                    )
+                    .orElseGet(() -> {
+                        // Create new inventory if not exists
+                        Inventory newInventory = Inventory.builder()
+                                .branch(warehouseBranch)
+                                .variant(detail.getVariant())
+                                .batch(detail.getBatch())
+                                .quantity(0L)
+                                .costPrice(detail.getSnapCost())
+                                .build();
+                        log.info("Created new warehouse inventory for variant {} batch {}",
+                                detail.getVariant().getId(),
+                                detail.getBatch().getBatchCode());
+                        return newInventory;
+                    });
+
+            // Add quantity to warehouse inventory (return from branch)
+            warehouseInventory.setQuantity(warehouseInventory.getQuantity() + detail.getQuantity());
+            inventoryRepository.save(warehouseInventory);
+
+            log.info("Added {} units of variant {} batch {} to warehouse inventory (new total: {}) - returned from branch {}",
+                    detail.getQuantity(),
+                    detail.getVariant().getId(),
+                    detail.getBatch().getBatchCode(),
+                    warehouseInventory.getQuantity(),
+                    movement.getSourceBranchId());
+        }
+
+        log.info("Completed inventory return for movement {} to warehouse from branch {}",
+                movement.getId(), movement.getSourceBranchId());
     }
 
     @Override
@@ -454,13 +507,12 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
             // For now, we just mark as SHIPPED (đang giao)
         }
 
-        // 8. Do NOT update request status - keep it as CONFIRMED
-        // The request status should remain CONFIRMED even after creating export slip
-        // if (requestForm != null) {
-        //     requestForm.setRequestStatus(RequestStatus.RECEIVED);
-        //     requestFormRepository.save(requestForm);
-        //     log.info("Updated request form {} to RECEIVED", requestForm.getId());
-        // }
+        // 8. Update request status to RECEIVED when export slip is created successfully
+        if (requestForm != null && requestForm.getRequestStatus() == vn.edu.fpt.pharma.constant.RequestStatus.CONFIRMED) {
+            requestForm.setRequestStatus(vn.edu.fpt.pharma.constant.RequestStatus.RECEIVED);
+            requestFormRepository.save(requestForm);
+            log.info("Updated request form {} to RECEIVED after creating export slip", requestForm.getId());
+        }
 
         log.info("Export movement {} created successfully with {} items",
                 savedMovement.getId(), dto.getDetails().size());
@@ -599,7 +651,7 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Warehouse branch not found"));
 
-        // 3. Create InventoryMovement with SHIPPED status (đã gửi)
+        // 3. Create InventoryMovement with DRAFT status (chờ warehouse duyệt)
         // Determine movement type from DTO or default to BR_TO_WARE
         MovementType movementType;
         try {
@@ -615,7 +667,7 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
                 .movementType(movementType)
                 .sourceBranchId(sourceBranch.getId())
                 .destinationBranchId(warehouseBranch.getId())
-                .movementStatus(MovementStatus.SHIPPED)
+                .movementStatus(MovementStatus.DRAFT)
                 .totalMoney(0.0) // Return doesn't have price
                 .build();
 
@@ -626,7 +678,7 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
         }
 
         InventoryMovement savedMovement = movementRepository.save(movement);
-        log.info("Created return movement with ID: {}, status: SHIPPED", savedMovement.getId());
+        log.info("Created return movement with ID: {}, status: DRAFT", savedMovement.getId());
 
         // 4. Create InventoryMovementDetails and decrease branch inventory
         for (vn.edu.fpt.pharma.dto.inventory.ReturnRequestDTO.ReturnItemDTO item : dto.getItems()) {

@@ -101,6 +101,8 @@ content = @`
                         <button class="approve-button" onclick="createExportSlip(${request.id()})">Tạo Phiếu Xuất</button>
                         <button class="approve-button disabled">Đã duyệt</button>
                     @endif
+                @elseif(request.requestStatus().equals("RECEIVED"))
+                    <button class="approve-button disabled">Hoàn thành</button>
                 @elseif(request.requestStatus().equals("CANCELLED"))
                     <button class="reject-button disabled">Đã từ chối</button>
                 @else

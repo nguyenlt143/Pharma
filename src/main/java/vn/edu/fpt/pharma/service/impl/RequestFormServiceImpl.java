@@ -1,6 +1,7 @@
 package vn.edu.fpt.pharma.service.impl;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.pharma.base.BaseServiceImpl;
 import vn.edu.fpt.pharma.constant.BranchType;
 import vn.edu.fpt.pharma.constant.RequestType;
@@ -528,6 +529,7 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     }
 
     @Override
+    @Transactional
     public void confirmRequest(Long requestId) {
         RequestForm requestForm = repository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Request not found with ID: " + requestId));
@@ -540,87 +542,40 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
         repository.save(requestForm);
         log.info("Request {} has been confirmed", requestId);
 
-        // If this is a RETURN request, automatically create a BR_TO_WARE receipt
+        // If this is a RETURN request, find the corresponding receipt and change status to SHIPPED
         if (requestForm.getRequestType() == RequestType.RETURN) {
-            createBranchToWarehouseReceipt(requestForm);
+            updateReturnReceiptToShipped(requestForm);
         }
     }
 
-    private void createBranchToWarehouseReceipt(RequestForm requestForm) {
-        log.info("Creating BR_TO_WARE receipt for return request {}", requestForm.getId());
+    private void updateReturnReceiptToShipped(RequestForm requestForm) {
+        // Find the corresponding receipt (BR_TO_WARE or BR_TO_WARE2) linked to this request
+        List<InventoryMovement> receipts = movementRepository.findAll().stream()
+                .filter(m -> m.getRequestForm() != null && m.getRequestForm().getId().equals(requestForm.getId()))
+                .filter(m -> m.getMovementType() == MovementType.BR_TO_WARE ||
+                            m.getMovementType() == MovementType.BR_TO_WARE2)
+                .filter(m -> m.getMovementStatus() == MovementStatus.DRAFT)
+                .toList();
 
-        // Find warehouse branch (HEAD_QUARTER)
-        Branch warehouseBranch = branchRepository.findAll().stream()
-                .filter(b -> b.getBranchType() == BranchType.HEAD_QUARTER)
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Warehouse branch not found"));
-
-        // Create InventoryMovement with DRAFT status
-        InventoryMovement movement = InventoryMovement.builder()
-                .movementType(MovementType.BR_TO_WARE)
-                .sourceBranchId(requestForm.getBranchId())
-                .destinationBranchId(warehouseBranch.getId())
-                .requestForm(requestForm)
-                .movementStatus(MovementStatus.DRAFT)
-                .totalMoney(0.0)
-                .build();
-
-        InventoryMovement savedMovement = movementRepository.save(movement);
-        log.info("Created BR_TO_WARE movement with ID: {}, status: DRAFT", savedMovement.getId());
-
-        // Get request details and create movement details
-        List<RequestDetail> requestDetails = requestDetailRepository.findByRequestFormId(requestForm.getId());
-
-        for (RequestDetail detail : requestDetails) {
-            MedicineVariant variant = medicineVariantRepository.findById(detail.getVariantId())
-                    .orElseThrow(() -> new RuntimeException("Variant not found: " + detail.getVariantId()));
-
-            // Find inventory items for this variant in the source branch
-            List<Inventory> branchInventories = inventoryRepository
-                    .findByBranchIdAndVariantId(requestForm.getBranchId(), detail.getVariantId());
-
-            Long remainingQty = detail.getQuantity();
-
-            // Create movement details for each batch (FIFO approach)
-            for (Inventory inventory : branchInventories) {
-                if (remainingQty <= 0) break;
-                if (inventory.getQuantity() <= 0) continue;
-
-                Long qtyToReturn = Math.min(remainingQty, inventory.getQuantity().longValue());
-
-                Batch batch = inventory.getBatch();
-                if (batch == null) {
-                    log.warn("Inventory {} has no batch, skipping", inventory.getId());
-                    continue;
-                }
-
-                // Create movement detail
-                InventoryMovementDetail movementDetail = InventoryMovementDetail.builder()
-                        .movement(savedMovement)
-                        .variant(variant)
-                        .batch(batch)
-                        .quantity(qtyToReturn)
-                        .price(0.0)
-                        .snapCost(inventory.getCostPrice())
-                        .build();
-
-                movementDetailRepository.save(movementDetail);
-                log.info("Created BR_TO_WARE detail: variant={}, batch={}, qty={}",
-                        variant.getId(), batch.getBatchCode(), qtyToReturn);
-
-                remainingQty -= qtyToReturn;
-            }
-
-            if (remainingQty > 0) {
-                log.warn("Could not fulfill full quantity for variant {}, remaining: {}",
-                        detail.getVariantId(), remainingQty);
-            }
+        if (receipts.isEmpty()) {
+            log.warn("No DRAFT receipt found for return request {}", requestForm.getId());
+            return;
         }
 
-        log.info("Successfully created BR_TO_WARE receipt for return request {}", requestForm.getId());
+        if (receipts.size() > 1) {
+            log.warn("Multiple DRAFT receipts found for return request {}, updating first one", requestForm.getId());
+        }
+
+        // Update the first matching receipt to SHIPPED
+        InventoryMovement receipt = receipts.get(0);
+        receipt.setMovementStatus(MovementStatus.SHIPPED);
+        movementRepository.save(receipt);
+        log.info("Updated receipt {} status from DRAFT to SHIPPED for return request {}",
+                receipt.getId(), requestForm.getId());
     }
 
     @Override
+    @Transactional
     public void cancelRequest(Long requestId) {
         RequestForm requestForm = repository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Request not found with ID: " + requestId));
@@ -632,6 +587,37 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
         requestForm.setRequestStatus(vn.edu.fpt.pharma.constant.RequestStatus.CANCELLED);
         repository.save(requestForm);
         log.info("Request {} has been cancelled", requestId);
+
+        // If this is a RETURN request, cancel the corresponding receipt
+        if (requestForm.getRequestType() == RequestType.RETURN) {
+            cancelReturnReceipt(requestForm);
+        }
+    }
+
+    private void cancelReturnReceipt(RequestForm requestForm) {
+        // Find the corresponding receipt (BR_TO_WARE or BR_TO_WARE2) linked to this request
+        List<InventoryMovement> receipts = movementRepository.findAll().stream()
+                .filter(m -> m.getRequestForm() != null && m.getRequestForm().getId().equals(requestForm.getId()))
+                .filter(m -> m.getMovementType() == MovementType.BR_TO_WARE ||
+                            m.getMovementType() == MovementType.BR_TO_WARE2)
+                .filter(m -> m.getMovementStatus() == MovementStatus.DRAFT)
+                .toList();
+
+        if (receipts.isEmpty()) {
+            log.warn("No DRAFT receipt found for return request {}", requestForm.getId());
+            return;
+        }
+
+        if (receipts.size() > 1) {
+            log.warn("Multiple DRAFT receipts found for return request {}, cancelling all", requestForm.getId());
+        }
+
+        // Cancel all matching receipts
+        for (InventoryMovement receipt : receipts) {
+            receipt.setMovementStatus(MovementStatus.CANCELLED);
+            movementRepository.save(receipt);
+            log.info("Cancelled receipt {} for return request {}", receipt.getId(), requestForm.getId());
+        }
     }
 
     @Override

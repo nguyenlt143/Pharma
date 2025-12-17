@@ -55,6 +55,9 @@ public class SupplierServiceImpl extends BaseServiceImpl<Supplier, Long, Supplie
         if (repository.existsByNameIgnoreCase(request.getSupplierName())) {
             throw new IllegalArgumentException("Tên nhà cung cấp đã tồn tại");
         }
+        if (repository.existsByPhone(request.getPhone())) {
+            throw new IllegalArgumentException("Số điện thoại đã tồn tại");
+        }
 
         Supplier supplier = Supplier.builder()
                 .name(request.getSupplierName())

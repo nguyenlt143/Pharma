@@ -25,6 +25,14 @@ public interface BatchRepository extends JpaRepository<Batch, Long>, JpaSpecific
         """, nativeQuery = true)
     int countNearlyExpiredByBranch(@Param("branchId") Long branchId);
 
+    @Query(value = """
+        SELECT COUNT(*) FROM batches b
+        JOIN inventory i ON i.batch_id = b.id
+        WHERE i.branch_id = :branchId
+          AND b.expiry_date < NOW()
+        """, nativeQuery = true)
+    int countExpiredByBranch(@Param("branchId") Long branchId);
+
     Optional<Batch> findByVariantId(Long variantId);
 
     boolean existsByVariantIdAndBatchCode(Long variantId, String batchCode);

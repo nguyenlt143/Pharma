@@ -14,4 +14,6 @@ public interface SupplierRepository extends JpaRepository<Supplier, Long>, JpaSp
     long countInventoryMovementsBySupplierId(@Param("supplierId") Long supplierId);
 
     boolean existsByNameIgnoreCase(String name);
+
+    boolean existsByPhone(String phone);
 }

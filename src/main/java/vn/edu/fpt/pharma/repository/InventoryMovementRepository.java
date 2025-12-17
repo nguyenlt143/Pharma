@@ -22,6 +22,10 @@ public interface InventoryMovementRepository extends JpaRepository<InventoryMove
     @Query("SELECT COUNT(im) FROM InventoryMovement im WHERE im.destinationBranchId = :branchId AND im.movementType = :type AND im.movementStatus = :status")
     long countByBranchAndTypeAndStatus(@Param("branchId") Long branchId, @Param("type") MovementType type, @Param("status") MovementStatus status);
 
+    // Count all movements with SHIPPED status from warehouse (source branch = 1)
+    @Query("SELECT COUNT(im) FROM InventoryMovement im WHERE im.sourceBranchId = :warehouseBranchId AND im.movementStatus = :status")
+    long countShippedFromWarehouse(@Param("warehouseBranchId") Long warehouseBranchId, @Param("status") MovementStatus status);
+
     @Query("SELECT im FROM InventoryMovement im " +
            "LEFT JOIN FETCH im.inventoryMovementDetails imd " +
            "LEFT JOIN FETCH imd.variant v " +

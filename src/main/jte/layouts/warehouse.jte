@@ -41,6 +41,12 @@
         <nav class="sidebar-nav">
             <ul class="nav-list">
                 <li class="nav-item">
+                    <a href="/warehouse/dashboard" class="nav-link">
+                        <span class="material-icons nav-icon">dashboard</span>
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="/warehouse/receipt/create" class="nav-link">
                         <span class="material-icons nav-icon">add_box</span>
                         <span class="nav-text">Tạo phiếu nhập</span>
