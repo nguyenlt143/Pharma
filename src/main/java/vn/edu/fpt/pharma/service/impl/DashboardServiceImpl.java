@@ -8,6 +8,7 @@ import vn.edu.fpt.pharma.repository.*;
 import vn.edu.fpt.pharma.service.DashboardService;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +36,7 @@ public class DashboardServiceImpl implements DashboardService {
 
         result.put("waitingOrders", (int) waitingOrders);
         result.put("lastInventoryCheck",
-                lastInventoryCheck != null ? lastInventoryCheck.toString() : "Chưa kiểm kho");
+                lastInventoryCheck != null ? lastInventoryCheck.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Chưa kiểm kho");
         result.put("nearlyExpiredCount", nearlyExpiredCount);
         result.put("lowStockCount", lowStockCount);
 

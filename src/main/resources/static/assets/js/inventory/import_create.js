@@ -33,6 +33,8 @@ function addMedicineFromRow($row) {
         dosageForm: $row.data('dosage-form'),
         manufacturer: $row.data('manufacturer'),
         branchStock: $row.data('branch-stock'),
+        // read minStock from data-min-stock (jQuery maps to minStock)
+        minStock: (function(){ const v = $row.data('minStock'); return (typeof v === 'undefined' || v === null || v === '') ? null : (isNaN(v) ? v : Number(v)); })(),
         unit: $row.data('unit'),
         requestQuantity: 1
     };
@@ -59,7 +61,7 @@ function renderSelectedMedicines() {
     if (selectedMedicines.length === 0) {
         $tbody.append(`
             <tr id="emptyRow">
-                <td colspan="7" class="px-4 py-6 text-center text-gray-500">
+                <td colspan="8" class="px-4 py-6 text-center text-gray-500">
                     Chưa có thuốc nào được chọn. Vui lòng chọn thuốc từ danh sách bên trên.
                 </td>
             </tr>
@@ -68,8 +70,9 @@ function renderSelectedMedicines() {
     }
 
     selectedMedicines.forEach((medicine, index) => {
-        const branchStock = medicine.branchStock || 0;
+        const branchStock = (typeof medicine.branchStock === 'number') ? medicine.branchStock : (medicine.branchStock ? Number(medicine.branchStock) : 0);
         const unit = medicine.unit || '';
+        const minStock = (typeof medicine.minStock === 'number') ? medicine.minStock : (medicine.minStock ? Number(medicine.minStock) : null);
         
         const $row = $(`
             <tr class="hover:bg-gray-50">
@@ -77,6 +80,7 @@ function renderSelectedMedicines() {
                 <td class="px-4 py-3 font-medium">${medicine.medicineName}</td>
                 <td class="px-4 py-3 text-sm">${medicine.activeIngredient || '-'}</td>
                 <td class="px-4 py-3 text-sm">${medicine.strength || '-'}</td>
+                <td class="px-4 py-3 text-center text-sm text-gray-700">${minStock !== null ? minStock : '-'}</td>
                 <td class="px-4 py-3 text-center font-semibold text-blue-600">${branchStock} ${unit}</td>
                 <td class="px-4 py-3 text-center">
                     <input 
@@ -209,4 +213,3 @@ $(document).ready(function() {
     // Initial render
     renderSelectedMedicines();
 });
-

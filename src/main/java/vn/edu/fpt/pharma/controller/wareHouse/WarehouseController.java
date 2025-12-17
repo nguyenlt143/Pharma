@@ -245,11 +245,12 @@ public class WarehouseController {
     @PostMapping("/check/submit")
     @ResponseBody
     public ResponseEntity<?> submitInventoryCheck(
-            @org.springframework.web.bind.annotation.RequestBody InventoryCheckRequestDTO request
+            @org.springframework.web.bind.annotation.RequestBody InventoryCheckRequestDTO request,
+            @org.springframework.security.core.annotation.AuthenticationPrincipal vn.edu.fpt.pharma.config.CustomUserDetails userDetails
     ) {
         try {
             Long branchId = 1L;
-            Long userId = 1L; // TODO: Get from authenticated user
+            Long userId = userDetails.getUser().getId(); // ⭐ Get from authenticated user
 
             // Kiểm tra shortage
             List<Map<String, Object>> shortageItems = new ArrayList<>();
