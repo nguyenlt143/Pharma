@@ -24,6 +24,7 @@ import vn.edu.fpt.pharma.service.InvoiceDetailService;
 import vn.edu.fpt.pharma.service.RevenueService;
 import vn.edu.fpt.pharma.util.StringUtils;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -198,26 +199,53 @@ public class RevenueController {
         }
     }
 
+    @GetMapping("/all/shift/dates")
+    public ResponseEntity<?> getDatesWithShifts() {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+            Long userId = userDetails.getId();
+
+            log.info("Getting dates with shifts for user: {}", userId);
+
+            List<String> dates = revenueService.getDatesWithShifts(userId);
+            log.info("Found {} dates with shifts", dates.size());
+
+            return ResponseEntity.ok(Map.of("dates", dates));
+        } catch (Exception e) {
+            log.error("Error getting dates with shifts", e);
+            return ResponseEntity.ok(Map.of("dates", java.util.Collections.emptyList()));
+        }
+    }
+
     @GetMapping("/all/shift")
-    public ResponseEntity<DataTableResponse<RevenueShiftVM>> getAllRevenuesShift(HttpServletRequest request) {
+    public ResponseEntity<DataTableResponse<RevenueShiftVM>> getAllRevenuesShift(
+            HttpServletRequest request,
+            @RequestParam(value = "workDate", required = false) String workDate) {
         DataTableRequest reqDto = null;
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
             Long userId = userDetails.getId();
 
-            log.info("Getting shift revenue data for user: {}", userId);
+            log.info("Getting shift revenue data for user: {}, workDate: {}", userId, workDate);
 
             reqDto = DataTableRequest.fromParams(request.getParameterMap());
             log.info("DataTable request: {}", reqDto);
 
-            DataTableResponse<RevenueShiftVM> response = revenueService.getRevenueShiftSummary(reqDto, userId);
+            DataTableResponse<RevenueShiftVM> response;
+            if (workDate != null && !workDate.trim().isEmpty()) {
+                response = revenueService.getRevenueShiftSummary(reqDto, userId, workDate);
+            } else {
+                response = revenueService.getRevenueShiftSummary(reqDto, userId);
+            }
+
             log.info("Shift revenue response - Total records: {}, Filtered: {}",
                     response.recordsTotal(), response.recordsFiltered());
             log.info("Shift data size: {}", response.data().size());
 
             if (response.data().isEmpty()) {
-                log.warn("No shift data found for user: {}", userId);
+                log.warn("No shift data found for user: {} on date: {}", userId, workDate);
             }
 
             return ResponseEntity.ok(response);
@@ -239,6 +267,7 @@ public class RevenueController {
     @GetMapping("/all/shift/detail/view")
     public String shiftDetailPage(
             @RequestParam("shiftName") String shiftName,
+            @RequestParam(value = "workDate", required = false) String workDate,
             Model model,
             RedirectAttributes redirectAttributes) {
 
@@ -248,7 +277,13 @@ public class RevenueController {
             return "redirect:/pharmacist/shifts";
         }
 
+        // Nếu không có workDate, mặc định là hôm nay
+        if (workDate == null || workDate.trim().isEmpty()) {
+            workDate = java.time.LocalDate.now().toString();
+        }
+
         model.addAttribute("shiftName", shiftName);
+        model.addAttribute("workDate", workDate);
         model.addAttribute("success", null);
         model.addAttribute("error", null);
         return "pages/pharmacist/shift_details";
@@ -257,6 +292,7 @@ public class RevenueController {
     @GetMapping("/all/shift/detail")
     public ResponseEntity<?> getDetailShift(
             @RequestParam("shiftName") String shiftName,
+            @RequestParam(value = "workDate", required = false) String workDate,
             HttpServletRequest request) {
         try {
             // Validation cho shiftName
@@ -264,12 +300,17 @@ public class RevenueController {
                 return ResponseEntity.badRequest().body(Map.of("error", "Tên ca làm việc không được để trống"));
             }
 
+            // Nếu không có workDate, mặc định là hôm nay
+            if (workDate == null || workDate.trim().isEmpty()) {
+                workDate = java.time.LocalDate.now().toString();
+            }
+
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
             Long userId = userDetails.getId();
 
             DataTableRequest reqDto = DataTableRequest.fromParams(request.getParameterMap());
-            DataTableResponse<RevenueDetailVM> response = revenueService.ViewShiftDetail(reqDto, userId, shiftName);
+            DataTableResponse<RevenueDetailVM> response = revenueService.ViewShiftDetail(reqDto, userId, shiftName, workDate);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", "Lỗi xử lý: " + e.getMessage()));

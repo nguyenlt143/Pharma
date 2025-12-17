@@ -155,6 +155,28 @@ public class RevenueServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
                 ))
                 .toList();
 
+        return buildDataTableResponse(reqDto, revenueList);
+    }
+
+    @Override
+    public DataTableResponse<RevenueShiftVM> getRevenueShiftSummary(DataTableRequest reqDto, Long userId, String workDate) {
+        List<Object[]> allData = repository.findRevenueShiftByUserAndDate(userId, workDate);
+
+        List<RevenueShiftVM> revenueList = allData.stream()
+                .map(r -> new RevenueShiftVM(
+                        (String) r[0],                  // shiftName
+                        ((Number) r[1]).longValue(),    // orderCount
+                        ((Number) r[2]).doubleValue(),  // cashTotal
+                        ((Number) r[3]).doubleValue(),  // transferTotal
+                        ((Number) r[4]).doubleValue()   // totalRevenue
+                ))
+                .toList();
+
+        return buildDataTableResponse(reqDto, revenueList);
+    }
+
+    private DataTableResponse<RevenueShiftVM> buildDataTableResponse(DataTableRequest reqDto, List<RevenueShiftVM> revenueList) {
+
         Comparator<RevenueShiftVM> comparator;
         switch (reqDto.orderColumn()) {
             case "shiftName":
@@ -201,8 +223,8 @@ public class RevenueServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
     }
 
     @Override
-    public DataTableResponse<RevenueDetailVM> ViewShiftDetail(DataTableRequest reqDto, Long userId, String shiftName) {
-        List<Object[]> allData = invoiceDetailRepository.getMedicineRevenueByShift(userId, shiftName);
+    public DataTableResponse<RevenueDetailVM> ViewShiftDetail(DataTableRequest reqDto, Long userId, String shiftName, String workDate) {
+        List<Object[]> allData = invoiceDetailRepository.getMedicineRevenueByShift(userId, shiftName, workDate);
         List<RevenueDetailVM> detailList = allData.stream()
                 .map(r -> new RevenueDetailVM(
                         safeString((String) r[0]),
@@ -258,6 +280,12 @@ public class RevenueServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
                 detailList.size(),
                 pageData
         );
+    }
+
+    @Override
+    public List<String> getDatesWithShifts(Long userId) {
+        List<String> dates = repository.findDatesWithShiftsByUser(userId);
+        return dates;
     }
 
     private String safeString(String v) {

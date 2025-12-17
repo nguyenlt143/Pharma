@@ -2,12 +2,33 @@
 @param String error = null
 
 @template.layouts.layout_test(
-    headContent = @`<link rel="stylesheet" href="/assets/css/pharmacist/shifts.css">`,
+    headContent = @`
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+        <link rel="stylesheet" href="/assets/css/pharmacist/shifts.css">
+    `,
     content = @`
     <div class="content-wrapper">
         <!-- Page Header -->
         <header class="page-header">
             <h1 class="page-title">Báo cáo Ca làm việc</h1>
+            <div class="page-actions">
+                <div class="date-filter-group">
+                    <label for="workDateFilter" class="filter-label">Ngày làm việc:</label>
+                    <input type="date"
+                           id="workDateFilter"
+                           class="date-filter-input"
+                           max="${java.time.LocalDate.now().toString()}"
+                           value="${java.time.LocalDate.now().toString()}">
+                    <button id="filterButton" class="btn-filter">
+                        <span class="material-icons">filter_alt</span>
+                        Lọc
+                    </button>
+                    <button id="resetButton" class="btn-reset">
+                        <span class="material-icons">refresh</span>
+                        Hôm nay
+                    </button>
+                </div>
+            </div>
         </header>
 
         <!-- Alert Messages -->
@@ -43,9 +64,59 @@
         </div>
     `,
     pageScript = @`
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
     $(document).ready(function() {
         console.log('Initializing Shift DataTable...');
+
+        let datesWithShifts = [];
+
+        // Fetch dates with shifts from API
+        $.ajax({
+            url: '/pharmacist/all/shift/dates',
+            type: 'GET',
+            async: false,
+            success: function(response) {
+                console.log('Dates with shifts:', response);
+                datesWithShifts = response.dates || [];
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching dates:', error);
+            }
+        });
+
+        // Initialize Flatpickr with highlighted dates
+        const fp = flatpickr("#workDateFilter", {
+            maxDate: "today",
+            defaultDate: "today",
+            dateFormat: "Y-m-d",
+            locale: {
+                firstDayOfWeek: 1,
+                weekdays: {
+                    shorthand: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
+                    longhand: ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy']
+                },
+                months: {
+                    shorthand: ['Th1', 'Th2', 'Th3', 'Th4', 'Th5', 'Th6', 'Th7', 'Th8', 'Th9', 'Th10', 'Th11', 'Th12'],
+                    longhand: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12']
+                }
+            },
+            onDayCreate: function(dObj, dStr, fp, dayElem) {
+                const date = dayElem.dateObj;
+                const dateStr = date.getFullYear() + '-' +
+                    String(date.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(date.getDate()).padStart(2, '0');
+
+                if (datesWithShifts.includes(dateStr)) {
+                    dayElem.classList.add('has-data');
+                    dayElem.title = 'Ngày này có dữ liệu ca làm việc';
+                }
+            },
+            onChange: function(selectedDates, dateStr, instance) {
+                console.log('Date changed to:', dateStr);
+                table.ajax.reload();
+            }
+        });
 
         const table = $('#shiftTable').DataTable({
             processing: true,
@@ -53,6 +124,14 @@
             ajax: {
                 url: '/pharmacist/all/shift',
                 type: 'GET',
+                data: function(d) {
+                    const workDate = $('#workDateFilter').val();
+                    if (workDate) {
+                        d.workDate = workDate;
+                        console.log('Filtering by date:', workDate);
+                    }
+                    return d;
+                },
                 dataSrc: function(json) {
                     console.log('Raw JSON response:', json);
                     console.log('Data array:', json.data);
@@ -125,7 +204,8 @@
                         if (data == null || data === undefined) {
                             return '<span class="text-muted">Không có dữ liệu</span>';
                         }
-                        return '<a href="/pharmacist/all/shift/detail/view?shiftName=' + encodeURIComponent(data) + '" class="btn btn-sm btn-primary">Xem chi tiết</a>';
+                        const workDate = $('#workDateFilter').val();
+                        return '<a href="/pharmacist/all/shift/detail/view?shiftName=' + encodeURIComponent(data) + '&workDate=' + encodeURIComponent(workDate) + '" class="btn btn-sm btn-primary">Xem chi tiết</a>';
                     }
                 }
             ],
@@ -165,6 +245,19 @@
         // Fix: Sync thead and tbody width to make headers visible
         table.on('draw', function () {
             $('.dataTables_scrollHead table').width($('.dataTables_scrollBody table').width());
+        });
+
+        // Filter button click handler
+        $('#filterButton').on('click', function() {
+            console.log('Filter button clicked');
+            table.ajax.reload();
+        });
+
+        // Reset button click handler
+        $('#resetButton').on('click', function() {
+            console.log('Reset button clicked');
+            fp.setDate(new Date());
+            table.ajax.reload();
         });
 
         // Test direct API call
