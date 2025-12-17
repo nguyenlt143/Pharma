@@ -225,8 +225,7 @@ content = @`
                     <th>Biến thể thuốc</th>
                     <th>Giá bán</th>
                     <th>Giá chi nhánh</th>
-                    <th>Ngày bắt đầu</th>
-                    <th>Ngày kết thúc</th>
+                    <th>Thời gian cập nhật</th>
                     <th>Hành động</th>
                 </tr>
             </thead>
