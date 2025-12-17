@@ -68,13 +68,7 @@ function initDataTable() {
                 }
             },
             {
-                data: 'startDate',
-                render: function(data) {
-                    return data ? new Date(data).toLocaleString('vi-VN') : '-';
-                }
-            },
-            {
-                data: 'endDate',
+                data: 'updatedAt',
                 render: function(data) {
                     return data ? new Date(data).toLocaleString('vi-VN') : '-';
                 }
