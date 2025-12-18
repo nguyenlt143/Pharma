@@ -35,29 +35,29 @@ function initializeTable() {
 
 function validateQuantity(input) {
     const value = parseInt(input.value) || 0;
-    const max = parseInt(input.getAttribute('max'));
-    const row = input.closest('tr');
+    const max = parseInt(input.getAttribute('data-available'));
+    const feedbackDiv = input.nextElementSibling;
 
-    // Find the medicine row to get requested quantity
-    let medicineRow = row;
-    if (row.classList.contains('batch-row')) {
-        // Find the parent medicine row
-        const variantId = row.getAttribute('data-variant-id');
-        medicineRow = document.querySelector(`.medicine-row[data-variant-id="${variantId}"]`);
+    // Remove previous validation state
+    input.classList.remove('is-invalid');
+
+    // Validate: empty or null
+    if (input.value === '' || input.value === null) {
+        return true; // Allow empty for optional entry
     }
 
+    // Validate: value must be >= 0 (allow 0 for not sending)
     if (value < 0) {
-        input.value = 0;
-        input.style.borderColor = '#EF4444';
+        input.classList.add('is-invalid');
+        feedbackDiv.textContent = 'Số lượng không được âm';
         return false;
     }
 
+    // Validate: value must not exceed available quantity
     if (value > max) {
-        input.value = max;
-        input.style.borderColor = '#F59E0B';
-        showToast(`Số lượng không được vượt quá số lượng tồn kho (${max})`, 'warning');
-    } else {
-        input.style.borderColor = '#E5E7EB';
+        input.classList.add('is-invalid');
+        feedbackDiv.textContent = `Vượt quá tồn kho (${max})`;
+        return false;
     }
 
     return true;
@@ -160,6 +160,22 @@ function createExport() {
         return;
     }
 
+    // Validate all quantities before submission
+    let hasValidationErrors = false;
+    qtyInputs.forEach(input => {
+        const quantity = parseInt(input.value) || 0;
+        if (quantity > 0) {
+            if (!validateQuantity(input)) {
+                hasValidationErrors = true;
+            }
+        }
+    });
+
+    if (hasValidationErrors) {
+        showToast('Vui lòng kiểm tra lại số lượng nhập', 'error');
+        return;
+    }
+
     // Validate requested quantities
     const validationResult = validateRequestedQuantities();
     if (!validationResult.valid) {
@@ -249,4 +265,3 @@ function validateRequestedQuantities() {
 
     return { valid: true };
 }
-

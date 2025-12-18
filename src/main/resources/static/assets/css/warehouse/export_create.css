@@ -200,6 +200,53 @@
     border-color: #D1D5DB;
 }
 
+/* Inline Error Styles - Match Receipt Create */
+.qty-cell {
+    position: relative;
+}
+
+.invalid-feedback {
+    display: none;
+    color: #EF4444;
+    font-size: 12px;
+    line-height: 16px;
+    margin-top: 4px;
+}
+
+.qty-input.is-invalid {
+    border-color: #DC2626 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.qty-input.is-invalid + .invalid-feedback {
+    display: block;
+}
+
+.form-textarea[readonly] {
+    background-color: #F3F4F6;
+    color: #6B7280;
+    cursor: not-allowed;
+}
+
+.date-field[readonly] {
+    background-color: #F3F4F6;
+    color: #6B7280;
+    cursor: not-allowed;
+}
+
+/* Ensure quantity inputs are aligned */
+.qty-cell {
+    vertical-align: middle;
+    padding: 8px 12px;
+}
+
+.qty-input {
+    width: 100%;
+    max-width: 100px;
+    margin: 0 auto;
+    display: block;
+}
+
 /* Total Section */
 .total-section {
     display: flex;
@@ -317,4 +364,3 @@
         opacity: 1;
     }
 }
-

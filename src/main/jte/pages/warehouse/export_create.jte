@@ -30,14 +30,15 @@ content = @`
                             <label class="form-label">Ngày tạo phiếu</label>
                             <div class="date-input">
                                 <input type="date" class="form-input date-field" id="createdDate"
-                                       value="${exportData != null && exportData.getCreatedDate() != null ? exportData.getCreatedDate().toString() : java.time.LocalDate.now().toString()}">
+                                       value="${exportData != null && exportData.getCreatedDate() != null ? exportData.getCreatedDate().toString() : java.time.LocalDate.now().toString()}"
+                                       readonly>
                             </div>
                         </div>
                     </div>
 
                     <div class="form-group full-width">
                         <label class="form-label">Ghi chú</label>
-                        <textarea class="form-textarea" id="note" placeholder="Thêm ghi chú nếu cần">${exportData != null && exportData.getNote() != null ? exportData.getNote() : ""}</textarea>
+                        <textarea class="form-textarea" id="note" placeholder="Thêm ghi chú nếu cần" readonly>${exportData != null && exportData.getNote() != null ? exportData.getNote() : ""}</textarea>
                     </div>
                 </div>
 
@@ -87,7 +88,7 @@ content = @`
                                             <td class="right-text">
                                                 ${String.format("%,.0f", batch.getBranchPrice())}
                                             </td>
-                                            <td>
+                                            <td class="qty-cell">
                                                 <input type="number"
                                                        class="qty-input"
                                                        min="0"
@@ -96,7 +97,9 @@ content = @`
                                                        data-inventory-id="${batch.getInventoryId()}"
                                                        data-batch-id="${batch.getBatchId()}"
                                                        data-price="${batch.getBranchPrice()}"
-                                                       data-variant-id="${medicine.getVariantId()}">
+                                                       data-variant-id="${medicine.getVariantId()}"
+                                                       data-available="${batch.getAvailableQuantity()}">
+                                                <div class="invalid-feedback">Số lượng không hợp lệ</div>
                                             </td>
                                         </tr>
                                     @endfor
@@ -125,4 +128,3 @@ pageScript = @`
     <script src="/assets/js/warehouse/export_create.js" defer></script>
 `
 )
-
