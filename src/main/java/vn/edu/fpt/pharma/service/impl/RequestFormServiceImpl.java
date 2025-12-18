@@ -39,6 +39,7 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     private final InventoryMovementRepository movementRepository;
     private final InventoryMovementDetailRepository movementDetailRepository;
     private final BatchRepository batchRepository;
+    private final vn.edu.fpt.pharma.service.InventoryMovementService inventoryMovementService;
 
     public RequestFormServiceImpl(RequestFormRepository repository, AuditService auditService,
                                    RequestDetailRepository requestDetailRepository,
@@ -48,7 +49,8 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
                                    PriceRepository priceRepository,
                                    InventoryMovementRepository movementRepository,
                                    InventoryMovementDetailRepository movementDetailRepository,
-                                   BatchRepository batchRepository) {
+                                   BatchRepository batchRepository,
+                                   vn.edu.fpt.pharma.service.InventoryMovementService inventoryMovementService) {
         super(repository, auditService);
         this.repository = repository;
         this.requestDetailRepository = requestDetailRepository;
@@ -59,6 +61,7 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
         this.movementRepository = movementRepository;
         this.movementDetailRepository = movementDetailRepository;
         this.batchRepository = batchRepository;
+        this.inventoryMovementService = inventoryMovementService;
     }
 
     @Override
@@ -595,6 +598,8 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     }
 
     private void cancelReturnReceipt(RequestForm requestForm) {
+        System.out.println(">>> cancelReturnReceipt called for request " + requestForm.getId());
+
         // Find the corresponding receipt (BR_TO_WARE or BR_TO_WARE2) linked to this request
         List<InventoryMovement> receipts = movementRepository.findAll().stream()
                 .filter(m -> m.getRequestForm() != null && m.getRequestForm().getId().equals(requestForm.getId()))
@@ -602,6 +607,8 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
                             m.getMovementType() == MovementType.BR_TO_WARE2)
                 .filter(m -> m.getMovementStatus() == MovementStatus.DRAFT)
                 .toList();
+
+        System.out.println(">>> Found " + receipts.size() + " DRAFT receipts to cancel");
 
         if (receipts.isEmpty()) {
             log.warn("No DRAFT receipt found for return request {}", requestForm.getId());
@@ -612,11 +619,12 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
             log.warn("Multiple DRAFT receipts found for return request {}, cancelling all", requestForm.getId());
         }
 
-        // Cancel all matching receipts
+        // Cancel all matching receipts using InventoryMovementService
+        // This will trigger inventory restoration logic
         for (InventoryMovement receipt : receipts) {
-            receipt.setMovementStatus(MovementStatus.CANCELLED);
-            movementRepository.save(receipt);
-            log.info("Cancelled receipt {} for return request {}", receipt.getId(), requestForm.getId());
+            System.out.println(">>> Calling inventoryMovementService.cancelReceipt for receipt " + receipt.getId());
+            inventoryMovementService.cancelReceipt(receipt.getId());
+            log.info("Cancelled receipt {} for return request {} (with inventory restoration)", receipt.getId(), requestForm.getId());
         }
     }
 

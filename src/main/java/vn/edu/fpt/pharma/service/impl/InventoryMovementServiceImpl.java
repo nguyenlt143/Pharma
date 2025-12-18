@@ -406,16 +406,144 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
     }
 
     @Override
+    @Transactional
     public void cancelReceipt(Long id) {
+        System.out.println("==========================================");
+        System.out.println("=== CANCEL RECEIPT START: id=" + id + " ===");
+        System.out.println("==========================================");
+
         InventoryMovement movement = movementRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Receipt not found"));
 
+        System.out.println("Movement found:");
+        System.out.println("  - ID: " + movement.getId());
+        System.out.println("  - Type: " + movement.getMovementType());
+        System.out.println("  - Status: " + movement.getMovementStatus());
+        System.out.println("  - Source Branch: " + movement.getSourceBranchId());
+        System.out.println("  - Dest Branch: " + movement.getDestinationBranchId());
+
         if (movement.getMovementStatus() == MovementStatus.DRAFT) {
+            // If this is a return movement (BR_TO_WARE or BR_TO_WARE2), restore branch inventory
+            boolean isReturnMovement = (movement.getMovementType() == MovementType.BR_TO_WARE ||
+                                       movement.getMovementType() == MovementType.BR_TO_WARE2);
+
+            System.out.println("Is return movement (BR_TO_WARE/BR_TO_WARE2)? " + isReturnMovement);
+
+            if (isReturnMovement) {
+                System.out.println(">>> Calling restoreBranchInventoryFromCancelledReturn...");
+                restoreBranchInventoryFromCancelledReturn(movement);
+                System.out.println(">>> Finished restoreBranchInventoryFromCancelledReturn");
+            }
+
             movement.setMovementStatus(MovementStatus.CANCELLED);
             movementRepository.save(movement);
+            log.info("Cancelled receipt {} with type {}", id, movement.getMovementType());
+            System.out.println("Receipt cancelled successfully");
         } else {
+            System.out.println("ERROR: Cannot cancel - status is " + movement.getMovementStatus() + " (expected DRAFT)");
             throw new IllegalStateException("Receipt cannot be cancelled in its current state: " + movement.getMovementStatus());
         }
+
+        System.out.println("==========================================");
+        System.out.println("=== CANCEL RECEIPT END: id=" + id + " ===");
+        System.out.println("==========================================");
+    }
+
+    private void restoreBranchInventoryFromCancelledReturn(InventoryMovement movement) {
+        System.out.println("  >>> restoreBranchInventoryFromCancelledReturn START");
+        System.out.println("  >>> Movement ID: " + movement.getId());
+
+        if (movement.getSourceBranchId() == null) {
+            System.out.println("  >>> ERROR: No source branch ID!");
+            log.warn("Cannot restore inventory - movement {} has no source branch", movement.getId());
+            return;
+        }
+
+        System.out.println("  >>> Source branch ID: " + movement.getSourceBranchId());
+
+        Branch sourceBranch = branchRepository.findById(movement.getSourceBranchId())
+                .orElseThrow(() -> new RuntimeException("Source branch not found: " + movement.getSourceBranchId()));
+
+        System.out.println("  >>> Source branch found: " + sourceBranch.getName() + " (id=" + sourceBranch.getId() + ")");
+
+        // Load movement details
+        System.out.println("  >>> Loading movement details...");
+        List<InventoryMovementDetail> details = movementDetailRepository
+                .findByMovementId(movement.getId());
+
+        System.out.println("  >>> Found " + details.size() + " movement details");
+
+        if (details.isEmpty()) {
+            System.out.println("  >>> ERROR: No movement details found!");
+            log.warn("No movement details found for movement {}", movement.getId());
+            return;
+        }
+
+        log.info("Restoring inventory to branch {} for {} cancelled return items",
+                sourceBranch.getName(), details.size());
+        System.out.println("  >>> Starting to restore " + details.size() + " items...");
+
+        for (int i = 0; i < details.size(); i++) {
+            InventoryMovementDetail detail = details.get(i);
+            System.out.println("  >>> Processing item " + (i+1) + "/" + details.size());
+            System.out.println("      - Variant ID: " + detail.getVariant().getId());
+            System.out.println("      - Batch ID: " + detail.getBatch().getId());
+            System.out.println("      - Batch Code: " + detail.getBatch().getBatchCode());
+            System.out.println("      - Quantity to restore: " + detail.getQuantity());
+
+            // Find or recreate inventory at source branch
+            System.out.println("      - Looking for inventory: branchId=" + movement.getSourceBranchId()
+                    + ", variantId=" + detail.getVariant().getId()
+                    + ", batchId=" + detail.getBatch().getId());
+
+            Inventory branchInventory = inventoryRepository
+                    .findByBranchIdAndVariantIdAndBatchId(
+                            movement.getSourceBranchId(),
+                            detail.getVariant().getId(),
+                            detail.getBatch().getId()
+                    )
+                    .orElseGet(() -> {
+                        // Recreate inventory record if it was deleted (e.g., expired items)
+                        System.out.println("      - Inventory NOT FOUND! Creating new record...");
+                        Inventory newInventory = Inventory.builder()
+                                .branch(sourceBranch)
+                                .variant(detail.getVariant())
+                                .batch(detail.getBatch())
+                                .quantity(0L)
+                                .costPrice(detail.getSnapCost())
+                                .build();
+                        log.info("Recreated inventory record for branch {} variant {} batch {} (was deleted)",
+                                sourceBranch.getName(),
+                                detail.getVariant().getId(),
+                                detail.getBatch().getBatchCode());
+                        Inventory saved = inventoryRepository.save(newInventory);
+                        System.out.println("      - Created new inventory with ID: " + saved.getId());
+                        return saved;
+                    });
+
+            System.out.println("      - Found inventory ID: " + branchInventory.getId());
+            System.out.println("      - Current quantity: " + branchInventory.getQuantity());
+
+            // Restore the quantity that was deducted during return creation
+            long previousQty = branchInventory.getQuantity();
+            long newQty = previousQty + detail.getQuantity();
+            branchInventory.setQuantity(newQty);
+            inventoryRepository.save(branchInventory);
+
+            System.out.println("      - ✓ SAVED! New quantity: " + newQty + " (was " + previousQty + ", added " + detail.getQuantity() + ")");
+
+            log.info("Restored {} units of variant {} batch {} to branch {} inventory (from {} to {})",
+                    detail.getQuantity(),
+                    detail.getVariant().getId(),
+                    detail.getBatch().getBatchCode(),
+                    sourceBranch.getName(),
+                    previousQty,
+                    branchInventory.getQuantity());
+        }
+
+        log.info("Completed inventory restoration for cancelled return movement {} to branch {}",
+                movement.getId(), sourceBranch.getName());
+        System.out.println("  >>> restoreBranchInventoryFromCancelledReturn COMPLETED");
     }
 
     @Override
