@@ -130,5 +130,14 @@ public class StockAdjustmentServiceImpl extends BaseServiceImpl<StockAdjustment,
         if (!details.isEmpty()) {
             inventoryMovementDetailRepository.saveAll(details);
         }
+
+        // --- Tính lại tổng tiền (totalMoney) cho phiếu kiểm kho ---
+        List<InventoryMovementDetail> savedDetails = inventoryMovementDetailRepository.findByMovementId(movement.getId());
+        double totalMoney = savedDetails.stream()
+                .filter(d -> d.getQuantity() != null && d.getSnapCost() != null)
+                .mapToDouble(d -> Math.abs(d.getQuantity()) * d.getSnapCost())
+                .sum();
+        movement.setTotalMoney(totalMoney);
+        inventoryMovementRepository.save(movement);
     }
 }

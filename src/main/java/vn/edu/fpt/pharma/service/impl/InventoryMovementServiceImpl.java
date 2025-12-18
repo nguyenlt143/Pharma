@@ -751,6 +751,15 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
         log.info("Return movement {} created successfully with {} items",
                 savedMovement.getId(), dto.getItems().size());
 
+        // --- Tính lại tổng tiền (totalMoney) cho phiếu trả hàng ---
+        List<InventoryMovementDetail> details = movementDetailRepository.findByMovementId(savedMovement.getId());
+        double totalMoney = details.stream()
+                .filter(d -> d.getQuantity() != null && d.getSnapCost() != null)
+                .mapToDouble(d -> d.getQuantity() * d.getSnapCost())
+                .sum();
+        savedMovement.setTotalMoney(totalMoney);
+        movementRepository.save(savedMovement);
+
         return savedMovement.getId();
     }
 

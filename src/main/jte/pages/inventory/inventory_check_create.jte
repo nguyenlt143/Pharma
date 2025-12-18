@@ -39,6 +39,7 @@
                 <table class="w-full text-sm">
                     <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
                         <tr>
+                            <th class="px-3 py-2 text-center">STT</th>
                             <th class="px-3 py-2 text-left">Tên thuốc</th>
                             <th class="px-3 py-2 text-left">Hoạt chất</th>
                             <th class="px-3 py-2">Lô / HSD</th>
@@ -48,29 +49,34 @@
                     </thead>
                     <tbody id="inventoryMedicineSource" class="divide-y">
                         @if(medicines != null && !medicines.isEmpty())
-                            @for(var m : medicines)
-                                <tr class="hover:bg-gray-50" data-inventory-id="${m.getInventoryId()}" data-variant-id="${m.getVariantId()}" data-batch-id="${m.getBatchId()}" data-system-qty="${m.getQuantity()}">
+                            @for(int i = 0; i < medicines.size(); i++)
+                                <tr class="hover:bg-gray-50 medicine-row"
+                                    data-inventory-id="${medicines.get(i).getInventoryId()}"
+                                    data-variant-id="${medicines.get(i).getVariantId()}"
+                                    data-batch-id="${medicines.get(i).getBatchId()}"
+                                    data-system-qty="${medicines.get(i).getQuantity()}">
+                                    <td class="px-3 py-2 text-center stt-cell"></td>
                                     <td class="px-3 py-2">
-                                        <div class="font-medium text-gray-900">${m.getMedicineName()}</div>
-                                        <div class="text-xs text-gray-500">${m.getDosageForm()}</div>
+                                        <div class="font-medium text-gray-900">${medicines.get(i).getMedicineName()}</div>
+                                        <div class="text-xs text-gray-500">${medicines.get(i).getDosageForm()}</div>
                                     </td>
-                                    <td class="px-3 py-2 text-xs">${m.getActiveIngredient()}</td>
+                                    <td class="px-3 py-2 text-xs">${medicines.get(i).getActiveIngredient()}</td>
                                     <td class="px-3 py-2 text-xs">
-                                        @if(m.getBatchCode() != null)
-                                            <span class="font-mono bg-gray-100 px-1 py-0.5 rounded">${m.getBatchCode()}</span>
+                                        @if(medicines.get(i).getBatchCode() != null)
+                                            <span class="font-mono bg-gray-100 px-1 py-0.5 rounded">${medicines.get(i).getBatchCode()}</span>
                                         @endif
-                                        @if(m.getExpiryDate() != null)
-                                            <span class="ml-1 ${m.getExpiryDate().isBefore(java.time.LocalDate.now().plusMonths(6)) ? "text-red-600 font-semibold" : "text-gray-600"}">${m.getExpiryDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}</span>
+                                        @if(medicines.get(i).getExpiryDate() != null)
+                                            <span class="ml-1 ${medicines.get(i).getExpiryDate().isBefore(java.time.LocalDate.now().plusMonths(6)) ? "text-red-600 font-semibold" : "text-gray-600"}">${medicines.get(i).getExpiryDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}</span>
                                         @endif
                                     </td>
-                                    <td class="px-3 py-2 text-center font-semibold text-blue-600">${m.getQuantity()} ${m.getUnit()}</td>
+                                    <td class="px-3 py-2 text-center font-semibold text-blue-600">${medicines.get(i).getQuantity()} ${medicines.get(i).getUnit()}</td>
                                     <td class="px-3 py-2 text-center">
                                         <button class="add-one-btn text-sm text-blue-600 hover:text-blue-800" type="button">Thêm</button>
                                     </td>
                                 </tr>
                             @endfor
                         @else
-                            <tr><td colspan="5" class="px-3 py-6 text-center text-gray-500">Không có thuốc trong kho</td></tr>
+                            <tr><td colspan="6" class="px-3 py-6 text-center text-gray-500">Không có thuốc trong kho</td></tr>
                         @endif
                     </tbody>
                 </table>
@@ -83,6 +89,7 @@
                 <table class="w-full text-sm">
                     <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
                         <tr>
+                            <th class="px-3 py-2 text-center">STT</th>
                             <th class="px-3 py-2 text-left">Tên thuốc</th>
                             <th class="px-3 py-2 text-center">Tồn hệ thống</th>
                             <th class="px-3 py-2 text-center">Số thực tế</th>
@@ -91,7 +98,7 @@
                         </tr>
                     </thead>
                     <tbody id="inventoryCheckSelected" class="divide-y">
-                        <tr id="emptySelectedRow"><td colspan="5" class="px-3 py-6 text-center text-gray-500">Chưa chọn thuốc nào</td></tr>
+                        <tr id="emptySelectedRow"><td colspan="6" class="px-3 py-6 text-center text-gray-500">Chưa chọn thuốc nào</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -111,5 +118,18 @@
     </main>
 </div>
 <script src="/assets/js/inventory/inventory_check_create.js"></script>
+<script>
+function updateSearchSTT() {
+    let stt = 1;
+    $('#inventoryMedicineSource tr:visible').each(function() {
+        $(this).find('.stt-cell').text(stt++);
+    });
+}
+$('#inventoryCheckSearch').on('input', function() {
+    // ...existing code search...
+    updateSearchSTT();
+});
+$(document).ready(function(){ updateSearchSTT(); });
+</script>
 </body>
 </html>

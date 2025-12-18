@@ -42,6 +42,7 @@
                 <table class="w-full text-sm">
                     <thead class="bg-gray-50 text-gray-600 uppercase text-xs sticky top-0">
                         <tr>
+                            <th class="px-3 py-2 text-center">STT</th>
                             <th class="px-3 py-2 text-left">Tên thuốc</th>
                             <th class="px-3 py-2 text-left">Hoạt chất</th>
                             <th class="px-3 py-2 text-left">Hàm lượng</th>
@@ -52,26 +53,27 @@
                     </thead>
                     <tbody id="branchMedicineSource" class="divide-y">
                         @if(medicines != null && !medicines.isEmpty())
-                            @for(vn.edu.fpt.pharma.dto.inventory.InventoryMedicineVM med : medicines)
+                            @for(int i = 0; i < medicines.size(); i++)
                                 <tr class="hover:bg-gray-50 medicine-row"
-                                    data-variant-id="${med.getVariantId()}"
-                                    data-batch-id="${med.getBatchId()}"
-                                    data-inventory-id="@if(med.getInventoryId() != null)${med.getInventoryId()}@endif"
-                                    data-medicine-name="${med.getMedicineName()}"
-                                    data-active-ingredient="@if(med.getActiveIngredient() != null)${med.getActiveIngredient()}@endif"
-                                    data-strength="@if(med.getStrength() != null)${med.getStrength()}@else@endif"
-                                    data-batch-code="@if(med.getBatchCode() != null)${med.getBatchCode()}@else@endif"
-                                    data-expiry-date="@if(med.getExpiryDate() != null)${med.getExpiryDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}@endif"
-                                    data-available-qty="${med.getQuantity()}"
-                                    data-unit="@if(med.getUnit() != null)${med.getUnit()}@else@endif">
-                                    <td class="px-3 py-2 font-medium">${med.getMedicineName()}</td>
-                                    <td class="px-3 py-2">@if(med.getActiveIngredient() != null)${med.getActiveIngredient()}@else-@endif</td>
-                                    <td class="px-3 py-2">@if(med.getStrength() != null)${med.getStrength()}@else-@endif</td>
+                                    data-variant-id="${medicines.get(i).getVariantId()}"
+                                    data-batch-id="${medicines.get(i).getBatchId()}"
+                                    data-inventory-id="@if(medicines.get(i).getInventoryId() != null)${medicines.get(i).getInventoryId()}@endif"
+                                    data-medicine-name="${medicines.get(i).getMedicineName()}"
+                                    data-active-ingredient="@if(medicines.get(i).getActiveIngredient() != null)${medicines.get(i).getActiveIngredient()}@endif"
+                                    data-strength="@if(medicines.get(i).getStrength() != null)${medicines.get(i).getStrength()}@else@endif"
+                                    data-batch-code="@if(medicines.get(i).getBatchCode() != null)${medicines.get(i).getBatchCode()}@else@endif"
+                                    data-expiry-date="@if(medicines.get(i).getExpiryDate() != null)${medicines.get(i).getExpiryDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}@endif"
+                                    data-available-qty="${medicines.get(i).getQuantity()}"
+                                    data-unit="@if(medicines.get(i).getUnit() != null)${medicines.get(i).getUnit()}@else@endif">
+                                    <td class="px-3 py-2 text-center">${i + 1}</td>
+                                    <td class="px-3 py-2 font-medium">${medicines.get(i).getMedicineName()}</td>
+                                    <td class="px-3 py-2">@if(medicines.get(i).getActiveIngredient() != null)${medicines.get(i).getActiveIngredient()}@else-@endif</td>
+                                    <td class="px-3 py-2">@if(medicines.get(i).getStrength() != null)${medicines.get(i).getStrength()}@else-@endif</td>
                                     <td class="px-3 py-2 text-center">
-                                        <span class="font-mono text-xs bg-gray-100 px-2 py-1 rounded">@if(med.getBatchCode() != null)${med.getBatchCode()}@else-@endif</span><br/>
-                                        <span class="text-xs text-gray-500">@if(med.getExpiryDate() != null)HSD: ${med.getExpiryDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}@endif</span>
+                                        <span class="font-mono text-xs bg-gray-100 px-2 py-1 rounded">@if(medicines.get(i).getBatchCode() != null)${medicines.get(i).getBatchCode()}@else-@endif</span><br/>
+                                        <span class="text-xs text-gray-500">@if(medicines.get(i).getExpiryDate() != null)HSD: ${medicines.get(i).getExpiryDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}@endif</span>
                                     </td>
-                                    <td class="px-3 py-2 text-center font-semibold">${med.getQuantity()}</td>
+                                    <td class="px-3 py-2 text-center font-semibold">${medicines.get(i).getQuantity()}</td>
                                     <td class="px-3 py-2 text-center">
                                         <button type="button" class="add-medicine-btn bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs">
                                             <span class="material-icons-outlined text-sm">add</span> Thêm
@@ -81,7 +83,7 @@
                             @endfor
                         @else
                             <tr>
-                                <td colspan="6" class="px-3 py-8 text-center text-gray-500">Không có thuốc trong kho chi nhánh</td>
+                                <td colspan="7" class="px-3 py-8 text-center text-gray-500">Không có thuốc trong kho chi nhánh</td>
                             </tr>
                         @endif
                     </tbody>

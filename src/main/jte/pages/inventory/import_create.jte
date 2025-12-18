@@ -40,6 +40,7 @@
                 <table class="w-full text-sm">
                     <thead class="bg-gray-50 text-gray-600 uppercase text-xs sticky top-0">
                         <tr>
+                            <th class="px-3 py-2 text-center">STT</th>
                             <th class="px-3 py-2 text-left">Tên thuốc</th>
                             <th class="px-3 py-2 text-left">Hoạt chất</th>
                             <th class="px-3 py-2 text-left">Hàm lượng</th>
@@ -49,26 +50,27 @@
                     </thead>
                     <tbody id="warehouseMedicineSource" class="divide-y">
                         @if(medicines != null && !medicines.isEmpty())
-                            @for(var m : medicines)
-                                <tr class="hover:bg-gray-50"
-                                    data-variant-id="${m.getVariantId()}"
-                                    data-batch-id="${m.getBatchId()}"
-                                    data-medicine-name="${m.getMedicineName()}"
-                                    data-active-ingredient="@if(m.getActiveIngredient() != null)${m.getActiveIngredient()}@endif"
-                                    data-strength="@if(m.getStrength() != null)${m.getStrength()}@endif"
-                                    data-dosage-form="@if(m.getDosageForm() != null)${m.getDosageForm()}@endif"
-                                    data-manufacturer="@if(m.getManufacturer() != null)${m.getManufacturer()}@endif"
-                                    data-branch-stock="@if(m.getBranchStock() != null)${m.getBranchStock()}@else0@endif"
-                                    data-min-stock="@if(m.getMinStock() != null)${m.getMinStock()}@else${""}@endif"
-                                    data-unit="@if(m.getUnit() != null)${m.getUnit()}@endif">
+                            @for(int i = 0; i < medicines.size(); i++)
+                                <tr class="hover:bg-gray-50 medicine-row"
+                                    data-variant-id="${medicines.get(i).getVariantId()}"
+                                    data-batch-id="${medicines.get(i).getBatchId()}"
+                                    data-medicine-name="${medicines.get(i).getMedicineName()}"
+                                    data-active-ingredient="@if(medicines.get(i).getActiveIngredient() != null)${medicines.get(i).getActiveIngredient()}@endif"
+                                    data-strength="@if(medicines.get(i).getStrength() != null)${medicines.get(i).getStrength()}@endif"
+                                    data-dosage-form="@if(medicines.get(i).getDosageForm() != null)${medicines.get(i).getDosageForm()}@endif"
+                                    data-manufacturer="@if(medicines.get(i).getManufacturer() != null)${medicines.get(i).getManufacturer()}@endif"
+                                    data-branch-stock="@if(medicines.get(i).getBranchStock() != null)${medicines.get(i).getBranchStock()}@else0@endif"
+                                    data-min-stock="@if(medicines.get(i).getMinStock() != null)${medicines.get(i).getMinStock()}@else${""}@endif"
+                                    data-unit="@if(medicines.get(i).getUnit() != null)${medicines.get(i).getUnit()}@endif">
+                                    <td class="px-3 py-2 text-center stt-cell"></td>
                                     <td class="px-3 py-2">
-                                        <div class="font-medium text-gray-900">${m.getMedicineName()}</div>
-                                        <div class="text-xs text-gray-500">@if(m.getDosageForm() != null)${m.getDosageForm()}@endif</div>
+                                        <div class="font-medium text-gray-900">${medicines.get(i).getMedicineName()}</div>
+                                        <div class="text-xs text-gray-500">@if(medicines.get(i).getDosageForm() != null)${medicines.get(i).getDosageForm()}@endif</div>
                                     </td>
-                                    <td class="px-3 py-2 text-xs">@if(m.getActiveIngredient() != null)${m.getActiveIngredient()}@else-@endif</td>
-                                    <td class="px-3 py-2 text-xs">@if(m.getStrength() != null)${m.getStrength()}@else-@endif</td>
+                                    <td class="px-3 py-2 text-xs">@if(medicines.get(i).getActiveIngredient() != null)${medicines.get(i).getActiveIngredient()}@else-@endif</td>
+                                    <td class="px-3 py-2 text-xs">@if(medicines.get(i).getStrength() != null)${medicines.get(i).getStrength()}@else-@endif</td>
                                     <td class="px-3 py-2 text-center font-semibold text-blue-600">
-                                        @if(m.getBranchStock() != null)${m.getBranchStock()}@else0@endif @if(m.getUnit() != null)${m.getUnit()}@endif
+                                        @if(medicines.get(i).getBranchStock() != null)${medicines.get(i).getBranchStock()}@else0@endif @if(medicines.get(i).getUnit() != null)${medicines.get(i).getUnit()}@endif
                                     </td>
                                     <td class="px-3 py-2 text-center">
                                         <button class="add-medicine-btn text-sm text-blue-600 hover:text-blue-800 font-medium" type="button">
@@ -79,7 +81,7 @@
                                 </tr>
                             @endfor
                         @else
-                            <tr><td colspan="5" class="px-3 py-6 text-center text-gray-500">Không có thuốc trong kho tổng</td></tr>
+                            <tr><td colspan="6" class="px-3 py-6 text-center text-gray-500">Không có thuốc trong kho tổng</td></tr>
                         @endif
                     </tbody>
                 </table>
@@ -194,6 +196,20 @@
         console.error('Failed to preload import items', e);
     }
 })();
+
+// Cập nhật lại STT cho bảng search khi lọc
+function updateSearchSTT() {
+    let stt = 1;
+    $('#warehouseMedicineSource tr:visible').each(function() {
+        $(this).find('.stt-cell').text(stt++);
+    });
+}
+$('#warehouseMedicineSearch').on('input', function() {
+    // ...existing code search...
+    updateSearchSTT();
+});
+// Gọi lại khi trang load xong
+$(document).ready(function(){ updateSearchSTT(); });
 </script>
 </body>
 </html>

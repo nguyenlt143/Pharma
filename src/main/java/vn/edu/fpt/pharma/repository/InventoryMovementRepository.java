@@ -169,4 +169,35 @@ public interface InventoryMovementRepository extends JpaRepository<InventoryMove
         return findOwnerTopCategories(branchId, fromDate, toDate,
                 org.springframework.data.domain.PageRequest.of(0, limit));
     }
+
+    // -------------------------------------------------------------------------
+    // New aggregation helpers for adjustments & expired returns
+    // -------------------------------------------------------------------------
+
+    @Query(value = """
+            SELECT im.id AS movement_id,
+                   COALESCE(SUM(imd.snap_cost * imd.quantity), 0) AS total_value
+            FROM inventory_movements im
+            JOIN inventory_movement_details imd ON im.id = imd.movement_id AND imd.deleted = FALSE
+            WHERE im.deleted = FALSE
+              AND im.source_branch_id = :branchId
+              AND im.movement_type IN :types
+              AND im.created_at >= :fromDate
+            GROUP BY im.id
+            """, nativeQuery = true)
+    List<Object[]> sumSnapCostByMovementSinceByBranchAndTypes(
+            @Param("branchId") Long branchId,
+            @Param("fromDate") LocalDateTime fromDate,
+            @Param("types") List<MovementType> types
+    );
+
+    @Query(value = """
+            SELECT COALESCE(SUM(imd.snap_cost * imd.quantity), 0) AS total_value
+            FROM inventory_movements im
+            JOIN inventory_movement_details imd ON im.id = imd.movement_id AND imd.deleted = FALSE
+            WHERE im.deleted = FALSE
+              AND im.id = :movementId
+            """, nativeQuery = true)
+    Double sumSnapCostByMovementId(@Param("movementId") Long movementId);
+
 }

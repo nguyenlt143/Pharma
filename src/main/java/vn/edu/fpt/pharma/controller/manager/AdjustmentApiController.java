@@ -61,9 +61,17 @@ public class AdjustmentApiController {
                 .toList();
 
         // Calculate total value from snapCost * quantity
+        // Use repository aggregation to compute totalValue for movements
         double totalValue = 0.0;
-        for (InventoryMovement m : movements) {
-            totalValue += calculateTotalMoney(m);
+        if (!movements.isEmpty()) {
+            List<vn.edu.fpt.pharma.constant.MovementType> types = List.of(MovementType.INVENTORY_ADJUSTMENT, MovementType.BR_TO_WARE2);
+            List<Object[]> agg = inventoryMovementRepository.sumSnapCostByMovementSinceByBranchAndTypes(branchId, thirtyDaysAgo, types);
+            for (Object[] row : agg) {
+                Object totalRaw = row[1];
+                if (totalRaw != null) {
+                    totalValue += ((Number) totalRaw).doubleValue();
+                }
+            }
         }
 
         summary.put("adjustmentCount", adjustments.size());
@@ -126,7 +134,9 @@ public class AdjustmentApiController {
             Map<String, Double> dayData = dailyData.get(date);
 
             // Calculate total from snapCost * quantity
-            Double totalMoney = calculateTotalMoney(m);
+            // Directly query the DB for this movement's total
+            Double totalMoney = inventoryMovementRepository.sumSnapCostByMovementId(m.getId());
+            if (totalMoney == null) totalMoney = 0.0;
 
             if (m.getMovementType() == MovementType.INVENTORY_ADJUSTMENT) {
                 dayData.put("adjustments", dayData.getOrDefault("adjustments", 0.0) + totalMoney);
@@ -202,7 +212,8 @@ public class AdjustmentApiController {
         List<Map<String, Object>> activities = new ArrayList<>();
         for (InventoryMovement mv : movements) {
             // Calculate total from snapCost * quantity
-            double totalMoney = calculateTotalMoney(mv);
+            Double tmp = inventoryMovementRepository.sumSnapCostByMovementId(mv.getId());
+            double totalMoney = tmp != null ? tmp : 0.0;
 
             Map<String, Object> activity = new HashMap<>();
             activity.put("id", mv.getId());
@@ -263,7 +274,8 @@ public class AdjustmentApiController {
         detail.put("branchName", branchName);
 
         // Calculate total from snapCost * quantity
-        double totalMoney = calculateTotalMoney(mv);
+        Double tmp = inventoryMovementRepository.sumSnapCostByMovementId(mv.getId());
+        double totalMoney = tmp != null ? tmp : 0.0;
         detail.put("totalMoney", totalMoney);
         detail.put("totalValueFormatted", importExportService.formatCurrencyReadable(totalMoney));
 
@@ -312,4 +324,3 @@ public class AdjustmentApiController {
                 .sum();
     }
 }
-
