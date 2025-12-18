@@ -1,3 +1,12 @@
+// Helper function to format date as D/M/Y
+function formatDateDMY(date) {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
 // DOM Elements
 const searchInput = document.querySelector('.search-input');
 const searchButton = document.querySelector('.search-button');
@@ -331,9 +340,22 @@ function addEventListenersToMedicineCards() {
                                 // Inventory details column
                                 let inventoryInfoHtml = `<td style="border: 1px solid #ddd; padding: 8px; vertical-align: top;">`;
                                 if (variant.inventories && variant.inventories.length > 0) {
-                                    variant.inventories.forEach(inv => {
-                                        const expiryDate = inv.expiryDate ? new Date(inv.expiryDate).toLocaleDateString('vi-VN') : 'N/A';
-                                        const salePrice = inv.salePrice ? inv.salePrice.toLocaleString('vi-VN') + ' VNĐ' : 'Chưa có giá';
+                                    // Filter out expired medicines - only show valid inventory
+                                    const today = new Date();
+                                    today.setHours(0, 0, 0, 0);
+                                    const validInventories = variant.inventories.filter(inv => {
+                                        if (!inv.expiryDate) return true; // If no expiry date, include it
+                                        const expiryDateObj = new Date(inv.expiryDate);
+                                        return expiryDateObj >= today; // Only include if not expired
+                                    });
+
+                                    if (validInventories.length === 0) {
+                                        // All inventories are expired
+                                        inventoryInfoHtml += '<span style="color: red; font-weight: bold;">⚠️ Hết hàng (Thuốc đã hết hạn)</span>';
+                                    } else {
+                                        validInventories.forEach(inv => {
+                                            const expiryDate = inv.expiryDate ? new Date(inv.expiryDate).toLocaleDateString('vi-VN') : 'N/A';
+                                            const salePrice = inv.salePrice ? inv.salePrice.toLocaleString('vi-VN') + ' VNĐ' : 'Chưa có giá';
                                         inventoryInfoHtml += `
                                             <div class="inventory-wrapper" style="margin-bottom: 10px; padding: 8px; background-color: #f9f9f9; border-radius: 4px;">
                                                 <div class="inventory-item"
@@ -373,7 +395,8 @@ function addEventListenersToMedicineCards() {
                                                 </div>
                                             </div>
                                         `;
-                                    });
+                                        });
+                                    }
                                 } else {
                                     inventoryInfoHtml += '<span style="color: red;">Hết hàng</span>';
                                 }
@@ -488,6 +511,17 @@ function handleInventoryClicks(e) {
             baseUnitName: button.dataset.baseUnitName
         };
 
+        // Check if medicine is expired before adding to cart
+        if (inventoryData.expiryDate) {
+            const expiryDateObj = new Date(inventoryData.expiryDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            if (expiryDateObj < today) {
+                showToast('Cảnh báo', 'Không thể thêm thuốc đã hết hạn vào đơn!', 'error');
+                return;
+            }
+        }
+
         addItemToPrescription(inventoryData, button);
         return;
     }
@@ -513,6 +547,17 @@ function handleInventoryClicks(e) {
             expiryDate: item.dataset.expiryDate,
             baseUnitName: item.dataset.baseUnitName
         };
+
+        // Check if medicine is expired before adding to cart
+        if (inventoryData.expiryDate) {
+            const expiryDateObj = new Date(inventoryData.expiryDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            if (expiryDateObj < today) {
+                showToast('Cảnh báo', 'Không thể thêm thuốc đã hết hạn vào đơn!', 'error');
+                return;
+            }
+        }
 
         addItemToPrescription(inventoryData, null);
     }
@@ -641,13 +686,17 @@ function renderPrescription() {
         const row = document.createElement('tr');
 
         const medicineDisplayName = item.strength ? `${item.medicineName} - ${item.strength}` : item.medicineName;
+        const formattedExpiryDate = item.expiryDate ? formatDateDMY(item.expiryDate) : 'N/A';
 
         row.innerHTML = `
             <td>${index + 1}</td>
             <td>
                 <div class="medicine-info">
                     <div class="medicine-title">${medicineDisplayName}</div>
-                    <div class="medicine-detail">Lô: ${item.batchNumber} - HSD: ${item.expiryDate}</div>
+                    <div class="medicine-detail">
+                        <span class="batch-info">Lô: ${item.batchNumber}</span>
+                        <span class="expiry-date-info">HSD: ${formattedExpiryDate}</span>
+                    </div>
                 </div>
             </td>
             <td>

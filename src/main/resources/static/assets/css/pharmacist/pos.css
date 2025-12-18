@@ -57,7 +57,8 @@
 
 /* Search Section Styles */
 .search-section {
-  flex: 1;
+  flex: 0 0 33.333%;
+  max-width: 33.333%;
   min-width: 320px;
   background-color: #FFFFFF;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
@@ -463,7 +464,8 @@
 
 /* Right Panel Styles */
 .right-panel {
-  flex: 1;
+  flex: 0 0 66.666%;
+  max-width: 66.666%;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -665,6 +667,24 @@
   font-size: 12px;
   line-height: 18px;
   color: #6B7280;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.batch-info {
+  color: #6B7280;
+}
+
+.expiry-date-info {
+  color: #DC2626;
+  font-weight: 600;
+  background-color: #FEF2F2;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #FEE2E2;
+  white-space: nowrap;
 }
 
 .price-info {
@@ -1178,6 +1198,250 @@
   }
 }
 
+/* Extra large screen optimizations (27 inch monitors - 1920px+) */
+@media (min-width: 1920px) {
+  .content-area {
+    padding: 32px;
+    gap: 32px;
+  }
+
+  .search-section,
+  .prescription-section,
+  .payment-section {
+    padding: 32px;
+  }
+
+  .section-title {
+    font-size: 24px;
+  }
+
+  /* Table header styling for large screens */
+  .table-cell {
+    padding: 16px 24px;
+    font-size: 14px;
+  }
+
+  /* Table body styling for large screens */
+  .table tbody td {
+    padding: 16px 24px;
+  }
+
+  .table tbody .medicine-title {
+    font-size: 16px;
+  }
+
+  .table tbody .medicine-detail {
+    font-size: 14px;
+    gap: 10px;
+  }
+
+  .batch-info {
+    font-size: 14px;
+  }
+
+  .expiry-date-info {
+    font-size: 14px;
+    padding: 3px 10px;
+  }
+
+  /* Input controls sizing for large screens */
+  .quantity-input {
+    width: 85px !important;
+    height: 42px;
+    font-size: 16px;
+    padding: 8px 10px !important;
+  }
+
+  .unit-select {
+    min-width: 110px;
+    height: 42px;
+    font-size: 15px;
+    padding: 8px 35px 8px 12px;
+  }
+
+  .delete-item-btn {
+    font-size: 22px;
+    padding: 8px 12px;
+  }
+
+  /* Table footer for large screens */
+  .table-footer .table-cell {
+    padding: 26px 24px;
+    font-size: 20px;
+  }
+
+  .total-amount {
+    font-size: 20px;
+  }
+
+  .vat-info {
+    font-size: 14px;
+  }
+
+  /* Price columns for large screens */
+  .table tbody .text-right {
+    font-size: 16px;
+  }
+
+  /* Form inputs in payment section */
+  .form-input {
+    height: 46px;
+    font-size: 15px;
+    padding: 12px 40px 12px 14px;
+  }
+
+  .form-label {
+    font-size: 15px;
+  }
+
+  .form-select {
+    height: 46px;
+    font-size: 15px;
+    padding: 12px 14px;
+  }
+
+  .form-textarea {
+    font-size: 15px;
+    padding: 12px 14px;
+  }
+
+  .payment-button {
+    height: 52px;
+    font-size: 17px;
+  }
+
+  .payment-row {
+    padding: 14px 0;
+  }
+
+  .payment-label {
+    font-size: 15px;
+  }
+
+  .payment-value {
+    font-size: 17px;
+  }
+}
+
+/* Ultra large screen optimizations (27 inch 4K monitors - 2560px+) */
+@media (min-width: 2560px) {
+  .content-area {
+    padding: 40px;
+    gap: 40px;
+  }
+
+  .search-section,
+  .prescription-section,
+  .payment-section {
+    padding: 40px;
+  }
+
+  .section-title {
+    font-size: 28px;
+  }
+
+  .table-cell {
+    padding: 20px 28px;
+    font-size: 16px;
+  }
+
+  .table tbody td {
+    padding: 20px 28px;
+  }
+
+  .table tbody .medicine-title {
+    font-size: 18px;
+  }
+
+  .table tbody .medicine-detail {
+    font-size: 16px;
+    gap: 12px;
+  }
+
+  .batch-info {
+    font-size: 16px;
+  }
+
+  .expiry-date-info {
+    font-size: 16px;
+    padding: 4px 12px;
+  }
+
+  .quantity-input {
+    width: 100px !important;
+    height: 48px;
+    font-size: 18px;
+    padding: 10px 12px !important;
+  }
+
+  .unit-select {
+    min-width: 130px;
+    height: 48px;
+    font-size: 17px;
+    padding: 10px 40px 10px 14px;
+  }
+
+  .delete-item-btn {
+    font-size: 26px;
+    padding: 10px 14px;
+  }
+
+  .table-footer .table-cell {
+    padding: 32px 28px;
+    font-size: 24px;
+  }
+
+  .total-amount {
+    font-size: 24px;
+  }
+
+  .vat-info {
+    font-size: 16px;
+  }
+
+  .table tbody .text-right {
+    font-size: 18px;
+  }
+
+  .form-input {
+    height: 52px;
+    font-size: 17px;
+    padding: 14px 44px 14px 16px;
+  }
+
+  .form-label {
+    font-size: 17px;
+  }
+
+  .form-select {
+    height: 52px;
+    font-size: 17px;
+    padding: 14px 16px;
+  }
+
+  .form-textarea {
+    font-size: 17px;
+    padding: 14px 16px;
+  }
+
+  .payment-button {
+    height: 58px;
+    font-size: 19px;
+  }
+
+  .payment-row {
+    padding: 16px 0;
+  }
+
+  .payment-label {
+    font-size: 17px;
+  }
+
+  .payment-value {
+    font-size: 19px;
+  }
+}
+
 /* ========================================
    PRESCRIPTION TABLE INPUT & SELECT STYLES
    ======================================== */
@@ -1311,6 +1575,10 @@
   font-size: 12px;
   color: #6B7280;
   line-height: 1.4;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 /* Price and Total Columns */
@@ -1359,6 +1627,12 @@
 
   .table tbody .medicine-detail {
     font-size: 11px;
+    gap: 6px;
+  }
+
+  .expiry-date-info {
+    font-size: 11px;
+    padding: 1px 6px;
   }
 }
 

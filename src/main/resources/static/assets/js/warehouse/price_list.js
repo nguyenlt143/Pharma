@@ -186,14 +186,8 @@ function openEditModal(id) {
             document.getElementById('branchId').value = data.branchId || '';
             document.getElementById('salePrice').value = data.salePrice || '';
             document.getElementById('branchPrice').value = data.branchPrice || '';
-            if (data.startDate) {
-                const startDate = new Date(data.startDate);
-                document.getElementById('startDate').value = startDate.toISOString().slice(0, 16);
-            }
-            if (data.endDate) {
-                const endDate = new Date(data.endDate);
-                document.getElementById('endDate').value = endDate.toISOString().slice(0, 16);
-            }
+
+
             document.getElementById('priceModal').style.display = 'block';
         })
         .catch(err => {
@@ -227,14 +221,7 @@ function viewDetails(id) {
                     <div class="detail-label">Giá chi nhánh</div>
                     <div class="detail-value">${data.branchPrice ? new Intl.NumberFormat('vi-VN').format(data.branchPrice) + ' đ' : '-'}</div>
                 </div>
-                <div class="detail-item">
-                    <div class="detail-label">Ngày bắt đầu</div>
-                    <div class="detail-value">${data.startDate ? new Date(data.startDate).toLocaleString('vi-VN') : '-'}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Ngày kết thúc</div>
-                    <div class="detail-value">${data.endDate ? new Date(data.endDate).toLocaleString('vi-VN') : '-'}</div>
-                </div>
+
             `;
             document.getElementById('detailModal').style.display = 'block';
         })
@@ -286,8 +273,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 branchId: document.getElementById('branchId').value ? parseInt(document.getElementById('branchId').value) : null,
                 salePrice: parseFloat(document.getElementById('salePrice').value),
                 branchPrice: document.getElementById('branchPrice').value ? parseFloat(document.getElementById('branchPrice').value) : null,
-                startDate: document.getElementById('startDate').value ? new Date(document.getElementById('startDate').value).toISOString() : null,
-                endDate: document.getElementById('endDate').value ? new Date(document.getElementById('endDate').value).toISOString() : null
+
             };
 
             const url = id ? `/api/warehouse/price/${id}` : '/api/warehouse/price';

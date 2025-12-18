@@ -34,6 +34,7 @@
             <table id="revenueDetailTable" class="display table">
                 <thead>
                     <tr>
+                        <th>STT</th>
                         <th>Tên thuốc</th>
                         <th>Đơn vị</th>
                         <th>Số lô</th>
@@ -41,13 +42,13 @@
                         <th>Xuất xứ</th>
                         <th>Số lượng</th>
                         <th>Đơn giá</th>
-                            <th>Thành tiền</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Data will be loaded via DataTables -->
-                    </tbody>
-                </table>
+                        <th>Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be loaded via DataTables -->
+                </tbody>
+            </table>
             </div>
         </div>
     `,
@@ -89,7 +90,7 @@
                         }
 
                         // Map column index to field name for debugging
-                        const columnNames = ['drugName', 'unit', 'batch', 'manufacturer', 'country', 'quantity', 'price', 'totalAmount'];
+                        const columnNames = ['stt', 'drugName', 'unit', 'batch', 'manufacturer', 'country', 'quantity', 'price', 'totalAmount'];
                         const fieldName = columnNames[sortCol] || 'unknown';
                         console.log('Sorting field:', fieldName, 'final direction:', d.order ? d.order[0].dir : 'client-side DESC');
                     }
@@ -109,7 +110,7 @@
                         // Handle client-side DESC sorting
                         if (window.pendingClientSort && window.pendingClientSort.direction === 'desc') {
                             const sortCol = window.pendingClientSort.column;
-                            const columnNames = ['drugName', 'unit', 'batch', 'manufacturer', 'country', 'quantity', 'price', 'totalAmount'];
+                            const columnNames = ['stt', 'drugName', 'unit', 'batch', 'manufacturer', 'country', 'quantity', 'price', 'totalAmount'];
                             const fieldName = columnNames[sortCol];
 
                             console.log('Applying client-side DESC sort for field:', fieldName);
@@ -148,7 +149,7 @@
                         if (currentOrder && currentOrder.length > 0) {
                             const sortCol = currentOrder[0][0];
                             const sortDir = currentOrder[0][1];
-                            const columnNames = ['drugName', 'unit', 'batch', 'manufacturer', 'country', 'quantity', 'price', 'totalAmount'];
+                            const columnNames = ['stt', 'drugName', 'unit', 'batch', 'manufacturer', 'country', 'quantity', 'price', 'totalAmount'];
                             const fieldName = columnNames[sortCol];
 
                             if (json.data.length >= 2 && fieldName) {
@@ -181,16 +182,23 @@
                 }
             },
             columnDefs: [
-                { targets: 0, width: '180px', className: 'dt-nowrap' },  // Tên thuốc - sortable
-                { targets: 1, width: '80px', className: 'dt-center dt-nowrap', orderable: false },   // Đơn vị - no sort
-                { targets: 2, width: '120px', className: 'dt-center dt-nowrap', orderable: false },  // Số lô - no sort
-                { targets: 3, width: '150px', className: 'dt-nowrap', orderable: false },  // Hãng sản xuất - no sort
-                { targets: 4, width: '100px', className: 'dt-center dt-nowrap', orderable: false },  // Xuất xứ - no sort
-                { targets: 5, width: '90px', className: 'dt-center dt-nowrap' },   // Số lượng - sortable
-                { targets: 6, width: '130px', className: 'dt-right dt-nowrap' },   // Đơn giá - sortable
-                { targets: 7, width: '150px', className: 'dt-right dt-nowrap' }    // Thành tiền - sortable
+                { targets: 0, width: '60px', className: 'dt-center', orderable: false },  // STT - no sort
+                { targets: 1, width: '180px', className: 'dt-nowrap' },  // Tên thuốc - sortable
+                { targets: 2, width: '80px', className: 'dt-center dt-nowrap', orderable: false },   // Đơn vị - no sort
+                { targets: 3, width: '120px', className: 'dt-center dt-nowrap', orderable: false },  // Số lô - no sort
+                { targets: 4, width: '150px', className: 'dt-nowrap', orderable: false },  // Hãng sản xuất - no sort
+                { targets: 5, width: '100px', className: 'dt-center dt-nowrap', orderable: false },  // Xuất xứ - no sort
+                { targets: 6, width: '90px', className: 'dt-center dt-nowrap' },   // Số lượng - sortable
+                { targets: 7, width: '130px', className: 'dt-right dt-nowrap' },   // Đơn giá - sortable
+                { targets: 8, width: '150px', className: 'dt-right dt-nowrap' }    // Thành tiền - sortable
             ],
             columns: [
+                {
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
                 {
                     data: 'drugName',
                     render: function(data, type, row) {
@@ -317,7 +325,7 @@
             // Just verify the visible result - no need to fix here since dataSrc handles it
             const data = table.data().toArray();
             if (data.length >= 2) {
-                const columnNames = ['drugName', 'unit', 'batch', 'manufacturer', 'country', 'quantity', 'price', 'totalAmount'];
+                const columnNames = ['stt', 'drugName', 'unit', 'batch', 'manufacturer', 'country', 'quantity', 'price', 'totalAmount'];
                 const fieldName = columnNames[sortCol];
 
                 if (fieldName && (fieldName === 'quantity' || fieldName === 'price' || fieldName === 'totalAmount')) {
