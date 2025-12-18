@@ -314,26 +314,26 @@ content = @`
         <div id="variantFormContainer" style="display: none; border-top: 2px solid #E5E7EB; padding-top: 24px;">
             <form id="variantForm">
                 <input type="hidden" id="variantId">
-                
+
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label">Dạng bào chế</label>
-                        <input type="text" id="dosageForm" class="form-input" placeholder="VD: Viên nén, Siro...">
+                        <label class="form-label">Dạng bào chế <span style="color: red;">*</span></label>
+                        <input type="text" id="dosageForm" class="form-input" placeholder="VD: Viên nén, Siro..." required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Liều dùng</label>
-                        <input type="text" id="dosage" class="form-input" placeholder="VD: 500mg">
+                        <label class="form-label">Liều dùng <span style="color: red;">*</span></label>
+                        <input type="text" id="dosage" class="form-input" placeholder="VD: 500mg" required>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label">Hàm lượng</label>
-                        <input type="text" id="strength" class="form-input" placeholder="VD: 500mg/ml">
+                        <label class="form-label">Hàm lượng <span style="color: red;">*</span></label>
+                        <input type="text" id="strength" class="form-input" placeholder="VD: 500mg/ml" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Đơn vị cơ bản</label>
-                        <select id="baseUnitId" class="form-select">
+                        <label class="form-label">Đơn vị cơ bản <span style="color: red;">*</span></label>
+                        <select id="baseUnitId" class="form-select" required>
                             <option value="">Chọn đơn vị</option>
                         </select>
                     </div>
@@ -341,61 +341,61 @@ content = @`
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label">Đơn vị đóng gói</label>
-                        <select id="packageUnitId" class="form-select">
+                        <label class="form-label">Đơn vị đóng gói <span style="color: red;">*</span></label>
+                        <select id="packageUnitId" class="form-select" required>
                             <option value="">Chọn đơn vị</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Số lượng mỗi gói</label>
-                        <input type="number" id="quantityPerPackage" class="form-input" placeholder="VD: 10" step="0.01">
+                        <label class="form-label">Số lượng mỗi gói <span style="color: red;">*</span></label>
+                        <input type="number" id="quantityPerPackage" class="form-input" placeholder="VD: 10" step="0.01" required>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Mã vạch</label>
-                    <input type="text" id="barcode" class="form-input">
+                    <label class="form-label">Mã vạch <span style="color: red;">*</span></label>
+                    <input type="text" id="barcode" class="form-input" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Số đăng ký</label>
-                    <input type="text" id="registrationNumber" class="form-input">
+                    <label class="form-label">Số đăng ký <span style="color: red;">*</span></label>
+                    <input type="text" id="registrationNumber" class="form-input" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Điều kiện bảo quản</label>
-                    <textarea id="storageConditions" class="form-textarea"></textarea>
+                    <label class="form-label">Điều kiện bảo quản <span style="color: red;">*</span></label>
+                    <textarea id="storageConditions" class="form-textarea" required></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Chỉ định</label>
-                    <textarea id="indications" class="form-textarea"></textarea>
+                    <label class="form-label">Chỉ định <span style="color: red;">*</span></label>
+                    <textarea id="indications" class="form-textarea" required></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Chống chỉ định</label>
-                    <textarea id="contraindications" class="form-textarea"></textarea>
+                    <label class="form-label">Chống chỉ định <span style="color: red;">*</span></label>
+                    <textarea id="contraindications" class="form-textarea" required></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Tác dụng phụ</label>
-                    <textarea id="sideEffects" class="form-textarea"></textarea>
+                    <label class="form-label">Tác dụng phụ <span style="color: red;">*</span></label>
+                    <textarea id="sideEffects" class="form-textarea" required></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Hướng dẫn sử dụng</label>
-                    <textarea id="instructions" class="form-textarea"></textarea>
+                    <label class="form-label">Hướng dẫn sử dụng <span style="color: red;">*</span></label>
+                    <textarea id="instructions" class="form-textarea" required></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Công dụng</label>
-                    <textarea id="uses" class="form-textarea"></textarea>
+                    <label class="form-label">Công dụng <span style="color: red;">*</span></label>
+                    <textarea id="uses" class="form-textarea" required></textarea>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label">Cần kê đơn</label>
-                        <select id="prescriptionRequired" class="form-select">
+                        <label class="form-label">Cần kê đơn <span style="color: red;">*</span></label>
+                        <select id="prescriptionRequired" class="form-select" required>
                             <option value="false">Không</option>
                             <option value="true">Có</option>
                         </select>
