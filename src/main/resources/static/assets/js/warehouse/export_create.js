@@ -12,6 +12,16 @@ function initializeForm() {
         const formattedDate = today.toISOString().split('T')[0];
         dateInput.value = formattedDate;
     }
+
+    // Clear validation error when branch is selected
+    const branchSelect = document.getElementById('branchId');
+    if (branchSelect) {
+        branchSelect.addEventListener('change', function() {
+            this.classList.remove('is-invalid');
+            const errorDiv = this.parentElement.querySelector('.invalid-feedback');
+            if (errorDiv) errorDiv.remove();
+        });
+    }
 }
 
 function initializeTable() {
@@ -131,8 +141,24 @@ function createExport() {
     const createdDate = document.getElementById('createdDate').value;
     const note = document.getElementById('note').value;
 
+    // Clear previous validation errors
+    const branchSelect = document.getElementById('branchId');
+    branchSelect.classList.remove('is-invalid');
+    const existingError = branchSelect.parentElement.querySelector('.invalid-feedback');
+    if (existingError) existingError.remove();
+
     if (!branchId) {
+        branchSelect.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback';
+        errorDiv.style.display = 'block';
+        errorDiv.style.color = '#dc3545';
+        errorDiv.style.fontSize = '0.875rem';
+        errorDiv.style.marginTop = '0.25rem';
+        errorDiv.textContent = 'Vui lòng chọn chi nhánh nhận';
+        branchSelect.parentElement.appendChild(errorDiv);
         showToast('Vui lòng chọn chi nhánh nhận', 'error');
+        branchSelect.focus();
         return;
     }
 

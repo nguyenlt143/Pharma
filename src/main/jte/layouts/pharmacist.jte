@@ -13,6 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Inter:wght@400&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/pharmacist/layout.css">
+    <link rel="stylesheet" href="/assets/css/toast.css">
     ${headContent}
 
 </head>
@@ -100,6 +101,7 @@
     </main>
 </div>
 
+<script src="/assets/js/utils/toast.js"></script>
 <script src="/assets/js/pharmacist/layout.js" defer></script>
 ${pageScript}
 </body>

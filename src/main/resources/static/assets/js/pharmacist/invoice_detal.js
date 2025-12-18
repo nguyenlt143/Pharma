@@ -3,7 +3,8 @@ function printInvoice() {
     const printWindow = window.open('', '_blank', 'width=800,height=600');
 
     if (!printWindow) {
-        alert('Vui lòng cho phép popup để in hóa đơn');
+
+        showToast('Vui lòng cho phép popup để in hóa đơn', 'warning');
         return;
     }
 
