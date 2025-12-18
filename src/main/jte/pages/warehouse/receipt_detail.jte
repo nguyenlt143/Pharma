@@ -12,6 +12,7 @@ headContent = @`
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 `,
 content = @`
+    !{var hidePrice = receipt.getType().equals("DISPOSAL") || receipt.getType().equals("INVENTORY_ADJUSTMENT");}
     <!-- Main Content -->
     <main class="flex-1 p-6 overflow-y-auto bg-gray-100">
         <!-- Back button -->
@@ -124,7 +125,9 @@ content = @`
                         <th class="px-4 py-3 text-left font-medium text-gray-600">NSX</th>
                         <th class="px-4 py-3 text-left font-medium text-gray-600">HSD</th>
                         <th class="px-4 py-3 text-center font-medium text-gray-600">Số Lượng</th>
-                        <th class="px-4 py-3 text-right font-medium text-gray-600">Giá Nhập</th>
+                        @if(!hidePrice)
+                            <th class="px-4 py-3 text-right font-medium text-gray-600">Giá Nhập</th>
+                        @endif
                     </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
@@ -154,16 +157,20 @@ content = @`
                                     ${detail.getQuantity()}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-right text-gray-900 font-medium">${String.format("%,.0f", detail.getImportPrice())} VNĐ</td>
+                            @if(!hidePrice)
+                                <td class="px-4 py-3 text-right text-gray-900 font-medium">${String.format("%,.0f", detail.getImportPrice())} VNĐ</td>
+                            @endif
                         </tr>
                     @endfor
-                    <tr class="bg-gray-50 font-semibold">
-                        <td colspan="8" class="px-4 py-3 text-right">Tổng tiền:</td>
-                        <td class="px-4 py-3 text-right text-blue-600">
-                            !{var totalMoney = details.stream().mapToDouble(d -> d.getQuantity() * d.getImportPrice()).sum();}
-                            ${String.format("%,.0f", totalMoney)} VNĐ
-                        </td>
-                    </tr>
+                    @if(!hidePrice)
+                        <tr class="bg-gray-50 font-semibold">
+                            <td colspan="8" class="px-4 py-3 text-right">Tổng tiền:</td>
+                            <td class="px-4 py-3 text-right text-blue-600">
+                                !{var totalMoney = details.stream().mapToDouble(d -> d.getQuantity() * d.getImportPrice()).sum();}
+                                ${String.format("%,.0f", totalMoney)} VNĐ
+                            </td>
+                        </tr>
+                    @endif
                     </tbody>
                 </table>
             </div>
