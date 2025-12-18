@@ -475,7 +475,10 @@ VALUES
 ('BATCH-AZI-2024-01', '2024-01-12', '2026-01-12', NULL, 1200, 'ACTIVE', 20, 1, NOW(), FALSE),
 
 -- ===== Cefixime 200mg =====
-('BATCH-CEF-2024-01', '2024-01-15', '2026-01-15', NULL, 1000, 'ACTIVE', 21, 1, NOW(), FALSE);
+('BATCH-CEF-2024-01', '2024-01-15', '2026-01-15', NULL, 1000, 'ACTIVE', 21, 1, NOW(), FALSE),
+
+-- ===== Fexofenadine (thêm batch) =====
+('BATCH-FEXO-2024-01', '2024-05-01', '2026-05-01', NULL, 2000, 'ACTIVE', 22, 1, NOW(), FALSE);
 
 INSERT INTO request_forms (branch_id, request_type, request_status, note, created_at, deleted)
 VALUES (3, 'IMPORT', 'CONFIRMED', 'IMPORT: yêu cầu nhập nhóm giảm đau, đợt 1', NOW(), FALSE),

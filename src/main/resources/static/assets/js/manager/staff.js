@@ -29,8 +29,11 @@
         function showToast(msg, timeout = 2500, type = 'info') {
             console.log('showToast called:', msg, type);
             if (!toastEl) {
-                console.error('Toast element not found');
-                alert(msg);
+                console.error('Toast element not found - using global toast');
+                // Use global toast system as fallback
+                if (window.showToast) {
+                    window.showToast(msg, type, timeout);
+                }
                 return;
             }
             toastEl.textContent = msg;

@@ -1,6 +1,26 @@
 // Danh sách thuốc đã chọn
 let selectedMedicines = [];
 
+// Toast notification helper
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        background: ${type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : type === 'warning' ? '#ffc107' : '#17a2b8'};
+        color: ${type === 'warning' ? '#000' : 'white'};
+        border-radius: 8px;
+        z-index: 10000;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
 // Search function for warehouse medicines
 function searchWarehouseMedicines(query) {
     const $rows = $('#warehouseMedicineSource tr');
@@ -45,7 +65,7 @@ function addMedicineFromRow($row) {
     );
 
     if (exists) {
-        alert('Thuốc này đã được thêm vào danh sách!');
+        showToast('Thuốc này đã được thêm vào danh sách!', 'warning');
         return;
     }
 
@@ -144,14 +164,14 @@ function isExpiringWarning(expiryDateStr) {
 // Submit phiếu nhập
 function submitImportRequest() {
     if (selectedMedicines.length === 0) {
-        alert('Vui lòng chọn ít nhất một thuốc!');
+        showToast('Vui lòng chọn ít nhất một thuốc!', 'warning');
         return;
     }
 
     // Validate all quantities
     const hasInvalidQuantity = selectedMedicines.some(m => !m.requestQuantity || m.requestQuantity < 1);
     if (hasInvalidQuantity) {
-        alert('Vui lòng nhập số lượng hợp lệ cho tất cả thuốc!');
+        showToast('Vui lòng nhập số lượng hợp lệ cho tất cả thuốc!', 'error');
         return;
     }
 
@@ -178,16 +198,19 @@ function submitImportRequest() {
         success: function(response) {
             if (response.success) {
                 // Redirect to success page with code (URL encode to handle # character)
-                window.location.href = '/inventory/import/success/' + encodeURIComponent(response.code);
+                showToast('Tạo phiếu nhập thành công!', 'success');
+                setTimeout(() => {
+                    window.location.href = '/inventory/import/success/' + encodeURIComponent(response.code);
+                }, 1500);
             } else {
-                alert('Có lỗi: ' + (response.message || 'Unknown error'));
+                showToast('Có lỗi: ' + (response.message || 'Unknown error'), 'error');
                 $submitBtn.prop('disabled', false).html('<span class="material-icons-outlined">check_circle</span> Hoàn tất và gửi yêu cầu');
             }
         },
         error: function(xhr) {
             console.error('Error submitting import:', xhr);
             const errorMsg = xhr.responseJSON?.message || 'Có lỗi xảy ra khi tạo phiếu nhập. Vui lòng thử lại!';
-            alert(errorMsg);
+            showToast(errorMsg, 'error');
             $submitBtn.prop('disabled', false).html('<span class="material-icons-outlined">check_circle</span> Hoàn tất và gửi yêu cầu');
         }
     });

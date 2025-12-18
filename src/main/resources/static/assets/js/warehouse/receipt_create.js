@@ -8,6 +8,56 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnAddFromCatalog = document.getElementById('btnAddFromCatalog');
     const searchInput = document.querySelector('.search-input');
 
+    // Helper function to show field-level error
+    function showFieldError(field, message) {
+        // Remove any existing error message
+        let errorDiv = field.parentElement.querySelector('.invalid-feedback');
+        if (!errorDiv) {
+            errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback';
+            errorDiv.style.display = 'block';
+            errorDiv.style.color = '#dc3545';
+            errorDiv.style.fontSize = '0.875rem';
+            errorDiv.style.marginTop = '0.25rem';
+            field.parentElement.appendChild(errorDiv);
+        }
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+    }
+
+    // Helper function to clear field error
+    function clearFieldError(field) {
+        field.classList.remove('is-invalid');
+        const errorDiv = field.parentElement.querySelector('.invalid-feedback');
+        if (errorDiv) {
+            errorDiv.remove();
+        }
+    }
+
+    // Toast notification
+    function showToast(message, type = 'error') {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+        toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: ${type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#17a2b8'};
+            color: white;
+            border-radius: 8px;
+            z-index: 10000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    // Clear validation errors when user starts typing
+    supplierInput.addEventListener('input', () => clearFieldError(supplierInput));
+    importDateInput.addEventListener('change', () => clearFieldError(importDateInput));
+
     // Set ngày hiện tại nếu chưa có
     if (!importDateInput.value) {
         importDateInput.value = new Date().toISOString().split('T')[0];
@@ -236,23 +286,33 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Validate form
     function validateForm() {
+        // Clear previous validation states
+        supplierInput.classList.remove('is-invalid');
+        importDateInput.classList.remove('is-invalid');
+
+        let isValid = true;
+
         if (!supplierInput.dataset.supplierId) {
-            alert('Vui lòng chọn nhà cung cấp');
+            supplierInput.classList.add('is-invalid');
+            showFieldError(supplierInput, 'Vui lòng chọn nhà cung cấp');
             supplierInput.focus();
-            return false;
+            isValid = false;
         }
 
         if (!importDateInput.value) {
-            alert('Vui lòng chọn ngày nhập');
-            importDateInput.focus();
-            return false;
+            importDateInput.classList.add('is-invalid');
+            showFieldError(importDateInput, 'Vui lòng chọn ngày nhập');
+            if (isValid) importDateInput.focus();
+            isValid = false;
         }
 
         const rows = productTableBody.querySelectorAll('.table-row');
         if (rows.length === 0) {
-            alert('Vui lòng thêm ít nhất 1 sản phẩm');
-            return false;
+            showToast('Vui lòng thêm ít nhất 1 sản phẩm', 'warning');
+            isValid = false;
         }
+
+        if (!isValid) return false;
 
         // Check for any validation errors
         let hasErrors = false;
@@ -458,11 +518,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(result => {
-                alert('Tạo phiếu nhập thành công!');
-                window.location.href = '/warehouse/receipt/list';
+                showToast('Tạo phiếu nhập thành công!', 'success');
+                setTimeout(() => {
+                    window.location.href = '/warehouse/receipt/list';
+                }, 1500);
             })
             .catch(error => {
-                alert('Có lỗi xảy ra: ' + error.message);
+                showToast('Có lỗi xảy ra: ' + error.message, 'error');
                 console.error(error);
             });
     }

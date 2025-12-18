@@ -657,7 +657,7 @@ function addItemToPrescription(inventoryData, button) {
         renderPrescription();
     } catch (error) {
         console.error('Error adding item to prescription:', error);
-        alert('Có lỗi xảy ra khi thêm vào đơn: ' + error.message);
+        showToast('Có lỗi xảy ra khi thêm vào đơn: ' + error.message, 'error');
     }
 }
 
@@ -1006,14 +1006,16 @@ function processPayment(paymentData) {
     return res.json();
   })
   .then(result => {
-    alert(`Thanh toán thành công! Mã hóa đơn: ${result.invoiceCode}`);
-    clearPaymentForm();
-    prescriptionItems = [];
-    renderPrescription();
+    showToast(`Thanh toán thành công! Mã hóa đơn: ${result.invoiceCode}`, 'success');
+    setTimeout(() => {
+        clearPaymentForm();
+        prescriptionItems = [];
+        renderPrescription();
+    }, 1500);
   })
   .catch(err => {
     console.error("Payment error", err);
-    alert(err.message || "Thanh toán thất bại!");
+    showToast(err.message || "Thanh toán thất bại!", 'error');
   });
 }
 
@@ -1524,7 +1526,7 @@ function showQRCodePopup() {
     const totalAmount = getTotalAmount();
 
     if (totalAmount <= 0) {
-        alert('Vui lòng thêm sản phẩm vào đơn hàng trước');
+        showToast('Vui lòng thêm sản phẩm vào đơn hàng trước', 'warning');
         return;
     }
 
