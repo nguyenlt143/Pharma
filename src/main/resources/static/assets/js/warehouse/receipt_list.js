@@ -167,14 +167,15 @@ document.addEventListener('DOMContentLoaded', function() {
         if (receipts.length === 0) {
             tbody.innerHTML = `
                 <tr class="table-row">
-                    <td class="table-cell data-cell" colspan="5" style="text-align: center;">Không có dữ liệu</td>
+                    <td class="table-cell data-cell" colspan="6" style="text-align: center;">Không có dữ liệu</td>
                 </tr>
             `;
             return;
         }
 
-        tbody.innerHTML = receipts.map(receipt => `
+        tbody.innerHTML = receipts.map((receipt, index) => `
             <tr class="table-row">
+                <td class="table-cell data-cell" style="text-align: center;">${index + 1}</td>
                 <td class="table-cell data-cell">${receipt.branchName}</td>
                 <td class="table-cell data-cell date-cell">${receipt.createdDate}</td>
                 <td class="table-cell data-cell type-cell">${receipt.requestType}</td>
