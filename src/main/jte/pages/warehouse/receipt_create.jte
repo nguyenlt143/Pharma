@@ -44,6 +44,7 @@ content = @`
                                id="import-date"
                                class="form-input"
                                value=""
+                               readonly
                                required>
                     </div>
                 </div>

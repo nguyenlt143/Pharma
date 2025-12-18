@@ -49,15 +49,19 @@ document.addEventListener('DOMContentLoaded', function() {
             <td class="col-concentration">${product.concentration}</td>
             <td class="col-batch">
                 <input type="text" class="batch-input" placeholder="Nhập số lô" required>
+                <div class="invalid-feedback">Số lô đã tồn tại</div>
             </td>
             <td class="col-manufacture-date">
                 <input type="date" class="manufacture-date-input" required>
+                <div class="invalid-feedback">NSX không hợp lệ</div>
             </td>
             <td class="col-expiry-date">
                 <input type="date" class="expiry-date-input" required>
+                <div class="invalid-feedback">HSD không hợp lệ</div>
             </td>
             <td class="col-quantity">
                 <input type="number" class="quantity-input" value="1" min="1" required>
+                <div class="invalid-feedback">Số lượng phải chia hết cho số viên trong hộp</div>
             </td>
             <td class="col-price">
                 <input type="number" class="price-input" value="" min="1" placeholder="Giá nhập" required>
@@ -81,14 +85,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const quantityPerPackage = parseFloat(row.dataset.quantityPerPackage);
             const quantity = parseFloat(e.target.value);
 
+            // Remove previous validation state
+            e.target.classList.remove('is-invalid');
+
             // Validate quantity divisibility
             if (quantityPerPackage && quantity > 0) {
                 if (quantity % quantityPerPackage !== 0) {
-                    e.target.style.border = '2px solid red';
-                    e.target.title = `Số lượng phải chia hết cho số viên trong một hộp (${Math.round(quantityPerPackage)} viên/hộp)`;
-                } else {
-                    e.target.style.border = '';
-                    e.target.title = '';
+                    e.target.classList.add('is-invalid');
+                    e.target.nextElementSibling.textContent = `Số lượng phải chia hết cho ${Math.round(quantityPerPackage)} viên/hộp`;
                 }
             }
             calculateTotal();
@@ -105,6 +109,98 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             calculateTotal();
+        }
+
+        // Validate batch code
+        if (e.target.classList.contains('batch-input')) {
+            const currentRow = e.target.closest('.table-row');
+            let currentBatchCode = e.target.value;
+            const currentVariantId = currentRow.dataset.variantId;
+
+            // Remove previous validation state
+            e.target.classList.remove('is-invalid');
+
+            // Validate character set: only alphanumeric and hyphen allowed
+            const validBatchPattern = /^[A-Za-z0-9\-]*$/;
+            if (currentBatchCode && !validBatchPattern.test(currentBatchCode)) {
+                e.target.classList.add('is-invalid');
+                e.target.nextElementSibling.textContent = 'Số lô chỉ được chứa chữ cái, số và dấu gạch ngang (-)';
+                // Remove invalid characters
+                e.target.value = currentBatchCode.replace(/[^A-Za-z0-9\-]/g, '');
+                return;
+            }
+
+            currentBatchCode = currentBatchCode.trim();
+
+            if (currentBatchCode) {
+                // Check for duplicate batch code with same variant
+                const allRows = productTableBody.querySelectorAll('.table-row');
+                let isDuplicate = false;
+
+                allRows.forEach(row => {
+                    if (row !== currentRow) {
+                        const batchInput = row.querySelector('.batch-input');
+                        const variantId = row.dataset.variantId;
+
+                        if (variantId === currentVariantId &&
+                            batchInput.value.trim() === currentBatchCode) {
+                            isDuplicate = true;
+                        }
+                    }
+                });
+
+                if (isDuplicate) {
+                    e.target.classList.add('is-invalid');
+                    e.target.nextElementSibling.textContent = 'Số lô đã tồn tại';
+                }
+            }
+        }
+
+        // Validate manufacture date
+        if (e.target.classList.contains('manufacture-date-input')) {
+            const mfgDate = new Date(e.target.value);
+            const currentDate = new Date();
+            currentDate.setHours(0, 0, 0, 0);
+
+            // Remove previous validation state
+            e.target.classList.remove('is-invalid');
+
+            if (e.target.value) {
+                // Allow NSX = current date, only reject if NSX > current date
+                if (mfgDate > currentDate) {
+                    e.target.classList.add('is-invalid');
+                    e.target.nextElementSibling.textContent = 'NSX không được lớn hơn ngày hiện tại';
+                }
+            }
+        }
+
+        // Validate expiry date
+        if (e.target.classList.contains('expiry-date-input')) {
+            const row = e.target.closest('.table-row');
+            const mfgInput = row.querySelector('.manufacture-date-input');
+            const expDate = new Date(e.target.value);
+            const mfgDate = new Date(mfgInput.value);
+
+            // Remove previous validation state
+            e.target.classList.remove('is-invalid');
+
+            if (e.target.value && mfgInput.value) {
+                // Check if HSD > NSX
+                if (expDate <= mfgDate) {
+                    e.target.classList.add('is-invalid');
+                    e.target.nextElementSibling.textContent = 'HSD phải sau NSX';
+                    return;
+                }
+
+                // Check if HSD <= NSX + 20 years
+                const maxExpiryDate = new Date(mfgDate);
+                maxExpiryDate.setFullYear(maxExpiryDate.getFullYear() + 20);
+
+                if (expDate > maxExpiryDate) {
+                    e.target.classList.add('is-invalid');
+                    e.target.nextElementSibling.textContent = 'HSD không được quá 20 năm từ NSX';
+                }
+            }
         }
     });
 
@@ -158,44 +254,134 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
 
+        // Check for any validation errors
+        let hasErrors = false;
+        const batchCodes = new Map(); // Map to track batch codes by variant
+
         for (let row of rows) {
             const batchInput = row.querySelector('.batch-input');
             const mfgInput = row.querySelector('.manufacture-date-input');
             const expInput = row.querySelector('.expiry-date-input');
             const qtyInput = row.querySelector('.quantity-input');
             const priceInput = row.querySelector('.price-input');
+            const variantId = row.dataset.variantId;
 
+            // Clear all validation states
+            batchInput.classList.remove('is-invalid');
+            mfgInput.classList.remove('is-invalid');
+            expInput.classList.remove('is-invalid');
+            qtyInput.classList.remove('is-invalid');
+            priceInput.classList.remove('is-invalid');
+
+            // Validate batch code
             if (!batchInput.value.trim()) {
-                alert('Vui lòng nhập số lô cho tất cả sản phẩm');
-                batchInput.focus();
-                return false;
+                batchInput.classList.add('is-invalid');
+                batchInput.nextElementSibling.textContent = 'Vui lòng nhập số lô';
+                if (!hasErrors) {
+                    batchInput.focus();
+                    hasErrors = true;
+                }
+                continue;
             }
 
+            // Validate batch code characters
+            const validBatchPattern = /^[A-Za-z0-9\-]+$/;
+            if (!validBatchPattern.test(batchInput.value.trim())) {
+                batchInput.classList.add('is-invalid');
+                batchInput.nextElementSibling.textContent = 'Số lô chỉ được chứa chữ cái, số và dấu gạch ngang (-)';
+                if (!hasErrors) {
+                    batchInput.focus();
+                    hasErrors = true;
+                }
+                continue;
+            }
+
+            // Check for duplicate batch codes
+            const batchKey = `${variantId}_${batchInput.value.trim()}`;
+            if (batchCodes.has(batchKey)) {
+                batchInput.classList.add('is-invalid');
+                batchInput.nextElementSibling.textContent = 'Số lô đã tồn tại';
+                if (!hasErrors) {
+                    batchInput.focus();
+                    hasErrors = true;
+                }
+                continue;
+            }
+            batchCodes.set(batchKey, true);
+
+            // Validate manufacture date
             if (!mfgInput.value) {
-                alert('Vui lòng nhập ngày sản xuất cho tất cả sản phẩm');
-                mfgInput.focus();
-                return false;
-            }
-
-            if (!expInput.value) {
-                alert('Vui lòng nhập hạn sử dụng cho tất cả sản phẩm');
-                expInput.focus();
-                return false;
+                mfgInput.classList.add('is-invalid');
+                mfgInput.nextElementSibling.textContent = 'Vui lòng nhập NSX';
+                if (!hasErrors) {
+                    mfgInput.focus();
+                    hasErrors = true;
+                }
+                continue;
             }
 
             const mfgDate = new Date(mfgInput.value);
-            const expDate = new Date(expInput.value);
+            const currentDate = new Date();
+            currentDate.setHours(0, 0, 0, 0);
 
-            if (expDate <= mfgDate) {
-                alert('Hạn sử dụng phải sau ngày sản xuất');
-                expInput.focus();
-                return false;
+            // Allow NSX = currentDate, only reject if NSX > currentDate
+            if (mfgDate > currentDate) {
+                mfgInput.classList.add('is-invalid');
+                mfgInput.nextElementSibling.textContent = 'NSX không được lớn hơn ngày hiện tại';
+                if (!hasErrors) {
+                    mfgInput.focus();
+                    hasErrors = true;
+                }
+                continue;
             }
 
+            // Validate expiry date
+            if (!expInput.value) {
+                expInput.classList.add('is-invalid');
+                expInput.nextElementSibling.textContent = 'Vui lòng nhập HSD';
+                if (!hasErrors) {
+                    expInput.focus();
+                    hasErrors = true;
+                }
+                continue;
+            }
+
+            const expDate = new Date(expInput.value);
+
+            // HSD must be after NSX
+            if (expDate <= mfgDate) {
+                expInput.classList.add('is-invalid');
+                expInput.nextElementSibling.textContent = 'HSD phải sau NSX';
+                if (!hasErrors) {
+                    expInput.focus();
+                    hasErrors = true;
+                }
+                continue;
+            }
+
+            // HSD max 20 years from NSX
+            const maxExpiryDate = new Date(mfgDate);
+            maxExpiryDate.setFullYear(maxExpiryDate.getFullYear() + 20);
+
+            if (expDate > maxExpiryDate) {
+                expInput.classList.add('is-invalid');
+                expInput.nextElementSibling.textContent = 'HSD không được quá 20 năm từ NSX';
+                if (!hasErrors) {
+                    expInput.focus();
+                    hasErrors = true;
+                }
+                continue;
+            }
+
+            // Validate quantity
             if (!qtyInput.value || parseInt(qtyInput.value) < 1) {
-                alert('Số lượng phải lớn hơn 0');
-                qtyInput.focus();
-                return false;
+                qtyInput.classList.add('is-invalid');
+                qtyInput.nextElementSibling.textContent = 'Số lượng phải lớn hơn 0';
+                if (!hasErrors) {
+                    qtyInput.focus();
+                    hasErrors = true;
+                }
+                continue;
             }
 
             // Validate quantity divisibility
@@ -203,23 +389,28 @@ document.addEventListener('DOMContentLoaded', function() {
             const quantity = parseInt(qtyInput.value);
             if (quantityPerPackage && quantity > 0) {
                 if (quantity % quantityPerPackage !== 0) {
-                    alert(`Số lượng nhập phải chia hết cho số viên trong một hộp (${Math.round(quantityPerPackage)} viên/hộp)`);
-                    qtyInput.focus();
-                    return false;
+                    qtyInput.classList.add('is-invalid');
+                    qtyInput.nextElementSibling.textContent = `Số lượng phải chia hết cho ${Math.round(quantityPerPackage)} viên/hộp`;
+                    if (!hasErrors) {
+                        qtyInput.focus();
+                        hasErrors = true;
+                    }
+                    continue;
                 }
             }
 
+            // Validate price
             if (!priceInput.value || parseFloat(priceInput.value) <= 0) {
                 priceInput.classList.add('is-invalid');
-                alert('Giá nhập phải lớn hơn 0');
-                priceInput.focus();
-                return false;
-            } else {
-                priceInput.classList.remove('is-invalid');
+                if (!hasErrors) {
+                    priceInput.focus();
+                    hasErrors = true;
+                }
+                continue;
             }
         }
 
-        return true;
+        return !hasErrors;
     }
 
     // Thu thập dữ liệu form
