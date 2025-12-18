@@ -6,6 +6,47 @@ document.addEventListener('DOMContentLoaded', function() {
         date: ''
     };
 
+    let currentPage = 0;
+    let pageSize = 10;
+
+    // FIX: Detect request type from URL and initialize filter
+    function detectRequestTypeFromURL() {
+        const path = window.location.pathname;
+
+        if (path.includes('/import')) {
+            return 'IMPORT';
+        } else if (path.includes('/return')) {
+            return 'RETURN';
+        }
+        return ''; // Empty string for "all requests"
+    }
+
+    // Initialize type filter based on current URL
+    currentFilters.type = detectRequestTypeFromURL();
+    console.log('Request List: Type filter initialized from URL:', currentFilters.type || 'ALL');
+
+    // Highlight active tab based on current URL
+    function highlightActiveTabFromURL() {
+        const path = window.location.pathname;
+        const tabs = document.querySelectorAll('.tab');
+
+        tabs.forEach(tab => {
+            const link = tab.querySelector('.tab-link');
+            if (link) {
+                const href = link.getAttribute('href');
+                // Check if current path matches this tab's href
+                if (href === path) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            }
+        });
+    }
+
+    // Highlight the correct tab on page load
+    highlightActiveTabFromURL();
+
     // Initialize dropdown default selections
     function initializeDropdowns() {
         // Set first item (Tất cả) as selected by default for branch filter
@@ -48,6 +89,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Set default selections
         initializeDropdowns();
+
+        // Reset to page 1
+        currentPage = 0;
 
         // Refresh data
         fetchRequests();
@@ -108,6 +152,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 branchMenu.classList.remove('show');
                 branchFilter.classList.remove('open');
+                currentPage = 0; // Reset to page 1 when filtering
                 fetchRequests();
             });
         });
@@ -146,6 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 statusMenu.classList.remove('show');
                 statusFilter.classList.remove('open');
+                currentPage = 0; // Reset to page 1 when filtering
                 fetchRequests();
             });
         });
@@ -172,6 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const formattedDate = new Date(selectedDate).toLocaleDateString('vi-VN');
                 dateFilter.querySelector('.filter-text').textContent = formattedDate;
                 currentFilters.date = selectedDate;
+                currentPage = 0; // Reset to page 1 when filtering
                 fetchRequests();
             }
             this.style.opacity = '0';
@@ -222,10 +269,15 @@ document.addEventListener('DOMContentLoaded', function() {
             params.append('date', currentFilters.date);
         }
 
+        // Add pagination parameters
+        params.append('page', currentPage);
+        params.append('size', pageSize);
+
         fetch(`/warehouse/request/list/filter?${params.toString()}`)
             .then(response => response.json())
             .then(data => {
-                updateTable(data);
+                updateTable(data.content);
+                updatePagination(data);
             })
             .catch(error => {
                 console.error('Error fetching requests:', error);
@@ -324,6 +376,63 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Initialize tab styles
-    updateTabStyles();
+    // Pagination event handlers
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.pagination-btn') && !e.target.closest('.pagination-btn').disabled) {
+            const btn = e.target.closest('.pagination-btn');
+            const page = parseInt(btn.getAttribute('data-page'));
+            if (!isNaN(page)) {
+                currentPage = page;
+                fetchRequests();
+            }
+        }
+    });
+
+    // Page size change handler
+    const pageSizeSelect = document.getElementById('page-size-select');
+    if (pageSizeSelect) {
+        pageSizeSelect.addEventListener('change', function() {
+            pageSize = parseInt(this.value);
+            currentPage = 0; // Reset to first page
+            fetchRequests();
+        });
+    }
+
+    // FIX: Update pagination controls with proper active state highlighting
+    function updatePagination(paginationData) {
+        const container = document.querySelector('.pagination-container');
+        if (!container) return;
+
+        // Update info
+        const infoEl = container.querySelector('.pagination-info');
+        if (infoEl) {
+            const start = paginationData.currentPage * paginationData.pageSize + 1;
+            const end = Math.min((paginationData.currentPage + 1) * paginationData.pageSize, paginationData.totalElements);
+            infoEl.textContent = `Hiển thị ${start} - ${end} / ${paginationData.totalElements} bản ghi`;
+        }
+
+        // FIX: Update pagination buttons to highlight current page correctly
+        // Only page number buttons should be highlighted, NOT navigation buttons
+        const paginationBtns = container.querySelectorAll('.pagination-btn');
+        paginationBtns.forEach(btn => {
+            const btnPage = parseInt(btn.getAttribute('data-page'));
+            const btnText = btn.textContent.trim();
+
+            // Remove active class from all buttons first
+            btn.classList.remove('active');
+
+            // Add active class ONLY to page number buttons (not Previous/Next arrows)
+            // Check: must have valid page number AND text is not arrow symbols
+            if (!isNaN(btnPage) && btnPage === paginationData.currentPage && !['‹', '›'].includes(btnText)) {
+                btn.classList.add('active');
+            }
+        });
+
+        // Show/hide pagination based on total elements
+        if (paginationData.totalElements <= paginationData.pageSize) {
+            container.style.display = 'none';
+        } else {
+            container.style.display = 'flex';
+        }
+    }
 });

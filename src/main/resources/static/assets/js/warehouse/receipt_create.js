@@ -60,7 +60,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <input type="number" class="quantity-input" value="1" min="1" required>
             </td>
             <td class="col-price">
-                <input type="number" class="price-input" value="0" min="0" step="1000" placeholder="Giá nhập" required>
+                <input type="number" class="price-input" value="" min="1" placeholder="Giá nhập" required>
+                <div class="invalid-feedback">Giá nhập phải lớn hơn 0</div>
             </td>
             <td class="col-actions">
                 <button type="button" class="btn-delete" title="Xóa">
@@ -94,6 +95,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (e.target.classList.contains('price-input')) {
+            const price = parseFloat(e.target.value);
+
+            // Validate price > 0
+            if (!e.target.value || price <= 0) {
+                e.target.classList.add('is-invalid');
+            } else {
+                e.target.classList.remove('is-invalid');
+            }
+
             calculateTotal();
         }
     });
@@ -199,10 +209,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
 
-            if (!priceInput.value || parseFloat(priceInput.value) < 0) {
-                alert('Vui lòng nhập giá nhập hợp lệ');
+            if (!priceInput.value || parseFloat(priceInput.value) <= 0) {
+                priceInput.classList.add('is-invalid');
+                alert('Giá nhập phải lớn hơn 0');
                 priceInput.focus();
                 return false;
+            } else {
+                priceInput.classList.remove('is-invalid');
             }
         }
 

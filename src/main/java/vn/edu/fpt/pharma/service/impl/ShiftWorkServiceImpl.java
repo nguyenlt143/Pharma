@@ -84,6 +84,37 @@ public class ShiftWorkServiceImpl implements ShiftWorkService {
         shiftWorkRepo.deleteById(id);
     }
 
+    @Override
+    public void restore(Long id) {
+        // Find the deleted ShiftWork
+        ShiftWork deletedWork = shiftWorkRepo.findByIdIncludingDeleted(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ca làm việc không tồn tại"));
+
+        // Get shift assignment and validate
+        ShiftAssignment assignment = deletedWork.getAssignment();
+        if (assignment == null) {
+            throw new IllegalArgumentException("Ca làm việc không có phân công hợp lệ");
+        }
+
+        Shift shift = assignment.getShift();
+        if (shift == null) {
+            throw new IllegalArgumentException("Không tìm thấy thông tin ca làm việc");
+        }
+
+        Long userId = assignment.getUserId();
+        Long shiftId = shift.getId();
+        LocalDate workDate = deletedWork.getWorkDate();
+
+        // Check if there's already an active ShiftWork for this user on this shift and date
+        shiftWorkRepo.findActiveByShiftIdAndUserIdAndWorkDate(shiftId, userId, workDate)
+                .ifPresent(existing -> {
+                    throw new IllegalArgumentException("Nhân viên đã được phân công vào ca này trong ngày đã chọn. Không thể khôi phục.");
+                });
+
+        // Restore the ShiftWork
+        shiftWorkRepo.restoreById(id);
+    }
+
 
     private ShiftWorkResponse toDto(ShiftWork sw) {
         ShiftAssignment assignment = sw.getAssignment();

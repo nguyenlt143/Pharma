@@ -1,9 +1,11 @@
 @import vn.edu.fpt.pharma.dto.warehouse.RequestList
 @import vn.edu.fpt.pharma.entity.Branch
+@import vn.edu.fpt.pharma.dto.common.PageResponse
 @import java.util.List
 
 @param List<RequestList> requests
 @param List<Branch> branches
+@param PageResponse<RequestList> pagination
 
 @template.layouts.warehouse(
 headContent = @`
@@ -12,6 +14,7 @@ headContent = @`
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/warehouse/request_list.css">
+    <link rel="stylesheet" href="/assets/css/warehouse/pagination.css">
 `,
 content = @`
 <header class="header">
@@ -87,6 +90,7 @@ content = @`
                         <div class="dropdown-item" data-value="">Tất cả</div>
                         <div class="dropdown-item" data-value="REQUESTED">Đang duyệt</div>
                         <div class="dropdown-item" data-value="CONFIRMED">Chấp nhận</div>
+                        <div class="dropdown-item" data-value="RECEIVED">Hoàn thành</div>
                         <div class="dropdown-item" data-value="CANCELLED">Từ chối</div>
                     </div>
                 </div>
@@ -111,38 +115,50 @@ content = @`
                     </tr>
                     </thead>
                     <tbody id="request-tbody">
-                    @for(RequestList request : requests)
+                    @if(requests.isEmpty())
                         <tr>
-                            <td>${request.branchName()}</td>
-                            <td>${request.createdAt()}</td>
-                            <td>
-                                @if(request.requestType().equals("IMPORT"))
-                                    Nhập hàng
-                                @elseif(request.requestType().equals("RETURN"))
-                                    Trả hàng
-                                @else
-                                    Không xác định
-                                @endif
-                            </td>
-                            <td>
-                                @if(request.requestStatus().equals("REQUESTED"))
-                                    <div class="status-button pending">Đang duyệt</div>
-                                @elseif(request.requestStatus().equals("CONFIRMED"))
-                                    <div class="status-button approved">Chấp nhận</div>
-                                @elseif(request.requestStatus().equals("CANCELLED"))
-                                    <div class="status-button rejected">Từ chối</div>
-                                @else
-                                    <div class="status-button undefined">Không xác định</div>
-                                @endif
-                            </td>
-                            <td>
-                                <a href="/warehouse/request/detail?id=${request.id()}" class="detail-link">Xem Chi Tiết</a>
-                            </td>
+                            <td colspan="5" style="text-align: center; padding: 2rem;">Không có dữ liệu</td>
                         </tr>
-                    @endfor
+                    @else
+                        @for(RequestList request : requests)
+                            <tr>
+                                <td>${request.branchName()}</td>
+                                <td>${request.createdAt()}</td>
+                                <td>
+                                    @if(request.requestType().equals("IMPORT"))
+                                        Nhập hàng
+                                    @elseif(request.requestType().equals("RETURN"))
+                                        Trả hàng
+                                    @else
+                                        Không xác định
+                                    @endif
+                                </td>
+                                <td>
+                                    @if(request.requestStatus().equals("REQUESTED"))
+                                        <div class="status-button pending">Đang duyệt</div>
+                                    @elseif(request.requestStatus().equals("CONFIRMED"))
+                                        <div class="status-button approved">Chấp nhận</div>
+                                    @elseif(request.requestStatus().equals("RECEIVED"))
+                                        <div class="status-button completed">Hoàn thành</div>
+                                    @elseif(request.requestStatus().equals("CANCELLED"))
+                                        <div class="status-button rejected">Từ chối</div>
+                                    @else
+                                        <div class="status-button undefined">Không xác định</div>
+                                    @endif
+                                </td>
+                                <td>
+                                    <a href="/warehouse/request/detail?id=${request.id()}" class="detail-link">Xem Chi Tiết</a>
+                                </td>
+                            </tr>
+                        @endfor
+                    @endif
                     </tbody>
                 </table>
             </div>
+
+            @if(pagination != null)
+                @template.template.pagination(pagination = pagination, baseUrl = "/warehouse/request/list")
+            @endif
     </section>
 `,
 pageScript = @`

@@ -32,9 +32,10 @@ public record ReceiptListItem(
         return switch (type) {
             case SUP_TO_WARE -> "Nhập Hàng";
             case WARE_TO_BR -> "Xuất Hàng";
-            case WARE_TO_SUP -> "Trả Hàng";
             case BR_TO_WARE -> "Chuyển về Kho";
+            case BR_TO_WARE2 -> "Hàng hết hạn";
             case DISPOSAL -> "Hủy";
+            case INVENTORY_ADJUSTMENT -> "Kiểm kho";
             default -> type.name();
         };
     }

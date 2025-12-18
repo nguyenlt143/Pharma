@@ -55,4 +55,8 @@ public interface RequestFormRepository extends JpaRepository<RequestForm, Long>,
     default int countPendingOutboundForBranch(Long branchId) {
         return countPendingByTypeForBranch(branchId, "EXPORT");
     }
+
+    // Count all requests with REQUESTED status (pending warehouse confirmation)
+    @Query(value = "SELECT COUNT(*) FROM request_forms WHERE request_status = 'REQUESTED'", nativeQuery = true)
+    int countPendingRequestsForWarehouse();
 }

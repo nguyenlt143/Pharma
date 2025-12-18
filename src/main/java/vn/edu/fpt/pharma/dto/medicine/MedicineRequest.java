@@ -14,13 +14,20 @@ import lombok.NoArgsConstructor;
 public class MedicineRequest {
     @NotBlank(message = "Tên thuốc không được để trống")
     private String medicineName;
-    
+
     @NotNull(message = "Danh mục thuốc là bắt buộc")
     private Long categoryId;
-    
+
+    @NotNull(message = "Danh mục thuốc là bắt buộc")
     private String activeIngredient;
+
+    @NotNull(message = "Danh mục thuốc là bắt buộc")
     private String brandName;
+
+    @NotNull(message = "Danh mục thuốc là bắt buộc")
     private String manufacturer;
+
+    @NotNull(message = "Danh mục thuốc là bắt buộc")
     private String countryOfOrigin;
     private String registrationNumber;
     private String storageConditions;
@@ -31,4 +38,3 @@ public class MedicineRequest {
     private Boolean prescriptionRequired = false;
     private Integer status = 1;
 }
-

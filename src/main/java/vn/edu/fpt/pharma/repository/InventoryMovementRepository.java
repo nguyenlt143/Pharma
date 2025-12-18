@@ -22,6 +22,10 @@ public interface InventoryMovementRepository extends JpaRepository<InventoryMove
     @Query("SELECT COUNT(im) FROM InventoryMovement im WHERE im.destinationBranchId = :branchId AND im.movementType = :type AND im.movementStatus = :status")
     long countByBranchAndTypeAndStatus(@Param("branchId") Long branchId, @Param("type") MovementType type, @Param("status") MovementStatus status);
 
+    // Count all movements with SHIPPED status from warehouse (source branch = 1)
+    @Query("SELECT COUNT(im) FROM InventoryMovement im WHERE im.sourceBranchId = :warehouseBranchId AND im.movementStatus = :status")
+    long countShippedFromWarehouse(@Param("warehouseBranchId") Long warehouseBranchId, @Param("status") MovementStatus status);
+
     @Query("SELECT im FROM InventoryMovement im " +
            "LEFT JOIN FETCH im.inventoryMovementDetails imd " +
            "LEFT JOIN FETCH imd.variant v " +
@@ -36,6 +40,19 @@ public interface InventoryMovementRepository extends JpaRepository<InventoryMove
            "AND ((im.destinationBranchId = :branchId) OR (im.sourceBranchId = :branchId)) " +
            "ORDER BY im.createdAt")
     List<InventoryMovement> findMovementsSinceByBranch(@Param("fromDate") LocalDateTime fromDate, @Param("branchId") Long branchId);
+
+    // New: fetch movements with details for summary (adjustment & expired returns)
+    @Query("SELECT DISTINCT im FROM InventoryMovement im " +
+           "LEFT JOIN FETCH im.inventoryMovementDetails imd " +
+           "WHERE im.createdAt >= :fromDate " +
+           "AND im.sourceBranchId = :branchId " +
+           "AND im.movementType IN :types " +
+           "ORDER BY im.createdAt")
+    List<InventoryMovement> findMovementsWithDetailsSinceByBranchAndTypes(
+            @Param("fromDate") LocalDateTime fromDate,
+            @Param("branchId") Long branchId,
+            @Param("types") List<MovementType> types);
+
 
     // New: find inventory movement associated with a request form id (with details eagerly loaded)
     @Query("SELECT im FROM InventoryMovement im " +
@@ -121,7 +138,7 @@ public interface InventoryMovementRepository extends JpaRepository<InventoryMove
     // Top product categories by quantity in movements WARE_TO_BR (for product stats)
     @Query("""
         SELECT new vn.edu.fpt.pharma.dto.manager.TopProductItem(
-            c.name, SUM(imd.quantity)
+            c.name, SUM(imd.price * imd.quantity)
         )
         FROM InventoryMovement im
         JOIN im.inventoryMovementDetails imd
@@ -134,7 +151,7 @@ public interface InventoryMovementRepository extends JpaRepository<InventoryMove
           AND im.createdAt < :toDate
           AND (:branchId IS NULL OR im.destinationBranchId = :branchId)
         GROUP BY c.id, c.name
-        ORDER BY SUM(imd.quantity) DESC
+        ORDER BY SUM(imd.price * imd.quantity) DESC
         """)
     List<TopProductItem> findOwnerTopCategories(
             @Param("branchId") Long branchId,

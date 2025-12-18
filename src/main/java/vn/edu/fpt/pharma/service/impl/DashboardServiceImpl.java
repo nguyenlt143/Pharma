@@ -15,7 +15,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class DashboardServiceImpl implements DashboardService {
 
-    // private final RequestFormRepository requestFormRepository; // unused
+    private final RequestFormRepository requestFormRepository;
     private final StockAdjustmentRepository stockAdjustmentRepository;
     private final BatchRepository batchRepository;
     private final InventoryRepository inventoryRepository;
@@ -38,6 +38,32 @@ public class DashboardServiceImpl implements DashboardService {
                 lastInventoryCheck != null ? lastInventoryCheck.toString() : "Chưa kiểm kho");
         result.put("nearlyExpiredCount", nearlyExpiredCount);
         result.put("lowStockCount", lowStockCount);
+
+        return result;
+    }
+
+    @Override
+    public Map<String, Object> getWarehouseDashboardData() {
+        Map<String, Object> result = new HashMap<>();
+        Long warehouseBranchId = 1L; // Warehouse branch ID
+
+        // 1. Count pending requests (REQUESTED status) that need warehouse confirmation
+        int pendingRequests = requestFormRepository.countPendingRequestsForWarehouse();
+
+        // 2. Count shipped orders from warehouse (SHIPPED status, source = warehouse)
+        long shippedOrders = inventoryMovementRepository.countShippedFromWarehouse(
+                warehouseBranchId, MovementStatus.SHIPPED);
+
+        // 3. Count nearly expired medicines in warehouse (within 90 days)
+        int nearlyExpiredCount = batchRepository.countNearlyExpiredByBranch(warehouseBranchId);
+
+        // 4. Count already expired medicines in warehouse (past expiry date)
+        int expiredCount = batchRepository.countExpiredByBranch(warehouseBranchId);
+
+        result.put("pendingRequests", pendingRequests);
+        result.put("shippedOrders", (int) shippedOrders);
+        result.put("nearlyExpiredCount", nearlyExpiredCount);
+        result.put("expiredCount", expiredCount);
 
         return result;
     }

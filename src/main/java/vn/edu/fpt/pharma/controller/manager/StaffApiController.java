@@ -47,23 +47,35 @@ public class StaffApiController {
 
     // ✅ Create staff — ép branchId từ user login
     @PostMapping
-    public ResponseEntity<UserDto> create(@Valid @RequestBody UserRequest req,
+    public ResponseEntity<?> create(@Valid @RequestBody UserRequest req,
                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
-        req.setBranchId(userDetails.getUser().getBranchId());
-        return ResponseEntity.ok(userService.create(req));
+        try {
+            req.setBranchId(userDetails.getUser().getBranchId());
+            return ResponseEntity.ok(userService.create(req));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(400).body(java.util.Map.of("message", e.getMessage()));
+        }
     }
 
     // ✅ Update staff — không cho sửa branchId
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> update(@PathVariable Long id, @Valid @RequestBody UserRequest req) {
-        return ResponseEntity.ok(userService.update(id, req));
+    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody UserRequest req) {
+        try {
+            return ResponseEntity.ok(userService.update(id, req));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(400).body(java.util.Map.of("message", e.getMessage()));
+        }
     }
 
     // ✅ Delete staff
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        userService.delete(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        try {
+            userService.delete(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(400).body(java.util.Map.of("message", e.getMessage()));
+        }
     }
 
     // ✅ Restore staff (soft-deleted)

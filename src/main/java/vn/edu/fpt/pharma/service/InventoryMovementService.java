@@ -2,6 +2,7 @@ package vn.edu.fpt.pharma.service;
 
 import vn.edu.fpt.pharma.base.BaseService;
 import vn.edu.fpt.pharma.constant.MovementType;
+import vn.edu.fpt.pharma.dto.common.PageResponse;
 import vn.edu.fpt.pharma.dto.warehouse.ExportSubmitDTO;
 import vn.edu.fpt.pharma.dto.warehouse.InventoryMovementVM;
 import vn.edu.fpt.pharma.dto.warehouse.ReceiptDetailVM;
@@ -15,6 +16,9 @@ public interface InventoryMovementService extends BaseService<InventoryMovement,
     List<InventoryMovementVM> getAllMovements();
     InventoryMovementVM getMovementById(Long id);
     List<ReceiptListItem> getReceiptList(MovementType movementType, Long branchId, String status);
+
+    // Paginated Receipt List
+    PageResponse<ReceiptListItem> getReceiptListPaginated(MovementType movementType, Long branchId, String status, int page, int size);
     ReceiptInfo getReceiptInfo(Long id);
     List<ReceiptDetailVM> getReceiptDetails(Long id);
     void approveReceipt(Long id);

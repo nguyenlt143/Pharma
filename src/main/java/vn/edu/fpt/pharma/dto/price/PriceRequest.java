@@ -23,7 +23,9 @@ public class PriceRequest {
     @NotNull(message = "Sale price is required")
     @Positive(message = "Sale price must be positive")
     private Double salePrice;
-    
+
+    @NotNull(message = "Branch price is required")
+    @Positive(message = "Branch price must be positive")
     private Double branchPrice;
     
     private LocalDateTime startDate;
