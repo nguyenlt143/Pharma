@@ -51,25 +51,55 @@ public class AdjustmentApiController {
         List<InventoryMovement> movements = inventoryMovementRepository
                 .findMovementsWithDetailsSinceByBranchAndTypes(thirtyDaysAgo, branchId, adjustmentTypes);
 
-        // Separate by type
-        List<InventoryMovement> adjustments = movements.stream()
-                .filter(m -> m.getMovementType() == MovementType.INVENTORY_ADJUSTMENT)
-                .toList();
+        // Calculate values by type according to business rules
+        double totalExpiredValue = 0.0;  // BR_TO_WARE2 (Expired returns)
+        double totalShortageValue = 0.0; // INVENTORY_ADJUSTMENT with negative quantity
+        double totalSurplusValue = 0.0;  // INVENTORY_ADJUSTMENT with positive quantity
 
-        List<InventoryMovement> expiredReturns = movements.stream()
-                .filter(m -> m.getMovementType() == MovementType.BR_TO_WARE2)
-                .toList();
-
-        // Calculate total value from snapCost * quantity
-        double totalValue = 0.0;
         for (InventoryMovement m : movements) {
-            totalValue += calculateTotalMoney(m);
+            double totalMoney = Math.abs(calculateTotalMoney(m)); // Always positive
+
+            if (m.getMovementType() == MovementType.BR_TO_WARE2) {
+                // Expired returns - always loss
+                totalExpiredValue += totalMoney;
+            } else if (m.getMovementType() == MovementType.INVENTORY_ADJUSTMENT) {
+                // Check total quantity to determine surplus/shortage
+                long totalQuantity = m.getInventoryMovementDetails() != null
+                    ? m.getInventoryMovementDetails().stream()
+                        .mapToLong(d -> d.getQuantity() != null ? d.getQuantity() : 0L)
+                        .sum()
+                    : 0L;
+
+                if (totalQuantity < 0) {
+                    // Negative quantity = Shortage (loss)
+                    totalShortageValue += totalMoney;
+                } else if (totalQuantity > 0) {
+                    // Positive quantity = Surplus (gain/offset)
+                    totalSurplusValue += totalMoney;
+                }
+            }
         }
 
-        summary.put("adjustmentCount", adjustments.size());
-        summary.put("expiredReturnCount", expiredReturns.size());
-        summary.put("totalValue", totalValue);
-        summary.put("totalValueFormatted", importExportService.formatCurrencyReadable(totalValue));
+        // Calculate total and net values
+        double totalLoss = totalExpiredValue + totalShortageValue;
+        double netLoss = totalLoss - totalSurplusValue;
+
+        summary.put("totalExpiredValue", totalExpiredValue);
+        summary.put("totalShortageValue", totalShortageValue);
+        summary.put("totalSurplusValue", totalSurplusValue);
+        summary.put("totalLoss", totalLoss);
+        summary.put("netLoss", netLoss);
+
+        // Keep backward compatibility
+        summary.put("adjustmentCount", movements.stream()
+                .filter(m -> m.getMovementType() == MovementType.INVENTORY_ADJUSTMENT)
+                .count());
+        summary.put("expiredReturnCount", movements.stream()
+                .filter(m -> m.getMovementType() == MovementType.BR_TO_WARE2)
+                .count());
+        summary.put("totalValue", netLoss);
+        summary.put("totalValueFormatted", importExportService.formatCurrencyReadable(netLoss));
+
         return ResponseEntity.ok(summary);
     }
 
@@ -125,8 +155,8 @@ public class AdjustmentApiController {
             dailyData.putIfAbsent(date, new HashMap<>());
             Map<String, Double> dayData = dailyData.get(date);
 
-            // Calculate total from snapCost * quantity
-            Double totalMoney = calculateTotalMoney(m);
+            // Calculate total from snapCost * quantity - use absolute value
+            Double totalMoney = Math.abs(calculateTotalMoney(m));
 
             if (m.getMovementType() == MovementType.INVENTORY_ADJUSTMENT) {
                 dayData.put("adjustments", dayData.getOrDefault("adjustments", 0.0) + totalMoney);
@@ -201,14 +231,32 @@ public class AdjustmentApiController {
 
         List<Map<String, Object>> activities = new ArrayList<>();
         for (InventoryMovement mv : movements) {
-            // Calculate total from snapCost * quantity
-            double totalMoney = calculateTotalMoney(mv);
+            // Calculate total from snapCost * quantity - ALWAYS calculate, don't use entity field
+            double totalMoney = Math.abs(calculateTotalMoney(mv));
+
+            // Determine adjustmentType based on movement type and quantity
+            String adjustmentType;
+            if (mv.getMovementType() == MovementType.BR_TO_WARE2) {
+                adjustmentType = "EXPIRED";
+            } else if (mv.getMovementType() == MovementType.INVENTORY_ADJUSTMENT) {
+                // Check total quantity to determine surplus/shortage
+                long totalQuantity = mv.getInventoryMovementDetails() != null
+                        ? mv.getInventoryMovementDetails().stream()
+                            .mapToLong(d -> d.getQuantity() != null ? d.getQuantity() : 0L)
+                            .sum()
+                        : 0L;
+                adjustmentType = totalQuantity < 0 ? "SHORTAGE" : "SURPLUS";
+            } else {
+                adjustmentType = "UNKNOWN";
+            }
 
             Map<String, Object> activity = new HashMap<>();
             activity.put("id", mv.getId());
             activity.put("code", "#MV" + String.format("%03d", mv.getId()));
             activity.put("type", mv.getMovementType().name()); // Return type code for frontend mapping
+            activity.put("adjustmentType", adjustmentType); // NEW: For surplus/shortage/expired display
             activity.put("creator", "-");
+            activity.put("totalValue", totalMoney); // Use calculated value, not entity field
             activity.put("totalMoney", totalMoney);
             activity.put("totalValueFormatted", importExportService.formatCurrencyReadable(totalMoney));
             activity.put("timeAgo", importExportService.formatTimeAgo(mv.getCreatedAt()));

@@ -92,33 +92,41 @@
 /* ===== Report Section ===== */
 .report-section {
     background: white;
-    padding: 24px;
+    padding: 0 !important;  /* Force no padding */
     border-radius: 12px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     margin-bottom: 24px;
+    overflow: visible !important; /* Force visible */
 }
 
 .section-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
+    justify-content: space-between; /* Ensure space distribution */
+    margin-bottom: 0;
+    padding: 24px 24px 16px 24px !important; /* Force padding */
     border-bottom: 1px solid #E5E7EB;
+    gap: 16px;
+    width: 100%; /* Full width */
 }
 
 .section-header h3 {
-    font-size: 18px;
-    font-weight: 600;
-    color: #111827;
+    flex: 1;
     margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-
 /* ===== Chart Controls ===== */
 .chart-controls {
-    display: flex;
-    gap: 12px;
+    margin-left: auto;
+    display: flex !important; /* Force flex */
     align-items: center;
+    gap: 8px;
+    flex-shrink: 0 !important; /* Force no shrink */
+    min-width: fit-content; /* Prevent collapse */
+    /* DEBUG: Uncomment to see boundaries */
+    /* border: 2px solid red !important; */
 }
 
 .form-select {
@@ -130,6 +138,7 @@
     color: #374151;
     cursor: pointer;
     transition: all 0.2s;
+    min-width: 100px; /* Ensure minimum width */
 }
 
 .form-select:hover {
@@ -193,12 +202,13 @@
 .chart-container {
     position: relative;
     height: 350px;
-    margin-top: 24px;
+    padding: 0 24px 24px 24px; /* Add horizontal and bottom padding */
 }
 
 /* ===== Report Container & Table ===== */
 .report-container {
     overflow-x: auto;
+    padding: 0 24px; /* Add horizontal padding */
 }
 
 .report-table {
@@ -276,13 +286,72 @@
     color: #991B1B;
 }
 
+/* ===== Status Badges (Surplus/Shortage) ===== */
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.status-badge.status-surplus {
+    background-color: #D1FAE5;
+    color: #065F46;
+}
+
+.status-badge.status-shortage {
+    background-color: #FEE2E2;
+    color: #991B1B;
+}
+
+/* ===== Value Colors (Surplus/Shortage) ===== */
+.value-surplus {
+    color: #10B981;
+    font-weight: 600;
+}
+
+.value-shortage {
+    color: #EF4444;
+    font-weight: 600;
+}
+
+/* ===== Summary Card Value Colors ===== */
+.card-value-red {
+    color: #EF4444 !important;
+}
+
+.card-value-green {
+    color: #10B981 !important;
+}
+
+.card-value-highlight {
+    color: #DC2626 !important;
+    font-size: 36px !important;
+}
+
+/* ===== Summary Card Variants ===== */
+.summary-card-loss {
+    border-left-color: #EF4444 !important;
+}
+
+.summary-card-offset {
+    border-left-color: #10B981 !important;
+}
+
+.summary-card-net {
+    border-left-color: #DC2626 !important;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+}
+
 /* ===== Pagination ===== */
 .pagination-container {
     display: flex;
     justify-content: center;
     align-items: center;
     margin-top: 24px;
-    padding-top: 16px;
+    padding: 16px 24px 24px 24px; /* Add horizontal and bottom padding */
     border-top: 1px solid #E5E7EB;
 }
 
@@ -546,6 +615,22 @@
     to {
         transform: rotate(360deg);
     }
+}
+
+/* ===== High Specificity Override for Adjustments Page ===== */
+.main .main-container .report-section {
+    overflow: visible !important;
+    padding: 0 !important;
+}
+
+.main .main-container .report-section .section-header {
+    padding: 24px 24px 16px 24px !important;
+}
+
+.main .main-container .report-section .section-header .chart-controls {
+    flex-shrink: 0 !important;
+    min-width: fit-content !important;
+    margin-left: auto !important;
 }
 
 /* ===== Responsive Design ===== */
