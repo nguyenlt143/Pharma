@@ -127,6 +127,16 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
         else if (movement.getMovementType() == MovementType.WARE_TO_BR) {
             branchId = movement.getDestinationBranchId();
         }
+        // For return to warehouse (BR_TO_WARE) or expired goods (BR_TO_WARE2), show source branch
+        else if (movement.getMovementType() == MovementType.BR_TO_WARE || 
+                 movement.getMovementType() == MovementType.BR_TO_WARE2) {
+            branchId = movement.getSourceBranchId();
+        }
+        // For disposal (DISPOSAL) or inventory adjustment (INVENTORY_ADJUSTMENT), show "Kho Tổng"
+        else if (movement.getMovementType() == MovementType.DISPOSAL || 
+                 movement.getMovementType() == MovementType.INVENTORY_ADJUSTMENT) {
+            return "Kho Tổng";
+        }
 
         if (branchId != null) {
             return branchRepository.findById(branchId)
