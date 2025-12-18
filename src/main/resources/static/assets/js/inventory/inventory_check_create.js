@@ -40,7 +40,7 @@ function renderSelected() {
                 </td>
                 <td class="px-3 py-2 text-center font-semibold text-blue-600">${it.system}</td>
                 <td class="px-3 py-2 text-center">
-                    <input type="number" min="0" value="${it.counted}" class="counted-input w-24 px-2 py-1 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 text-center" title="Nhập số lượng thực tế" />
+                    <input type="number" min="0" value="${it.counted}" class="counted-input w-24 px-2 py-1 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 text-center" title="Nhập số lượng thực tế (có thể > hoặc < số hệ thống)" placeholder="0" />
                 </td>
                 <td class="px-3 py-2 text-center ${diffClass}">${diff}</td>
                 <td class="px-3 py-2 text-center">
@@ -54,7 +54,7 @@ function renderSelected() {
         row.find('.counted-input').on('input', function() {
             let val = $(this).val();
             
-            // Chỉ cho phép số dương
+            // Allow any positive number (including numbers greater than system quantity)
             if (val === '' || val === null) {
                 val = 0;
             } else {
@@ -67,19 +67,21 @@ function renderSelected() {
             $(this).val(val);
             it.counted = val;
             
-            // Cập nhật số chênh lệch ngay lập tức
+            // Update difference immediately
             const diff = val - it.system;
             const diffTd = row.find('td').eq(3);
             
-            // Xóa class cũ
+            // Remove old classes
             diffTd.removeClass('text-gray-600 text-green-600 text-red-600 font-semibold');
             
-            // Thêm class mới
+            // Add new classes based on difference
             if (diff === 0) {
                 diffTd.addClass('text-gray-600');
             } else if (diff > 0) {
+                // Surplus - green (thừa hàng)
                 diffTd.addClass('text-green-600 font-semibold');
             } else {
+                // Shortage - red (thiếu hàng)
                 diffTd.addClass('text-red-600 font-semibold');
             }
             
