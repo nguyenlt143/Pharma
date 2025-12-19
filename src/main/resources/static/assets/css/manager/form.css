@@ -1,0 +1,110 @@
+/* =========================================
+   MANAGER FORM STYLES
+   Styles for forms and modals
+========================================= */
+
+/* Form Grid Layout */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+/* Form Labels */
+.form-grid label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+/* Required Indicator */
+.required {
+    color: var(--danger);
+    margin-left: 4px;
+}
+
+/* Time Inputs Container */
+.time-inputs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.time-inputs input[type="number"] {
+    width: 80px;
+    padding: 10px 12px;
+    font-size: 14px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
+}
+
+.time-inputs input[type="number"]:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Invalid Feedback */
+.invalid-feedback {
+    display: none;
+    font-size: 13px;
+    color: var(--danger);
+    margin-top: 4px;
+}
+
+.invalid-feedback.show {
+    display: block;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-light);
+}
+
+/* Modal Specific Form Styles */
+.modal-form {
+    padding: 0;
+}
+
+.modal-form .form-grid {
+    padding: 20px 24px;
+}
+
+.modal-form .form-actions {
+    padding: 16px 24px;
+    margin: 0;
+    background-color: var(--gray-50);
+}
+
+/* Table Actions Column */
+.table-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .form-actions button {
+        width: 100%;
+    }
+}
+

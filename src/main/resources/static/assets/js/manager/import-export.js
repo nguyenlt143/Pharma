@@ -3,7 +3,9 @@ let inOutChart;
 let categoryDonutChart;
 let chartType = 'bar';
 let allActivities = [];
+let filteredActivities = [];
 let currentActivityFilter = 'all';
+let currentPage = 1;
 
 document.addEventListener('DOMContentLoaded', () => {
     loadInventorySummary();
@@ -39,6 +41,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (rangeSelect) {
         rangeSelect.addEventListener('change', () => {
             loadInventoryMovements();
+        });
+    }
+
+    // Page length selector
+    const recordsPerPageSelect = document.getElementById('recordsPerPage');
+    if (recordsPerPageSelect) {
+        recordsPerPageSelect.addEventListener('change', () => {
+            currentPage = 1; // Reset to first page
+            renderActivitiesPage();
         });
     }
 });
@@ -269,26 +280,35 @@ function filterActivities(type) {
     });
 
     // Filter activities
-    let filtered = allActivities;
     if (type === 'import') {
-        filtered = allActivities.filter(act => act.typeClass === 'import');
+        filteredActivities = allActivities.filter(act => act.typeClass === 'import');
     } else if (type === 'export') {
-        filtered = allActivities.filter(act => act.typeClass === 'export');
+        filteredActivities = allActivities.filter(act => act.typeClass === 'export');
+    } else {
+        filteredActivities = [...allActivities];
     }
 
-    renderActivities(filtered);
+    currentPage = 1; // Reset to first page
+    renderActivitiesPage();
 }
 
-function renderActivities(activities) {
+function renderActivitiesPage() {
+    const recordsPerPageSelect = document.getElementById('recordsPerPage');
+    const recordsPerPage = recordsPerPageSelect ? parseInt(recordsPerPageSelect.value, 10) : 10;
     const tbody = document.getElementById('recentActivities');
     if (!tbody) return;
 
-    if (activities.length === 0) {
+    if (filteredActivities.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6" class="muted">Không có hoạt động nào</td></tr>';
+        updatePaginationUI();
         return;
     }
 
-    tbody.innerHTML = activities.map(act => `
+    const startIndex = (currentPage - 1) * recordsPerPage;
+    const endIndex = startIndex + recordsPerPage;
+    const pageData = filteredActivities.slice(startIndex, endIndex);
+
+    tbody.innerHTML = pageData.map(act => `
         <tr>
             <td><a href="javascript:void(0)" onclick="viewRequestDetail(${act.id})" class="mono link">${act.code}</a></td>
             <td><span class="badge badge-${act.typeClass}">${act.type}</span></td>
@@ -300,8 +320,85 @@ function renderActivities(activities) {
             </td>
         </tr>
     `).join('');
+
+    updatePaginationUI();
 }
 
+function updatePaginationUI() {
+    const recordsPerPageSelect = document.getElementById('recordsPerPage');
+    const recordsPerPage = recordsPerPageSelect ? parseInt(recordsPerPageSelect.value, 10) : 10;
+    const totalRecords = filteredActivities.length;
+    const totalPages = Math.ceil(totalRecords / recordsPerPage) || 1;
+
+    if (currentPage > totalPages) {
+        currentPage = totalPages > 0 ? totalPages : 1;
+    }
+
+    // Update info display
+    document.getElementById('totalItems').textContent = totalRecords;
+    document.getElementById('showingFrom').textContent = totalRecords > 0 ? (currentPage - 1) * recordsPerPage + 1 : 0;
+    document.getElementById('showingTo').textContent = Math.min(currentPage * recordsPerPage, totalRecords);
+
+    // Render pagination buttons
+    const paginationButtons = document.getElementById('paginationButtons');
+    if (!paginationButtons) return;
+    paginationButtons.innerHTML = '';
+
+    if (totalPages <= 1) return;
+
+    // First button
+    const firstBtn = document.createElement('button');
+    firstBtn.innerHTML = '&laquo;&laquo;';
+    firstBtn.className = 'pagination-btn' + (currentPage === 1 ? ' disabled' : '');
+    firstBtn.disabled = currentPage === 1;
+    firstBtn.title = 'Trang đầu';
+    firstBtn.onclick = () => { if (currentPage > 1) { currentPage = 1; renderActivitiesPage(); } };
+    paginationButtons.appendChild(firstBtn);
+
+    // Previous button
+    const prevBtn = document.createElement('button');
+    prevBtn.innerHTML = '&laquo;';
+    prevBtn.className = 'pagination-btn' + (currentPage === 1 ? ' disabled' : '');
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.title = 'Trang trước';
+    prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; renderActivitiesPage(); } };
+    paginationButtons.appendChild(prevBtn);
+
+    // Page number buttons (max 5 visible)
+    const maxButtons = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+    let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
+    if (endPage - startPage < maxButtons - 1) {
+        startPage = Math.max(1, endPage - maxButtons + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.textContent = i;
+        pageBtn.className = 'pagination-btn' + (i === currentPage ? ' active' : '');
+        pageBtn.onclick = () => { currentPage = i; renderActivitiesPage(); };
+        paginationButtons.appendChild(pageBtn);
+    }
+
+    // Next button
+    const nextBtn = document.createElement('button');
+    nextBtn.innerHTML = '&raquo;';
+    nextBtn.className = 'pagination-btn' + (currentPage === totalPages ? ' disabled' : '');
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.title = 'Trang sau';
+    nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; renderActivitiesPage(); } };
+    paginationButtons.appendChild(nextBtn);
+
+    // Last button
+    const lastBtn = document.createElement('button');
+    lastBtn.innerHTML = '&raquo;&raquo;';
+    lastBtn.className = 'pagination-btn' + (currentPage === totalPages ? ' disabled' : '');
+    lastBtn.disabled = currentPage === totalPages;
+    lastBtn.title = 'Trang cuối';
+    lastBtn.onclick = () => { if (currentPage < totalPages) { currentPage = totalPages; renderActivitiesPage(); } };
+    paginationButtons.appendChild(lastBtn);
+}
 
 function viewRequestDetail(requestId) {
     if (!requestId) return;

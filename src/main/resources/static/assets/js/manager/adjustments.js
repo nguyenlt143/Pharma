@@ -5,7 +5,6 @@ let allActivities = [];
 let filteredActivities = [];
 let currentActivityFilter = 'all';
 let currentPage = 1;
-let recordsPerPage = 10;
 
 document.addEventListener('DOMContentLoaded', () => {
     loadAdjustmentSummary();
@@ -66,8 +65,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Pagination
-    setupPagination();
+    // Page length selector
+    const recordsPerPageSelect = document.getElementById('recordsPerPage');
+    if (recordsPerPageSelect) {
+        recordsPerPageSelect.addEventListener('change', () => {
+            currentPage = 1; // Reset to first page
+            renderActivitiesPage();
+        });
+    }
+
+    // Pagination now handled by dynamic buttons in updatePaginationControls()
 });
 
 function loadAdjustmentSummary() {
@@ -238,6 +245,8 @@ function loadRecentActivities() {
 }
 
 function renderActivitiesPage() {
+    const recordsPerPageSelect = document.getElementById('recordsPerPage');
+    const recordsPerPage = recordsPerPageSelect ? parseInt(recordsPerPageSelect.value, 10) : 10;
     const tbody = document.getElementById('activitiesTableBody');
     if (!tbody) return;
 
@@ -272,6 +281,10 @@ function renderActivitiesPage() {
             const label = activity.type === 'BR_TO_WARE2' ? 'Hết hạn' : 'Thiếu';
             statusHtml = `<span class="status-badge status-shortage">↓ ${label}</span>`;
             valueHtml = `<span class="value-shortage">+${formatCurrency(Math.abs(value))}</span>`;
+        } else if (activity.adjustmentType === 'MIXED') {
+            // Mixed adjustment - both surplus and shortage in same movement
+            statusHtml = '<span class="status-badge status-mixed">⇅ Điều chỉnh</span>';
+            valueHtml = escapeHtml(activity.totalValueFormatted || formatCurrency(Math.abs(value)));
         } else {
             // Default case
             statusHtml = '<span class="status-badge">-</span>';
@@ -310,41 +323,81 @@ function getTypeBadgeClass(type) {
     return classMap[type] || '';
 }
 
-function setupPagination() {
-    const prevBtn = document.getElementById('prev-page');
-    const nextBtn = document.getElementById('next-page');
-
-    if (prevBtn) {
-        prevBtn.addEventListener('click', () => {
-            if (currentPage > 1) {
-                currentPage--;
-                renderActivitiesPage();
-            }
-        });
-    }
-
-    if (nextBtn) {
-        nextBtn.addEventListener('click', () => {
-            const totalPages = Math.ceil(filteredActivities.length / recordsPerPage) || 1;
-            if (currentPage < totalPages) {
-                currentPage++;
-                renderActivitiesPage();
-            }
-        });
-    }
-}
-
 function updatePaginationControls() {
-    const pageInfo = document.getElementById('page-info');
-    const prevBtn = document.getElementById('prev-page');
-    const nextBtn = document.getElementById('next-page');
-
+    const recordsPerPageSelect = document.getElementById('recordsPerPage');
+    const recordsPerPage = recordsPerPageSelect ? parseInt(recordsPerPageSelect.value, 10) : 10;
     const totalRecords = filteredActivities.length;
     const totalPages = Math.ceil(totalRecords / recordsPerPage) || 1;
 
-    if (pageInfo) pageInfo.textContent = `Trang ${currentPage} / ${totalPages}`;
-    if (prevBtn) prevBtn.disabled = currentPage === 1;
-    if (nextBtn) nextBtn.disabled = currentPage === totalPages;
+    if (currentPage > totalPages) {
+        currentPage = totalPages > 0 ? totalPages : 1;
+    }
+
+    // Update info display
+    document.getElementById('totalItems').textContent = totalRecords;
+    document.getElementById('showingFrom').textContent = totalRecords > 0 ? (currentPage - 1) * recordsPerPage + 1 : 0;
+    document.getElementById('showingTo').textContent = Math.min(currentPage * recordsPerPage, totalRecords);
+
+    // Render pagination buttons
+    const paginationButtons = document.getElementById('paginationButtons');
+    if (!paginationButtons) return;
+
+    paginationButtons.innerHTML = '';
+
+    if (totalPages <= 1) return;
+
+    // First button
+    const firstBtn = document.createElement('button');
+    firstBtn.innerHTML = '&laquo;&laquo;';
+    firstBtn.className = 'pagination-btn' + (currentPage === 1 ? ' disabled' : '');
+    firstBtn.disabled = currentPage === 1;
+    firstBtn.title = 'Trang đầu';
+    firstBtn.onclick = () => { if (currentPage > 1) { currentPage = 1; renderActivitiesPage(); } };
+    paginationButtons.appendChild(firstBtn);
+
+    // Previous button
+    const prevBtn = document.createElement('button');
+    prevBtn.innerHTML = '&laquo;';
+    prevBtn.className = 'pagination-btn' + (currentPage === 1 ? ' disabled' : '');
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.title = 'Trang trước';
+    prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; renderActivitiesPage(); } };
+    paginationButtons.appendChild(prevBtn);
+
+    // Page number buttons (max 5 visible)
+    const maxButtons = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+    let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
+    if (endPage - startPage < maxButtons - 1) {
+        startPage = Math.max(1, endPage - maxButtons + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.textContent = i;
+        pageBtn.className = 'pagination-btn' + (i === currentPage ? ' active' : '');
+        pageBtn.onclick = () => { currentPage = i; renderActivitiesPage(); };
+        paginationButtons.appendChild(pageBtn);
+    }
+
+    // Next button
+    const nextBtn = document.createElement('button');
+    nextBtn.innerHTML = '&raquo;';
+    nextBtn.className = 'pagination-btn' + (currentPage === totalPages ? ' disabled' : '');
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.title = 'Trang sau';
+    nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; renderActivitiesPage(); } };
+    paginationButtons.appendChild(nextBtn);
+
+    // Last button
+    const lastBtn = document.createElement('button');
+    lastBtn.innerHTML = '&raquo;&raquo;';
+    lastBtn.className = 'pagination-btn' + (currentPage === totalPages ? ' disabled' : '');
+    lastBtn.disabled = currentPage === totalPages;
+    lastBtn.title = 'Trang cuối';
+    lastBtn.onclick = () => { if (currentPage < totalPages) { currentPage = totalPages; renderActivitiesPage(); } };
+    paginationButtons.appendChild(lastBtn);
 }
 
 window.viewDetail = function(id) {

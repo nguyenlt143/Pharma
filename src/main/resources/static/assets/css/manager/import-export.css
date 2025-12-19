@@ -397,6 +397,27 @@
     color: #991B1B;
 }
 
+.badge-adjustment {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+.badge-expired-return {
+    background: #F3E8FF;
+    color: #6B21A8;
+}
+
+/* Legacy compatibility */
+.badge-inventory-adjustment {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+.badge-br-to-ware2 {
+    background: #F3E8FF;
+    color: #6B21A8;
+}
+
 /* Status */
 .status {
     display: inline-block;

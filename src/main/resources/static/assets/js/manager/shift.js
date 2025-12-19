@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // ====================== PAGINATION STATE ======================
     let allShifts = [];
     let currentPage = 1;
-    let recordsPerPage = 25;
 
     // ====================== TOAST UTILITY ======================
     function showToast(msg, timeout = 2500, type = 'info') {
@@ -92,61 +91,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let showDeleted = false;
 
     // ====================== PAGINATION & RENDERING ======================
-    function updatePaginationControls() {
-        const pageInfo = document.getElementById('page-info');
-        const prevPageBtn = document.getElementById('prev-page');
-        const nextPageBtn = document.getElementById('next-page');
-        const recordsPerPageSelect = document.getElementById('records-per-page');
-
-        recordsPerPage = parseInt(recordsPerPageSelect.value, 10);
-        const totalRecords = allShifts.length;
-        const totalPages = Math.ceil(totalRecords / recordsPerPage) || 1;
-
-        if (currentPage > totalPages) {
-            currentPage = totalPages;
-        }
-
-        pageInfo.textContent = `Trang ${currentPage} / ${totalPages}`;
-        prevPageBtn.disabled = currentPage === 1;
-        nextPageBtn.disabled = currentPage === totalPages;
-    }
-
-    function renderTablePage() {
-        updatePaginationControls();
-
-        const startIndex = (currentPage - 1) * recordsPerPage;
-        const endIndex = startIndex + recordsPerPage;
-        const pageData = allShifts.slice(startIndex, endIndex);
-
-        shiftTableBody.innerHTML = pageData.map(s => {
-            const statusBadge = s.deleted
-                ? '<span class="badge inactive">Đã xóa</span>'
-                : '<span class="badge active">Hoạt động</span>';
-
-            const actionButtons = s.deleted
-                ? `<button class="btn btn-success restore-btn" onclick="restoreShift(${s.id})">↩️ Khôi phục</button>`
-                : `
-                    <button class="btn btn-ghost" onclick="editShift(${s.id})">✏️ Sửa</button>
-                    <button class="btn btn-danger" onclick="deleteShift(${s.id})">🗑️ Xóa</button>
-                    <button class="btn btn-info" onclick="viewEmployees(${s.id})">👥 Xem nhân viên</button>
-                `;
-
-            const dispStart = s.startTime ? formatToHHMM(s.startTime) : "";
-            const dispEnd = s.endTime ? formatToHHMM(s.endTime) : "";
-
-            return `
-            <tr>
-                <td>${s.name}</td>
-                <td>${dispStart}</td>
-                <td>${dispEnd}</td>
-                <td>${s.note || ""}</td>
-                <td class="text-center">${statusBadge}</td>
-                <td class="text-center action-buttons">${actionButtons}</td>
-            </tr>
-        `;
-        }).join("");
-    }
-
 
     // ====================== LOAD SHIFTS ======================
     async function loadShifts() {
@@ -498,6 +442,129 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    // ====================== PAGINATION & RENDERING ======================
+    function renderTablePage() {
+        const recordsPerPageSelect = document.getElementById('recordsPerPage');
+        const recordsPerPage = recordsPerPageSelect ? parseInt(recordsPerPageSelect.value, 10) : 10;
+
+        shiftTableBody.innerHTML = "";
+
+        if (allShifts.length === 0) {
+            shiftTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px;">Không có dữ liệu</td></tr>`;
+            updatePaginationUI();
+            return;
+        }
+
+        const startIndex = (currentPage - 1) * recordsPerPage;
+        const endIndex = startIndex + recordsPerPage;
+        const pageData = allShifts.slice(startIndex, endIndex);
+
+        pageData.forEach(s => {
+            const row = document.createElement("tr");
+            const startTime = s.startTime ? formatToHHMM(s.startTime) : "";
+            const endTime = s.endTime ? formatToHHMM(s.endTime) : "";
+
+            row.innerHTML = `
+                <td>${escapeHtml(s.name)}</td>
+                <td>${startTime}</td>
+                <td>${endTime}</td>
+                <td>${escapeHtml(s.note || "")}</td>
+                <td>
+                    <span class="badge ${s.deleted ? 'inactive' : 'active'}">
+                        ${s.deleted ? 'Đã xóa' : 'Hoạt động'}
+                    </span>
+                </td>
+                <td>
+                    ${s.deleted ? 
+                        `<button class="btn btn-success btn-sm" onclick="restoreShift(${s.id})">↩ Khôi phục</button>` :
+                        `<button class="btn btn-primary btn-sm" onclick="editShift(${s.id})">✏️ Sửa</button>
+                         <button class="btn btn-danger btn-sm" onclick="deleteShift(${s.id})">🗑️ Xóa</button>
+                         <button class="btn btn-info btn-sm" onclick="viewEmployees(${s.id})">👥 Nhân viên</button>`
+                    }
+                </td>
+            `;
+            shiftTableBody.appendChild(row);
+        });
+
+        updatePaginationUI();
+    }
+
+    function updatePaginationUI() {
+        const recordsPerPageSelect = document.getElementById('recordsPerPage');
+        const recordsPerPage = recordsPerPageSelect ? parseInt(recordsPerPageSelect.value, 10) : 10;
+        const totalRecords = allShifts.length;
+        const totalPages = Math.ceil(totalRecords / recordsPerPage) || 1;
+
+        if (currentPage > totalPages) {
+            currentPage = totalPages > 0 ? totalPages : 1;
+        }
+
+        // Update info display
+        document.getElementById('totalItems').textContent = totalRecords;
+        document.getElementById('showingFrom').textContent = totalRecords > 0 ? (currentPage - 1) * recordsPerPage + 1 : 0;
+        document.getElementById('showingTo').textContent = Math.min(currentPage * recordsPerPage, totalRecords);
+
+        // Render pagination buttons
+        const paginationButtons = document.getElementById('paginationButtons');
+        if (!paginationButtons) return;
+        paginationButtons.innerHTML = '';
+
+        if (totalPages <= 1) return;
+
+        // First button
+        const firstBtn = document.createElement('button');
+        firstBtn.innerHTML = '&laquo;&laquo;';
+        firstBtn.className = 'pagination-btn' + (currentPage === 1 ? ' disabled' : '');
+        firstBtn.disabled = currentPage === 1;
+        firstBtn.title = 'Trang đầu';
+        firstBtn.onclick = () => { if (currentPage > 1) { currentPage = 1; renderTablePage(); } };
+        paginationButtons.appendChild(firstBtn);
+
+        // Previous button
+        const prevBtn = document.createElement('button');
+        prevBtn.innerHTML = '&laquo;';
+        prevBtn.className = 'pagination-btn' + (currentPage === 1 ? ' disabled' : '');
+        prevBtn.disabled = currentPage === 1;
+        prevBtn.title = 'Trang trước';
+        prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; renderTablePage(); } };
+        paginationButtons.appendChild(prevBtn);
+
+        // Page number buttons (max 5 visible)
+        const maxButtons = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+        let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
+        if (endPage - startPage < maxButtons - 1) {
+            startPage = Math.max(1, endPage - maxButtons + 1);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.textContent = i;
+            pageBtn.className = 'pagination-btn' + (i === currentPage ? ' active' : '');
+            pageBtn.onclick = () => { currentPage = i; renderTablePage(); };
+            paginationButtons.appendChild(pageBtn);
+        }
+
+        // Next button
+        const nextBtn = document.createElement('button');
+        nextBtn.innerHTML = '&raquo;';
+        nextBtn.className = 'pagination-btn' + (currentPage === totalPages ? ' disabled' : '');
+        nextBtn.disabled = currentPage === totalPages;
+        nextBtn.title = 'Trang sau';
+        nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; renderTablePage(); } };
+        paginationButtons.appendChild(nextBtn);
+
+        // Last button
+        const lastBtn = document.createElement('button');
+        lastBtn.innerHTML = '&raquo;&raquo;';
+        lastBtn.className = 'pagination-btn' + (currentPage === totalPages ? ' disabled' : '');
+        lastBtn.disabled = currentPage === totalPages;
+        lastBtn.title = 'Trang cuối';
+        lastBtn.onclick = () => { if (currentPage < totalPages) { currentPage = totalPages; renderTablePage(); } };
+        paginationButtons.appendChild(lastBtn);
+    }
+
     // ====================== INIT ======================
     loadShifts();
 
@@ -509,31 +576,30 @@ document.addEventListener("DOMContentLoaded", () => {
         loadShifts();
     });
 
-    // Pagination controls
-    document.getElementById('prev-page').addEventListener('click', () => {
-        if (currentPage > 1) {
-            currentPage--;
+    // Page length selector
+    const recordsPerPageSelect = document.getElementById('recordsPerPage');
+    if (recordsPerPageSelect) {
+        recordsPerPageSelect.addEventListener('change', () => {
+            currentPage = 1; // Reset to first page
             renderTablePage();
-        }
-    });
+        });
+    }
 
-    document.getElementById('next-page').addEventListener('click', () => {
-        const totalPages = Math.ceil(allShifts.length / recordsPerPage);
-        if (currentPage < totalPages) {
-            currentPage++;
-            renderTablePage();
-        }
-    });
-
-    document.getElementById('records-per-page').addEventListener('change', () => {
-        currentPage = 1;
-        renderTablePage();
-    });
-
-
-    // Load shifts when page loads
-    loadShifts();
+    // Pagination now handled by dynamic buttons in updatePaginationUI()
 });
+
+// Helper: escape HTML
+function escapeHtml(text) {
+    if (!text) return '';
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.toString().replace(/[&<>"']/g, m => map[m]);
+}
 
 // Helper: normalize various time inputs to 24-hour HH:mm format
 function normalizeTimeTo24(input) {

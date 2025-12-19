@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // -------------------
     let currentPage = 0;
     let totalPages = 1;
-    let pageSize = 25; // Default page size
 
     // -------------------
     // Utils
@@ -39,17 +38,27 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     function setTimeMode(mode) {
-        const input = document.querySelector('.date-input');
-        if (!input) return;
+        const dateInput = document.getElementById('date-picker');
+        const weekInput = document.getElementById('week-picker');
+        const monthInput = document.getElementById('month-picker');
+
+        if (!dateInput || !weekInput || !monthInput) return;
+
+        // Hide all inputs first
+        dateInput.style.display = 'none';
+        weekInput.style.display = 'none';
+        monthInput.style.display = 'none';
+
+        // Show and set value for the selected mode
         if (mode === 'week') {
-            input.setAttribute('type', 'week');
-            input.value = currentWeekStr();
+            weekInput.style.display = 'block';
+            weekInput.value = currentWeekStr();
         } else if (mode === 'month') {
-            input.setAttribute('type', 'month');
-            input.value = currentMonthStr();
+            monthInput.style.display = 'block';
+            monthInput.value = currentMonthStr();
         } else {
-            input.setAttribute('type', 'date');
-            input.value = todayStr();
+            dateInput.style.display = 'block';
+            dateInput.value = todayStr();
         }
     }
 
@@ -76,19 +85,77 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update pagination controls
     // -------------------
     function updatePaginationControls() {
-        const prevBtn = document.getElementById('prev-page');
-        const nextBtn = document.getElementById('next-page');
-        const pageInfo = document.getElementById('page-info');
+        const recordsPerPageSelect = document.getElementById('recordsPerPage');
+        const pageSize = recordsPerPageSelect ? parseInt(recordsPerPageSelect.value, 10) : 25;
+        const totalRecords = totalPages * pageSize; // Approximate
+        const showing = (currentPage * pageSize) + 1;
 
-        if (prevBtn) {
-            prevBtn.disabled = currentPage === 0;
+        // Update info display
+        document.getElementById('totalItems').textContent = totalRecords;
+        document.getElementById('showingFrom').textContent = totalRecords > 0 ? showing : 0;
+        document.getElementById('showingTo').textContent = Math.min((currentPage + 1) * pageSize, totalRecords);
+
+        // Render pagination buttons
+        const paginationButtons = document.getElementById('paginationButtons');
+        if (!paginationButtons) return;
+        paginationButtons.innerHTML = '';
+
+        if (totalPages <= 1) return;
+
+        const currentPageDisplay = currentPage + 1;
+
+        // First button
+        const firstBtn = document.createElement('button');
+        firstBtn.innerHTML = '&laquo;&laquo;';
+        firstBtn.className = 'pagination-btn' + (currentPage === 0 ? ' disabled' : '');
+        firstBtn.disabled = currentPage === 0;
+        firstBtn.title = 'Trang đầu';
+        firstBtn.onclick = () => { if (currentPage > 0) { currentPage = 0; loadData(); } };
+        paginationButtons.appendChild(firstBtn);
+
+        // Previous button
+        const prevBtn = document.createElement('button');
+        prevBtn.innerHTML = '&laquo;';
+        prevBtn.className = 'pagination-btn' + (currentPage === 0 ? ' disabled' : '');
+        prevBtn.disabled = currentPage === 0;
+        prevBtn.title = 'Trang trước';
+        prevBtn.onclick = () => { if (currentPage > 0) { currentPage--; loadData(); } };
+        paginationButtons.appendChild(prevBtn);
+
+        // Page number buttons (max 5 visible)
+        const maxButtons = 5;
+        let startPage = Math.max(1, currentPageDisplay - Math.floor(maxButtons / 2));
+        let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
+        if (endPage - startPage < maxButtons - 1) {
+            startPage = Math.max(1, endPage - maxButtons + 1);
         }
-        if (nextBtn) {
-            nextBtn.disabled = currentPage >= totalPages - 1;
+
+        for (let i = startPage; i <= endPage; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.textContent = i;
+            pageBtn.className = 'pagination-btn' + (i === currentPageDisplay ? ' active' : '');
+            pageBtn.onclick = () => { currentPage = i - 1; loadData(); };
+            paginationButtons.appendChild(pageBtn);
         }
-        if (pageInfo) {
-            pageInfo.textContent = `Trang ${currentPage + 1} / ${totalPages}`;
-        }
+
+        // Next button
+        const nextBtn = document.createElement('button');
+        nextBtn.innerHTML = '&raquo;';
+        nextBtn.className = 'pagination-btn' + (currentPage >= totalPages - 1 ? ' disabled' : '');
+        nextBtn.disabled = currentPage >= totalPages - 1;
+        nextBtn.title = 'Trang sau';
+        nextBtn.onclick = () => { if (currentPage < totalPages - 1) { currentPage++; loadData(); } };
+        paginationButtons.appendChild(nextBtn);
+
+        // Last button
+        const lastBtn = document.createElement('button');
+        lastBtn.innerHTML = '&raquo;&raquo;';
+        lastBtn.className = 'pagination-btn' + (currentPage >= totalPages - 1 ? ' disabled' : '');
+        lastBtn.disabled = currentPage >= totalPages - 1;
+        lastBtn.title = 'Trang cuối';
+        lastBtn.onclick = () => { if (currentPage < totalPages - 1) { currentPage = totalPages - 1; loadData(); } };
+        paginationButtons.appendChild(lastBtn);
     }
 
     // -------------------
@@ -96,11 +163,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // -------------------
     async function loadData() {
         const mode = document.getElementById('time-mode')?.value || 'day';
-        const period = document.querySelector('.date-input').value; // date/week/month format
-        const shift = document.getElementById('shift-select').value;
-        const employeeId = document.getElementById('employee-select').value;
-        pageSize = parseInt(document.getElementById('records-per-page').value, 10);
 
+        // Get the correct input value based on mode
+        let period = '';
+        if (mode === 'week') {
+            period = document.getElementById('week-picker')?.value || '';
+        } else if (mode === 'month') {
+            period = document.getElementById('month-picker')?.value || '';
+        } else {
+            period = document.getElementById('date-picker')?.value || '';
+        }
+
+        const shift = document.getElementById('shift-select')?.value || '';
+        const employeeId = document.getElementById('employee-select')?.value || '';
+
+        // Get page size from selector
+        const recordsPerPageSelect = document.getElementById('recordsPerPage');
+        const pageSize = recordsPerPageSelect ? parseInt(recordsPerPageSelect.value, 10) : 25;
 
         try {
             const params = new URLSearchParams();
@@ -193,7 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (modeSelect) {
             setTimeMode(modeSelect.value || 'day');
         } else {
-            const dateInput = document.querySelector('.date-input');
+            const dateInput = document.getElementById('date-picker');
             if (dateInput && !dateInput.value) {
                 dateInput.value = todayStr();
             }
@@ -241,50 +320,58 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    document.querySelector('.date-input').addEventListener('change', () => {
-        currentPage = 0; // Reset to first page
-        loadData();
-    });
+    // Add event listeners to all three date inputs
+    const dateInput = document.getElementById('date-picker');
+    const weekInput = document.getElementById('week-picker');
+    const monthInput = document.getElementById('month-picker');
 
-    document.getElementById('shift-select').addEventListener('change', () => {
-        currentPage = 0; // Reset to first page
-        loadData();
-    });
-
-    document.getElementById('employee-select').addEventListener('change', () => {
-        currentPage = 0; // Reset to first page
-        loadData();
-    });
-
-    // Pagination buttons
-    const prevBtn = document.getElementById('prev-page');
-    const nextBtn = document.getElementById('next-page');
-
-    if (prevBtn) {
-        prevBtn.addEventListener('click', () => {
-            if (currentPage > 0) {
-                currentPage--;
-                loadData();
-            }
+    if (dateInput) {
+        dateInput.addEventListener('change', () => {
+            currentPage = 0; // Reset to first page
+            loadData();
         });
     }
 
-    if (nextBtn) {
-        nextBtn.addEventListener('click', () => {
-            if (currentPage < totalPages - 1) {
-                currentPage++;
-                loadData();
-            }
+    if (weekInput) {
+        weekInput.addEventListener('change', () => {
+            currentPage = 0; // Reset to first page
+            loadData();
         });
     }
 
-    const recordsPerPageSelect = document.getElementById('records-per-page');
+    if (monthInput) {
+        monthInput.addEventListener('change', () => {
+            currentPage = 0; // Reset to first page
+            loadData();
+        });
+    }
+
+    const shiftSelect = document.getElementById('shift-select');
+    if (shiftSelect) {
+        shiftSelect.addEventListener('change', () => {
+            currentPage = 0; // Reset to first page
+            loadData();
+        });
+    }
+
+    const employeeSelect = document.getElementById('employee-select');
+    if (employeeSelect) {
+        employeeSelect.addEventListener('change', () => {
+            currentPage = 0; // Reset to first page
+            loadData();
+        });
+    }
+
+    // Page length selector
+    const recordsPerPageSelect = document.getElementById('recordsPerPage');
     if (recordsPerPageSelect) {
         recordsPerPageSelect.addEventListener('change', () => {
             currentPage = 0; // Reset to first page
             loadData();
         });
     }
+
+    // Pagination now handled by dynamic buttons in updatePaginationControls()
 
     // Init
     initFilters();

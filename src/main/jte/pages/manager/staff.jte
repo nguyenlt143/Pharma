@@ -26,7 +26,7 @@ content = @`
                 </div>
 
                 <div class="card-body">
-                    <table class="table">
+                    <table id="staffTable" class="table">
                         <thead>
                         <tr>
                             <th class="text-center">#</th>
@@ -46,19 +46,26 @@ content = @`
                     </table>
                     <div id="emptyState" class="empty hidden">Chưa có nhân viên.</div>
                 </div>
+
+                <!-- Enhanced Pagination -->
                 <div class="pagination-container">
-                    <div class="pagination-controls">
-                        <button id="prev-page" disabled>&laquo; Trước</button>
-                        <span id="page-info">Trang 1 / 1</span>
-                        <button id="next-page" disabled>Sau &raquo;</button>
+                    <div class="pagination-left">
+                        <label for="recordsPerPage" style="display: inline-flex; align-items: center; gap: 8px;">
+                            <span>Hiển thị</span>
+                            <select id="recordsPerPage" class="form-select" style="width: auto; padding: 6px 32px 6px 12px;">
+                                <option value="10" selected>10</option>
+                                <option value="25" >25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                            <span>bản ghi</span>
+                        </label>
                     </div>
-                    <div class="records-per-page">
-                        <label for="records-per-page">Số bản ghi:</label>
-                        <select id="records-per-page" class="form-select">
-                            <option value="10">10</option>
-                            <option value="25" selected>25</option>
-                            <option value="50">50</option>
-                        </select>
+                    <div class="pagination-info">
+                        Hiển thị <span id="showingFrom">1</span> - <span id="showingTo">10</span> / <span id="totalItems">0</span> bản ghi
+                    </div>
+                    <div class="pagination-controls" id="paginationButtons">
+                        <!-- Dynamic pagination buttons -->
                     </div>
                 </div>
             </div>

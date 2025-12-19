@@ -85,10 +85,23 @@
                     </div>
 
                     <div class="pagination-container">
-                        <div class="pagination-controls">
-                            <button id="prev-page" disabled>&laquo; Trước</button>
-                            <span id="page-info">Trang 1 / 1</span>
-                            <button id="next-page" disabled>Sau &raquo;</button>
+                        <div class="pagination-left">
+                            <label for="recordsPerPage" style="display: inline-flex; align-items: center; gap: 8px;">
+                                <span>Hiển thị</span>
+                                <select id="recordsPerPage" class="form-select" style="width: auto; padding: 6px 32px 6px 12px;">
+                                    <option value="10" selected>10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                                <span>hoạt động</span>
+                            </label>
+                        </div>
+                        <div class="pagination-info">
+                            Hiển thị <span id="showingFrom">1</span> - <span id="showingTo">10</span> / <span id="totalItems">0</span> hoạt động
+                        </div>
+                        <div class="pagination-controls" id="paginationButtons">
+                            <!-- Dynamic pagination buttons rendered by JS -->
                         </div>
                     </div>
                 </div>

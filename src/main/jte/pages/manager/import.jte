@@ -79,26 +79,31 @@
                         </tr>
                         </thead>
                         <tbody id="recentActivities">
-                            @if(recentActivities == null || recentActivities.isEmpty())
-                                <tr><td colspan="6" class="muted">Không có hoạt động gần đây</td></tr>
-                            @else
-
-                                @for(java.util.Map<String, java.lang.Object> __actObj : recentActivities)
-                                    <tr>
-                                        <td><a href="javascript:void(0)" onclick="viewRequestDetail(${__actObj.get("id") != null ? __actObj.get("id").toString() : "0"})" class="mono link">${__actObj.get("code") != null ? __actObj.get("code").toString() : ""}</a></td>
-                                        <td><span class="badge badge-${__actObj.get("typeClass") != null ? __actObj.get("typeClass").toString() : ""}">${__actObj.get("type") != null ? __actObj.get("type").toString() : ""}</span></td>
-                                        <td>${__actObj.get("creator") != null ? __actObj.get("creator").toString() : "-"}</td>
-
-                                        <td>${__actObj.get("totalValueFormatted") != null ? __actObj.get("totalValueFormatted").toString() : (__actObj.get("totalValue") != null ? ( __actObj.get("totalValue") instanceof Number ? java.text.NumberFormat.getInstance(java.util.Locale.forLanguageTag("vi-VN")).format(((Number)__actObj.get("totalValue")).longValue()) + " đ" : java.text.NumberFormat.getInstance(java.util.Locale.forLanguageTag("vi-VN")).format(new java.math.BigDecimal(__actObj.get("totalValue").toString()).longValue()) + " đ") : "0 đ")}</td>
-                                        <td>${__actObj.get("timeAgo") != null ? __actObj.get("timeAgo").toString() : ""}</td>
-                                        <td>
-                                            <button class="btn btn-small" onclick="viewRequestDetail(${__actObj.get("id") != null ? __actObj.get("id").toString() : "0"})">Xem</button>
-                                        </td>
-                                    </tr>
-                                @endfor
-                            @endif
+                            <!-- Populated by JavaScript -->
                         </tbody>
                     </table>
+
+                    <!-- Pagination -->
+                    <div class="pagination-container">
+                        <div class="pagination-left">
+                            <label for="recordsPerPage" style="display: inline-flex; align-items: center; gap: 8px;">
+                                <span>Hiển thị</span>
+                                <select id="recordsPerPage" class="form-select" style="width: auto; padding: 6px 32px 6px 12px;">
+                                    <option value="10" selected>10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                                <span>hoạt động</span>
+                            </label>
+                        </div>
+                        <div class="pagination-info">
+                            Hiển thị <span id="showingFrom">1</span> - <span id="showingTo">10</span> / <span id="totalItems">0</span> hoạt động
+                        </div>
+                        <div class="pagination-controls" id="paginationButtons">
+                            <!-- Dynamic pagination buttons -->
+                        </div>
+                    </div>
                 </section>
             </div>
         </main>

@@ -52,30 +52,32 @@ public class AdjustmentApiController {
                 .findMovementsWithDetailsSinceByBranchAndTypes(thirtyDaysAgo, branchId, adjustmentTypes);
 
         // Calculate values by type according to business rules
+        // IMPORTANT: Calculate per detail item, not per movement, to handle mixed adjustments
         double totalExpiredValue = 0.0;  // BR_TO_WARE2 (Expired returns)
         double totalShortageValue = 0.0; // INVENTORY_ADJUSTMENT with negative quantity
         double totalSurplusValue = 0.0;  // INVENTORY_ADJUSTMENT with positive quantity
 
         for (InventoryMovement m : movements) {
-            double totalMoney = Math.abs(calculateTotalMoney(m)); // Always positive
-
             if (m.getMovementType() == MovementType.BR_TO_WARE2) {
-                // Expired returns - always loss
+                // Expired returns - always loss, use absolute value
+                double totalMoney = Math.abs(calculateTotalMoney(m));
                 totalExpiredValue += totalMoney;
             } else if (m.getMovementType() == MovementType.INVENTORY_ADJUSTMENT) {
-                // Check total quantity to determine surplus/shortage
-                long totalQuantity = m.getInventoryMovementDetails() != null
-                    ? m.getInventoryMovementDetails().stream()
-                        .mapToLong(d -> d.getQuantity() != null ? d.getQuantity() : 0L)
-                        .sum()
-                    : 0L;
-
-                if (totalQuantity < 0) {
-                    // Negative quantity = Shortage (loss)
-                    totalShortageValue += totalMoney;
-                } else if (totalQuantity > 0) {
-                    // Positive quantity = Surplus (gain/offset)
-                    totalSurplusValue += totalMoney;
+                // Calculate per detail item to handle mixed adjustments correctly
+                if (m.getInventoryMovementDetails() != null) {
+                    for (InventoryMovementDetail detail : m.getInventoryMovementDetails()) {
+                        if (detail.getQuantity() != null && detail.getSnapCost() != null) {
+                            double itemValue = Math.abs(detail.getQuantity() * detail.getSnapCost());
+                            if (detail.getQuantity() < 0) {
+                                // Negative quantity = Shortage (loss)
+                                totalShortageValue += itemValue;
+                            } else if (detail.getQuantity() > 0) {
+                                // Positive quantity = Surplus (gain/offset)
+                                totalSurplusValue += itemValue;
+                            }
+                            // If quantity == 0, skip (shouldn't happen but handle gracefully)
+                        }
+                    }
                 }
             }
         }
@@ -239,13 +241,21 @@ public class AdjustmentApiController {
             if (mv.getMovementType() == MovementType.BR_TO_WARE2) {
                 adjustmentType = "EXPIRED";
             } else if (mv.getMovementType() == MovementType.INVENTORY_ADJUSTMENT) {
-                // Check total quantity to determine surplus/shortage
+                // Check total quantity to determine surplus/shortage/mixed
                 long totalQuantity = mv.getInventoryMovementDetails() != null
                         ? mv.getInventoryMovementDetails().stream()
                             .mapToLong(d -> d.getQuantity() != null ? d.getQuantity() : 0L)
                             .sum()
                         : 0L;
-                adjustmentType = totalQuantity < 0 ? "SHORTAGE" : "SURPLUS";
+
+                if (totalQuantity < 0) {
+                    adjustmentType = "SHORTAGE";
+                } else if (totalQuantity > 0) {
+                    adjustmentType = "SURPLUS";
+                } else {
+                    // totalQuantity == 0: Mixed adjustment (has both positive and negative items)
+                    adjustmentType = "MIXED";
+                }
             } else {
                 adjustmentType = "UNKNOWN";
             }
