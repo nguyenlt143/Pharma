@@ -199,6 +199,40 @@
         const error = new Error(errorData.message || 'Tạo thất bại');
         error.data = errorData;
 
+        // ✅ Handle duplicate entry errors specially
+        if (errorData.message && errorData.message.includes('Duplicate entry')) {
+            const msg = errorData.message;
+            const mapped = {};
+
+            // Extract the duplicate value from error message
+            const duplicateMatch = msg.match(/Duplicate entry '([^']+)'/);
+            const duplicateValue = duplicateMatch ? duplicateMatch[1] : '';
+
+            // Check which field constraint was violated
+            if (msg.includes('UKk8d0f2n7n88w1a16yhua64onx') || msg.includes('userName')) {
+                // Username is always required, so show error
+                mapped['userName'] = `Tên đăng nhập '${duplicateValue || payload.userName}' đã tồn tại. Vui lòng chọn tên khác.`;
+            } else if (msg.toLowerCase().includes('email')) {
+                // Only show error if email is not null/empty (skip multiple NULL values)
+                if (duplicateValue && duplicateValue.trim() !== '' && duplicateValue.toLowerCase() !== 'null') {
+                    mapped['email'] = `Email '${duplicateValue}' đã được sử dụng.`;
+                }
+            } else if (msg.toLowerCase().includes('phone')) {
+                // Only show error if phone is not null/empty (skip multiple NULL values)
+                if (duplicateValue && duplicateValue.trim() !== '' && duplicateValue.toLowerCase() !== 'null') {
+                    mapped['phoneNumber'] = `Số điện thoại '${duplicateValue}' đã được sử dụng.`;
+                }
+            }
+
+            // If we identified specific fields with errors, set them
+            if (Object.keys(mapped).length > 0) {
+                error.data.errors = Object.assign({}, error.data.errors || {}, mapped);
+                error.isValidation = true;
+                throw error;
+            }
+            // If no specific field identified but is duplicate, just continue to normal handling
+        }
+
         if (errorData && typeof errorData === 'object') {
             if (errorData.errors && typeof errorData.errors === 'object') {
                 error.isValidation = true;
@@ -246,6 +280,40 @@
 
         const error = new Error(errorData.message || 'Cập nhật thất bại');
         error.data = errorData;
+
+        // ✅ Handle duplicate entry errors specially
+        if (errorData.message && errorData.message.includes('Duplicate entry')) {
+            const msg = errorData.message;
+            const mapped = {};
+
+            // Extract the duplicate value from error message
+            const duplicateMatch = msg.match(/Duplicate entry '([^']+)'/);
+            const duplicateValue = duplicateMatch ? duplicateMatch[1] : '';
+
+            // Check which field constraint was violated
+            if (msg.includes('UKk8d0f2n7n88w1a16yhua64onx') || msg.includes('userName')) {
+                // Username is always required, so show error
+                mapped['userName'] = `Tên đăng nhập '${duplicateValue || payload.userName}' đã tồn tại. Vui lòng chọn tên khác.`;
+            } else if (msg.toLowerCase().includes('email')) {
+                // Only show error if email is not null/empty (skip multiple NULL values)
+                if (duplicateValue && duplicateValue.trim() !== '' && duplicateValue.toLowerCase() !== 'null') {
+                    mapped['email'] = `Email '${duplicateValue}' đã được sử dụng.`;
+                }
+            } else if (msg.toLowerCase().includes('phone')) {
+                // Only show error if phone is not null/empty (skip multiple NULL values)
+                if (duplicateValue && duplicateValue.trim() !== '' && duplicateValue.toLowerCase() !== 'null') {
+                    mapped['phoneNumber'] = `Số điện thoại '${duplicateValue}' đã được sử dụng.`;
+                }
+            }
+
+            // If we identified specific fields with errors, set them
+            if (Object.keys(mapped).length > 0) {
+                error.data.errors = Object.assign({}, error.data.errors || {}, mapped);
+                error.isValidation = true;
+                throw error;
+            }
+            // If no specific field identified but is duplicate, just continue to normal handling
+        }
 
         if (errorData && typeof errorData === 'object') {
             if (errorData.errors && typeof errorData.errors === 'object') {
@@ -574,14 +642,19 @@
             try {
                 if (id) {
                     await updateAccount(id, payload);
-                    showToast('Cập nhật thành công', 2500, 'success');
+                    showToast('Cập nhật thành công', 'success', 3000);
                 } else {
                     await createAccount(payload);
-                    showToast('Tạo thành công', 2500, 'success');
+                    showToast('Tạo thành công', 'success', 3000);
                 }
                 Array.from(accountForm.elements).forEach(el => el.disabled = false);
                 document.getElementById('btnSave').style.display = '';
                 document.getElementById('btnCancel').textContent = 'Hủy';
+
+                // ✅ Reset form completely before closing
+                accountForm.reset();
+                accountIdInput.value = '';
+
                 closeModal();
                 await fetchAll();
             } catch (e) {
