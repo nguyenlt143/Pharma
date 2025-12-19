@@ -98,6 +98,7 @@
                 <table class="w-full text-sm">
                     <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
                         <tr>
+                            <th class="px-3 py-2 text-left">STT</th>
                             <th class="px-3 py-2 text-left">Tên thuốc</th>
                             <th class="px-3 py-2 text-left">Mã lô</th>
                             <th class="px-3 py-2 text-left">Hàm lượng</th>
@@ -109,7 +110,7 @@
                     </thead>
                     <tbody id="selectedMedicines" class="divide-y">
                         <tr class="empty-state">
-                            <td colspan="7" class="px-3 py-8 text-center text-gray-500">Chưa chọn thuốc nào</td>
+                            <td colspan="8" class="px-3 py-8 text-center text-gray-500">Chưa chọn thuốc nào</td>
                         </tr>
                     </tbody>
                 </table>
@@ -287,9 +288,11 @@ function renderSelectedItems() {
         tbody.append('<tr class="empty-state"><td colspan="7" class="px-3 py-8 text-center text-gray-500">Chưa chọn thuốc nào</td></tr>');
         return;
     }
+    let stt = 1;
     selectedItems.forEach((item, key) => {
         const rowHtml =
             '<tr>' +
+            '<td class="px-3 py-2 text-center">' + (stt++) + '</td>' +
             '<td class="px-3 py-2 font-medium">' + item.medicineName + '</td>' +
             '<td class="px-3 py-2"><span class="font-mono text-xs bg-gray-100 px-2 py-1 rounded">' + item.batchCode + '</span></td>' +
             '<td class="px-3 py-2">' + (item.strength || '-') + '</td>' +
@@ -302,7 +305,6 @@ function renderSelectedItems() {
             '<td class="px-3 py-2 text-center">' +
                 '<button type="button" class="remove-medicine-btn text-red-600 hover:text-red-800" data-key="' + key + '">' +
                     '<span class="material-icons-outlined text-sm">delete</span>' +
-                '</button>' +
                 '</button>' +
             '</td>' +
             '</tr>';
