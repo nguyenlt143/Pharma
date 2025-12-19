@@ -48,7 +48,6 @@ content = @`
                 <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
                 <tr>
                     <th class="px-3 py-2 text-center" style="width: 40px;"></th>
-                    <th class="px-3 py-2 text-center"><input id="selectAll" type="checkbox" class="rounded border-gray-300" title="Chọn tất cả hiển thị"></th>
                     <th class="px-3 py-2 text-left">STT</th>
                     <th class="px-3 py-2 text-left">Tên thuốc</th>
                     <th class="px-3 py-2 text-left">Hoạt chất</th>
@@ -94,17 +93,6 @@ content = @`
                 Hiển thị <span id="showingFrom">1</span> - <span id="showingTo">10</span> trong tổng số <span id="totalItems">0</span> thuốc
             </div>
             <div class="flex gap-2" id="paginationButtons"></div>
-        </div>
-
-        <div id="bulkActionBar" class="mt-4 p-4 border border-blue-200 bg-blue-50 rounded-lg hidden">
-            <div class="flex flex-wrap items-center gap-4">
-                <div class="text-sm">Đã chọn: <strong id="selectedCount" class="text-blue-600">0</strong> thuốc</div>
-                <div class="ml-auto flex gap-2">
-                    <button id="createReceiptFromList" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm flex items-center gap-1"><span class="material-icons-outlined text-sm">receipt</span>Tạo phiếu nhập</button>
-                    <button id="createExportFromList" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm flex items-center gap-1"><span class="material-icons-outlined text-sm">local_shipping</span>Tạo phiếu xuất</button>
-                </div>
-            </div>
-            <p class="text-xs text-gray-500 mt-2">Chỉ chọn các dòng đang hiển thị. Số lượng sẽ lấy tối đa theo tồn kho hiện có của từng dòng.</p>
         </div>
     </div>
 `,

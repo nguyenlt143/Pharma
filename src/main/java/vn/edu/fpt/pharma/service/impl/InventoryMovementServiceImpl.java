@@ -89,6 +89,16 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
                     .collect(Collectors.toList());
         }
 
+        // For INVENTORY_ADJUSTMENT, only show movements from main warehouse (source_branch_id = 1)
+        movements = movements.stream()
+                .filter(m -> {
+                    if (m.getMovementType() == MovementType.INVENTORY_ADJUSTMENT) {
+                        return m.getSourceBranchId() != null && m.getSourceBranchId().equals(1L);
+                    }
+                    return true;
+                })
+                .collect(Collectors.toList());
+
         // Filter by status if specified
         if (status != null && !status.isEmpty()) {
             try {
@@ -135,7 +145,7 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
         // For disposal (DISPOSAL) or inventory adjustment (INVENTORY_ADJUSTMENT), show "Kho Tổng"
         else if (movement.getMovementType() == MovementType.DISPOSAL || 
                  movement.getMovementType() == MovementType.INVENTORY_ADJUSTMENT) {
-            return "Kho Tổng";
+                 branchId = movement.getSourceBranchId();
         }
 
         if (branchId != null) {
