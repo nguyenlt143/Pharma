@@ -25,7 +25,7 @@ function renderSelected() {
     const tbody = $('#inventoryCheckSelected');
     tbody.empty();
     if (selectedItems.length === 0) {
-        tbody.append('<tr id="emptySelectedRow"><td colspan="5" class="px-3 py-6 text-center text-gray-500">Chưa chọn thuốc nào</td></tr>');
+        tbody.append('<tr id="emptySelectedRow"><td colspan="6" class="px-3 py-6 text-center text-gray-500">Chưa chọn thuốc nào</td></tr>');
         return;
     }
     selectedItems.forEach((it, idx) => {
@@ -33,6 +33,7 @@ function renderSelected() {
         const diffClass = diff === 0 ? 'text-gray-600' : (diff > 0 ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold');
         const row = $(`
             <tr data-index="${idx}">
+                <td class="px-3 py-2 text-center">${idx + 1}</td>
                 <td class="px-3 py-2">
                     <div class="font-medium text-gray-900">${it.name}</div>
                     <div class="text-xs text-gray-500">${it.dosageForm || ''}</div>
@@ -69,8 +70,8 @@ function renderSelected() {
             
             // Update difference immediately
             const diff = val - it.system;
-            const diffTd = row.find('td').eq(3);
-            
+            const diffTd = row.find('td').eq(4);
+
             // Remove old classes
             diffTd.removeClass('text-gray-600 text-green-600 text-red-600 font-semibold');
             
@@ -109,13 +110,14 @@ function addItemFromRow($tr) {
         return;
     }
 
-    const name = $tr.find('td').eq(0).find('div.font-medium').text().trim();
-    const dosageForm = $tr.find('td').eq(0).find('div.text-xs').text().trim();
-    const activeIngredient = $tr.find('td').eq(1).text().trim();
+    // Column structure: 0=STT, 1=Tên thuốc, 2=Hoạt chất, 3=Lô/HSD, 4=Tồn hệ thống, 5=Thao tác
+    const name = $tr.find('td').eq(1).find('div.font-medium').text().trim();
+    const dosageForm = $tr.find('td').eq(1).find('div.text-xs').text().trim();
+    const activeIngredient = $tr.find('td').eq(2).text().trim();
 
     // Get batch code and expiry
-    const batchCodeSpan = $tr.find('td').eq(2).find('span.font-mono');
-    const expirySpan = $tr.find('td').eq(2).find('span.ml-1');
+    const batchCodeSpan = $tr.find('td').eq(3).find('span.font-mono');
+    const expirySpan = $tr.find('td').eq(3).find('span.ml-1');
     const batchCode = batchCodeSpan.length > 0 ? batchCodeSpan.text().trim() : '-';
     const expiry = expirySpan.length > 0 ? expirySpan.text().trim() : '-';
 
