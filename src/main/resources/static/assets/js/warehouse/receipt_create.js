@@ -1,3 +1,9 @@
+// Safeguard to prevent double initialization
+if (window.receiptCreateInitialized) {
+    console.warn('Receipt create already initialized, skipping...');
+} else {
+    window.receiptCreateInitialized = true;
+
 document.addEventListener('DOMContentLoaded', function() {
     const supplierInput = document.getElementById('supplier');
     const importDateInput = document.getElementById('import-date');
@@ -34,24 +40,41 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Toast notification
-    function showToast(message, type = 'error') {
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
-        toast.textContent = message;
-        toast.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            background: ${type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#17a2b8'};
-            color: white;
-            border-radius: 8px;
-            z-index: 10000;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    // Custom confirmation modal
+    function showConfirmModal(title, message, onConfirm) {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 400px;">
+                <div class="modal-header">
+                    <h3>${title}</h3>
+                </div>
+                <div class="modal-body">
+                    <p style="margin: 20px 0; color: #666;">${message}</p>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; padding: 15px; border-top: 1px solid #e5e7eb;">
+                    <button class="btn-cancel" style="padding: 8px 20px; border: 1px solid #d1d5db; background: white; border-radius: 6px; cursor: pointer;">Hủy</button>
+                    <button class="btn-confirm" style="padding: 8px 20px; border: none; background: #2563eb; color: white; border-radius: 6px; cursor: pointer;">Xác nhận</button>
+                </div>
+            </div>
         `;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
+
+        document.body.appendChild(modal);
+
+        const btnCancel = modal.querySelector('.btn-cancel');
+        const btnConfirm = modal.querySelector('.btn-confirm');
+
+        btnCancel.addEventListener('click', () => modal.remove());
+        btnConfirm.addEventListener('click', () => {
+            modal.remove();
+            onConfirm();
+        });
+
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
     }
 
     // Clear validation errors when user starts typing
@@ -257,11 +280,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Xóa dòng
     productTableBody.addEventListener('click', function(e) {
         if (e.target.closest('.btn-delete')) {
-            if (confirm('Bạn có chắc muốn xóa sản phẩm này?')) {
-                e.target.closest('.table-row').remove();
+            const rowToDelete = e.target.closest('.table-row');
+            showConfirmModal('Xác nhận xóa', 'Bạn có chắc muốn xóa sản phẩm này?', function() {
+                rowToDelete.remove();
                 updateRowNumbers();
                 calculateTotal();
-            }
+            });
         }
     });
 
@@ -533,17 +557,17 @@ document.addEventListener('DOMContentLoaded', function() {
     btnComplete.addEventListener('click', function() {
         if (!validateForm()) return;
 
-        if (confirm('Xác nhận hoàn thành phiếu nhập?')) {
+        showConfirmModal('Xác nhận hoàn thành phiếu nhập?', 'Phiếu nhập sẽ được lưu vào hệ thống.', function() {
             const data = collectFormData();
             submitReceipt(data);
-        }
+        });
     });
 
     // Hủy
     btnCancel.addEventListener('click', function() {
-        if (confirm('Bạn có chắc muốn hủy? Mọi thay đổi sẽ không được lưu.')) {
+        showConfirmModal('Bạn có chắc muốn hủy?', 'Mọi thay đổi sẽ không được lưu.', function() {
             window.location.href = '/warehouse/receipt/list';
-        }
+        });
     });
 
     // Modal chọn nhà cung cấp
@@ -571,25 +595,30 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="item-info">${supplier.phone || ''} - ${supplier.address || ''}</div>
                         </div>
                     `).join('');
-
-                    // Xử lý click chọn supplier
-                    supplierList.querySelectorAll('.modal-list-item').forEach(item => {
-                        item.addEventListener('click', function() {
-                            const id = this.dataset.id;
-                            const name = this.querySelector('.item-name').textContent;
-
-                            supplierInput.value = name;
-                            supplierInput.dataset.supplierId = id;
-
-                            modal.remove();
-                        });
-                    });
                 })
                 .catch(error => {
                     console.error('Error loading suppliers:', error);
                     supplierList.innerHTML = '<div class="error">Không thể tải danh sách nhà cung cấp</div>';
                 });
         }
+
+        // Use event delegation to prevent duplicate handlers
+        supplierList.addEventListener('click', function(e) {
+            const item = e.target.closest('.modal-list-item');
+            if (!item) return;
+
+            const id = item.dataset.id;
+            const name = item.querySelector('.item-name').textContent;
+
+            supplierInput.value = name;
+            supplierInput.dataset.supplierId = id;
+
+            // Clear validation error when supplier is selected
+            supplierInput.classList.remove('is-invalid');
+            clearFieldError(supplierInput);
+
+            modal.remove();
+        });
 
         searchInput.addEventListener('input', function() {
             loadSuppliers(this.value);
@@ -627,28 +656,29 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="item-info">ĐVT: ${medicine.unit} - Hàm lượng: ${medicine.concentration || 'N/A'}</div>
                         </div>
                     `).join('');
-
-                    // Xử lý click chọn medicine
-                    medicineList.querySelectorAll('.modal-list-item').forEach(item => {
-                        item.addEventListener('click', function() {
-                            const product = {
-                                variantId: this.dataset.id,
-                                medicineName: this.dataset.name,
-                                unit: this.dataset.unit,
-                                concentration: this.dataset.concentration,
-                                quantityPerPackage: this.dataset.quantityPerPackage
-                            };
-
-                            addProductRow(product);
-                            modal.remove();
-                        });
-                    });
                 })
                 .catch(error => {
                     console.error('Error loading medicines:', error);
                     medicineList.innerHTML = '<div class="error">Không thể tải danh sách thuốc</div>';
                 });
         }
+
+        // Use event delegation to prevent duplicate handlers
+        medicineList.addEventListener('click', function(e) {
+            const item = e.target.closest('.modal-list-item');
+            if (!item) return;
+
+            const product = {
+                variantId: item.dataset.id,
+                medicineName: item.dataset.name,
+                unit: item.dataset.unit,
+                concentration: item.dataset.concentration,
+                quantityPerPackage: item.dataset.quantityPerPackage
+            };
+
+            addProductRow(product);
+            modal.remove();
+        });
 
         searchInput.addEventListener('input', function() {
             loadMedicines(this.value);
@@ -687,3 +717,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Tính tổng ban đầu
     calculateTotal();
 });
+
+} // End safeguard
+

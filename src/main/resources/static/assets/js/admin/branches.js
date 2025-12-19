@@ -51,35 +51,8 @@
         });
     }
 
-    // UTIL
-    function showToast(msg, timeout = 2500, type = 'info') {
-        if (!toastEl) {
-            // Use global toast system as fallback
-            if (window.showToast) {
-                window.showToast(msg, type, timeout);
-            } else {
-                console.error('Toast not available:', msg);
-            }
-            return;
-        }
-        toastEl.textContent = msg;
-        toastEl.classList.remove('hidden', 'success', 'error');
-        toastEl.style.display = 'block';
-        void toastEl.offsetWidth;
-        toastEl.classList.add('show');
-        if (type === 'success') {
-            toastEl.classList.add('success');
-        } else if (type === 'error') {
-            toastEl.classList.add('error');
-        }
-        setTimeout(() => {
-            toastEl.classList.remove('show');
-            setTimeout(() => {
-                toastEl.classList.add('hidden');
-                toastEl.style.display = 'none';
-            }, 250);
-        }, timeout);
-    }
+    // Use global toast system from toast.js
+    // showToast(message, type, duration) is available globally
 
     function openModal(mode = 'create', data = null) {
         modal.classList.remove('hidden');
@@ -92,8 +65,16 @@
         if (mode === 'create') {
             modalTitle.textContent = 'Tạo chi nhánh';
             branchIdInput.value = '';
+
+            // ✅ Reset form completely
             branchForm.reset();
+
+            // ✅ Manually clear all input values to prevent browser cache
+            document.getElementById('name').value = '';
+            document.getElementById('address').value = '';
+
             branchTypeSelect.disabled = false;
+            branchTypeSelect.value = ''; // ✅ Reset to no selection
             return;
         }
 
@@ -302,7 +283,7 @@
                         openModal('edit', data);
                     }
                 } catch (e) {
-                    showToast(e.message || 'Lỗi', 3000, 'error');
+                    showToast(e.message || 'Lỗi', 'error', 3000);
                 }
             });
         });
@@ -313,10 +294,10 @@
                 if (!confirm('Bạn chắc chắn muốn xoá chi nhánh này?')) return;
                 try {
                     await deleteBranch(id);
-                    showToast('Xoá thành công', 2500, 'success');
+                    showToast('Xoá thành công', 'success', 3000);
                     await fetchAll();
                 } catch (e) {
-                    showToast(e.message || 'Lỗi', 4000, 'error');
+                    showToast(e.message || 'Lỗi xóa chi nhánh', 'error', 5000);
                 }
             });
         });
@@ -327,10 +308,10 @@
                 if (!confirm('Bạn chắc chắn muốn khôi phục chi nhánh này?')) return;
                 try {
                     await restoreBranch(id);
-                    showToast('Khôi phục thành công', 2500, 'success');
+                    showToast('Khôi phục thành công', 'success', 3000);
                     await fetchAll();
                 } catch (e) {
-                    showToast(e.message || 'Lỗi', 4000, 'error');
+                    showToast(e.message || 'Lỗi khôi phục', 'error', 5000);
                 }
             });
         });
@@ -440,11 +421,16 @@
             try {
                 if (id) {
                     await updateBranch(id, payload);
-                    showToast('Cập nhật thành công', 2500, 'success');
+                    showToast('Cập nhật thành công', 'success', 3000);
                 } else {
                     await createBranch(payload);
-                    showToast('Tạo thành công', 2500, 'success');
+                    showToast('Tạo thành công', 'success', 3000);
                 }
+
+                // ✅ Reset form completely before closing
+                branchForm.reset();
+                branchIdInput.value = '';
+
                 closeModal();
                 await fetchAll();
             } catch (e) {
@@ -454,8 +440,18 @@
                     displayFieldErrors(e.errors);
                     focusFirstInvalidField();
                 } else {
-                    // Generic error - show toast
-                    showToast(e.message || 'Lỗi khi lưu', 3000, 'error');
+                    // Generic error - show toast with better message formatting
+                    let errorMessage = e.message || 'Lỗi khi lưu';
+
+                    // Check for duplicate entry error
+                    if (errorMessage.includes('Duplicate entry')) {
+                        const branchName = form.get('name');
+                        errorMessage = `Chi nhánh "${branchName}" đã tồn tại trong hệ thống. Vui lòng chọn tên khác.`;
+                    } else if (errorMessage.includes('constraint')) {
+                        errorMessage = 'Dữ liệu bị trùng lặp. Vui lòng kiểm tra lại thông tin.';
+                    }
+
+                    showToast(errorMessage, 'error', 5000); // 5 seconds for error messages
                 }
             }
         });
