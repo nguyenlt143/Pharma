@@ -57,6 +57,12 @@
                         <span class="nav-text">Kho hiện tại</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="/owner/report/adjustments" class="nav-link">
+                        <span class="material-icons nav-icon">sync_alt</span>
+                        <span class="nav-text">Điều chỉnh & Trả hàng</span>
+                    </a>
+                </li>
             </ul>
         </nav>
 

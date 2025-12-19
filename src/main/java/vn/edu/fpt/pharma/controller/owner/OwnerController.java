@@ -22,7 +22,6 @@ public class OwnerController {
     private final BranchRepository branchRepository;
     private final CategoryRepository categoryRepository;
 
-
     // --- Quản lý nhà cung cấp ---
     @GetMapping("/supplier/list")
     public String supplierList(Model model) {
@@ -53,7 +52,7 @@ public class OwnerController {
             @RequestParam(required = false, defaultValue = "week") String range,
             @RequestParam(required = false) Long category,
             Model model) {
-        
+
         // Load branches for filter
         List<Map<String, Object>> branches = new ArrayList<>();
         branchRepository.findAll().forEach(branch -> {
@@ -63,7 +62,7 @@ public class OwnerController {
             branchMap.put("selected", branchId != null && branch.getId().equals(branchId));
             branches.add(branchMap);
         });
-        
+
         // Load categories for filter
         List<Map<String, Object>> categories = new ArrayList<>();
         categoryRepository.findAll().forEach(cat -> {
@@ -73,7 +72,7 @@ public class OwnerController {
             catMap.put("selected", category != null && cat.getId().equals(category));
             categories.add(catMap);
         });
-        
+
         // Initial values (will be loaded via API)
         model.addAttribute("userCanExport", true);
         model.addAttribute("totalValue", "");
@@ -85,8 +84,28 @@ public class OwnerController {
         model.addAttribute("range", range);
         model.addAttribute("categories", categories);
         model.addAttribute("recentActivities", new ArrayList<>());
-        
+
         return "pages/owner/inventory";
+    }
+
+    // --- Báo cáo điều chỉnh ---
+    @GetMapping("/report/adjustments")
+    public String adjustmentsReport(
+            @RequestParam(required = false) Long branchId,
+            Model model) {
+
+        List<Map<String, Object>> branches = new ArrayList<>();
+        branchRepository.findAll().forEach(branch -> {
+            Map<String, Object> branchMap = new HashMap<>();
+            branchMap.put("id", branch.getId());
+            branchMap.put("name", branch.getName());
+            branchMap.put("selected", branchId != null && branch.getId().equals(branchId));
+            branches.add(branchMap);
+        });
+
+        model.addAttribute("branches", branches);
+
+        return "pages/owner/adjustments";
     }
 
     // --- Kho hiện tại ---
