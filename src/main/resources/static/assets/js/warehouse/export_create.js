@@ -242,7 +242,7 @@ function createExport() {
             // Redirect to receipt list after 1.5 seconds
             setTimeout(() => {
                 window.location.href = '/warehouse/receipt-list';
-            }, 1500);
+            }, 3000);
         } else {
             showToast('Lỗi: ' + data.message, 'error');
             createButton.disabled = false;

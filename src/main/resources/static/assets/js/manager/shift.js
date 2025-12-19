@@ -16,34 +16,34 @@ document.addEventListener("DOMContentLoaded", () => {
     let allShifts = [];
     let currentPage = 1;
 
-    // ====================== TOAST UTILITY ======================
-    function showToast(msg, timeout = 2500, type = 'info') {
-        console.log('showToast called:', msg, type);
-        if (!toastEl) {
-            console.error('Toast element not found - using global toast');
-            // Use global toast system as fallback
-            if (window.showToast) {
-                window.showToast(msg, type, timeout);
-            }
-            return;
-        }
-        toastEl.textContent = msg;
-        toastEl.classList.remove('hidden', 'success', 'error');
-        toastEl.style.display = 'block';
-        void toastEl.offsetWidth; // Force reflow
-        toastEl.classList.add('show');
-        if (type === 'success') {
-            toastEl.classList.add('success');
-        } else if (type === 'error') {
-            toastEl.classList.add('error');
-        }
-        setTimeout(() => {
-            toastEl.classList.remove('show');
-            setTimeout(() => {
-                toastEl.classList.add('hidden');
-                toastEl.style.display = 'none';
-            }, 250);
-        }, timeout);
+    // Use global toast system from toast.js
+    // showToast(message, type, duration) is available globally
+
+    // Custom confirmation modal
+    function showConfirmModal(title, message, onConfirm) {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000;';
+        modal.innerHTML = `
+            <div class="modal-content" style="background: white; padding: 0; border-radius: 8px; max-width: 400px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div style="padding: 20px; border-bottom: 1px solid #e5e7eb;">
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 600;">${title}</h3>
+                </div>
+                <div style="padding: 20px;">
+                    <p style="margin: 0; color: #666;">${message}</p>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; padding: 15px; border-top: 1px solid #e5e7eb;">
+                    <button class="btn-cancel" style="padding: 8px 20px; border: 1px solid #d1d5db; background: white; border-radius: 6px; cursor: pointer;">Hủy</button>
+                    <button class="btn-confirm" style="padding: 8px 20px; border: none; background: #2563eb; color: white; border-radius: 6px; cursor: pointer;">Xác nhận</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        const btnCancel = modal.querySelector('.btn-cancel');
+        const btnConfirm = modal.querySelector('.btn-confirm');
+        btnCancel.onclick = () => modal.remove();
+        btnConfirm.onclick = () => { modal.remove(); onConfirm(); };
+        modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
     }
 
     // ====================== MODAL OPEN/CLOSE ======================
@@ -269,37 +269,39 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     window.deleteShift = async (id) => {
-        if (!confirm("Bạn có chắc muốn xóa ca làm việc này?")) return;
-        try {
-            const res = await fetch(`/api/manager/shifts/${id}`, { method: "DELETE" });
-            if (res.ok) {
-                showToast("Đã xóa thành công!", 2500, 'success');
-                loadShifts();
-            } else {
-                const error = await res.text();
-                showToast(error || "Xóa thất bại!", 3000, 'error');
+        showConfirmModal('Xác nhận xóa', 'Bạn có chắc muốn xóa ca làm việc này?', async () => {
+            try {
+                const res = await fetch(`/api/manager/shifts/${id}`, { method: "DELETE" });
+                if (res.ok) {
+                    showToast("Đã xóa thành công!", 2500, 'success');
+                    loadShifts();
+                } else {
+                    const error = await res.text();
+                    showToast(error || "Xóa thất bại!", 3000, 'error');
+                }
+            } catch (err) {
+                console.error("❌ Lỗi xóa shift:", err);
+                showToast("Có lỗi xảy ra khi xóa!", 3000, 'error');
             }
-        } catch (err) {
-            console.error("❌ Lỗi xóa shift:", err);
-            showToast("Có lỗi xảy ra khi xóa!", 3000, 'error');
-        }
+        });
     };
 
     window.restoreShift = async (id) => {
-        if (!confirm("Bạn có chắc muốn khôi phục ca làm việc này?")) return;
-        try {
-            const res = await fetch(`/api/manager/shifts/${id}/restore`, { method: "PATCH" });
-            if (res.ok) {
-                showToast("Đã khôi phục thành công!", 2500, 'success');
-                loadShifts();
-            } else {
-                const error = await res.text();
-                showToast(error || "Khôi phục thất bại!", 3000, 'error');
+        showConfirmModal('Xác nhận khôi phục', 'Bạn có chắc muốn khôi phục ca làm việc này?', async () => {
+            try {
+                const res = await fetch(`/api/manager/shifts/${id}/restore`, { method: "PATCH" });
+                if (res.ok) {
+                    showToast("Đã khôi phục thành công!", 2500, 'success');
+                    loadShifts();
+                } else {
+                    const error = await res.text();
+                    showToast(error || "Khôi phục thất bại!", 3000, 'error');
+                }
+            } catch (err) {
+                console.error("❌ Lỗi khôi phục shift:", err);
+                showToast("Có lỗi xảy ra khi khôi phục!", 3000, 'error');
             }
-        } catch (err) {
-            console.error("❌ Lỗi khôi phục shift:", err);
-            showToast("Có lỗi xảy ra khi khôi phục!", 3000, 'error');
-        }
+        });
     };
 
     // ====================== EMPLOYEE MODAL ======================
@@ -407,39 +409,39 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     window.removeEmployee = async (userId, shiftId) => {
-        if (!confirm("Bạn có chắc muốn gỡ nhân viên này khỏi ca?")) return;
-
-        try {
-            const res = await fetch(`/api/manager/shifts/${shiftId}/remove/${userId}`, { method: "DELETE" });
-            if (res.ok) {
-                showToast("Gỡ nhân viên khỏi ca thành công!", 2500, 'success');
-                viewEmployees(shiftId);
-            } else {
-                const error = await res.text();
-                showToast(error || "Gỡ nhân viên thất bại!", 3000, 'error');
+        showConfirmModal('Xác nhận gỡ nhân viên', 'Bạn có chắc muốn gỡ nhân viên này khỏi ca?', async () => {
+            try {
+                const res = await fetch(`/api/manager/shifts/${shiftId}/remove/${userId}`, { method: "DELETE" });
+                if (res.ok) {
+                    showToast("Gỡ nhân viên khỏi ca thành công!", 2500, 'success');
+                    viewEmployees(shiftId);
+                } else {
+                    const error = await res.text();
+                    showToast(error || "Gỡ nhân viên thất bại!", 3000, 'error');
+                }
+            } catch (err) {
+                console.error("❌ Lỗi remove employee:", err);
+                showToast("Có lỗi xảy ra!", 3000, 'error');
             }
-        } catch (err) {
-            console.error("❌ Lỗi remove employee:", err);
-            showToast("Có lỗi xảy ra!", 3000, 'error');
-        }
+        });
     };
 
     window.extendSchedule = async (userId, shiftId) => {
-        if (!confirm("Bạn có chắc muốn thêm 30 ngày làm việc cho nhân viên này?")) return;
-
-        try {
-            const res = await fetch(`/api/manager/shifts/${shiftId}/extend/${userId}`, { method: "POST" });
-            if (res.ok) {
-                showToast("Đã thêm 30 ngày làm việc thành công!", 2500, 'success');
-                viewEmployees(shiftId);
-            } else {
-                const error = await res.text();
-                showToast(error || "Thêm ngày làm việc thất bại!", 3000, 'error');
+        showConfirmModal('Xác nhận thêm ngày làm', 'Bạn có chắc muốn thêm 30 ngày làm việc cho nhân viên này?', async () => {
+            try {
+                const res = await fetch(`/api/manager/shifts/${shiftId}/extend/${userId}`, { method: "POST" });
+                if (res.ok) {
+                    showToast("Đã thêm 30 ngày làm việc thành công!", 2500, 'success');
+                    viewEmployees(shiftId);
+                } else {
+                    const error = await res.text();
+                    showToast(error || "Thêm ngày làm việc thất bại!", 3000, 'error');
+                }
+            } catch (err) {
+                console.error("❌ Lỗi extend schedule:", err);
+                showToast("Có lỗi xảy ra!", 3000, 'error');
             }
-        } catch (err) {
-            console.error("❌ Lỗi extend schedule:", err);
-            showToast("Có lỗi xảy ra!", 3000, 'error');
-        }
+        });
     };
 
     // ====================== PAGINATION & RENDERING ======================

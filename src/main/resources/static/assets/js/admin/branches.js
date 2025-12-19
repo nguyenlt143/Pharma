@@ -51,35 +51,8 @@
         });
     }
 
-    // UTIL
-    function showToast(msg, timeout = 2500, type = 'info') {
-        if (!toastEl) {
-            // Use global toast system as fallback
-            if (window.showToast) {
-                window.showToast(msg, type, timeout);
-            } else {
-                console.error('Toast not available:', msg);
-            }
-            return;
-        }
-        toastEl.textContent = msg;
-        toastEl.classList.remove('hidden', 'success', 'error');
-        toastEl.style.display = 'block';
-        void toastEl.offsetWidth;
-        toastEl.classList.add('show');
-        if (type === 'success') {
-            toastEl.classList.add('success');
-        } else if (type === 'error') {
-            toastEl.classList.add('error');
-        }
-        setTimeout(() => {
-            toastEl.classList.remove('show');
-            setTimeout(() => {
-                toastEl.classList.add('hidden');
-                toastEl.style.display = 'none';
-            }, 250);
-        }, timeout);
-    }
+    // Use global toast system from toast.js
+    // showToast(message, type, duration) is available globally
 
     function openModal(mode = 'create', data = null) {
         modal.classList.remove('hidden');

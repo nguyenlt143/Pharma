@@ -1,25 +1,6 @@
 // Danh sách thuốc đã chọn
 let selectedMedicines = [];
 
-// Toast notification helper
-function showToast(message, type = 'info') {
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.textContent = message;
-    toast.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 20px;
-        background: ${type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : type === 'warning' ? '#ffc107' : '#17a2b8'};
-        color: ${type === 'warning' ? '#000' : 'white'};
-        border-radius: 8px;
-        z-index: 10000;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    `;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-}
 
 // Search function for warehouse medicines
 function searchWarehouseMedicines(query) {
