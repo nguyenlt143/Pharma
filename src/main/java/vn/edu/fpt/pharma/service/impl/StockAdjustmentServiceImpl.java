@@ -135,7 +135,7 @@ public class StockAdjustmentServiceImpl extends BaseServiceImpl<StockAdjustment,
         List<InventoryMovementDetail> savedDetails = inventoryMovementDetailRepository.findByMovementId(movement.getId());
         double totalMoney = savedDetails.stream()
                 .filter(d -> d.getQuantity() != null && d.getSnapCost() != null)
-                .mapToDouble(d -> Math.abs(d.getQuantity()) * d.getSnapCost())
+                .mapToDouble(d -> d.getQuantity() * d.getSnapCost()) // Không dùng Math.abs để cho phép giá trị âm
                 .sum();
         movement.setTotalMoney(totalMoney);
         inventoryMovementRepository.save(movement);
