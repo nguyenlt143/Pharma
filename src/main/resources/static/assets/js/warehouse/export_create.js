@@ -107,28 +107,6 @@ function formatCurrency(amount) {
     }).format(amount);
 }
 
-function showToast(message, type = 'info') {
-    // Simple toast notification
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.textContent = message;
-    toast.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 20px;
-        background: ${type === 'error' ? '#EF4444' : type === 'warning' ? '#F59E0B' : '#10B981'};
-        color: white;
-        border-radius: 8px;
-        z-index: 10000;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    `;
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-        toast.remove();
-    }, 3000);
-}
 
 function saveDraft() {
     showToast('Chức năng lưu nháp đang được phát triển', 'info');
@@ -205,7 +183,7 @@ function createExport() {
     // Validate requested quantities
     const validationResult = validateRequestedQuantities();
     if (!validationResult.valid) {
-        showToast(validationResult.message, 'error');
+        showToast(validationResult.message, 'error', 5000); // 5 seconds for long error message
         return;
     }
 

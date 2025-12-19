@@ -613,6 +613,10 @@ document.addEventListener('DOMContentLoaded', function() {
             supplierInput.value = name;
             supplierInput.dataset.supplierId = id;
 
+            // Clear validation error when supplier is selected
+            supplierInput.classList.remove('is-invalid');
+            clearFieldError(supplierInput);
+
             modal.remove();
         });
 
