@@ -102,8 +102,7 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, Lo
         WHERE
             sa.user_id = :userId
             AND s.name = :shiftName
-            AND DATE(CONVERT_TZ(sw.work_date, '+00:00', '+07:00'))
-                = DATE(CONVERT_TZ(NOW(), '+00:00', '+07:00'))
+            AND DATE(CONVERT_TZ(sw.work_date, '+00:00', '+07:00')) = :workDate
         GROUP BY
             name,
             unit,
@@ -117,6 +116,7 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, Lo
     """, nativeQuery = true)
     List<Object[]> getMedicineRevenueByShift(
             @Param("userId") Long userId,
-            @Param("shiftName") String shiftName
+            @Param("shiftName") String shiftName,
+            @Param("workDate") String workDate
     );
 }

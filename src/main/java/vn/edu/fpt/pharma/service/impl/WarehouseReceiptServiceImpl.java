@@ -57,6 +57,30 @@ public class WarehouseReceiptServiceImpl implements WarehouseReceiptService {
             MedicineVariant variant = variantRepository.findById(detailReq.getVariantId())
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy biến thể thuốc"));
 
+            // Parse dates
+            LocalDate mfgDate = LocalDate.parse(detailReq.getManufactureDate());
+            LocalDate expiryDate = LocalDate.parse(detailReq.getExpiryDate());
+            LocalDate currentDate = LocalDate.now();
+
+            // DATE VALIDATION 1: NSX không được lớn hơn ngày hiện tại
+            if (mfgDate.isAfter(currentDate)) {
+                throw new RuntimeException("Ngày sản xuất của thuốc " + variant.getMedicine().getName()
+                    + " không được lớn hơn ngày hiện tại.");
+            }
+
+            // DATE VALIDATION 2: HSD phải sau NSX
+            if (!expiryDate.isAfter(mfgDate)) {
+                throw new RuntimeException("Hạn sử dụng của thuốc " + variant.getMedicine().getName()
+                    + " phải sau ngày sản xuất.");
+            }
+
+            // DATE VALIDATION 3: HSD tối đa 20 năm tính từ NSX
+            LocalDate maxExpiryDate = mfgDate.plusYears(20);
+            if (expiryDate.isAfter(maxExpiryDate)) {
+                throw new RuntimeException("Hạn sử dụng của thuốc " + variant.getMedicine().getName()
+                    + " không được vượt quá 20 năm kể từ ngày sản xuất.");
+            }
+
             // VALIDATION 1: Kiểm tra số lô đã tồn tại chưa
             if (batchRepository.existsByVariantIdAndBatchCode(variant.getId(), detailReq.getBatchCode())) {
                 throw new RuntimeException("Số lô " + detailReq.getBatchCode() + " đã tồn tại cho thuốc "
@@ -72,9 +96,6 @@ public class WarehouseReceiptServiceImpl implements WarehouseReceiptService {
                 }
             }
 
-            // Parse dates
-            LocalDate mfgDate = LocalDate.parse(detailReq.getManufactureDate());
-            LocalDate expiryDate = LocalDate.parse(detailReq.getExpiryDate());
 
             // 4. Tạo Batch mới (mỗi lần nhập tạo batch mới)
             Batch batch = Batch.builder()

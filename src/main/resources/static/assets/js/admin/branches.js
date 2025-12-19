@@ -54,7 +54,12 @@
     // UTIL
     function showToast(msg, timeout = 2500, type = 'info') {
         if (!toastEl) {
-            alert(msg);
+            // Use global toast system as fallback
+            if (window.showToast) {
+                window.showToast(msg, type, timeout);
+            } else {
+                console.error('Toast not available:', msg);
+            }
             return;
         }
         toastEl.textContent = msg;

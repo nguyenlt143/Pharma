@@ -150,6 +150,19 @@ public class WarehouseController {
         return "pages/warehouse/warehouse_inventory";
     }
 
+    @PostMapping("/api/inventory/{inventoryId}/min-stock")
+    @ResponseBody
+    public ResponseEntity<?> updateMinStock(@PathVariable Long inventoryId, @org.springframework.web.bind.annotation.RequestBody Map<String, Object> body) {
+        try {
+            if (!body.containsKey("minStock")) return ResponseEntity.badRequest().body(Map.of("success", false, "message", "minStock is required"));
+            Long minStock = body.get("minStock") == null ? null : Long.valueOf(body.get("minStock").toString());
+            inventoryService.updateMinStock(inventoryId, minStock);
+            return ResponseEntity.ok(Map.of("success", true));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
     @GetMapping("/export/create")
     public String exportCreate(@RequestParam(required = false) Long requestId, Model model) {
         if (requestId != null) {

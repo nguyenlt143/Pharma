@@ -85,6 +85,11 @@
 
         <div class="bg-white p-6 rounded-lg shadow">
             <h3 class="text-lg font-semibold mb-4">Thuốc đã chọn kiểm kho</h3>
+            <p class="text-sm text-gray-600 mb-3">
+                <span class="text-blue-600">ℹ️</span> Nhập số lượng thực tế sau kiểm.
+                <span class="text-green-600 font-semibold">Số dương (+)</span> = Thừa hàng,
+                <span class="text-red-600 font-semibold">Số âm (-)</span> = Thiếu hàng.
+            </p>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead class="bg-gray-50 text-gray-600 uppercase text-xs">

@@ -12,25 +12,25 @@
 
                 <!-- Summary Cards -->
                 <div class="summary-grid">
-                    <div class="summary-card">
-                        <div class="card-icon">📊</div>
+                    <div class="summary-card summary-card-loss">
+                        <div class="card-icon">📉</div>
                         <div class="card-content">
-                            <div class="card-label">Kiểm kho </div>
-                            <div class="card-value" id="adjustmentCount">-</div>
+                            <div class="card-label">Tổng lỗ (Hết hạn + Thiếu)</div>
+                            <div class="card-value card-value-red" id="totalLoss">-</div>
                         </div>
                     </div>
-                    <div class="summary-card">
-                        <div class="card-icon">📦</div>
+                    <div class="summary-card summary-card-offset">
+                        <div class="card-icon">📈</div>
                         <div class="card-content">
-                            <div class="card-label">Trả hàng hết hạn </div>
-                            <div class="card-value" id="expiredReturnCount">-</div>
+                            <div class="card-label">Tổng bù đắp (Thừa)</div>
+                            <div class="card-value card-value-green" id="totalOffset">-</div>
                         </div>
                     </div>
-                    <div class="summary-card">
+                    <div class="summary-card summary-card-net">
                         <div class="card-icon">💰</div>
                         <div class="card-content">
-                            <div class="card-label">Tổng giá trị </div>
-                            <div class="card-value" id="totalValue">-</div>
+                            <div class="card-label">Thất thoát thực tế (NET)</div>
+                            <div class="card-value card-value-highlight" id="netLoss">-</div>
                         </div>
                     </div>
                 </div>
@@ -72,6 +72,7 @@
                                 <tr>
                                     <th>Mã</th>
                                     <th>Loại</th>
+                                    <th>Trạng thái</th>
                                     <th>Giá trị</th>
                                     <th>Thời gian</th>
                                     <th class="text-center">Hành động</th>

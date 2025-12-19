@@ -230,6 +230,50 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     """, nativeQuery = true)
     List<Object[]> findRevenueShiftByUser(@Param("userId") Long userId);
 
+    @Query(value = """
+        SELECT
+            s.name AS shiftName,
+            COALESCE(COUNT(i.id), 0) AS orderCount,
+            COALESCE(SUM(CASE WHEN LOWER(i.payment_method) IN ('tiền mặt', 'cash') THEN i.total_price ELSE 0 END), 0) AS cashTotal,
+            COALESCE(SUM(CASE WHEN LOWER(i.payment_method) IN ('chuyển khoản', 'transfer') THEN i.total_price ELSE 0 END), 0) AS transferTotal,
+            COALESCE(SUM(i.total_price), 0) AS totalRevenue
+        FROM shifts s
+        INNER JOIN shift_assignments sa ON s.id = sa.shift_id
+            AND sa.deleted = 0
+            AND sa.user_id = :userId
+        INNER JOIN users u ON sa.user_id = u.id
+            AND u.deleted = 0
+            AND u.branch_id = s.branch_id
+        INNER JOIN shift_works sw ON sa.id = sw.assignment_id
+            AND sw.deleted = 0
+            AND DATE(CONVERT_TZ(sw.work_date, '+00:00', '+07:00')) = :workDate
+        INNER JOIN invoices i ON sw.id = i.shift_work_id
+            AND i.user_id = :userId
+            AND i.invoice_type = 'PAID'
+            AND i.deleted = 0
+            AND LOWER(i.payment_method) IN ('tiền mặt', 'cash', 'chuyển khoản', 'transfer')
+        WHERE s.deleted = 0
+        GROUP BY s.id, s.name, s.start_time
+        ORDER BY s.start_time;
+    """, nativeQuery = true)
+    List<Object[]> findRevenueShiftByUserAndDate(@Param("userId") Long userId, @Param("workDate") String workDate);
+
+    @Query(value = """
+        SELECT DISTINCT DATE(CONVERT_TZ(sw.work_date, '+00:00', '+07:00')) AS work_date
+        FROM shift_works sw
+        INNER JOIN shift_assignments sa ON sw.assignment_id = sa.id
+            AND sa.user_id = :userId
+            AND sa.deleted = 0
+        INNER JOIN invoices i ON sw.id = i.shift_work_id
+            AND i.user_id = :userId
+            AND i.invoice_type = 'PAID'
+            AND i.deleted = 0
+        WHERE sw.deleted = 0
+        ORDER BY work_date DESC
+        LIMIT 365
+    """, nativeQuery = true)
+    List<String> findDatesWithShiftsByUser(@Param("userId") Long userId);
+
     // -----------------------------
     // INVOICE INFO PRINTING
     // -----------------------------

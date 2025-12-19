@@ -644,26 +644,115 @@ document.addEventListener('DOMContentLoaded', function() {
             const variantId = document.getElementById('variantId').value;
             const medicineId = parseInt(document.getElementById('variantMedicineId').value);
 
+            // Validate all required fields
+            const dosageForm = document.getElementById('dosageForm').value.trim();
+            const dosage = document.getElementById('dosage').value.trim();
+            const strength = document.getElementById('strength').value.trim();
+            const packageUnitId = document.getElementById('packageUnitId').value;
+            const baseUnitId = document.getElementById('baseUnitId').value;
+            const quantityPerPackage = document.getElementById('quantityPerPackage').value;
+            const barcode = document.getElementById('barcode').value.trim();
+            const registrationNumber = document.getElementById('registrationNumber').value.trim();
+            const storageConditions = document.getElementById('storageConditions').value.trim();
+            const indications = document.getElementById('indications').value.trim();
+            const contraindications = document.getElementById('contraindications').value.trim();
+            const sideEffects = document.getElementById('sideEffects').value.trim();
+            const instructions = document.getElementById('instructions').value.trim();
+            const prescriptionRequired = document.getElementById('prescriptionRequired').value;
+            const uses = document.getElementById('uses').value.trim();
+
+            // Validation checks
+            if (!dosageForm) {
+                showToast('Dạng bào chế không được để trống', 'error');
+                document.getElementById('dosageForm').focus();
+                return;
+            }
+            if (!dosage) {
+                showToast('Liều dùng không được để trống', 'error');
+                document.getElementById('dosage').focus();
+                return;
+            }
+            if (!strength) {
+                showToast('Hàm lượng không được để trống', 'error');
+                document.getElementById('strength').focus();
+                return;
+            }
+            if (!packageUnitId) {
+                showToast('Đơn vị đóng gói không được để trống', 'error');
+                document.getElementById('packageUnitId').focus();
+                return;
+            }
+            if (!baseUnitId) {
+                showToast('Đơn vị cơ bản không được để trống', 'error');
+                document.getElementById('baseUnitId').focus();
+                return;
+            }
+            if (!quantityPerPackage || parseFloat(quantityPerPackage) <= 0) {
+                showToast('Số lượng mỗi gói phải lớn hơn 0', 'error');
+                document.getElementById('quantityPerPackage').focus();
+                return;
+            }
+            if (!barcode) {
+                showToast('Mã vạch không được để trống', 'error');
+                document.getElementById('barcode').focus();
+                return;
+            }
+            if (!registrationNumber) {
+                showToast('Số đăng ký không được để trống', 'error');
+                document.getElementById('registrationNumber').focus();
+                return;
+            }
+            if (!storageConditions) {
+                showToast('Điều kiện bảo quản không được để trống', 'error');
+                document.getElementById('storageConditions').focus();
+                return;
+            }
+            if (!indications) {
+                showToast('Chỉ định không được để trống', 'error');
+                document.getElementById('indications').focus();
+                return;
+            }
+            if (!contraindications) {
+                showToast('Chống chỉ định không được để trống', 'error');
+                document.getElementById('contraindications').focus();
+                return;
+            }
+            if (!sideEffects) {
+                showToast('Tác dụng phụ không được để trống', 'error');
+                document.getElementById('sideEffects').focus();
+                return;
+            }
+            if (!instructions) {
+                showToast('Hướng dẫn sử dụng không được để trống', 'error');
+                document.getElementById('instructions').focus();
+                return;
+            }
+            if (!uses) {
+                showToast('Công dụng không được để trống', 'error');
+                document.getElementById('uses').focus();
+                return;
+            }
+
             // Get unit conversions from form
             const unitConversionsData = getUnitConversionsFromForm();
 
             const data = {
                 medicineId: medicineId,
-                dosageForm: document.getElementById('dosageForm').value,
-                dosage: document.getElementById('dosage').value,
-                strength: document.getElementById('strength').value,
-                packageUnitId: document.getElementById('packageUnitId').value ? parseInt(document.getElementById('packageUnitId').value) : null,
-                baseUnitId: document.getElementById('baseUnitId').value ? parseInt(document.getElementById('baseUnitId').value) : null,
-                quantityPerPackage: document.getElementById('quantityPerPackage').value ? parseFloat(document.getElementById('quantityPerPackage').value) : null,
-                barcode: document.getElementById('barcode').value,
-                registrationNumber: document.getElementById('registrationNumber').value,
-                storageConditions: document.getElementById('storageConditions').value,
-                indications: document.getElementById('indications').value,
-                contraindications: document.getElementById('contraindications').value,
-                sideEffects: document.getElementById('sideEffects').value,
-                instructions: document.getElementById('instructions').value,
-                prescription_require: document.getElementById('prescriptionRequired').value === 'true',
-                uses: document.getElementById('uses').value,
+                dosageForm: dosageForm,
+                dosage: dosage,
+                strength: strength,
+                packageUnitId: parseInt(packageUnitId),
+                baseUnitId: parseInt(baseUnitId),
+                quantityPerPackage: parseFloat(quantityPerPackage),
+                barcode: barcode,
+                registrationNumber: registrationNumber,
+                storageConditions: storageConditions,
+                indications: indications,
+                contraindications: contraindications,
+                sideEffects: sideEffects,
+                instructions: instructions,
+                prescription_require: prescriptionRequired === 'true',
+                uses: uses,
                 unitConversions: unitConversionsData
             };
 

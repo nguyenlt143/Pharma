@@ -191,35 +191,35 @@ headContent = @`
     </style>
 `,
 content = @`
-<div class="page-container">
-    <div class="page-header">
-        <h1 class="page-title">Quản lý giá</h1>
-        <button class="btn-primary" onclick="openCreateModal()">
-            <span class="material-icons" style="font-size: 18px;">add</span>
-            Điều chỉnh giá
-        </button>
-    </div>
-
-    <div class="filter-section">
-        <div class="filter-group">
-            <label class="filter-label">Biến thể thuốc</label>
-            <select id="filterVariantId" class="filter-select">
-                <option value="">Tất cả biến thể</option>
-            </select>
+    <div class="page-container">
+        <div class="page-header">
+            <h1 class="page-title">Quản lý giá</h1>
+            <button class="btn-primary" onclick="openCreateModal()">
+                <span class="material-icons" style="font-size: 18px;">add</span>
+                Điều chỉnh giá
+            </button>
         </div>
-        <div class="filter-group">
-            <label class="filter-label">Chi nhánh</label>
-            <select id="filterBranchId" class="filter-select">
-                <option value="">Tất cả chi nhánh</option>
-            </select>
-        </div>
-        <button class="btn-primary" onclick="applyFilter()" style="height: fit-content;">Lọc</button>
-        <button class="btn-secondary" onclick="clearFilter()" style="height: fit-content;">Xóa lọc</button>
-    </div>
 
-    <div class="data-table-container">
-        <table id="priceTable" class="display" style="width:100%">
-            <thead>
+        <div class="filter-section">
+            <div class="filter-group">
+                <label class="filter-label">Biến thể thuốc</label>
+                <select id="filterVariantId" class="filter-select">
+                    <option value="">Tất cả biến thể</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Chi nhánh</label>
+                <select id="filterBranchId" class="filter-select">
+                    <option value="">Tất cả chi nhánh</option>
+                </select>
+            </div>
+            <button class="btn-primary" onclick="applyFilter()" style="height: fit-content;">Lọc</button>
+            <button class="btn-secondary" onclick="clearFilter()" style="height: fit-content;">Xóa lọc</button>
+        </div>
+
+        <div class="data-table-container">
+            <table id="priceTable" class="display" style="width:100%">
+                <thead>
                 <tr>
                     <th>ID</th>
                     <th>Biến thể thuốc</th>
@@ -228,77 +228,69 @@ content = @`
                     <th>Thời gian cập nhật</th>
                     <th>Hành động</th>
                 </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<!-- Create/Edit Price Modal -->
-<div id="priceModal" class="modal">
-    <div class="modal-content">
-        <h2 style="margin-bottom: 24px; font-size: 20px; font-weight: 700;" id="modalTitle">Điều chỉnh giá</h2>
-        <form id="priceForm">
-            <input type="hidden" id="priceId">
-            
-            <div class="form-group">
-                <label class="form-label">Biến thể thuốc <span style="color: red;">*</span></label>
-                <select id="variantId" class="form-input" required>
-                    <option value="">Chọn biến thể thuốc</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Chi nhánh</label>
-                <select id="branchId" class="form-input">
-                    <option value="">Chọn chi nhánh</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Giá bán <span style="color: red;">*</span></label>
-                <input type="number" id="salePrice" class="form-input" step="0.01" required>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Giá chi nhánh</label>
-                <input type="number" id="branchPrice" class="form-input" step="0.01">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Ngày bắt đầu</label>
-                <input type="datetime-local" id="startDate" class="form-input">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Ngày kết thúc</label>
-                <input type="datetime-local" id="endDate" class="form-input">
-            </div>
-
-            <div class="btn-group">
-                <button type="button" class="btn-secondary" onclick="closePriceModal()">Hủy</button>
-                <button type="submit" class="btn-primary">Lưu</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Detail Price Modal -->
-<div id="detailModal" class="modal">
-    <div class="detail-modal-content">
-        <h2 style="margin-bottom: 24px; font-size: 20px; font-weight: 700;">Chi tiết giá</h2>
-        <div id="detailContent">
-            <!-- Detail content will be loaded here -->
-        </div>
-        <div class="btn-group" style="margin-top: 24px;">
-            <button type="button" class="btn-secondary" onclick="closeDetailModal()">Đóng</button>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
         </div>
     </div>
-</div>
 
-<!-- Toast Notification -->
-<div id="toast" class="toast"></div>
+    <!-- Create/Edit Price Modal -->
+    <div id="priceModal" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 24px; font-size: 20px; font-weight: 700;" id="modalTitle">Điều chỉnh giá</h2>
+            <form id="priceForm">
+                <input type="hidden" id="priceId">
+
+                <div class="form-group">
+                    <label class="form-label">Biến thể thuốc <span style="color: red;">*</span></label>
+                    <select id="variantId" class="form-input" required>
+                        <option value="">Chọn biến thể thuốc</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Chi nhánh</label>
+                    <select id="branchId" class="form-input">
+                        <option value="">Chọn chi nhánh</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Giá bán <span style="color: red;">*</span></label>
+                    <input type="number" id="salePrice" class="form-input" step="0.01" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Giá chi nhánh</label>
+                    <input type="number" id="branchPrice" class="form-input" step="0.01">
+                </div>
+
+
+
+                <div class="btn-group">
+                    <button type="button" class="btn-secondary" onclick="closePriceModal()">Hủy</button>
+                    <button type="submit" class="btn-primary">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Detail Price Modal -->
+    <div id="detailModal" class="modal">
+        <div class="detail-modal-content">
+            <h2 style="margin-bottom: 24px; font-size: 20px; font-weight: 700;">Chi tiết giá</h2>
+            <div id="detailContent">
+                <!-- Detail content will be loaded here -->
+            </div>
+            <div class="btn-group" style="margin-top: 24px;">
+                <button type="button" class="btn-secondary" onclick="closeDetailModal()">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
 `,
 pageScript = @`<script src="/assets/js/warehouse/price_list.js" defer></script>`
 )

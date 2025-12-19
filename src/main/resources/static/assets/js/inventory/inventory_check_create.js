@@ -1,6 +1,26 @@
 // Danh sách thuốc đã chọn
 let selectedItems = [];
 
+// Toast notification helper
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        background: ${type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : type === 'warning' ? '#ffc107' : '#17a2b8'};
+        color: ${type === 'warning' ? '#000' : 'white'};
+        border-radius: 8px;
+        z-index: 10000;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
 function renderSelected() {
     const tbody = $('#inventoryCheckSelected');
     tbody.empty();
@@ -20,7 +40,7 @@ function renderSelected() {
                 </td>
                 <td class="px-3 py-2 text-center font-semibold text-blue-600">${it.system}</td>
                 <td class="px-3 py-2 text-center">
-                    <input type="number" min="0" value="${it.counted}" class="counted-input w-24 px-2 py-1 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 text-center" title="Nhập số lượng thực tế" />
+                    <input type="number" min="0" value="${it.counted}" class="counted-input w-24 px-2 py-1 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 text-center" title="Nhập số lượng thực tế (có thể > hoặc < số hệ thống)" placeholder="0" />
                 </td>
                 <td class="px-3 py-2 text-center ${diffClass}">${diff}</td>
                 <td class="px-3 py-2 text-center">
@@ -34,7 +54,7 @@ function renderSelected() {
         row.find('.counted-input').on('input', function() {
             let val = $(this).val();
             
-            // Chỉ cho phép số dương
+            // Allow any positive number (including numbers greater than system quantity)
             if (val === '' || val === null) {
                 val = 0;
             } else {
@@ -47,19 +67,21 @@ function renderSelected() {
             $(this).val(val);
             it.counted = val;
             
-            // Cập nhật số chênh lệch ngay lập tức
+            // Update difference immediately
             const diff = val - it.system;
             const diffTd = row.find('td').eq(3);
             
-            // Xóa class cũ
+            // Remove old classes
             diffTd.removeClass('text-gray-600 text-green-600 text-red-600 font-semibold');
             
-            // Thêm class mới
+            // Add new classes based on difference
             if (diff === 0) {
                 diffTd.addClass('text-gray-600');
             } else if (diff > 0) {
+                // Surplus - green (thừa hàng)
                 diffTd.addClass('text-green-600 font-semibold');
             } else {
+                // Shortage - red (thiếu hàng)
                 diffTd.addClass('text-red-600 font-semibold');
             }
             
@@ -83,7 +105,7 @@ function addItemFromRow($tr) {
 
     // Check if already added
     if (selectedItems.find(i => i.inventoryId === inventoryId)) {
-        alert('Thuốc này đã được thêm vào danh sách!');
+        showToast('Thuốc này đã được thêm vào danh sách!', 'warning');
         return;
     }
 
@@ -149,7 +171,7 @@ $(document).ready(function() {
     // Submit
     $('#submitInventoryCheck').on('click', function() {
         if (selectedItems.length === 0) {
-            alert('Chưa chọn thuốc nào để kiểm kho');
+            showToast('Chưa chọn thuốc nào để kiểm kho', 'warning');
             return;
         }
 
@@ -175,8 +197,10 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.success) {
                     // Kiểm kho thành công
-                    alert('Kiểm kho thành công!');
-                    window.location.href = '/inventory/check';
+                    showToast('Kiểm kho thành công!', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/inventory/check';
+                    }, 1500);
                 }
             },
             error: function(xhr) {
@@ -188,7 +212,7 @@ $(document).ready(function() {
                 } catch(e) {
                     errorMsg = xhr.responseText || errorMsg;
                 }
-                alert('Lỗi kiểm kho: ' + errorMsg);
+                showToast('Lỗi kiểm kho: ' + errorMsg, 'error');
                 $btn.prop('disabled', false).removeClass('opacity-50');
             }
         });

@@ -67,7 +67,7 @@ function loadDashboard(view) {
         })
         .catch(err => {
             console.error('Error loading dashboard:', err);
-            alert('Có lỗi xảy ra khi tải dashboard');
+            showToast('Có lỗi xảy ra khi tải dashboard', 'error');
         });
 }
 

@@ -107,6 +107,7 @@ content = @`
                 <table class="data-table">
                     <thead>
                     <tr class="table-header">
+                        <th style="width: 50px; text-align: center;">STT</th>
                         <th>Chi Nhánh</th>
                         <th>Ngày tạo</th>
                         <th>Loại Yêu Cầu</th>
@@ -117,11 +118,13 @@ content = @`
                     <tbody id="request-tbody">
                     @if(requests.isEmpty())
                         <tr>
-                            <td colspan="5" style="text-align: center; padding: 2rem;">Không có dữ liệu</td>
+                            <td colspan="6" style="text-align: center; padding: 2rem;">Không có dữ liệu</td>
                         </tr>
                     @else
-                        @for(RequestList request : requests)
+                        @for(var i = 0; i < requests.size(); i++)
+                            !{var request = requests.get(i);}
                             <tr>
+                                <td style="text-align: center;">${i + 1}</td>
                                 <td>${request.branchName()}</td>
                                 <td>${request.createdAt()}</td>
                                 <td>

@@ -106,6 +106,7 @@ content = @`
             <table class="w-full text-sm">
                 <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
                     <tr>
+                        <th class="px-3 py-2 text-center" style="width: 50px;">STT</th>
                         <th class="px-3 py-2 text-left">Tên thuốc</th>
                         <th class="px-3 py-2 text-left">Mã lô</th>
                         <th class="px-3 py-2 text-left">Hàm lượng</th>
@@ -117,7 +118,7 @@ content = @`
                 </thead>
                 <tbody id="selectedMedicines" class="divide-y">
                     <tr class="empty-state">
-                        <td colspan="7" class="px-3 py-8 text-center text-gray-500">Chưa chọn thuốc nào</td>
+                        <td colspan="8" class="px-3 py-8 text-center text-gray-500">Chưa chọn thuốc nào</td>
                     </tr>
                 </tbody>
             </table>
@@ -314,13 +315,15 @@ function renderSelectedItems() {
     const tbody = $('#selectedMedicines');
     tbody.empty();
     if (selectedItems.size === 0) {
-        tbody.append('<tr class="empty-state"><td colspan="7" class="px-3 py-8 text-center text-gray-500">Chưa chọn thuốc nào</td></tr>');
+        tbody.append('<tr class="empty-state"><td colspan="8" class="px-3 py-8 text-center text-gray-500">Chưa chọn thuốc nào</td></tr>');
         return;
     }
+    let rowIndex = 1;
     selectedItems.forEach((item, key) => {
         const expiredBadge = item.isExpired ? '<span class="text-red-600 mr-1" title="Thuốc đã hết hạn">⚠️</span>' : '';
         const rowHtml =
             '<tr>' +
+            '<td class="px-3 py-2 text-center text-gray-600 font-medium">' + rowIndex + '</td>' +
             '<td class="px-3 py-2 font-medium">' + expiredBadge + item.medicineName + '</td>' +
             '<td class="px-3 py-2"><span class="font-mono text-xs bg-gray-100 px-2 py-1 rounded">' + item.batchCode + '</span></td>' +
             '<td class="px-3 py-2">' + (item.strength || '-') + '</td>' +
@@ -337,6 +340,7 @@ function renderSelectedItems() {
             '</td>' +
             '</tr>';
         tbody.append(rowHtml);
+        rowIndex++;
     });
 }
 

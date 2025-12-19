@@ -85,6 +85,12 @@ body {
     color: #6B7280;
 }
 
+.form-input[readonly] {
+    background-color: #F3F4F6;
+    color: #6B7280;
+    cursor: not-allowed;
+}
+
 .form-input::placeholder {
     color: #6B7280;
 }

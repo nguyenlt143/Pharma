@@ -12,6 +12,16 @@ function initializeForm() {
         const formattedDate = today.toISOString().split('T')[0];
         dateInput.value = formattedDate;
     }
+
+    // Clear validation error when branch is selected
+    const branchSelect = document.getElementById('branchId');
+    if (branchSelect) {
+        branchSelect.addEventListener('change', function() {
+            this.classList.remove('is-invalid');
+            const errorDiv = this.parentElement.querySelector('.invalid-feedback');
+            if (errorDiv) errorDiv.remove();
+        });
+    }
 }
 
 function initializeTable() {
@@ -35,29 +45,29 @@ function initializeTable() {
 
 function validateQuantity(input) {
     const value = parseInt(input.value) || 0;
-    const max = parseInt(input.getAttribute('max'));
-    const row = input.closest('tr');
+    const max = parseInt(input.getAttribute('data-available'));
+    const feedbackDiv = input.nextElementSibling;
 
-    // Find the medicine row to get requested quantity
-    let medicineRow = row;
-    if (row.classList.contains('batch-row')) {
-        // Find the parent medicine row
-        const variantId = row.getAttribute('data-variant-id');
-        medicineRow = document.querySelector(`.medicine-row[data-variant-id="${variantId}"]`);
+    // Remove previous validation state
+    input.classList.remove('is-invalid');
+
+    // Validate: empty or null
+    if (input.value === '' || input.value === null) {
+        return true; // Allow empty for optional entry
     }
 
+    // Validate: value must be >= 0 (allow 0 for not sending)
     if (value < 0) {
-        input.value = 0;
-        input.style.borderColor = '#EF4444';
+        input.classList.add('is-invalid');
+        feedbackDiv.textContent = 'Số lượng không được âm';
         return false;
     }
 
+    // Validate: value must not exceed available quantity
     if (value > max) {
-        input.value = max;
-        input.style.borderColor = '#F59E0B';
-        showToast(`Số lượng không được vượt quá số lượng tồn kho (${max})`, 'warning');
-    } else {
-        input.style.borderColor = '#E5E7EB';
+        input.classList.add('is-invalid');
+        feedbackDiv.textContent = `Vượt quá tồn kho (${max})`;
+        return false;
     }
 
     return true;
@@ -131,8 +141,24 @@ function createExport() {
     const createdDate = document.getElementById('createdDate').value;
     const note = document.getElementById('note').value;
 
+    // Clear previous validation errors
+    const branchSelect = document.getElementById('branchId');
+    branchSelect.classList.remove('is-invalid');
+    const existingError = branchSelect.parentElement.querySelector('.invalid-feedback');
+    if (existingError) existingError.remove();
+
     if (!branchId) {
+        branchSelect.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback';
+        errorDiv.style.display = 'block';
+        errorDiv.style.color = '#dc3545';
+        errorDiv.style.fontSize = '0.875rem';
+        errorDiv.style.marginTop = '0.25rem';
+        errorDiv.textContent = 'Vui lòng chọn chi nhánh nhận';
+        branchSelect.parentElement.appendChild(errorDiv);
         showToast('Vui lòng chọn chi nhánh nhận', 'error');
+        branchSelect.focus();
         return;
     }
 
@@ -157,6 +183,22 @@ function createExport() {
 
     if (!hasQuantity) {
         showToast('Vui lòng nhập số lượng xuất cho ít nhất một lô hàng', 'error');
+        return;
+    }
+
+    // Validate all quantities before submission
+    let hasValidationErrors = false;
+    qtyInputs.forEach(input => {
+        const quantity = parseInt(input.value) || 0;
+        if (quantity > 0) {
+            if (!validateQuantity(input)) {
+                hasValidationErrors = true;
+            }
+        }
+    });
+
+    if (hasValidationErrors) {
+        showToast('Vui lòng kiểm tra lại số lượng nhập', 'error');
         return;
     }
 
@@ -249,4 +291,3 @@ function validateRequestedQuantities() {
 
     return { valid: true };
 }
-

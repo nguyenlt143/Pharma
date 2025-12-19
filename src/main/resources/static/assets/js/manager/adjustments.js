@@ -80,15 +80,31 @@ function loadAdjustmentSummary() {
         })
         .then(data => {
             console.log('Summary data received:', data);
-            const adjustmentCountEl = document.getElementById('adjustmentCount');
-            const expiredReturnCountEl = document.getElementById('expiredReturnCount');
-            const totalValueEl = document.getElementById('totalValue');
+            // Calculate metrics according to requirements
+            // Total Loss = Expired Returns + Shortage (all positive)
+            const totalLoss = Math.abs(data.totalExpiredValue || 0) + Math.abs(data.totalShortageValue || 0);
 
-            if (adjustmentCountEl) adjustmentCountEl.textContent = data.adjustmentCount || 0;
-            if (expiredReturnCountEl) expiredReturnCountEl.textContent = data.expiredReturnCount || 0;
-            if (totalValueEl) totalValueEl.textContent = data.totalValueFormatted || '0đ';
+            // Total Offset = Surplus (shown as negative/green)
+            const totalOffset = Math.abs(data.totalSurplusValue || 0);
 
-            console.log('Summary updated - Adjustments:', data.adjustmentCount, 'Expired Returns:', data.expiredReturnCount, 'Total:', data.totalValueFormatted);
+            // Net Loss = Total Loss - Total Offset
+            const netLoss = totalLoss - totalOffset;
+
+            const totalLossEl = document.getElementById('totalLoss');
+            const totalOffsetEl = document.getElementById('totalOffset');
+            const netLossEl = document.getElementById('netLoss');
+
+            if (totalLossEl) {
+                totalLossEl.textContent = formatCurrency(totalLoss);
+            }
+            if (totalOffsetEl) {
+                totalOffsetEl.textContent = formatCurrency(totalOffset);
+            }
+            if (netLossEl) {
+                netLossEl.textContent = formatCurrency(netLoss);
+            }
+
+            console.log('Summary updated - Total Loss:', totalLoss, 'Total Offset:', totalOffset, 'Net Loss:', netLoss);
         })
         .catch(err => {
             console.error('Failed to load adjustment summary', err);
@@ -228,7 +244,7 @@ function renderActivitiesPage() {
     tbody.innerHTML = '';
 
     if (!filteredActivities || filteredActivities.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center">Không có dữ liệu</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">Không có dữ liệu</td></tr>';
         updatePaginationControls();
         return;
     }
@@ -242,10 +258,31 @@ function renderActivitiesPage() {
         const typeDisplay = getTypeDisplayName(activity.type);
         const badgeClass = getTypeBadgeClass(activity.type);
 
+        // Determine status based on activity data
+        let statusHtml = '';
+        let valueHtml = '';
+        const value = activity.totalValue || 0;
+
+        if (activity.adjustmentType === 'SURPLUS') {
+            // Hàng thừa - màu xanh lá, mũi tên lên, hiển thị âm
+            statusHtml = '<span class="status-badge status-surplus">↑ Thừa</span>';
+            valueHtml = `<span class="value-surplus">-${formatCurrency(Math.abs(value))}</span>`;
+        } else if (activity.adjustmentType === 'SHORTAGE' || activity.type === 'BR_TO_WARE2') {
+            // Hàng thiếu hoặc hết hạn - màu đỏ, mũi tên xuống, hiển thị dương
+            const label = activity.type === 'BR_TO_WARE2' ? 'Hết hạn' : 'Thiếu';
+            statusHtml = `<span class="status-badge status-shortage">↓ ${label}</span>`;
+            valueHtml = `<span class="value-shortage">+${formatCurrency(Math.abs(value))}</span>`;
+        } else {
+            // Default case
+            statusHtml = '<span class="status-badge">-</span>';
+            valueHtml = escapeHtml(activity.totalValueFormatted || '-');
+        }
+
         tr.innerHTML = `
             <td>${escapeHtml(activity.code)}</td>
             <td><span class="badge ${badgeClass}">${escapeHtml(typeDisplay)}</span></td>
-            <td>${escapeHtml(activity.totalValueFormatted || '-')}</td>
+            <td>${statusHtml}</td>
+            <td>${valueHtml}</td>
             <td>${escapeHtml(activity.timeAgo || '-')}</td>
             <td class="text-center">
                 <button class="btn btn-sm btn-primary" onclick="viewDetail(${activity.id})">Xem</button>
@@ -397,7 +434,12 @@ function showError(message) {
             toast.classList.remove('error');
         }, 3000);
     } else {
-        alert(message);
+        // Use global toast system as fallback
+        if (window.showToast) {
+            window.showToast(message, 'error');
+        } else {
+            console.error('Toast not available:', message);
+        }
     }
 }
 

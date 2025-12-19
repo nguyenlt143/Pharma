@@ -79,6 +79,7 @@ content = @`
                 <table class="w-full text-sm">
                     <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
                         <tr>
+                            <th class="px-3 py-2 text-center" style="width: 50px;">STT</th>
                             <th class="px-3 py-2 text-left">Tên thuốc</th>
                             <th class="px-3 py-2 text-center">Tồn hệ thống</th>
                             <th class="px-3 py-2 text-center">Số thực tế</th>
@@ -87,7 +88,7 @@ content = @`
                         </tr>
                     </thead>
                     <tbody id="inventoryCheckSelected" class="divide-y">
-                        <tr id="emptySelectedRow"><td colspan="5" class="px-3 py-6 text-center text-gray-500">Chưa chọn thuốc nào</td></tr>
+                        <tr id="emptySelectedRow"><td colspan="6" class="px-3 py-6 text-center text-gray-500">Chưa chọn thuốc nào</td></tr>
                     </tbody>
                 </table>
             </div>

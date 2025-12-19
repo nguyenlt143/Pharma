@@ -14,6 +14,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/owner/layout.css">
     <link rel="stylesheet" href="/assets/css/admin/common.css">
+    <link rel="stylesheet" href="/assets/css/toast.css">
     <style>
         .main-content {
             padding: 24px;
@@ -100,6 +101,10 @@ ${pageScript}
         }
     });
 </script>
+
+<script src="/assets/js/utils/toast.js"></script>
+${pageScript}
+
 </body>
 </html>
 

@@ -8,36 +8,38 @@
 @template.layouts.warehouse(
 headContent = @`
     <title>Chi Tiết Phiếu</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/warehouse/request_detail.css">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 `,
 content = @`
-    <div class="overlay">
-        <div class="modal">
+    !{var hidePrice = receipt.getType().equals("DISPOSAL") || receipt.getType().equals("INVENTORY_ADJUSTMENT");}
+    <!-- Main Content -->
+    <main class="flex-1 p-6 overflow-y-auto bg-gray-100">
+        <!-- Back button -->
+        <div class="mb-4">
+            <a href="/warehouse/receipt-list" class="text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                <span class="material-icons-outlined text-sm">arrow_back</span>
+                <span>Quay lại danh sách</span>
+            </a>
+        </div>
 
-            <!-- HEADER -->
-            <header class="modal-header">
-                <h1 class="modal-title">Chi Tiết Phiếu</h1>
-                <a href="/warehouse/receipt-list" class="close-button">
-                    <span class="material-icons">close</span>
-                </a>
-            </header>
+        <h2 class="text-2xl font-bold mb-6">CHI TIẾT PHIẾU</h2>
 
-            <!-- GENERAL INFO -->
-            <div class="modal-content">
-
-                <div class="info-section">
-                    <div class="info-group">
-                        <label class="info-label">Tên chi nhánh</label>
-                        <div class="info-value">${receipt.getBranchName()}</div>
-                    </div>
-
-                    <div class="info-group">
-                        <label class="info-label">Loại Phiếu</label>
-                        <div class="info-value">
+        <!-- Thông tin phiếu -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span class="material-icons-outlined text-blue-600">description</span>
+                Thông tin phiếu
+            </h3>
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">Chi nhánh</p>
+                    <p class="font-medium">${receipt.getBranchName()}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">Loại phiếu</p>
+                    <p class="font-medium">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                             @if(receipt.getType().equals("SUP_TO_WARE"))
                                 Phiếu Nhập
                             @elseif(receipt.getType().equals("WARE_TO_BR"))
@@ -55,147 +57,213 @@ content = @`
                             @else
                                 Không xác định
                             @endif
-                        </div>
-                    </div>
-
-<%--                    <div class="info-group">--%>
-<%--                        <label class="info-label">Trạng Thái</label>--%>
-<%--                        <div class="info-value">--%>
-<%--                            @if(receipt.getStatus().equals("DRAFT"))--%>
-<%--                                Đang duyệt--%>
-<%--                            @elseif(receipt.getStatus().equals("APPROVED"))--%>
-<%--                                Chấp nhận--%>
-<%--                            @elseif(receipt.getStatus().equals("SHIPPED"))--%>
-<%--                                Đang vận chuyển--%>
-<%--                            @elseif(receipt.getStatus().equals("RECEIVED"))--%>
-<%--                                Đã nhận--%>
-<%--                            @elseif(receipt.getStatus().equals("CANCELLED"))--%>
-<%--                                Từ chối--%>
-<%--                            @elseif(receipt.getStatus().equals("CLOSED"))--%>
-<%--                                Hoàn tất--%>
-<%--                            @else--%>
-<%--                                Không xác định--%>
-<%--                            @endif--%>
-<%--                        </div>--%>
-<%--                    </div>--%>
+                        </span>
+                    </p>
                 </div>
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">Trạng thái</p>
+                    <p class="font-medium">
+                        @if(receipt.getStatus().equals("DRAFT"))
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                                <span class="material-icons-outlined text-xs mr-1">schedule</span>
+                                Đang duyệt
+                            </span>
+                        @elseif(receipt.getStatus().equals("APPROVED"))
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                <span class="material-icons-outlined text-xs mr-1">check_circle</span>
+                                Chấp nhận
+                            </span>
+                        @elseif(receipt.getStatus().equals("SHIPPED"))
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                <span class="material-icons-outlined text-xs mr-1">local_shipping</span>
+                                Đang vận chuyển
+                            </span>
+                        @elseif(receipt.getStatus().equals("RECEIVED"))
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                <span class="material-icons-outlined text-xs mr-1">check_circle</span>
+                                Đã nhận
+                            </span>
+                        @elseif(receipt.getStatus().equals("CANCELLED"))
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                <span class="material-icons-outlined text-xs mr-1">cancel</span>
+                                Từ chối
+                            </span>
+                        @elseif(receipt.getStatus().equals("CLOSED"))
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                                <span class="material-icons-outlined text-xs mr-1">done_all</span>
+                                Hoàn tất
+                            </span>
+                        @else
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                                Không xác định
+                            </span>
+                        @endif
+                    </p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">Số loại thuốc</p>
+                    <p class="font-semibold text-lg">${details.size()} loại</p>
+                </div>
+            </div>
+        </div>
 
-                <!-- DETAILS TABLE -->
-                <div class="medicine-section">
-                    <h2 class="section-title">Danh sách thuốc</h2>
-
-                    <table class="medicine-table">
-                        <thead>
-                        <tr>
-                            <th>STT</th>
-                            <th>Tên Thuốc</th>
-                            <th>ĐVT</th>
-                            <th>Hàm Lượng</th>
-                            <th>Số Lô</th>
-                            <th>NSX</th>
-                            <th>HSD</th>
-                            <th>Số Lượng</th>
-                            <th>Giá Nhập</th>
+        <!-- Danh sách thuốc -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span class="material-icons-outlined text-blue-600">medication</span>
+                Danh sách thuốc
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="w-full table-auto">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left font-medium text-gray-600">STT</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-600">Tên Thuốc</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-600">ĐVT</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-600">Hàm Lượng</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-600">Số Lô</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-600">NSX</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-600">HSD</th>
+                        <th class="px-4 py-3 text-center font-medium text-gray-600">Số Lượng</th>
+                        @if(!hidePrice)
+                            <th class="px-4 py-3 text-right font-medium text-gray-600">Giá Nhập</th>
+                        @endif
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                    @for(ReceiptDetailVM detail : details)
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 text-gray-600">${details.indexOf(detail) + 1}</td>
+                            <td class="px-4 py-3 font-medium text-gray-900">${detail.getMedicineName()}</td>
+                            <td class="px-4 py-3 text-gray-700">${detail.getUnit()}</td>
+                            <td class="px-4 py-3 text-gray-700">${detail.getConcentration()}</td>
+                            <td class="px-4 py-3 text-gray-700">${detail.getBatchCode()}</td>
+                            <td class="px-4 py-3 text-gray-700">
+                                @if(detail.getMfgDate() != null)
+                                    ${detail.getMfgDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}
+                                @else
+                                    -
+                                @endif
+                            </td>
+                            <td class="px-4 py-3 text-gray-700">
+                                @if(detail.getExpiryDate() != null)
+                                    ${detail.getExpiryDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}
+                                @else
+                                    -
+                                @endif
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <span class="inline-flex items-center px-3 py-1 rounded-md text-sm font-semibold bg-blue-50 text-blue-700">
+                                    ${detail.getQuantity()}
+                                </span>
+                            </td>
+                            @if(!hidePrice)
+                                <td class="px-4 py-3 text-right text-gray-900 font-medium">${String.format("%,.0f", detail.getImportPrice())} VNĐ</td>
+                            @endif
                         </tr>
-                        </thead>
-
-                        <tbody>
-                        @for(ReceiptDetailVM detail : details)
-                            <tr>
-                                <td>${details.indexOf(detail) + 1}</td>
-                                <td>${detail.getMedicineName()}</td>
-                                <td>${detail.getUnit()}</td>
-                                <td>${detail.getConcentration()}</td>
-                                <td>${detail.getBatchCode()}</td>
-                                <td>
-                                    @if(detail.getMfgDate() != null)
-                                        ${detail.getMfgDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}
-                                    @else
-                                        N/A
-                                    @endif
-                                </td>
-                                <td>
-                                    @if(detail.getExpiryDate() != null)
-                                        ${detail.getExpiryDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}
-                                    @else
-                                        N/A
-                                    @endif
-                                </td>
-                                <td>${detail.getQuantity()}</td>
-                                <td>${String.format("%,.0f", detail.getImportPrice())} VNĐ</td>
-                            </tr>
-                        @endfor
-                        </tbody>
-                    </table>
-
-                    <!-- TOTAL MONEY -->
-                    <div style="margin-top: 20px; text-align: right; font-size: 16px; font-weight: 600;">
-                        !{var totalMoney = details.stream().mapToDouble(d -> d.getQuantity() * d.getImportPrice()).sum();}
-                        <span>Tổng tiền: </span>
-                        <span style="color: #2563eb;">${String.format("%,.0f", totalMoney)} VNĐ</span>
-                    </div>
-                </div>
-
+                    @endfor
+                    @if(!hidePrice)
+                        <tr class="bg-gray-50 font-semibold">
+                            <td colspan="8" class="px-4 py-3 text-right">Tổng tiền:</td>
+                            <td class="px-4 py-3 text-right text-blue-600">
+                                !{var totalMoney = details.stream().mapToDouble(d -> d.getQuantity() * d.getImportPrice()).sum();}
+                                ${String.format("%,.0f", totalMoney)} VNĐ
+                            </td>
+                        </tr>
+                    @endif
+                    </tbody>
+                </table>
             </div>
 
-            <!-- FOOTER -->
-            <footer class="modal-footer">
-                <div class="footer-status">
-                    <span class="status-label">Trạng thái: </span>
-                    <span class="status-value">
-                        @if(receipt.getStatus().equals("DRAFT"))
-                            Đang duyệt
-                        @elseif(receipt.getStatus().equals("APPROVED"))
-                            Chấp nhận
-                        @elseif(receipt.getStatus().equals("SHIPPED"))
-                            Đang vận chuyển
-                        @elseif(receipt.getStatus().equals("RECEIVED"))
-                            Đã nhận
-                        @elseif(receipt.getStatus().equals("CANCELLED"))
-                            Từ chối
-                        @elseif(receipt.getStatus().equals("CLOSED"))
-                            Hoàn tất
-                        @else
-                            Không xác định
-                        @endif
-                    </span>
-                </div>
-                <div class="footer-actions">
-                    @if(receipt.getStatus().equals("DRAFT"))
-                        <%-- Phiếu BR_TO_WARE/BR_TO_WARE2 được điều khiển bởi Return Request, không có nút trực tiếp --%>
-                        @if(receipt.getType().equals("BR_TO_WARE") || receipt.getType().equals("BR_TO_WARE2"))
-                            <div style="text-align: center; padding: 10px; background-color: #FEF3C7; border-radius: 5px; margin: 10px 0;">
-                                <span style="color: #92400E; font-size: 14px;">
-                                    <i class="material-icons" style="font-size: 16px; vertical-align: middle;">info</i>
+            <!-- Action Buttons - Đặt dưới bảng theo yêu cầu FixDetail.txt -->
+            <div class="mt-6 pt-6 border-t border-gray-200 flex items-center justify-end gap-3">
+                @if(receipt.getStatus().equals("DRAFT"))
+                    <%-- Phiếu BR_TO_WARE/BR_TO_WARE2 được điều khiển bởi Return Request, không có nút trực tiếp --%>
+                    @if(receipt.getType().equals("BR_TO_WARE") || receipt.getType().equals("BR_TO_WARE2"))
+                        <div class="flex-1 bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                            <div class="flex items-start gap-2">
+                                <span class="material-icons-outlined text-yellow-600">info</span>
+                                <p class="text-sm text-yellow-800">
                                     Phiếu này được quản lý qua Yêu cầu trả hàng. Vui lòng duyệt/từ chối yêu cầu tương ứng.
-                                </span>
+                                </p>
                             </div>
-                        @else
-                            <button class="approve-button" onclick="approveReceipt(${receipt.getId()})">Chấp nhận</button>
-                            <button class="cancel-button" onclick="cancelReceipt(${receipt.getId()})">Từ chối</button>
-                        @endif
-                    @elseif(receipt.getStatus().equals("APPROVED"))
-                        <%-- Không hiển thị nút "Gửi hàng" cho phiếu kiểm kho --%>
-                        @if(!receipt.getType().equals("INVENTORY_ADJUSTMENT"))
-                            <button class="ship-button" onclick="shipReceipt(${receipt.getId()})">Gửi hàng</button>
-                        @endif
-                    @elseif(receipt.getStatus().equals("SHIPPED"))
-                        <%-- Không hiển thị nút "Đã nhận" cho phiếu xuất WARE_TO_BR vì warehouse không phải bên nhận --%>
-                        @if(!receipt.getType().equals("WARE_TO_BR"))
-                            <button class="receive-button" onclick="receiveReceipt(${receipt.getId()})">Đã nhận</button>
-                        @endif
-                    @elseif(receipt.getStatus().equals("RECEIVED"))
-                        <button class="approve-button disabled" disabled>Đã nhận</button>
-                    @elseif(receipt.getStatus().equals("CANCELLED"))
-                        <button class="approve-button disabled" disabled>Đã từ chối</button>
-                    @elseif(receipt.getStatus().equals("CLOSED"))
-                        <button class="approve-button disabled" disabled>Đã hoàn tất</button>
+                        </div>
+                    @else
+                        <button onclick="cancelReceipt(${receipt.getId()})"
+                                class="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg shadow-sm transition-colors">
+                            Từ chối
+                        </button>
+                        <button onclick="approveReceipt(${receipt.getId()})"
+                                class="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-sm transition-colors">
+                            Chấp nhận
+                        </button>
                     @endif
-                </div>
-            </footer>
-
+                @elseif(receipt.getStatus().equals("APPROVED"))
+                    <%-- Không hiển thị nút "Gửi hàng" cho phiếu kiểm kho --%>
+                    @if(!receipt.getType().equals("INVENTORY_ADJUSTMENT"))
+                        <button onclick="shipReceipt(${receipt.getId()})"
+                                class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm transition-colors">
+                            Gửi hàng
+                        </button>
+                    @endif
+                @elseif(receipt.getStatus().equals("SHIPPED"))
+                    <%-- Không hiển thị nút "Đã nhận" cho phiếu xuất WARE_TO_BR vì warehouse không phải bên nhận --%>
+                    @if(!receipt.getType().equals("WARE_TO_BR"))
+                        <button onclick="receiveReceipt(${receipt.getId()})"
+                                class="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-sm transition-colors">
+                            Đã nhận
+                        </button>
+                    @endif
+                @elseif(receipt.getStatus().equals("RECEIVED"))
+                    <button disabled
+                            class="px-6 py-2.5 bg-gray-400 text-white font-medium rounded-lg shadow-sm cursor-not-allowed opacity-60">
+                        Đã nhận
+                    </button>
+                @elseif(receipt.getStatus().equals("CANCELLED"))
+                    <button disabled
+                            class="px-6 py-2.5 bg-gray-400 text-white font-medium rounded-lg shadow-sm cursor-not-allowed opacity-60">
+                        Đã từ chối
+                    </button>
+                @elseif(receipt.getStatus().equals("CLOSED"))
+                    <button disabled
+                            class="px-6 py-2.5 bg-gray-400 text-white font-medium rounded-lg shadow-sm cursor-not-allowed opacity-60">
+                        Đã hoàn tất
+                    </button>
+                @endif
+            </div>
         </div>
-    </div>
+
+        <!-- Thông tin bổ sung -->
+        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <div class="flex items-start gap-2">
+                <span class="material-icons-outlined text-blue-600">info</span>
+                <div class="text-sm text-blue-800">
+                    <p class="font-medium mb-1">Lưu ý:</p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>Phiếu đang ở trạng thái: <strong>
+                            @if(receipt.getStatus().equals("DRAFT"))
+                                Đang duyệt
+                            @elseif(receipt.getStatus().equals("APPROVED"))
+                                Chấp nhận
+                            @elseif(receipt.getStatus().equals("SHIPPED"))
+                                Đang vận chuyển
+                            @elseif(receipt.getStatus().equals("RECEIVED"))
+                                Đã nhận
+                            @elseif(receipt.getStatus().equals("CANCELLED"))
+                                Từ chối
+                            @elseif(receipt.getStatus().equals("CLOSED"))
+                                Hoàn tất
+                            @else
+                                Không xác định
+                            @endif
+                        </strong></li>
+                        <li>Kiểm tra kỹ thông tin trước khi thao tác với phiếu</li>
+                        <li>Mọi thay đổi trạng thái phiếu sẽ được ghi nhận trong hệ thống</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
 `,
 pageScript = @`
     <script>

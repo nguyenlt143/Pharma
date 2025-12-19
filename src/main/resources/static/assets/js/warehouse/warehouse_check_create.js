@@ -1,11 +1,31 @@
 // Danh sách thuốc đã chọn
 let selectedItems = [];
 
+// Toast notification helper
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        background: ${type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : type === 'warning' ? '#ffc107' : '#17a2b8'};
+        color: ${type === 'warning' ? '#000' : 'white'};
+        border-radius: 8px;
+        z-index: 10000;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
 function renderSelected() {
     const tbody = $('#inventoryCheckSelected');
     tbody.empty();
     if (selectedItems.length === 0) {
-        tbody.append('<tr id="emptySelectedRow"><td colspan="5" class="px-3 py-6 text-center text-gray-500">Chưa chọn thuốc nào</td></tr>');
+        tbody.append('<tr id="emptySelectedRow"><td colspan="6" class="px-3 py-6 text-center text-gray-500">Chưa chọn thuốc nào</td></tr>');
         return;
     }
     selectedItems.forEach((it, idx) => {
@@ -13,6 +33,7 @@ function renderSelected() {
         const diffClass = diff === 0 ? 'text-gray-600' : (diff > 0 ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold');
         const row = $(`
             <tr data-index="${idx}">
+                <td class="px-3 py-2 text-center text-gray-600 font-medium">${idx + 1}</td>
                 <td class="px-3 py-2">
                     <div class="font-medium text-gray-900">${it.name}</div>
                     <div class="text-xs text-gray-500">${it.dosageForm || ''}</div>
@@ -49,7 +70,7 @@ function renderSelected() {
 
             // Cập nhật số chênh lệch ngay lập tức
             const diff = val - it.system;
-            const diffTd = row.find('td').eq(3);
+            const diffTd = row.find('td').eq(4);
 
             // Xóa class cũ
             diffTd.removeClass('text-gray-600 text-green-600 text-red-600 font-semibold');
@@ -83,7 +104,7 @@ function addItemFromRow($tr) {
 
     // Check if already added
     if (selectedItems.find(i => i.inventoryId === inventoryId)) {
-        alert('Thuốc này đã được thêm vào danh sách!');
+        showToast('Thuốc này đã được thêm vào danh sách!', 'warning');
         return;
     }
 
@@ -149,7 +170,7 @@ $(document).ready(function() {
     // Submit
     $('#submitInventoryCheck').on('click', function() {
         if (selectedItems.length === 0) {
-            alert('Chưa chọn thuốc nào để kiểm kho');
+            showToast('Chưa chọn thuốc nào để kiểm kho', 'warning');
             return;
         }
 
@@ -175,8 +196,10 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.success) {
                     // Kiểm kho thành công
-                    alert('Kiểm kho thành công!');
-                    window.location.href = '/warehouse/check';
+                    showToast('Kiểm kho thành công!', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/warehouse/check';
+                    }, 1500);
                 }
             },
             error: function(xhr) {
@@ -188,7 +211,7 @@ $(document).ready(function() {
                 } catch(e) {
                     errorMsg = xhr.responseText || errorMsg;
                 }
-                alert('Lỗi kiểm kho: ' + errorMsg);
+                showToast('Lỗi kiểm kho: ' + errorMsg, 'error');
                 $btn.prop('disabled', false).removeClass('opacity-50');
             }
         });

@@ -291,13 +291,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (requests.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="5" style="text-align: center;">Không có dữ liệu</td>
+                    <td colspan="6" style="text-align: center; padding: 2rem;">Không có dữ liệu</td>
                 </tr>
             `;
             return;
         }
 
-        tbody.innerHTML = requests.map(request => {
+        tbody.innerHTML = requests.map((request, index) => {
             const requestType = request.requestType === 'IMPORT' ? 'Nhập hàng' :
                               request.requestType === 'RETURN' ? 'Trả hàng' : 'Không xác định';
 
@@ -306,6 +306,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 statusHtml = '<div class="status-button pending">Đang duyệt</div>';
             } else if (request.requestStatus === 'CONFIRMED') {
                 statusHtml = '<div class="status-button approved">Chấp nhận</div>';
+            } else if (request.requestStatus === 'RECEIVED') {
+                statusHtml = '<div class="status-button completed">Hoàn thành</div>';
             } else if (request.requestStatus === 'CANCELLED') {
                 statusHtml = '<div class="status-button rejected">Từ chối</div>';
             } else {
@@ -314,6 +316,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             return `
                 <tr>
+                    <td style="text-align: center;">${index + 1}</td>
                     <td>${request.branchName}</td>
                     <td>${request.createdAt}</td>
                     <td>${requestType}</td>

@@ -57,7 +57,7 @@ function loadReport() {
         })
         .catch(err => {
             console.error('Error loading report:', err);
-            alert('Có lỗi xảy ra khi tải báo cáo');
+            showToast('Có lỗi xảy ra khi tải báo cáo', 'error');
         });
 }
 

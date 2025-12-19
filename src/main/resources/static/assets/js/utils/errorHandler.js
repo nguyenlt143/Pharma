@@ -85,8 +85,13 @@ function showToastNotification(message, timeout = 2500, type = 'info') {
     const toastEl = document.getElementById('toast');
 
     if (!toastEl) {
-        console.error('Toast element not found');
-        alert(message);
+        console.error('Toast element not found - using global toast system');
+        // Use global toast system as fallback
+        if (window.showToast) {
+            window.showToast(message, type, timeout);
+        } else {
+            console.error('Toast not available:', message);
+        }
         return;
     }
 

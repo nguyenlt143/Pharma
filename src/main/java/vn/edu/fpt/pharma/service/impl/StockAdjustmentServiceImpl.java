@@ -84,14 +84,14 @@ public class StockAdjustmentServiceImpl extends BaseServiceImpl<StockAdjustment,
             Long before = inv.getQuantity() != null ? inv.getQuantity() : 0L;
             Long after = item.getCountedQuantity() != null ? item.getCountedQuantity() : 0L;
 
+            // Only check for negative quantity - allow surplus (after > before)
             if (after < 0) {
                 throw new IllegalArgumentException("Số lượng kiểm không được âm cho thuốc: " + inv.getVariant().getMedicine().getName());
             }
 
-            boolean isWarehouse = branchId.equals(1L);
-            if (!isWarehouse && after > before) {
-                throw new IllegalArgumentException("Số lượng kiểm (" + after + ") không được vượt quá số tồn hệ thống (" + before + ") cho thuốc: " + inv.getVariant().getMedicine().getName());
-            }
+            // REMOVED: Validation preventing surplus
+            // Old code blocked: after > before (surplus detection)
+            // New behavior: Allow both surplus (after > before) and shortage (after < before)
 
             long diff = after - before;
 

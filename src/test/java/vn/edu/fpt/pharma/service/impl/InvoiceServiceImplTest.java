@@ -123,12 +123,14 @@ class InvoiceServiceImplTest extends BaseServiceTest {
         void getInvoiceDetail_whenInvoiceExists_shouldReturnDetail() {
             // Arrange
             InvoiceInfoVM info = new InvoiceInfoVM() {
+                @Override public String getInvoiceCode() { return "INV001"; }
                 @Override public String getBranchName() { return "Chi nhánh 1"; }
                 @Override public String getBranchAddress() { return "123 ABC"; }
                 @Override public String getCustomerName() { return "Nguyễn Văn A"; }
                 @Override public String getCustomerPhone() { return "0901234567"; }
                 @Override public LocalDateTime getCreatedAt() { return LocalDateTime.now(); }
                 @Override public BigDecimal getTotalPrice() { return new BigDecimal("500000"); }
+                @Override public String getPaymentMethod() { return "CASH"; }
                 @Override public String getDescription() { return "Test"; }
             };
 
@@ -176,12 +178,14 @@ class InvoiceServiceImplTest extends BaseServiceTest {
         void getInvoiceDetail_shouldIncludeMedicineList() {
             // Arrange
             InvoiceInfoVM info = new InvoiceInfoVM() {
+                @Override public String getInvoiceCode() { return "INV002"; }
                 @Override public String getBranchName() { return "Chi nhánh 1"; }
                 @Override public String getBranchAddress() { return "123 ABC"; }
                 @Override public String getCustomerName() { return "Test"; }
                 @Override public String getCustomerPhone() { return "0901234567"; }
                 @Override public LocalDateTime getCreatedAt() { return LocalDateTime.now(); }
                 @Override public BigDecimal getTotalPrice() { return new BigDecimal("100000"); }
+                @Override public String getPaymentMethod() { return "CASH"; }
                 @Override public String getDescription() { return null; }
             };
 

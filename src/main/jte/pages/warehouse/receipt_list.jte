@@ -115,6 +115,7 @@ content = @`
                 <table class="data-table">
                     <thead>
                     <tr class="table-header">
+                        <th class="table-cell header-cell" style="width: 50px; text-align: center;">STT</th>
                         <th class="table-cell header-cell">Chi Nhánh</th>
                         <th class="table-cell header-cell">Ngày tạo</th>
                         <th class="table-cell header-cell">Loại Phiếu</th>
@@ -125,11 +126,13 @@ content = @`
                     <tbody id="receipt-tbody">
                     @if(receipts.isEmpty())
                         <tr class="table-row">
-                            <td class="table-cell data-cell" colspan="5" style="text-align: center;">Không có dữ liệu</td>
+                            <td class="table-cell data-cell" colspan="6" style="text-align: center;">Không có dữ liệu</td>
                         </tr>
                     @else
-                        @for(ReceiptListItem receipt : receipts)
+                        @for(var i = 0; i < receipts.size(); i++)
+                            !{var receipt = receipts.get(i);}
                             <tr class="table-row">
+                                <td class="table-cell data-cell" style="text-align: center;">${i + 1}</td>
                                 <td class="table-cell data-cell">${receipt.branchName()}</td>
                                 <td class="table-cell data-cell date-cell">${receipt.createdDate()}</td>
                                 <td class="table-cell data-cell type-cell">${receipt.requestType()}</td>
