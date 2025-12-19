@@ -197,12 +197,36 @@ function submitImportRequest() {
     });
 }
 
+// Hide expired rows in warehouse medicines
+function hideExpiredRows() {
+    const today = new Date();
+    $('#warehouseMedicineSource tr').each(function() {
+        const expiryStr = $(this).data('expiry-date');
+        if (!expiryStr) return; // Không có hạn dùng thì không ẩn
+        // Hỗ trợ cả định dạng yyyy-MM-dd và yyyy/MM/dd
+        let expiry = null;
+        if (/\d{4}-\d{2}-\d{2}/.test(expiryStr)) {
+            expiry = new Date(expiryStr);
+        } else if (/\d{4}\/\d{2}\/\d{2}/.test(expiryStr)) {
+            expiry = new Date(expiryStr.replace(/\//g, '-'));
+        } else {
+            expiry = new Date(expiryStr);
+        }
+        if (expiry < today) {
+            $(this).hide();
+        }
+    });
+}
+
 // Event Listeners
 $(document).ready(function() {
+    hideExpiredRows();
+
     // Search warehouse medicines
     $('#warehouseMedicineSearch').on('input', function() {
         const query = $(this).val().trim();
         searchWarehouseMedicines(query);
+        hideExpiredRows();
     });
 
     // Add medicine button click

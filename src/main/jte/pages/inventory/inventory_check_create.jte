@@ -103,7 +103,7 @@
                         </tr>
                     </thead>
                     <tbody id="inventoryCheckSelected" class="divide-y">
-                        <tr id="emptySelectedRow"><td colspan="6" class="px-3 py-6 text-center text-gray-500">Chưa chọn thuốc nào</td></tr>
+                        <tr id="emptySelectedRow"><td colspan="5" class="px-3 py-6 text-center text-gray-500">Chưa chọn thuốc nào</td></tr>
                     </tbody>
                 </table>
             </div>
