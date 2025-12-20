@@ -1,5 +1,0 @@
- tạo màn mới để lưu trữ adjustment và trả hàng hết hạn dựa trên giao diện của các màn đã có cho manager , Sử dụng cách thức tương tự các màn còn lại
-  (inventory_movement.type= adjustment,BR_TO_WARE2 (trả hàng hết hạn) )
-	Khi khôi phục ca làm việc bị báo lỗi không tồn tại dù có tồn tại
-    Create/update Account ( admin) và Staff(manager) đang không hiển thị được lên các lỗi mà trong UserserviceImpl có
-Khi tạo tài khoản ở Account( admin) nếu role được tạo là warehouse thì chi nhánh tự áp dụng là tổng công ty (BranchId=1), nếu là Chi nhánh thì hiển thị list chi nhánh hiện có để chọn

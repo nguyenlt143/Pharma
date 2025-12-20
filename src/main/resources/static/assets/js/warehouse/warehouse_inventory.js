@@ -6,11 +6,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const categoryFilterEl = document.getElementById('categoryFilter');
     const filterExpiring = document.getElementById('filterExpiring');
     const filterLowStock = document.getElementById('filterLowStock');
-    const selectAllCheckbox = document.getElementById('selectAll');
-    const bulkBar = document.getElementById('bulkActionBar');
-    const selectedCountSpan = document.getElementById('selectedCount');
-    const createReceiptBtn = document.getElementById('createReceiptFromList');
-    const createExportBtn = document.getElementById('createExportFromList');
     const tableBody = document.getElementById('medicineTableBody');
 
     if (!tableBody) {
@@ -159,7 +154,6 @@ document.addEventListener('DOMContentLoaded', function() {
         html += '<td class="px-3 py-2 text-center cursor-pointer expand-cell">';
         html += '<span class="material-icons-outlined text-base text-gray-600 expand-icon">chevron_right</span>';
         html += '</td>';
-        html += '<td class="px-3 py-2 text-center"><input type="checkbox" class="variant-select rounded border-gray-300" data-variant-id="' + variant.variantId + '"></td>';
         html += '<td class="px-3 py-2">' + index + '</td>';
         html += '<td class="px-3 py-2 font-medium text-blue-700">' + escapeHtml(variant.medicineName) + '</td>';
         html += '<td class="px-3 py-2">' + escapeHtml(variant.activeIngredient) + '</td>';
@@ -210,7 +204,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let html = '';
         html += '<td class="px-3 py-2"></td>';
-        html += '<td class="px-3 py-2 text-center"><input type="checkbox" class="batch-select rounded border-gray-300" data-batch-id="' + batch.dataset.batchId + '"></td>';
         html += '<td class="px-3 py-2 pl-8 text-gray-600">' + index + '.' + (bIdx + 1) + '</td>';
         html += '<td class="px-3 py-2 pl-8 text-gray-700" colspan="5">';
         html += 'Mã lô: <span class="font-mono bg-gray-200 px-2 py-1 rounded">' + (batch.dataset.batchCode || '-') + '</span>';
@@ -327,30 +320,13 @@ document.addEventListener('DOMContentLoaded', function() {
         paginationButtons.appendChild(nextBtn);
     }
 
-    function updateBulkBar() {
-        let count = 0;
-        tableBody.querySelectorAll('.variant-select:checked').forEach(() => count++);
-        tableBody.querySelectorAll('.batch-select:checked').forEach(() => count++);
-
-        selectedCountSpan.textContent = count;
-        bulkBar.classList.toggle('hidden', count === 0);
-    }
 
     searchInputEl.addEventListener('input', applyFilters);
     categoryFilterEl.addEventListener('change', applyFilters);
     filterExpiring.addEventListener('change', applyFilters);
     filterLowStock.addEventListener('change', applyFilters);
 
-    selectAllCheckbox.addEventListener('change', () => {
-        const checked = selectAllCheckbox.checked;
-        tableBody.querySelectorAll('.variant-select').forEach(cb => cb.checked = checked);
-        updateBulkBar();
-    });
-
     tableBody.addEventListener('change', e => {
-        if (e.target.classList.contains('variant-select') || e.target.classList.contains('batch-select')) {
-            updateBulkBar();
-        }
 
         // Handle min stock update
         if (e.target && e.target.classList.contains('min-stock-input')) {
@@ -387,70 +363,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    function collectSelected(forType) {
-        const items = [];
-
-        // Collect from variant selections (all batches)
-        tableBody.querySelectorAll('.variant-select:checked').forEach(cb => {
-            const variantId = cb.dataset.variantId;
-            const variant = variantData.find(v => v.variantId == variantId);
-            if (variant) {
-                variant.batches.forEach(batch => {
-                    items.push({
-                        variantId: Number(variantId),
-                        batchId: Number(batch.dataset.batchId),
-                        inventoryId: Number(batch.dataset.inventoryId),
-                        medicineName: batch.dataset.medicineName || '',
-                        strength: batch.dataset.strength || '',
-                        unit: batch.dataset.unit || '',
-                        batchCode: batch.dataset.batchCode || '',
-                        minStock: batch.dataset.minStock && batch.dataset.minStock !== '' ? Number(batch.dataset.minStock) : null,
-                        availableQty: Number(batch.dataset.quantity),
-                        quantity: Number(batch.dataset.quantity)
-                    });
-                });
-            }
-        });
-
-        // Collect from individual batch selections
-        tableBody.querySelectorAll('.batch-select:checked').forEach(cb => {
-            const batchId = cb.dataset.batchId;
-            const detailRow = cb.closest('.detail-row');
-            if (detailRow) {
-                const variantId = detailRow.dataset.variantId;
-                const variant = variantData.find(v => v.variantId == variantId);
-                if (variant) {
-                    const batch = variant.batches.find(b => b.dataset.batchId == batchId);
-                    if (batch) {
-                        items.push({
-                            variantId: Number(variantId),
-                            batchId: Number(batchId),
-                            inventoryId: Number(detailRow.dataset.inventoryId),
-                            medicineName: batch.dataset.medicineName || '',
-                            strength: batch.dataset.strength || '',
-                            unit: detailRow.dataset.unit || '',
-                            batchCode: detailRow.dataset.batchCode || '',
-                            minStock: detailRow.dataset.minStock && detailRow.dataset.minStock !== '' ? Number(detailRow.dataset.minStock) : null,
-                            availableQty: Number(detailRow.dataset.quantity),
-                            quantity: Number(detailRow.dataset.quantity)
-                        });
-                    }
-                }
-            }
-        });
-
-        if (items.length === 0) {
-            alert('Chưa chọn thuốc nào.');
-            return null;
-        }
-
-        const key = forType === 'receipt' ? 'preselectedReceiptItems' : 'preselectedExportItems';
-        sessionStorage.setItem(key, JSON.stringify(items));
-        window.location.href = forType === 'receipt' ? '/warehouse/receipt/create' : '/warehouse/export/create';
-    }
-
-    createReceiptBtn.addEventListener('click', () => collectSelected('receipt'));
-    createExportBtn.addEventListener('click', () => collectSelected('export'));
 
     // Initialize category filter
     function initializeCategoryFilter() {

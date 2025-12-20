@@ -1101,6 +1101,31 @@ function showAlert(type, message) {
     }
 }
 
+function validateCustomerName(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (!field) return true;
+
+    const value = field.value.trim();
+    clearError(fieldId);
+
+    // Nếu để trống thì không validate - sẽ dùng "Khách lẻ"
+    if (!value) return true;
+
+    // Kiểm tra không cho nhập số
+    if (/\d/.test(value)) {
+        showError(fieldId, 'Tên khách hàng không được chứa số');
+        return false;
+    }
+
+    // Kiểm tra độ dài tối đa
+    if (value.length > 100) {
+        showError(fieldId, 'Tên khách hàng không được vượt quá 100 ký tự');
+        return false;
+    }
+
+    return true;
+}
+
 function validatePhoneNumber(fieldId) {
     const field = document.getElementById(fieldId);
     if (!field) return true;
@@ -1110,6 +1135,12 @@ function validatePhoneNumber(fieldId) {
 
     // Nếu để trống thì không validate - sẽ dùng "Không có"
     if (!value) return true;
+
+    // Kiểm tra không cho nhập chữ cái
+    if (/[a-zA-ZÀ-ỹ]/.test(value)) {
+        showError(fieldId, 'Số điện thoại không được chứa chữ cái');
+        return false;
+    }
 
     // Chỉ validate khi người dùng thực sự nhập số điện thoại
     const phonePattern = /^(0|\+84)[0-9]{9,10}$/;
@@ -1200,10 +1231,7 @@ function validatePaymentForm() {
 
     // Build validations array based on payment method
     const validations = [
-        validateField('customerName', {
-            required: false,
-            maxLength: 100
-        }),
+        validateCustomerName('customerName'),
 
         validatePhoneNumber('phoneNumber'),
 
@@ -1485,6 +1513,32 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
+
+    // Prevent typing numbers in customer name field
+    const customerNameField = document.getElementById('customerName');
+    if (customerNameField) {
+        customerNameField.addEventListener('input', function(e) {
+            // Remove any digits from the input
+            const newValue = this.value.replace(/\d/g, '');
+            if (this.value !== newValue) {
+                this.value = newValue;
+                showToast('Cảnh báo', 'Tên khách hàng không được chứa số', 'warning', 2000);
+            }
+        });
+    }
+
+    // Prevent typing letters in phone number field
+    const phoneNumberField = document.getElementById('phoneNumber');
+    if (phoneNumberField) {
+        phoneNumberField.addEventListener('input', function(e) {
+            // Remove any letters (but keep + sign for +84)
+            const newValue = this.value.replace(/[a-zA-ZÀ-ỹ]/g, '');
+            if (this.value !== newValue) {
+                this.value = newValue;
+                showToast('Cảnh báo', 'Số điện thoại không được chứa chữ cái', 'warning', 2000);
+            }
+        });
+    }
 
     // Calculate change amount
     const paidAmountField = document.getElementById('paidAmount');

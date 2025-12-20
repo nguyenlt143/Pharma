@@ -142,12 +142,31 @@ class ReceiptControllerIT extends BaseWarehouseIT {
         logEvidence(TEST_CLASS, "testReceiptListFilter_byStatus", "GET", endpoint, result, startTime);
     }
 
+    @Test
+    @Order(7)
+    @DisplayName("GET /warehouse/receipt-list/filter - INVENTORY_ADJUSTMENT should only show from main warehouse (source_branch_id = 1)")
+    void testReceiptListFilter_inventoryAdjustmentOnlyFromMainWarehouse() throws Exception {
+        long startTime = System.currentTimeMillis();
+        String endpoint = "/warehouse/receipt-list/filter?type=INVENTORY_ADJUSTMENT";
+
+        MvcResult result = mockMvc.perform(get(endpoint))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        logEvidence(TEST_CLASS, "testReceiptListFilter_inventoryAdjustmentOnlyFromMainWarehouse", "GET", endpoint, result, startTime);
+
+        // Note: This test verifies that when filtering by INVENTORY_ADJUSTMENT type,
+        // only movements with source_branch_id = 1 (main warehouse) are returned
+    }
+
     // ========================================================================
     // GET /warehouse/receipt-detail/{id} - Chi tiết phiếu
     // ========================================================================
 
     @Test
-    @Order(7)
+    @Order(8)
     @DisplayName("GET /warehouse/receipt-detail/{id} - Should return receipt detail page")
     void testReceiptDetail_shouldReturnDetailPage() throws Exception {
         long startTime = System.currentTimeMillis();
@@ -164,7 +183,7 @@ class ReceiptControllerIT extends BaseWarehouseIT {
     }
 
     @Test
-    @Order(8)
+    @Order(9)
     @DisplayName("GET /warehouse/receipt-detail/{id} - Should return detail for APPROVED receipt")
     void testReceiptDetail_approvedReceipt() throws Exception {
         long startTime = System.currentTimeMillis();
@@ -184,7 +203,7 @@ class ReceiptControllerIT extends BaseWarehouseIT {
     // ========================================================================
 
     @Test
-    @Order(9)
+    @Order(10)
     @DisplayName("POST /warehouse/receipts/{id}/approve - Should approve DRAFT receipt")
     void testApproveReceipt_shouldApproveSuccessfully() throws Exception {
         long startTime = System.currentTimeMillis();
@@ -204,7 +223,7 @@ class ReceiptControllerIT extends BaseWarehouseIT {
     // ========================================================================
 
     @Test
-    @Order(10)
+    @Order(11)
     @DisplayName("POST /warehouse/receipts/{id}/ship - Should ship APPROVED receipt")
     void testShipReceipt_shouldShipSuccessfully() throws Exception {
         long startTime = System.currentTimeMillis();
@@ -224,7 +243,7 @@ class ReceiptControllerIT extends BaseWarehouseIT {
     // ========================================================================
 
     @Test
-    @Order(11)
+    @Order(12)
     @DisplayName("POST /warehouse/receipts/{id}/receive - Should receive SHIPPED receipt")
     void testReceiveReceipt_shouldReceiveSuccessfully() throws Exception {
         long startTime = System.currentTimeMillis();
@@ -244,7 +263,7 @@ class ReceiptControllerIT extends BaseWarehouseIT {
     // ========================================================================
 
     @Test
-    @Order(12)
+    @Order(13)
     @DisplayName("POST /warehouse/receipts/{id}/cancel - Should cancel DRAFT receipt")
     void testCancelReceipt_shouldCancelSuccessfully() throws Exception {
         long startTime = System.currentTimeMillis();

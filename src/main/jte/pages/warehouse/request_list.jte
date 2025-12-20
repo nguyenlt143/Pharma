@@ -58,49 +58,6 @@ content = @`
         </section>
 
 
-        <section class="filter-section">
-            <div class="filter-container">
-                <div class="filter-dropdown">
-                    <button class="filter-button" id="branch-filter">
-                        <span class="filter-text">Chi Nhánh</span>
-                        <img src="https://static.codia.ai/image/2025-11-05/EVQukAnihp.png" alt="Dropdown" class="filter-icon">
-                    </button>
-                    <div class="dropdown-menu" id="branch-menu">
-                        <div class="dropdown-item" data-value="">Tất cả</div>
-                        @for(Branch branch : branches)
-                            <div class="dropdown-item" data-value="${branch.getId()}">${branch.getName()}</div>
-                        @endfor
-                    </div>
-                </div>
-
-                <div class="filter-dropdown">
-                    <button class="filter-button" id="date-filter">
-                        <span class="filter-text">Ngày</span>
-                        <img src="https://static.codia.ai/image/2025-11-05/qVXHNi7hnA.png" alt="Dropdown" class="filter-icon">
-                    </button>
-                    <input type="date" id="date-input" class="date-input">
-                </div>
-
-                <div class="filter-dropdown">
-                    <button class="filter-button" id="status-filter">
-                        <span class="filter-text">Trạng thái</span>
-                        <img src="https://static.codia.ai/image/2025-11-05/Vh0ukYYmjG.png" alt="Dropdown" class="filter-icon">
-                    </button>
-                    <div class="dropdown-menu" id="status-menu">
-                        <div class="dropdown-item" data-value="">Tất cả</div>
-                        <div class="dropdown-item" data-value="REQUESTED">Đang duyệt</div>
-                        <div class="dropdown-item" data-value="CONFIRMED">Chấp nhận</div>
-                        <div class="dropdown-item" data-value="RECEIVED">Hoàn thành</div>
-                        <div class="dropdown-item" data-value="CANCELLED">Từ chối</div>
-                    </div>
-                </div>
-
-                <button class="clear-filters-button" id="clear-filters">
-                    <span>Xóa bộ lọc</span>
-                </button>
-            </div>
-        </section>
-
 
         <section class="table-section">
             <div class="table-container">

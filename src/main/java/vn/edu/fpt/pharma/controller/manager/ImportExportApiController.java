@@ -178,7 +178,10 @@ public class ImportExportApiController {
         }
 
         // Return recent Inventory Movements involving this branch (source or destination)
+        // EXCLUDE: INVENTORY_ADJUSTMENT and BR_TO_WARE2 (expired goods return)
         List<InventoryMovement> movements = inventoryMovementRepository.findAll().stream()
+                .filter(mv -> mv.getMovementType() != MovementType.INVENTORY_ADJUSTMENT)
+                .filter(mv -> mv.getMovementType() != MovementType.BR_TO_WARE2)
                 .filter(mv -> (mv.getDestinationBranchId() != null && mv.getDestinationBranchId().equals(branchId))
                         || (mv.getSourceBranchId() != null && mv.getSourceBranchId().equals(branchId)))
                 .sorted((a, b) -> {

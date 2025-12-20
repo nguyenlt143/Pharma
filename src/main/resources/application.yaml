@@ -47,13 +47,6 @@ gg:
 server:
   port: 8080
 
-logging:
-  level:
-    root: INFO
-    org.springframework.web: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
-    org.thymeleaf: INFO
-    gg.jte: INFO
+
 
 

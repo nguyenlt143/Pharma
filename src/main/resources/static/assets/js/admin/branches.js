@@ -23,6 +23,8 @@
     let currentPage = 1;
     let recordsPerPage = 25;
     let showDeleted = false;
+    let isSubmitting = false; // Prevent double submission
+    let submitListenerCount = 0; // Track how many times submit listener is attached
 
     // Branch type labels
     const branchTypeLabels = {
@@ -51,35 +53,8 @@
         });
     }
 
-    // UTIL
-    function showToast(msg, timeout = 2500, type = 'info') {
-        if (!toastEl) {
-            // Use global toast system as fallback
-            if (window.showToast) {
-                window.showToast(msg, type, timeout);
-            } else {
-                console.error('Toast not available:', msg);
-            }
-            return;
-        }
-        toastEl.textContent = msg;
-        toastEl.classList.remove('hidden', 'success', 'error');
-        toastEl.style.display = 'block';
-        void toastEl.offsetWidth;
-        toastEl.classList.add('show');
-        if (type === 'success') {
-            toastEl.classList.add('success');
-        } else if (type === 'error') {
-            toastEl.classList.add('error');
-        }
-        setTimeout(() => {
-            toastEl.classList.remove('show');
-            setTimeout(() => {
-                toastEl.classList.add('hidden');
-                toastEl.style.display = 'none';
-            }, 250);
-        }, timeout);
-    }
+    // Use global toast system from toast.js
+    // showToast(message, type, duration) is available globally
 
     function openModal(mode = 'create', data = null) {
         modal.classList.remove('hidden');
@@ -92,8 +67,16 @@
         if (mode === 'create') {
             modalTitle.textContent = 'Tạo chi nhánh';
             branchIdInput.value = '';
+
+            // ✅ Reset form completely
             branchForm.reset();
+
+            // ✅ Manually clear all input values to prevent browser cache
+            document.getElementById('name').value = '';
+            document.getElementById('address').value = '';
+
             branchTypeSelect.disabled = false;
+            branchTypeSelect.value = ''; // ✅ Reset to no selection
             return;
         }
 
@@ -120,6 +103,9 @@
 
 
     function closeModal() {
+        clearFieldErrors(); // Clear any validation errors
+        branchForm.reset(); // Reset form values
+        branchIdInput.value = ''; // Clear ID field
         modal.classList.add('hidden');
         modal.setAttribute('aria-hidden', 'true');
     }
@@ -128,26 +114,34 @@
     async function fetchAll() {
         try {
             const url = showDeleted ? `${API_BASE}?showDeleted=true` : API_BASE;
+            console.log('[Branch] Fetching branches from:', url);
             const res = await fetch(url);
-            if (!res.ok) throw new Error('Lỗi khi lấy danh sách');
+            if (!res.ok) {
+                console.error('[Branch] fetchAll failed with status:', res.status);
+                throw new Error('Lỗi khi lấy danh sách');
+            }
             allBranches = await res.json();
+            console.log('[Branch] Fetched', allBranches.length, 'branches');
             applySearchAndRender();
         } catch (e) {
-            console.error(e);
-            showToast(e.message || 'Lỗi mạng', 3000, 'error');
+            console.error('[Branch] fetchAll error:', e);
+            showToast(e.message || 'Lỗi mạng', 'error', 3000);
         }
     }
 
     async function createBranch(payload) {
+        console.log('[Branch] createBranch called with payload:', payload);
         const res = await fetch(API_BASE, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
         });
+        console.log('[Branch] createBranch response status:', res.status, res.ok);
         if (!res.ok) {
             const contentType = res.headers.get('content-type');
             if (contentType && contentType.includes('application/json')) {
                 const errorData = await res.json();
+                console.error('[Branch] createBranch error response:', errorData);
                 // Check if it's field-level errors (object with field names)
                 if (typeof errorData === 'object' && !errorData.message) {
                     const err = new Error('Validation failed');
@@ -158,10 +152,13 @@
                 }
             } else {
                 const errorText = await res.text();
+                console.error('[Branch] createBranch error text:', errorText);
                 throw new Error(errorText || 'Tạo thất bại');
             }
         }
-        return await res.json();
+        const result = await res.json();
+        console.log('[Branch] createBranch success response:', result);
+        return result;
     }
 
     async function updateBranch(id, payload) {
@@ -302,7 +299,7 @@
                         openModal('edit', data);
                     }
                 } catch (e) {
-                    showToast(e.message || 'Lỗi', 3000, 'error');
+                    showToast(e.message || 'Lỗi', 'error', 3000);
                 }
             });
         });
@@ -313,10 +310,10 @@
                 if (!confirm('Bạn chắc chắn muốn xoá chi nhánh này?')) return;
                 try {
                     await deleteBranch(id);
-                    showToast('Xoá thành công', 2500, 'success');
+                    showToast('Xoá thành công', 'success', 3000);
                     await fetchAll();
                 } catch (e) {
-                    showToast(e.message || 'Lỗi', 4000, 'error');
+                    showToast(e.message || 'Lỗi xóa chi nhánh', 'error', 5000);
                 }
             });
         });
@@ -327,10 +324,10 @@
                 if (!confirm('Bạn chắc chắn muốn khôi phục chi nhánh này?')) return;
                 try {
                     await restoreBranch(id);
-                    showToast('Khôi phục thành công', 2500, 'success');
+                    showToast('Khôi phục thành công', 'success', 3000);
                     await fetchAll();
                 } catch (e) {
-                    showToast(e.message || 'Lỗi', 4000, 'error');
+                    showToast(e.message || 'Lỗi khôi phục', 'error', 5000);
                 }
             });
         });
@@ -390,7 +387,18 @@
         }
     }
 
+    // Global flag to prevent duplicate event listener attachment
+    let isEventListenersAttached = false;
+
     function setupEventListeners() {
+        // Prevent attaching listeners multiple times
+        if (isEventListenersAttached) {
+            console.warn('[Branch] Event listeners already attached, skipping...');
+            return;
+        }
+        isEventListenersAttached = true;
+        console.log('[Branch] Attaching event listeners...');
+
         // Create button
         btnCreate.addEventListener('click', () => openModal('create'));
 
@@ -424,11 +432,26 @@
             modalClose.click();
         });
 
-        // Form submit
+        // Form submit - Use { once: false } but with isSubmitting flag
+        submitListenerCount++;
+        console.log('[Branch] 📌 Attaching submit listener #' + submitListenerCount);
         branchForm.addEventListener('submit', async (ev) => {
             ev.preventDefault();
+
+            console.log('[Branch] ⚠️ FORM SUBMIT EVENT FIRED (listener #' + submitListenerCount + ') - isSubmitting:', isSubmitting);
+
+            // Prevent double submission
+            if (isSubmitting) {
+                console.log('[Branch] ❌ Form submission already in progress, IGNORING this submission...');
+                return;
+            }
+
+            console.log('[Branch] ✅ Starting form submission...');
+            isSubmitting = true;
             clearFieldErrors();
 
+            // ⚠️ IMPORTANT: Collect form data BEFORE disabling elements
+            // Disabled inputs are NOT included in FormData!
             const form = new FormData(branchForm);
             const payload = {
                 name: form.get('name'),
@@ -436,17 +459,40 @@
                 address: form.get('address')
             };
 
+            console.log('[Branch] 📋 Form data collected:', payload);
+            console.log('[Branch] 📋 Raw values:', {
+                name: document.getElementById('name').value,
+                branchType: document.getElementById('branchType').value,
+                address: document.getElementById('address').value
+            });
+
+            // Disable form to prevent double-clicks AFTER collecting data
+            const formElements = branchForm.querySelectorAll('input, select, button');
+            formElements.forEach(el => el.disabled = true);
+
             const id = branchIdInput.value;
             try {
                 if (id) {
+                    console.log('[Branch] Updating branch:', id, payload);
                     await updateBranch(id, payload);
-                    showToast('Cập nhật thành công', 2500, 'success');
+                    console.log('[Branch] Update successful');
+                    showToast('Cập nhật thành công', 'success', 3000);
                 } else {
-                    await createBranch(payload);
-                    showToast('Tạo thành công', 2500, 'success');
+                    console.log('[Branch] Creating branch:', payload);
+                    const result = await createBranch(payload);
+                    console.log('[Branch] Create successful:', result);
+                    showToast('Tạo thành công', 'success', 3000);
                 }
+
+                // ✅ Close modal (this will reset form and clear errors)
                 closeModal();
+
+                // ✅ Add small delay to ensure database transaction is committed
+                await new Promise(resolve => setTimeout(resolve, 100));
+
+                console.log('[Branch] Fetching updated branch list...');
                 await fetchAll();
+                console.log('[Branch] Branch list refreshed successfully');
             } catch (e) {
                 console.error(e);
                 // Check if error has field-level errors
@@ -454,9 +500,26 @@
                     displayFieldErrors(e.errors);
                     focusFirstInvalidField();
                 } else {
-                    // Generic error - show toast
-                    showToast(e.message || 'Lỗi khi lưu', 3000, 'error');
+                    // Generic error - show toast with better message formatting
+                    let errorMessage = e.message || 'Lỗi khi lưu';
+
+                    // Check for duplicate entry error
+                    if (errorMessage.includes('Duplicate entry')) {
+                        const branchName = form.get('name');
+                        errorMessage = `Chi nhánh "${branchName}" đã tồn tại trong hệ thống. Vui lòng chọn tên khác.`;
+                    } else if (errorMessage.includes('constraint')) {
+                        errorMessage = 'Dữ liệu bị trùng lặp. Vui lòng kiểm tra lại thông tin.';
+                    }
+
+                    showToast(errorMessage, 'error', 5000); // 5 seconds for error messages
                 }
+            } finally {
+                // Always reset the submission flag
+                isSubmitting = false;
+
+                // Re-enable form elements
+                const formElements = branchForm.querySelectorAll('input, select, button');
+                formElements.forEach(el => el.disabled = false);
             }
         });
 

@@ -12,7 +12,7 @@ headContent = @`
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 `,
 content = @`
-    !{var hidePrice = receipt.getType().equals("DISPOSAL") || receipt.getType().equals("INVENTORY_ADJUSTMENT");}
+    !{var hidePrice = receipt.getType().equals("DISPOSAL") || receipt.getType().equals("INVENTORY_ADJUSTMENT") || receipt.getType().equals("BR_TO_WARE") || receipt.getType().equals("BR_TO_WARE2");}
     <!-- Main Content -->
     <main class="flex-1 p-6 overflow-y-auto bg-gray-100">
         <!-- Back button -->
