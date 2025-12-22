@@ -10,7 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const employeeTableBody = document.getElementById("employeeTableBody");
     const employeeSelect = document.getElementById("employeeSelect");
     const assignBtn = document.getElementById("assignBtn");
-    const toastEl = document.getElementById("toast");
 
     // ====================== PAGINATION STATE ======================
     let allShifts = [];
@@ -291,11 +290,11 @@ document.addEventListener("DOMContentLoaded", () => {
             try {
                 const res = await fetch(`/api/manager/shifts/${id}/restore`, { method: "PATCH" });
                 if (res.ok) {
-                    showToast("Đã khôi phục thành công!", 2500, 'success');
+                    showToast("Đã khôi phục thành công!", 'success', 2500);
                     loadShifts();
                 } else {
                     const error = await res.text();
-                    showToast(error || "Khôi phục thất bại!", 3000, 'error');
+                    showToast(error || "Khôi phục thất bại!", 'error', 3000);
                 }
             } catch (err) {
                 console.error("❌ Lỗi khôi phục shift:", err);

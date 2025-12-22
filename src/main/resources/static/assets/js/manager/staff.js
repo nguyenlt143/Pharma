@@ -17,7 +17,6 @@
         const staffForm = document.getElementById('staffForm');
         const staffIdInput = document.getElementById('staffId');
         const passwordWrapper = document.getElementById('passwordWrapper');
-        const toastEl = document.getElementById('toast');
 
         let allStaff = [];
         let filteredStaff = [];
@@ -557,7 +556,7 @@
                     } else {
                         // Generic error - show toast
                         console.log('Displaying toast for generic error');
-                        showToast(e.message || e.data?.message || 'Lỗi khi lưu', 3000, 'error');
+                        showToast(e.message || e.data?.message || 'Lỗi khi lưu', 'error', 3000);
                     }
                 }
             });

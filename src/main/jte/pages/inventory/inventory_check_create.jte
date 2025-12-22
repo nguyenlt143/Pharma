@@ -7,6 +7,7 @@
     <meta charset="UTF-8">
     <title>Phiếu kiểm kho</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/toast.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
 </head>
@@ -122,6 +123,7 @@
         </div>
     </main>
 </div>
+<script src="/assets/js/utils/toast.js"></script>
 <script src="/assets/js/inventory/inventory_check_create.js"></script>
 <script>
 function updateSearchSTT() {

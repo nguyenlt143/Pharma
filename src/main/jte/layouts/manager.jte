@@ -101,7 +101,6 @@
     </main>
 </div>
 
-${pageScript}
 
 <script>
     // Active nav link highlighting

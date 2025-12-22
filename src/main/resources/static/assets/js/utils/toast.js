@@ -16,7 +16,7 @@
 
     // Toast configuration
     const TOAST_CONFIG = {
-        duration: 3000, // Default duration in milliseconds
+        duration: 2000, // Default duration in milliseconds
         position: 'top-right', // Position on screen
         maxToasts: 5, // Maximum number of visible toasts
         closeButton: true // Show close button
@@ -61,6 +61,9 @@
         // Create toast element
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
+        toast.style.cssText = `
+            pointer-events: auto;
+        `;
 
         // Create message element
         const messageEl = document.createElement('span');
@@ -74,6 +77,7 @@
             closeBtn.className = 'toast-close';
             closeBtn.innerHTML = '×';
             closeBtn.setAttribute('aria-label', 'Close');
+            closeBtn.style.pointerEvents = 'auto';
             closeBtn.onclick = () => removeToast(toast);
             toast.appendChild(closeBtn);
         }
@@ -116,7 +120,7 @@
             if (toast.parentElement) {
                 toast.parentElement.removeChild(toast);
             }
-        }, 300);
+        }, 200);
     }
 
     /**

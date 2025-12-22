@@ -53,9 +53,9 @@ public class AdjustmentApiController {
 
         // Calculate values by type according to business rules
         // IMPORTANT: Calculate per detail item, not per movement, to handle mixed adjustments
-        double totalExpiredValue = 0.0;  // BR_TO_WARE2 (Expired returns)
-        double totalShortageValue = 0.0; // INVENTORY_ADJUSTMENT with negative quantity
-        double totalSurplusValue = 0.0;  // INVENTORY_ADJUSTMENT with positive quantity
+        double totalExpiredValue = 0.0;  // BR_TO_WARE2 (Expired returns) - always positive (loss amount)
+        double totalShortageValue = 0.0; // INVENTORY_ADJUSTMENT with negative quantity - positive value (loss amount)
+        double totalSurplusValue = 0.0;  // INVENTORY_ADJUSTMENT with positive quantity - positive value (gain amount)
 
         for (InventoryMovement m : movements) {
             if (m.getMovementType() == MovementType.BR_TO_WARE2) {
@@ -67,13 +67,17 @@ public class AdjustmentApiController {
                 if (m.getInventoryMovementDetails() != null) {
                     for (InventoryMovementDetail detail : m.getInventoryMovementDetails()) {
                         if (detail.getQuantity() != null && detail.getSnapCost() != null) {
-                            double itemValue = Math.abs(detail.getQuantity() * detail.getSnapCost());
+                            // Calculate actual value (can be negative or positive)
+                            double itemValue = detail.getQuantity() * detail.getSnapCost();
+
                             if (detail.getQuantity() < 0) {
                                 // Negative quantity = Shortage (loss)
-                                totalShortageValue += itemValue;
+                                // Store as positive value representing the amount of loss
+                                totalShortageValue += Math.abs(itemValue);
                             } else if (detail.getQuantity() > 0) {
                                 // Positive quantity = Surplus (gain/offset)
-                                totalSurplusValue += itemValue;
+                                // Store as positive value representing the amount of gain
+                                totalSurplusValue += itemValue; // Already positive
                             }
                             // If quantity == 0, skip (shouldn't happen but handle gracefully)
                         }
@@ -83,6 +87,9 @@ public class AdjustmentApiController {
         }
 
         // Calculate total and net values
+        // All values are positive representing amounts
+        // totalLoss = sum of all losses (expired + shortage)
+        // netLoss = total losses minus gains (surplus)
         double totalLoss = totalExpiredValue + totalShortageValue;
         double netLoss = totalLoss - totalSurplusValue;
 
@@ -157,30 +164,63 @@ public class AdjustmentApiController {
             dailyData.putIfAbsent(date, new HashMap<>());
             Map<String, Double> dayData = dailyData.get(date);
 
-            // Calculate total from snapCost * quantity - use absolute value
-            Double totalMoney = Math.abs(calculateTotalMoney(m));
-
-            if (m.getMovementType() == MovementType.INVENTORY_ADJUSTMENT) {
-                dayData.put("adjustments", dayData.getOrDefault("adjustments", 0.0) + totalMoney);
-            } else if (m.getMovementType() == MovementType.BR_TO_WARE2) {
+            if (m.getMovementType() == MovementType.BR_TO_WARE2) {
+                // Expired returns - always positive loss amount
+                Double totalMoney = Math.abs(calculateTotalMoney(m));
                 dayData.put("expiredReturns", dayData.getOrDefault("expiredReturns", 0.0) + totalMoney);
+
+            } else if (m.getMovementType() == MovementType.INVENTORY_ADJUSTMENT) {
+                // Calculate net value for adjustment (shortage - surplus)
+                // Process each detail to separate shortage and surplus
+                double shortage = 0.0;  // Positive value representing loss
+                double surplus = 0.0;   // Positive value representing gain
+
+                if (m.getInventoryMovementDetails() != null) {
+                    for (InventoryMovementDetail detail : m.getInventoryMovementDetails()) {
+                        if (detail.getQuantity() != null && detail.getSnapCost() != null) {
+                            double itemValue = detail.getQuantity() * detail.getSnapCost();
+                            if (detail.getQuantity() < 0) {
+                                // Shortage: negative quantity means loss
+                                shortage += Math.abs(itemValue);
+                            } else if (detail.getQuantity() > 0) {
+                                // Surplus: positive quantity means gain
+                                surplus += itemValue;
+                            }
+                        }
+                    }
+                }
+
+                // Net adjustment = shortage - surplus (can be negative if surplus > shortage)
+                double netAdjustment = shortage - surplus;
+                dayData.put("adjustments", dayData.getOrDefault("adjustments", 0.0) + netAdjustment);
+
+                // Also store breakdown for detailed view
+                dayData.put("shortage", dayData.getOrDefault("shortage", 0.0) + shortage);
+                dayData.put("surplus", dayData.getOrDefault("surplus", 0.0) + surplus);
             }
         }
 
         List<String> labels = new ArrayList<>();
         List<Double> adjustments = new ArrayList<>();
         List<Double> expiredReturns = new ArrayList<>();
+        List<Double> shortage = new ArrayList<>();
+        List<Double> surplus = new ArrayList<>();
+
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM");
         for (Map.Entry<LocalDate, Map<String, Double>> entry : dailyData.entrySet()) {
             labels.add(entry.getKey().format(fmt));
             adjustments.add(entry.getValue().getOrDefault("adjustments", 0.0));
             expiredReturns.add(entry.getValue().getOrDefault("expiredReturns", 0.0));
+            shortage.add(entry.getValue().getOrDefault("shortage", 0.0));
+            surplus.add(entry.getValue().getOrDefault("surplus", 0.0));
         }
 
         Map<String, Object> data = new HashMap<>();
         data.put("labels", labels);
-        data.put("adjustments", adjustments);
+        data.put("adjustments", adjustments);  // Net value (shortage - surplus)
         data.put("expiredReturns", expiredReturns);
+        data.put("shortage", shortage);  // Positive: amount of loss
+        data.put("surplus", surplus);    // Positive: amount of gain
 
         return ResponseEntity.ok(data);
     }

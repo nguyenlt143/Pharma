@@ -273,14 +273,14 @@ function renderActivitiesPage() {
         const value = activity.totalValue || 0;
 
         if (activity.adjustmentType === 'SURPLUS') {
-            // Hàng thừa - màu xanh lá, mũi tên lên, hiển thị âm
+            // Hàng thừa - màu xanh lá, mũi tên lên
             statusHtml = '<span class="status-badge status-surplus">↑ Thừa</span>';
-            valueHtml = `<span class="value-surplus">-${formatCurrency(Math.abs(value))}</span>`;
+            valueHtml = `<span class="value-surplus">${formatCurrency(Math.abs(value))}</span>`;
         } else if (activity.adjustmentType === 'SHORTAGE' || activity.type === 'BR_TO_WARE2') {
-            // Hàng thiếu hoặc hết hạn - màu đỏ, mũi tên xuống, hiển thị dương
+            // Hàng thiếu hoặc hết hạn - màu đỏ, mũi tên xuống
             const label = activity.type === 'BR_TO_WARE2' ? 'Hết hạn' : 'Thiếu';
             statusHtml = `<span class="status-badge status-shortage">↓ ${label}</span>`;
-            valueHtml = `<span class="value-shortage">+${formatCurrency(Math.abs(value))}</span>`;
+            valueHtml = `<span class="value-shortage">${formatCurrency(Math.abs(value))}</span>`;
         } else if (activity.adjustmentType === 'MIXED') {
             // Mixed adjustment - both surplus and shortage in same movement
             statusHtml = '<span class="status-badge status-mixed">⇅ Điều chỉnh</span>';

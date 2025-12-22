@@ -7,6 +7,7 @@
     <title>Tạo phiếu nhập kho</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/toast.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body class="bg-gray-100 font-sans text-gray-900">
@@ -148,6 +149,7 @@
     </main>
 </div>
 
+<script src="/assets/js/utils/toast.js"></script>
 <script src="/assets/js/inventory/import_create.js"></script>
 <script>
 // Preload items from medicine list selection
