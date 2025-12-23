@@ -18,22 +18,25 @@ public class MedicineRequest {
     @NotNull(message = "Danh mục thuốc là bắt buộc")
     private Long categoryId;
 
-    @NotNull(message = "Danh mục thuốc là bắt buộc")
+    @NotNull(message = "Thành phần hoạt chất là bắt buộc")
     private String activeIngredient;
 
-    @NotNull(message = "Danh mục thuốc là bắt buộc")
+    @NotNull(message = "Tên thương hiệu là bắt buộc")
     private String brandName;
 
-    @NotNull(message = "Danh mục thuốc là bắt buộc")
+    @NotNull(message = "Nhà sản xuất là bắt buộc")
     private String manufacturer;
 
-    @NotNull(message = "Danh mục thuốc là bắt buộc")
+    @NotNull(message = "Quốc gia sản xuất là bắt buộc")
     private String countryOfOrigin;
-    private String registrationNumber;
-    private String storageConditions;
+
     private String indications;
     private String contraindications;
     private String sideEffects;
+    private String uses;
+
+    private String registrationNumber;
+    private String storageConditions;
     private String instructions;
     private Boolean prescriptionRequired = false;
     private Integer status = 1;

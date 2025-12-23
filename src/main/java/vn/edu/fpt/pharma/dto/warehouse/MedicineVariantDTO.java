@@ -14,15 +14,13 @@ public class MedicineVariantDTO {
     private String unit;
     private String concentration;
     private String barcode;
-    private Double quantityPerPackage;
 
     public MedicineVariantDTO(MedicineVariant variant) {
         this.id = variant.getId();
         this.medicineName = variant.getMedicine() != null ? variant.getMedicine().getName() : "";
-        this.unit = variant.getBaseUnitId() != null ? variant.getBaseUnitId().getName() : "";
+        this.unit = ""; // Will be populated by service layer from UnitConversion
         this.concentration = variant.getStrength() != null ? variant.getStrength() : "";
         this.barcode = variant.getBarcode();
-        this.quantityPerPackage = variant.getQuantityPerPackage();
     }
 }
 

@@ -23,8 +23,7 @@ public record InventoryMovementDetailVM(
                 entity.getVariant() != null ? entity.getVariant().getId() : null,
                 entity.getVariant() != null && entity.getVariant().getMedicine() != null
                         ? entity.getVariant().getMedicine().getName() : "N/A",
-                entity.getVariant() != null && entity.getVariant().getBaseUnitId() != null
-                        ? entity.getVariant().getBaseUnitId().getName() : "",
+                "", // Unit will be populated by service layer from UnitConversion
                 entity.getVariant() != null && entity.getVariant().getStrength() != null
                         ? entity.getVariant().getStrength() : "",
                 entity.getQuantity(),

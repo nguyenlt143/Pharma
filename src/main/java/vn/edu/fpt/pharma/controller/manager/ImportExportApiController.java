@@ -28,6 +28,20 @@ public class ImportExportApiController {
     private final BranchRepository branchRepository;
     private final InventoryMovementRepository inventoryMovementRepository;
     private final ImportExportService importExportService;
+    private final vn.edu.fpt.pharma.repository.UnitConversionRepository unitConversionRepository;
+
+    // Helper method to get display unit from variant's unit conversions
+    private String getDisplayUnitFromVariant(vn.edu.fpt.pharma.entity.MedicineVariant variant) {
+        if (variant == null) return "-";
+        List<vn.edu.fpt.pharma.entity.UnitConversion> conversions = unitConversionRepository.findByVariantIdId(variant.getId());
+        if (conversions.isEmpty()) return "-";
+
+        // Strategy: Use conversion with smallest multiplier (typically the base unit)
+        return conversions.stream()
+                .min(Comparator.comparing(vn.edu.fpt.pharma.entity.UnitConversion::getMultiplier))
+                .map(uc -> uc.getUnitId().getName())
+                .orElse("-");
+    }
 
     // -------------------- Summary --------------------
     @GetMapping("/summary")
@@ -277,8 +291,7 @@ public class ImportExportApiController {
                         detail.put("variantId", imd.getVariant().getId());
                         detail.put("variantName", imd.getVariant().getDosage_form() != null ? imd.getVariant().getDosage_form() : "-");
                         detail.put("medicineName", imd.getVariant().getMedicine() != null && imd.getVariant().getMedicine().getName() != null ? imd.getVariant().getMedicine().getName() : "-");
-                        // Use packageUnitId as the displayed unit (consistent with other controllers)
-                        detail.put("unit", imd.getVariant().getPackageUnitId() != null && imd.getVariant().getPackageUnitId().getName() != null ? imd.getVariant().getPackageUnitId().getName() : "-");
+                        detail.put("unit", getDisplayUnitFromVariant(imd.getVariant()));
                     } else {
                         detail.put("medicineName", "-");
                         detail.put("variantName", "-");

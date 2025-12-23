@@ -35,6 +35,7 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
     private final BatchRepository batchRepository;
     private final MedicineVariantRepository variantRepository;
     private final RequestFormRepository requestFormRepository;
+    private final UnitConversionRepository unitConversionRepository;
 
     public InventoryMovementServiceImpl(
             InventoryMovementRepository repository,
@@ -44,7 +45,8 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
             InventoryMovementDetailRepository movementDetailRepository,
             BatchRepository batchRepository,
             MedicineVariantRepository variantRepository,
-            RequestFormRepository requestFormRepository
+            RequestFormRepository requestFormRepository,
+            UnitConversionRepository unitConversionRepository
     ) {
         super(repository, auditService);
         this.movementRepository = repository;
@@ -54,6 +56,20 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
         this.batchRepository = batchRepository;
         this.variantRepository = variantRepository;
         this.requestFormRepository = requestFormRepository;
+        this.unitConversionRepository = unitConversionRepository;
+    }
+
+    // Helper method to get display unit from variant's unit conversions
+    private String getDisplayUnitFromVariant(MedicineVariant variant) {
+        if (variant == null) return "N/A";
+        List<UnitConversion> conversions = unitConversionRepository.findByVariantIdId(variant.getId());
+        if (conversions.isEmpty()) return "N/A";
+
+        // Strategy: Use conversion with smallest multiplier (typically the base unit)
+        return conversions.stream()
+                .min(java.util.Comparator.comparing(UnitConversion::getMultiplier))
+                .map(uc -> uc.getUnitId().getName())
+                .orElse("N/A");
     }
 
     @Override
@@ -185,9 +201,7 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
                                 String concentration = detail.getVariant().getStrength() != null
                                     ? detail.getVariant().getStrength()
                                     : "N/A";
-                                String unit = detail.getVariant().getPackageUnitId() != null
-                                    ? detail.getVariant().getPackageUnitId().getName()
-                                    : "N/A";
+                                String unit = getDisplayUnitFromVariant(detail.getVariant());
                                 Integer quantity = detail.getQuantity() != null
                                     ? detail.getQuantity().intValue()
                                     : 0;
@@ -253,9 +267,7 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
                                     concentration = variant.getStrength() != null ? variant.getStrength() : "N/A";
                                     dosageForm = variant.getDosage_form() != null ? variant.getDosage_form() : "N/A";
 
-                                    if (variant.getPackageUnitId() != null) {
-                                        unit = variant.getPackageUnitId().getName() != null ? variant.getPackageUnitId().getName() : "N/A";
-                                    }
+                                    unit = getDisplayUnitFromVariant(variant);
 
                                     quantity = detail.getQuantity() != null ? detail.getQuantity().intValue() : 0;
 

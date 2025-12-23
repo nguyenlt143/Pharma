@@ -50,23 +50,12 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
         Medicine medicine = medicineRepository.findById(request.getMedicineId())
                 .orElseThrow(() -> new RuntimeException("Medicine not found"));
 
-        Unit baseUnit = request.getBaseUnitId() != null ?
-                unitRepository.findById(request.getBaseUnitId())
-                        .orElseThrow(() -> new RuntimeException("Base unit not found")) : null;
-
-        Unit packageUnit = request.getPackageUnitId() != null ?
-                unitRepository.findById(request.getPackageUnitId())
-                        .orElseThrow(() -> new RuntimeException("Package unit not found")) : null;
-
-        // Prevent duplicate variant with same full data
+        // Prevent duplicate variant with same basic data
         long duplicateCount = medicineVariantRepository.countDuplicateVariant(
                 request.getMedicineId(),
                 request.getDosageForm(),
                 request.getDosage(),
-                request.getStrength(),
-                request.getPackageUnitId(),
-                request.getBaseUnitId(),
-                request.getQuantityPerPackage()
+                request.getStrength()
         );
         if (duplicateCount > 0) {
             throw new IllegalArgumentException("Biến thể thuốc với thông tin này đã tồn tại");
@@ -77,26 +66,16 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                 .dosage_form(request.getDosageForm())
                 .dosage(request.getDosage())
                 .strength(request.getStrength())
-                .packageUnitId(packageUnit)
-                .baseUnitId(baseUnit)
-                .quantityPerPackage(request.getQuantityPerPackage())
                 .Barcode(request.getBarcode())
                 .registrationNumber(request.getRegistrationNumber())
                 .storageConditions(request.getStorageConditions())
-                .indications(request.getIndications())
-                .contraindications(request.getContraindications())
-                .sideEffects(request.getSideEffects())
                 .instructions(request.getInstructions())
                 .prescription_require(request.getPrescription_require() != null ? request.getPrescription_require() : false)
-                .uses(request.getUses())
                 .build();
 
         MedicineVariant saved = repository.save(variant);
 
-        // Automatically create unit conversions from baseUnit and packageUnit
-        createUnitConversionsFromVariant(saved);
-
-        // Save additional unit conversions if provided
+        // Save unit conversions if provided
         if (request.getUnitConversions() != null && !request.getUnitConversions().isEmpty()) {
             saveUnitConversions(saved, request.getUnitConversions());
         }
@@ -121,73 +100,27 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                 medicineRepository.findById(request.getMedicineId())
                         .orElseThrow(() -> new RuntimeException("Medicine not found")) : variant.getMedicine();
 
-        Unit baseUnit = request.getBaseUnitId() != null ?
-                unitRepository.findById(request.getBaseUnitId())
-                        .orElseThrow(() -> new RuntimeException("Base unit not found")) : variant.getBaseUnitId();
-
-        Unit packageUnit = request.getPackageUnitId() != null ?
-                unitRepository.findById(request.getPackageUnitId())
-                        .orElseThrow(() -> new RuntimeException("Package unit not found")) : variant.getPackageUnitId();
-
         if (request.getDosageForm() != null) variant.setDosage_form(request.getDosageForm());
         if (request.getDosage() != null) variant.setDosage(request.getDosage());
         if (request.getStrength() != null) variant.setStrength(request.getStrength());
         if (request.getBarcode() != null) variant.setBarcode(request.getBarcode());
-        if (request.getQuantityPerPackage() != null) variant.setQuantityPerPackage(request.getQuantityPerPackage());
         if (request.getRegistrationNumber() != null) variant.setRegistrationNumber(request.getRegistrationNumber());
         if (request.getStorageConditions() != null) variant.setStorageConditions(request.getStorageConditions());
-        if (request.getIndications() != null) variant.setIndications(request.getIndications());
-        if (request.getContraindications() != null) variant.setContraindications(request.getContraindications());
-        if (request.getSideEffects() != null) variant.setSideEffects(request.getSideEffects());
         if (request.getInstructions() != null) variant.setInstructions(request.getInstructions());
-        if (request.getUses() != null) variant.setUses(request.getUses());
         if (request.getPrescription_require() != null) variant.setPrescription_require(request.getPrescription_require());
-        
-        // Check if base unit or package unit changed
-        boolean unitsChanged = false;
-        if (request.getBaseUnitId() != null && !variant.getBaseUnitId().equals(baseUnit)) {
-            unitsChanged = true;
-        }
-        if (request.getPackageUnitId() != null && !variant.getPackageUnitId().equals(packageUnit)) {
-            unitsChanged = true;
-        }
-        if (request.getQuantityPerPackage() != null &&
-            !request.getQuantityPerPackage().equals(variant.getQuantityPerPackage())) {
-            unitsChanged = true;
-        }
 
         variant.setMedicine(medicine);
-        variant.setBaseUnitId(baseUnit);
-        variant.setPackageUnitId(packageUnit);
 
         MedicineVariant updated = repository.save(variant);
 
-        // If units changed, recreate unit conversions
-        if (unitsChanged) {
-            // Delete old conversions for base and package units
-            List<UnitConversion> existingConversions = unitConversionRepository.findByVariantIdId(id);
-            for (UnitConversion uc : existingConversions) {
-                if (uc.getUnitId().equals(variant.getBaseUnitId()) ||
-                    uc.getUnitId().equals(variant.getPackageUnitId())) {
-                    unitConversionRepository.delete(uc);
-                }
-            }
-
-            // Create new unit conversions from updated units
-            createUnitConversionsFromVariant(updated);
-        }
-
-        // Update additional unit conversions if provided
+        // Update unit conversions if provided
         if (request.getUnitConversions() != null) {
-            // Delete existing additional conversions (not base/package)
+            // Delete existing conversions
             List<UnitConversion> existingConversions = unitConversionRepository.findByVariantIdId(id);
             for (UnitConversion uc : existingConversions) {
-                if (!uc.getUnitId().equals(variant.getBaseUnitId()) &&
-                    !uc.getUnitId().equals(variant.getPackageUnitId())) {
-                    unitConversionRepository.delete(uc);
-                }
+                unitConversionRepository.delete(uc);
             }
-            // Save new additional conversions
+            // Save new conversions
             saveUnitConversions(updated, request.getUnitConversions());
         }
 
@@ -203,6 +136,7 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                     .variantId(variant)
                     .unitId(unit)
                     .multiplier(dto.getMultiplier())
+                    .note(dto.getNote())
                     .build();
 
             unitConversionRepository.save(conversion);
@@ -237,18 +171,16 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
 
         return rows.stream()
                 .map(r -> new SearchMedicineVM(
-                        ((Number) r[0]).longValue(),
-                        (String) r[1],
-                        (String) r[2],
-                        (String) r[3],
-                        (String) r[4],
-                        (String) r[5],
-                        (String) r[6],
-                        (long) ((Number) r[7]).doubleValue(),
-                        (String) r[8],
-                        (String) r[9],
-                        (String) r[10],
-                        (String) r[11]
+                        ((Number) r[0]).longValue(),  // id
+                        (String) r[1],  // name
+                        (String) r[2],  // active_ingredient
+                        (String) r[3],  // manufacturer
+                        (String) r[4],  // strength
+                        (String) r[5],  // country
+                        r[6] != null ? (long) ((Number) r[6]).doubleValue() : 0L,  // quantity_per_package
+                        (String) r[7],  // uses (from medicine)
+                        (String) r[8],  // contraindications (from medicine)
+                        (String) r[9]   // side_effects (from medicine)
                 ))
                 .collect(Collectors.toList());
     }
@@ -269,7 +201,8 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                             .map(u -> new UnitConversionVM(
                                     u.getUnitId().getId(),
                                     u.getUnitId().getName(),
-                                    u.getMultiplier()
+                                    u.getMultiplier(),
+                                    u.getNote()
                             ))
                             .collect(Collectors.toList());
 
@@ -278,20 +211,17 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                             (String) r[1],  // dosageForm
                             (String) r[2],  // dosage
                             (String) r[3],  // strength
-                            (String) r[4],  // packageUnitName
-                            (String) r[5],  // baseUnitName
-                            r[6] != null ? ((Number) r[6]).doubleValue() : null,  // quantityPerPackage
-                            (String) r[7],  // barcode
-                            (String) r[8],  // registrationNumber
-                            (String) r[9],  // storageConditions
-                            (String) r[10], // indications
-                            (String) r[11], // contraindications
-                            (String) r[12], // sideEffects
-                            (String) r[13], // instructions
-                            r[14] != null && (r[14] instanceof Boolean ? (Boolean) r[14] : ((Number) r[14]).intValue() == 1), // prescriptionRequire
-                            (String) r[15], // uses
-                            (String) r[16], // country
-                            (String) r[17], // manufacturer
+                            (String) r[4],  // barcode
+                            (String) r[5],  // registrationNumber
+                            (String) r[6],  // storageConditions
+                            (String) r[10], // instructions
+                            r[11] != null && (r[11] instanceof Boolean ? (Boolean) r[11] : ((Number) r[11]).intValue() == 1), // prescriptionRequire
+                            (String) r[7],  // indications (from medicine)
+                            (String) r[8],  // contraindications (from medicine)
+                            (String) r[9],  // sideEffects (from medicine)
+                            (String) r[12], // uses (from medicine)
+                            (String) r[13], // country
+                            (String) r[14], // manufacturer
                             inventories,
                             units
                     );
@@ -318,98 +248,6 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                     );
                 })
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
-    public void createUnitConversionsFromVariant(MedicineVariant variant) {
-        if (variant == null) {
-            throw new IllegalArgumentException("MedicineVariant không được để trống");
-        }
-
-        // Get existing conversions for this variant
-        List<UnitConversion> existingConversions = unitConversionRepository.findByVariantIdId(variant.getId());
-
-        // Check if baseUnitId and packageUnitId are the same
-        boolean isSameUnit = variant.getBaseUnitId() != null && variant.getPackageUnitId() != null &&
-                             variant.getBaseUnitId().getId().equals(variant.getPackageUnitId().getId());
-
-        // Create conversion for base unit (multiplier = 1)
-        if (variant.getBaseUnitId() != null) {
-            // Check if conversion already exists for this variant and base unit
-            boolean baseUnitExists = existingConversions.stream()
-                    .anyMatch(uc -> uc.getUnitId().equals(variant.getBaseUnitId()));
-
-            if (!baseUnitExists) {
-                UnitConversion baseConversion = UnitConversion.builder()
-                        .variantId(variant)
-                        .unitId(variant.getBaseUnitId())
-                        .multiplier(1.0)
-                        .build();
-                unitConversionRepository.save(baseConversion);
-            }
-        }
-
-        // Create conversion for package unit only if it's different from base unit
-        if (variant.getPackageUnitId() != null && variant.getQuantityPerPackage() != null && !isSameUnit) {
-            // Check if conversion already exists for this variant and package unit
-            boolean packageUnitExists = existingConversions.stream()
-                    .anyMatch(uc -> uc.getUnitId().equals(variant.getPackageUnitId()));
-
-            if (!packageUnitExists) {
-                UnitConversion packageConversion = UnitConversion.builder()
-                        .variantId(variant)
-                        .unitId(variant.getPackageUnitId())
-                        .multiplier(variant.getQuantityPerPackage())
-                        .build();
-                unitConversionRepository.save(packageConversion);
-            }
-        }
-    }
-
-    @Override
-    @Transactional
-    public void migrateAllVariantsToUnitConversions() {
-        // Get all medicine variants
-        List<MedicineVariant> allVariants = repository.findAll();
-
-        int totalVariants = allVariants.size();
-        int processedCount = 0;
-        int createdCount = 0;
-
-        System.out.println("========================================");
-        System.out.println("Bắt đầu migrate " + totalVariants + " MedicineVariant sang UnitConversion...");
-        System.out.println("========================================");
-
-        for (MedicineVariant variant : allVariants) {
-            try {
-                // Get existing conversions count before
-                int beforeCount = unitConversionRepository.findByVariantIdId(variant.getId()).size();
-
-                // Create unit conversions
-                createUnitConversionsFromVariant(variant);
-
-                // Get existing conversions count after
-                int afterCount = unitConversionRepository.findByVariantIdId(variant.getId()).size();
-                int newConversions = afterCount - beforeCount;
-
-                processedCount++;
-                createdCount += newConversions;
-
-                if (newConversions > 0) {
-                    System.out.println("✓ Variant ID " + variant.getId() +
-                                     " [" + variant.getMedicine().getName() + "]: " +
-                                     newConversions + " unit conversion(s) được tạo");
-                }
-            } catch (Exception e) {
-                System.err.println("✗ Lỗi xử lý variant ID " + variant.getId() + ": " + e.getMessage());
-            }
-        }
-
-        System.out.println("========================================");
-        System.out.println("Hoàn thành! Đã xử lý: " + processedCount + "/" + totalVariants + " variants");
-        System.out.println("Tổng số unit conversions được tạo: " + createdCount);
-        System.out.println("========================================");
     }
 }
 

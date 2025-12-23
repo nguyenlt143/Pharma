@@ -19,6 +19,4 @@ public interface MedicineVariantService extends BaseService<MedicineVariant, Lon
     List<SearchMedicineVM> findByKeyword(String keyword);
     List<VariantInventoryDTO> getVariantsWithInventoryByMedicineId(Long medicineId);
     List<Map<String, Object>> getUnitConversions(Long variantId);
-    void createUnitConversionsFromVariant(MedicineVariant variant);
-    void migrateAllVariantsToUnitConversions();
 }

@@ -340,17 +340,10 @@ function openEditVariantForm(variantId) {
             setValue('dosageForm', data.dosageForm || data.dosage_form);
             setValue('dosage', data.dosage);
             setValue('strength', data.strength);
-            setValue('packageUnitId', data.packageUnitId ? (typeof data.packageUnitId === 'object' ? data.packageUnitId.id : data.packageUnitId) : '');
-            setValue('baseUnitId', data.baseUnitId ? (typeof data.baseUnitId === 'object' ? data.baseUnitId.id : data.baseUnitId) : '');
-            setValue('quantityPerPackage', data.quantityPerPackage);
             setValue('barcode', data.barcode || data.Barcode);
             setValue('registrationNumber', data.registrationNumber);
             setValue('storageConditions', data.storageConditions);
-            setValue('indications', data.indications);
-            setValue('contraindications', data.contraindications);
-            setValue('sideEffects', data.sideEffects);
             setValue('instructions', data.instructions);
-            setValue('uses', data.uses);
 
             const prescriptionField = document.getElementById('prescriptionRequired');
             if (prescriptionField) {
@@ -393,17 +386,10 @@ function viewVariantDetail(variantId) {
             setValue('dosageForm', data.dosageForm || data.dosage_form);
             setValue('dosage', data.dosage);
             setValue('strength', data.strength);
-            setValue('packageUnitId', data.packageUnitId ? (typeof data.packageUnitId === 'object' ? data.packageUnitId.id : data.packageUnitId) : '');
-            setValue('baseUnitId', data.baseUnitId ? (typeof data.baseUnitId === 'object' ? data.baseUnitId.id : data.baseUnitId) : '');
-            setValue('quantityPerPackage', data.quantityPerPackage);
             setValue('barcode', data.barcode || data.Barcode);
             setValue('registrationNumber', data.registrationNumber);
             setValue('storageConditions', data.storageConditions);
-            setValue('indications', data.indications);
-            setValue('contraindications', data.contraindications);
-            setValue('sideEffects', data.sideEffects);
             setValue('instructions', data.instructions);
-            setValue('uses', data.uses);
 
             const prescriptionField = document.getElementById('prescriptionRequired');
             if (prescriptionField) {
@@ -419,6 +405,7 @@ function viewVariantDetail(variantId) {
                 // Disable all unit conversion inputs and selects
                 document.querySelectorAll('#unitConversionTableBody .unit-select').forEach(el => el.disabled = true);
                 document.querySelectorAll('#unitConversionTableBody .multiplier-input').forEach(el => el.disabled = true);
+                document.querySelectorAll('#unitConversionTableBody .note-input').forEach(el => el.disabled = true);
                 document.querySelectorAll('#unitConversionTableBody .btn-link.delete').forEach(el => el.style.display = 'none');
 
                 // Hide add button
@@ -943,6 +930,11 @@ function renderUnitConversions(conversions) {
                            value="${conversion.multiplier || ''}" 
                            placeholder="VD: 1, 10, 100" step="0.01" min="0.01" required
                            onchange="updateTotalUnits()" style="width: 100%;">
+                </td>
+                <td style="padding: 12px;">
+                    <input type="text" class="form-input note-input" data-index="${index}" 
+                           value="${conversion.note || ''}"
+                           placeholder="Ghi chú (tùy chọn)" style="width: 100%;">
                 </td>
                 <td style="padding: 12px; text-align: center;">
                     <button type="button" onclick="removeUnitConversionRow(this)" class="btn-link delete">Xóa</button>

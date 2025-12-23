@@ -24,4 +24,8 @@ public class Medicine extends BaseEntity<Long> {
     private String brandName;
     private String manufacturer;
     private String country;
+    private String indications;
+    private String contraindications;
+    private String sideEffects;
+    private String uses;
 }

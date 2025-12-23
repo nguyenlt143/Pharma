@@ -22,20 +22,9 @@ public class MedicineVariant extends BaseEntity<Long> {
     private String dosage_form;
     private String dosage;
     private String strength;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "package_unit_id")
-    private Unit packageUnitId;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "base_unit_id")
-    private Unit baseUnitId;
-    private Double quantityPerPackage;
     private String Barcode;
     private String registrationNumber;
     private String storageConditions;
-    private String indications;
-    private String contraindications;
-    private String sideEffects;
     private String instructions;
     private boolean prescription_require;
-    private String uses;
 }

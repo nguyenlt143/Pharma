@@ -164,10 +164,10 @@ headContent = @`
 content = @`
 <div class="page-container">
     <div class="page-header">
-        <h1 class="page-title">Quản lý danh mục</h1>
+        <h1 class="page-title">Quản lý nhóm thuốc</h1>
         <button class="btn-primary" onclick="openCreateModal()">
             <span class="material-icons" style="font-size: 18px;">add</span>
-            Thêm danh mục mới
+            Thêm nhóm thuốc mới
         </button>
     </div>
 

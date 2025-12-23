@@ -21,11 +21,12 @@ public class MedicineResponse {
     private String brandName;
     private String manufacturer;
     private String countryOfOrigin;
-    private String registrationNumber;
-    private String storageConditions;
     private String indications;
     private String contraindications;
     private String sideEffects;
+    private String uses;
+    private String registrationNumber;
+    private String storageConditions;
     private String instructions;
     private Boolean prescriptionRequired;
     private Integer status;
@@ -44,6 +45,10 @@ public class MedicineResponse {
                 .brandName(medicine.getBrandName())
                 .manufacturer(medicine.getManufacturer())
                 .countryOfOrigin(medicine.getCountry())
+                .indications(medicine.getIndications())
+                .contraindications(medicine.getContraindications())
+                .sideEffects(medicine.getSideEffects())
+                .uses(medicine.getUses())
                 .createdAt(medicine.getCreatedAt())
                 .updatedAt(medicine.getUpdatedAt())
                 .build();

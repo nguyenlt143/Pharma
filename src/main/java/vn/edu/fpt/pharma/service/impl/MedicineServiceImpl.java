@@ -79,6 +79,10 @@ public class MedicineServiceImpl extends BaseServiceImpl<Medicine, Long, Medicin
                 .brandName(request.getBrandName())
                 .manufacturer(request.getManufacturer())
                 .country(request.getCountryOfOrigin())
+                .indications(request.getIndications())
+                .contraindications(request.getContraindications())
+                .sideEffects(request.getSideEffects())
+                .uses(request.getUses())
                 .build();
 
         Medicine saved = repository.save(medicine);
@@ -108,6 +112,10 @@ public class MedicineServiceImpl extends BaseServiceImpl<Medicine, Long, Medicin
         if (request.getBrandName() != null) medicine.setBrandName(request.getBrandName());
         if (request.getManufacturer() != null) medicine.setManufacturer(request.getManufacturer());
         if (request.getCountryOfOrigin() != null) medicine.setCountry(request.getCountryOfOrigin());
+        if (request.getIndications() != null) medicine.setIndications(request.getIndications());
+        if (request.getContraindications() != null) medicine.setContraindications(request.getContraindications());
+        if (request.getSideEffects() != null) medicine.setSideEffects(request.getSideEffects());
+        if (request.getUses() != null) medicine.setUses(request.getUses());
 
         Medicine updated = repository.save(medicine);
         return MedicineResponse.fromEntity(updated);

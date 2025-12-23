@@ -263,6 +263,26 @@ content = @`
                 <input type="text" id="activeIngredient" class="form-input">
             </div>
 
+            <div class="form-group">
+                <label class="form-label">Chỉ định</label>
+                <textarea id="indications" class="form-textarea" rows="3" placeholder="Mô tả các chỉ định sử dụng thuốc..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Chống chỉ định</label>
+                <textarea id="contraindications" class="form-textarea" rows="3" placeholder="Mô tả các trường hợp chống chỉ định..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Tác dụng phụ</label>
+                <textarea id="sideEffects" class="form-textarea" rows="3" placeholder="Mô tả các tác dụng phụ có thể xảy ra..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Công dụng</label>
+                <textarea id="uses" class="form-textarea" rows="3" placeholder="Mô tả công dụng chính của thuốc..."></textarea>
+            </div>
+
             <div class="btn-group">
                 <button type="button" class="btn-secondary" onclick="closeMedicineModal()">Hủy</button>
                 <button type="submit" class="btn-primary">Lưu</button>
@@ -332,34 +352,23 @@ content = @`
                         <input type="text" id="strength" class="form-input" placeholder="VD: 500mg/ml" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Đơn vị cơ bản <span style="color: red;">*</span></label>
-                        <select id="baseUnitId" class="form-select" required>
-                            <option value="">Chọn đơn vị</option>
-                        </select>
+                        <label class="form-label">Mã vạch <span style="color: red;">*</span></label>
+                        <input type="text" id="barcode" class="form-input" required>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label">Đơn vị đóng gói <span style="color: red;">*</span></label>
-                        <select id="packageUnitId" class="form-select" required>
-                            <option value="">Chọn đơn vị</option>
-                        </select>
+                        <label class="form-label">Số đăng ký <span style="color: red;">*</span></label>
+                        <input type="text" id="registrationNumber" class="form-input" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Số lượng mỗi gói <span style="color: red;">*</span></label>
-                        <input type="number" id="quantityPerPackage" class="form-input" placeholder="VD: 10" step="0.01" required>
+                        <label class="form-label">Cần kê đơn <span style="color: red;">*</span></label>
+                        <select id="prescriptionRequired" class="form-select" required>
+                            <option value="false">Không</option>
+                            <option value="true">Có</option>
+                        </select>
                     </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Mã vạch <span style="color: red;">*</span></label>
-                    <input type="text" id="barcode" class="form-input" required>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Số đăng ký <span style="color: red;">*</span></label>
-                    <input type="text" id="registrationNumber" class="form-input" required>
                 </div>
 
                 <div class="form-group">
@@ -368,38 +377,8 @@ content = @`
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Chỉ định <span style="color: red;">*</span></label>
-                    <textarea id="indications" class="form-textarea" required></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Chống chỉ định <span style="color: red;">*</span></label>
-                    <textarea id="contraindications" class="form-textarea" required></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Tác dụng phụ <span style="color: red;">*</span></label>
-                    <textarea id="sideEffects" class="form-textarea" required></textarea>
-                </div>
-
-                <div class="form-group">
                     <label class="form-label">Hướng dẫn sử dụng <span style="color: red;">*</span></label>
                     <textarea id="instructions" class="form-textarea" required></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Công dụng <span style="color: red;">*</span></label>
-                    <textarea id="uses" class="form-textarea" required></textarea>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Cần kê đơn <span style="color: red;">*</span></label>
-                        <select id="prescriptionRequired" class="form-select" required>
-                            <option value="false">Không</option>
-                            <option value="true">Có</option>
-                        </select>
-                    </div>
                 </div>
 
                 <!-- Unit Conversions Section -->
@@ -416,6 +395,7 @@ content = @`
                                 <tr>
                                     <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 14px;">Tên đơn vị</th>
                                     <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 14px;">Quy đổi</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 14px;">Ghi chú</th>
                                     <th style="padding: 12px; text-align: center; font-weight: 600; font-size: 14px; width: 80px;">Hành động</th>
                                 </tr>
                             </thead>

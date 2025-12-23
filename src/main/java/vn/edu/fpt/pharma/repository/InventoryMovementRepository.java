@@ -30,7 +30,6 @@ public interface InventoryMovementRepository extends JpaRepository<InventoryMove
            "LEFT JOIN FETCH im.inventoryMovementDetails imd " +
            "LEFT JOIN FETCH imd.variant v " +
            "LEFT JOIN FETCH v.medicine m " +
-           "LEFT JOIN FETCH v.packageUnitId " +
            "WHERE im.id = :id")
     Optional<InventoryMovement> findByIdWithDetails(@Param("id") Long id);
 
@@ -59,7 +58,6 @@ public interface InventoryMovementRepository extends JpaRepository<InventoryMove
            "LEFT JOIN FETCH im.inventoryMovementDetails imd " +
            "LEFT JOIN FETCH imd.variant v " +
            "LEFT JOIN FETCH v.medicine m " +
-           "LEFT JOIN FETCH v.packageUnitId " +
            "WHERE im.requestForm.id = :requestFormId")
     Optional<InventoryMovement> findByRequestFormIdWithDetails(@Param("requestFormId") Long requestFormId);
 
