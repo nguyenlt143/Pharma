@@ -100,6 +100,42 @@ headContent = @`
         .btn-secondary:hover {
             background-color: #4B5563;
         }
+        .btn-close-variant {
+            background-color: #059669;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .btn-close-variant:hover {
+            background-color: #047857;
+        }
+        .btn-close-detail {
+            background-color: #7C3AED;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .btn-close-detail:hover {
+            background-color: #6D28D9;
+        }
+        .btn-close-view {
+            background-color: #F59E0B;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .btn-close-view:hover {
+            background-color: #D97706;
+        }
         .status-badge {
             padding: 4px 12px;
             border-radius: 12px;
@@ -420,7 +456,7 @@ content = @`
         </div>
 
         <div class="btn-group" style="border-top: 1px solid #E5E7EB; padding-top: 16px; margin-top: 16px;">
-            <button type="button" class="btn-secondary" onclick="closeVariantModal()">Đóng</button>
+            <button type="button" class="btn-close-variant" onclick="closeVariantModal()">✓ Đóng quản lý</button>
         </div>
     </div>
 </div>
@@ -433,7 +469,7 @@ content = @`
             <!-- Detail content will be loaded here -->
         </div>
         <div class="btn-group" style="margin-top: 24px;">
-            <button type="button" class="btn-secondary" onclick="closeDetailModal()">Đóng</button>
+            <button type="button" class="btn-close-detail" onclick="closeDetailModal()">✓ Đóng chi tiết</button>
         </div>
     </div>
 </div>

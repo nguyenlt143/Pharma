@@ -96,10 +96,10 @@ function initDataTable() {
                     const medicineName = ((row.medicineName || row.name || '')).replace(/'/g, "\\'");
                     return `
                         <div class="action-buttons">
-                            <button onclick="openEditModal(${row.id})" class="btn-link" style="color: #2563EB;">Sửa</button>
-                            <button onclick="openVariantModal(${row.id}, '${medicineName}')" class="btn-link" style="color: #059669;">Xem Dạng thuốc</button>
-                            <button onclick="viewDetails(${row.id})" class="btn-link" style="color: #7C3AED;">Chi tiết</button>
-                            <button onclick="confirmDelete(${row.id})" class="btn-link delete">Xóa</button>
+                            <button onclick="openVariantModal(${row.id}, '${medicineName}')" class="btn-link" style="color: #059669; font-weight: 600;">📋 Xem Dạng thuốc</button>
+                            <button onclick="viewDetails(${row.id})" class="btn-link" style="color: #7C3AED; font-weight: 600;">👁 Chi tiết</button>
+                            <button onclick="openEditModal(${row.id})" class="btn-link" style="color: #2563EB;">✏ Sửa</button>
+                            <button onclick="confirmDelete(${row.id})" class="btn-link delete" style="font-weight: 600;">🗑 Xóa</button>
                         </div>
                     `;
                 }
@@ -182,6 +182,10 @@ function loadUnits() {
 }
 
 function openCreateModal() {
+    // Close other modals if they're open
+    closeVariantModal();
+    closeDetailModal();
+
     document.getElementById('modalTitle').textContent = 'Thêm thuốc mới';
     document.getElementById('medicineForm').reset();
     document.getElementById('medicineId').value = '';
@@ -189,6 +193,10 @@ function openCreateModal() {
 }
 
 function openEditModal(id) {
+    // Close other modals if they're open
+    closeVariantModal();
+    closeDetailModal();
+
     fetch(`/api/warehouse/medicine/${id}`)
         .then(res => res.json())
         .then(data => {
@@ -239,6 +247,10 @@ function closeMedicineModal() {
 }
 
 function openVariantModal(medicineId, medicineName) {
+    // Close other modals if they're open
+    closeMedicineModal();
+    closeDetailModal();
+
     document.getElementById('variantMedicineId').value = medicineId;
     document.getElementById('variantMedicineName').textContent = medicineName;
     document.getElementById('variantFormContainer').style.display = 'none';
@@ -459,7 +471,7 @@ function viewVariantDetail(variantId) {
             const btnGroup = variantForm.querySelector('.btn-group');
             if (btnGroup) {
                 btnGroup.innerHTML = `
-                    <button type="button" class="btn-secondary" onclick="cancelViewVariant()">Đóng</button>
+                    <button type="button" class="btn-close-view" onclick="cancelViewVariant()">✓ Đóng xem chi tiết</button>
                 `;
             }
 
@@ -529,6 +541,9 @@ function deleteVariant(variantId) {
 }
 
 function viewDetails(id) {
+    // Close variant modal if it's open
+    closeVariantModal();
+
     fetch(`/api/warehouse/medicine/${id}`)
         .then(res => res.json())
         .then(data => {
