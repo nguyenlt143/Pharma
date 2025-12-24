@@ -736,6 +736,11 @@ document.addEventListener('DOMContentLoaded', function() {
             // Get unit conversions from form
             const unitConversionsData = getUnitConversionsFromForm();
 
+            // Validate unit conversion order
+            if (!validateUnitConversionsOrder(unitConversionsData)) {
+                return;
+            }
+
             const data = {
                 medicineId: medicineId,
                 dosageForm: dosageForm,
@@ -804,9 +809,84 @@ document.addEventListener('DOMContentLoaded', function() {
 // ========== Unit Conversion Management ==========
 let unitConversions = []; // Store unit conversions for the current variant
 
+// Hàm tính giá trị min cho đơn vị mới (phải lớn hơn giá trị lớn nhất hiện có)
+function getMinValueForNewUnit() {
+    const tbody = document.getElementById('unitConversionTableBody');
+    const rows = tbody.querySelectorAll('tr');
+    let maxValue = 0;
+
+    rows.forEach(row => {
+        const multiplierInput = row.querySelector('.multiplier-input');
+        if (multiplierInput && multiplierInput.value) {
+            const value = parseFloat(multiplierInput.value);
+            if (!isNaN(value) && value > maxValue) {
+                maxValue = value;
+            }
+        }
+    });
+
+    return maxValue + 1; // Giá trị mới phải lớn hơn giá trị lớn nhất hiện có
+}
+
+// Hàm validate thứ tự các giá trị quy đổi
+function validateMultiplierOrder(input) {
+    const tbody = document.getElementById('unitConversionTableBody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const currentRow = input.closest('tr');
+    const currentIndex = rows.indexOf(currentRow);
+    const currentValue = parseFloat(input.value);
+
+    if (isNaN(currentValue) || currentValue <= 0) {
+        input.style.borderColor = '#DC2626';
+        showToast('Giá trị quy đổi phải lớn hơn 0', 'error');
+        return false;
+    }
+
+    // Kiểm tra với các giá trị trước đó
+    for (let i = 0; i < currentIndex; i++) {
+        const prevInput = rows[i].querySelector('.multiplier-input');
+        if (prevInput) {
+            const prevValue = parseFloat(prevInput.value);
+            if (!isNaN(prevValue) && currentValue <= prevValue) {
+                input.style.borderColor = '#DC2626';
+                showToast(`Giá trị quy đổi phải lớn hơn ${prevValue} (đơn vị trước đó)`, 'error');
+                input.value = '';
+                return false;
+            }
+        }
+    }
+
+    // Kiểm tra với các giá trị sau đó
+    for (let i = currentIndex + 1; i < rows.length; i++) {
+        const nextInput = rows[i].querySelector('.multiplier-input');
+        if (nextInput && nextInput.value) {
+            const nextValue = parseFloat(nextInput.value);
+            if (!isNaN(nextValue) && currentValue >= nextValue) {
+                input.style.borderColor = '#DC2626';
+                showToast(`Giá trị quy đổi phải nhỏ hơn ${nextValue} (đơn vị sau đó)`, 'error');
+                input.value = '';
+                return false;
+            }
+        }
+    }
+
+    // Nếu hợp lệ, reset border color
+    input.style.borderColor = '';
+    updateTotalUnits();
+    return true;
+}
+
 function addUnitConversionRow() {
     const tbody = document.getElementById('unitConversionTableBody');
     const rowIndex = tbody.children.length;
+
+    // Nếu là đơn vị đầu tiên, giá trị mặc định là 1 và không cho sửa
+    const defaultValue = rowIndex === 0 ? '1' : '';
+    const isDisabled = rowIndex === 0 ? 'disabled' : '';
+    const bgColor = rowIndex === 0 ? 'background-color: #F3F4F6;' : '';
+
+    // Tính giá trị min cho đơn vị mới (phải lớn hơn giá trị lớn nhất hiện tại)
+    const minValue = getMinValueForNewUnit();
 
     const row = document.createElement('tr');
     row.style.borderBottom = '1px solid #E5E7EB';
@@ -819,8 +899,10 @@ function addUnitConversionRow() {
         </td>
         <td style="padding: 12px;">
             <input type="number" class="form-input multiplier-input" data-index="${rowIndex}" 
-                   placeholder="VD: 1, 10, 100" step="0.01" min="0.01" required
-                   onchange="updateTotalUnits()" style="width: 100%;">
+                   value="${defaultValue}"
+                   placeholder="Phải > ${minValue - 1}" step="1" min="${minValue}" required
+                   ${isDisabled}
+                   onchange="validateMultiplierOrder(this)" style="width: 100%; ${bgColor}">
         </td>
         <td style="padding: 12px;">
             <input type="text" class="form-input note-input" data-index="${rowIndex}"
@@ -840,13 +922,41 @@ function removeUnitConversionRow(button) {
     row.remove();
     updateTotalUnits();
 
-    // Re-index remaining rows
+    // Re-index remaining rows and update min values
     const tbody = document.getElementById('unitConversionTableBody');
     Array.from(tbody.children).forEach((row, index) => {
         const select = row.querySelector('.unit-select');
         const input = row.querySelector('.multiplier-input');
         if (select) select.setAttribute('data-index', index);
-        if (input) input.setAttribute('data-index', index);
+        if (input) {
+            input.setAttribute('data-index', index);
+
+            // Đơn vị đầu tiên phải có giá trị = 1 và disabled
+            if (index === 0) {
+                input.value = '1';
+                input.disabled = true;
+                input.style.backgroundColor = '#F3F4F6';
+                input.setAttribute('min', '1');
+                input.setAttribute('placeholder', 'VD: 1');
+            } else {
+                input.disabled = false;
+                input.style.backgroundColor = '';
+
+                // Cập nhật min value dựa trên giá trị của row trước đó
+                const prevRow = tbody.children[index - 1];
+                if (prevRow) {
+                    const prevInput = prevRow.querySelector('.multiplier-input');
+                    if (prevInput && prevInput.value) {
+                        const prevValue = parseFloat(prevInput.value);
+                        if (!isNaN(prevValue)) {
+                            const newMin = prevValue + 1;
+                            input.setAttribute('min', newMin);
+                            input.setAttribute('placeholder', `Phải > ${prevValue}`);
+                        }
+                    }
+                }
+            }
+        }
     });
 }
 
@@ -903,6 +1013,28 @@ function getUnitConversionsFromForm() {
     return conversions;
 }
 
+function validateUnitConversionsOrder(conversions) {
+    if (!conversions || conversions.length === 0) {
+        return true; // Cho phép không có đơn vị quy đổi
+    }
+
+    // Kiểm tra thứ tự tăng dần
+    for (let i = 1; i < conversions.length; i++) {
+        if (conversions[i].multiplier <= conversions[i - 1].multiplier) {
+            showToast(`Giá trị quy đổi phải tăng dần! Đơn vị thứ ${i + 1} (${conversions[i].multiplier}) phải lớn hơn đơn vị thứ ${i} (${conversions[i - 1].multiplier})`, 'error');
+            return false;
+        }
+    }
+
+    // Kiểm tra đơn vị đầu tiên phải bằng 1
+    if (conversions[0].multiplier !== 1) {
+        showToast('Đơn vị đầu tiên phải có giá trị quy đổi bằng 1', 'error');
+        return false;
+    }
+
+    return true;
+}
+
 function loadUnitConversions(variantId) {
     fetch(`/api/warehouse/medicine/variant/${variantId}/unit-conversions`)
         .then(res => res.json())
@@ -929,6 +1061,16 @@ function renderUnitConversions(conversions) {
             const unitId = conversion.unitId ? (typeof conversion.unitId === 'object' ? conversion.unitId.id : conversion.unitId) : '';
             const unitName = conversion.unitId ? (typeof conversion.unitId === 'object' ? conversion.unitId.name : '') : '';
 
+            // Đơn vị đầu tiên không cho sửa giá trị quy đổi
+            const isDisabled = index === 0 ? 'disabled' : '';
+            const bgColor = index === 0 ? 'background-color: #F3F4F6;' : '';
+
+            // Tính giá trị min (phải lớn hơn giá trị trước đó)
+            let minValue = 1;
+            if (index > 0 && conversions[index - 1].multiplier) {
+                minValue = conversions[index - 1].multiplier + 1;
+            }
+
             row.innerHTML = `
                 <td style="padding: 12px;">
                     <select class="form-select unit-select" data-index="${index}" onchange="updateTotalUnits()">
@@ -942,8 +1084,9 @@ function renderUnitConversions(conversions) {
                 <td style="padding: 12px;">
                     <input type="number" class="form-input multiplier-input" data-index="${index}" 
                            value="${conversion.multiplier || ''}" 
-                           placeholder="VD: 1, 10, 100" step="0.01" min="0.01" required
-                           onchange="updateTotalUnits()" style="width: 100%;">
+                           placeholder="${index === 0 ? 'VD: 1' : 'Phải > ' + (minValue - 1)}" step="1" min="${minValue}" required
+                           ${isDisabled}
+                           onchange="validateMultiplierOrder(this)" style="width: 100%; ${bgColor}">
                 </td>
                 <td style="padding: 12px;">
                     <input type="text" class="form-input note-input" data-index="${index}" 
