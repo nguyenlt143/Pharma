@@ -12,7 +12,10 @@ public record RequestDetailVM(
         String unit,
         Long quantity,
         String categoryName,
-        Long batchCount
+        Long batchCount,
+        String packageUnitName,
+        String baseUnitName,
+        Double quantityPerPackage
 ) {
     public RequestDetailVM(RequestDetail entity, String medicineName, String activeIngredient, String strength, String dosageForm, String unit,
                            String categoryName, Long batchCount) {
@@ -26,7 +29,10 @@ public record RequestDetailVM(
                 unit,
                 entity.getQuantity(),
                 categoryName,
-                batchCount
+                batchCount,
+                entity.getPackageUnitId() != null ? entity.getPackageUnitId().getName() : null,
+                entity.getBaseUnitId() != null ? entity.getBaseUnitId().getName() : null,
+                entity.getQuantityPerPackage()
         );
     }
 

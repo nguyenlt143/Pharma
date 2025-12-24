@@ -19,7 +19,19 @@ public class RequestDetail extends BaseEntity<Long> {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "request_form_id")
     private RequestForm requestForm;
+
     @Column(name = "variant_id")
     private Long variantId;
+
     private Long quantity;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "package_unit_id")
+    private Unit packageUnitId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "base_unit_id")
+    private Unit baseUnitId;
+
+    private Double quantityPerPackage;
 }

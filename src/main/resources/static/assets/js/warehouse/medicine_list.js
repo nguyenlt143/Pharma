@@ -97,7 +97,7 @@ function initDataTable() {
                     return `
                         <div class="action-buttons">
                             <button onclick="openEditModal(${row.id})" class="btn-link" style="color: #2563EB;">Sửa</button>
-                            <button onclick="openVariantModal(${row.id}, '${medicineName}')" class="btn-link" style="color: #059669;">Thêm biến thể</button>
+                            <button onclick="openVariantModal(${row.id}, '${medicineName}')" class="btn-link" style="color: #059669;">Xem Dạng thuốc</button>
                             <button onclick="viewDetails(${row.id})" class="btn-link" style="color: #7C3AED;">Chi tiết</button>
                             <button onclick="confirmDelete(${row.id})" class="btn-link delete">Xóa</button>
                         </div>
@@ -243,6 +243,13 @@ function openVariantModal(medicineId, medicineName) {
     document.getElementById('variantMedicineName').textContent = medicineName;
     document.getElementById('variantFormContainer').style.display = 'none';
     document.getElementById('variantTableBody').innerHTML = '<tr><td colspan="6" style="padding: 24px; text-align: center; color: #6B7280;">Đang tải...</td></tr>';
+
+    // Ensure variant list is visible when opening modal
+    const variantListContainer = document.getElementById('variantList').parentElement;
+    if (variantListContainer) {
+        variantListContainer.style.display = 'block';
+    }
+
     document.getElementById('variantModal').style.display = 'block';
     loadVariants(medicineId);
 }
@@ -251,6 +258,12 @@ function closeVariantModal() {
     document.getElementById('variantModal').style.display = 'none';
     document.getElementById('variantFormContainer').style.display = 'none';
     document.getElementById('variantForm').reset();
+
+    // Show variant list again when closing modal
+    const variantListContainer = document.getElementById('variantList').parentElement;
+    if (variantListContainer) {
+        variantListContainer.style.display = 'block';
+    }
 }
 
 function loadVariants(medicineId) {
@@ -259,7 +272,7 @@ function loadVariants(medicineId) {
         .then(data => {
             const tbody = document.getElementById('variantTableBody');
             if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="padding: 24px; text-align: center; color: #6B7280;">Chưa có biến thể nào</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="padding: 24px; text-align: center; color: #6B7280;">Chưa có dạng thuốc nào</td></tr>';
                 return;
             }
 
@@ -268,7 +281,6 @@ function loadVariants(medicineId) {
                     <td style="padding: 12px;">${variant.dosageForm || variant.dosage_form || '-'}</td>
                     <td style="padding: 12px;">${variant.dosage || '-'}</td>
                     <td style="padding: 12px;">${variant.strength || '-'}</td>
-                    <td style="padding: 12px;">${variant.baseUnitName || (variant.baseUnitId && variant.baseUnitId.name) || '-'}</td>
                     <td style="padding: 12px;">${variant.barcode || variant.Barcode || '-'}</td>
                     <td style="padding: 12px; text-align: center;">
                         <button onclick="viewVariantDetail(${variant.id})" class="btn-link" style="color: #7C3AED; margin: 0 4px;">Xem chi tiết</button>
@@ -280,12 +292,12 @@ function loadVariants(medicineId) {
         })
         .catch(err => {
             console.error('Error loading variants:', err);
-            document.getElementById('variantTableBody').innerHTML = '<tr><td colspan="6" style="padding: 24px; text-align: center; color: #DC2626;">Lỗi khi tải danh sách biến thể</td></tr>';
+            document.getElementById('variantTableBody').innerHTML = '<tr><td colspan="5" style="padding: 24px; text-align: center; color: #DC2626;">Lỗi khi tải danh sách dạng thuốc</td></tr>';
         });
 }
 
 function openCreateVariantForm() {
-    document.getElementById('variantModalTitle').textContent = 'Thêm biến thể thuốc';
+    document.getElementById('variantModalTitle').textContent = 'Thêm dạng thuốc';
     const form = document.getElementById('variantForm');
     if (form) {
         form.reset();
@@ -293,7 +305,7 @@ function openCreateVariantForm() {
 
     // Reset all variant form fields safely
     const fields = [
-        'variantId', 'dosageForm', 'dosage', 'strength',
+        'variantId', 'dosageForm', 'dosage', 'strength', 'packaging',
         'packageUnitId', 'baseUnitId', 'quantityPerPackage',
         'barcode', 'registrationNumber', 'storageConditions',
         'indications', 'contraindications', 'sideEffects',
@@ -320,6 +332,12 @@ function openCreateVariantForm() {
     // Clear unit conversions
     clearUnitConversions();
 
+    // Hide variant list and show form
+    const variantListContainer = document.getElementById('variantList').parentElement;
+    if (variantListContainer) {
+        variantListContainer.style.display = 'none';
+    }
+
     document.getElementById('variantFormContainer').style.display = 'block';
     document.getElementById('variantFormContainer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
@@ -328,7 +346,7 @@ function openEditVariantForm(variantId) {
     fetch(`/api/warehouse/medicine/variant/${variantId}`)
         .then(res => res.json())
         .then(data => {
-            document.getElementById('variantModalTitle').textContent = 'Cập nhật biến thể thuốc';
+            document.getElementById('variantModalTitle').textContent = 'Cập nhật dạng thuốc';
 
             // Set values safely with null checks
             const setValue = (id, value) => {
@@ -340,6 +358,7 @@ function openEditVariantForm(variantId) {
             setValue('dosageForm', data.dosageForm || data.dosage_form);
             setValue('dosage', data.dosage);
             setValue('strength', data.strength);
+            setValue('packaging', data.packaging);
             setValue('barcode', data.barcode || data.Barcode);
             setValue('registrationNumber', data.registrationNumber);
             setValue('storageConditions', data.storageConditions);
@@ -353,25 +372,37 @@ function openEditVariantForm(variantId) {
             // Load unit conversions for this variant
             loadUnitConversions(variantId);
 
+            // Hide variant list and show form
+            const variantListContainer = document.getElementById('variantList').parentElement;
+            if (variantListContainer) {
+                variantListContainer.style.display = 'none';
+            }
+
             document.getElementById('variantFormContainer').style.display = 'block';
             document.getElementById('variantFormContainer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         })
         .catch(err => {
-            showToast('Không thể tải thông tin biến thể', 'error');
+            showToast('Không thể tải thông tin dạng thuốc', 'error');
         });
 }
 
 function cancelVariantForm() {
     document.getElementById('variantFormContainer').style.display = 'none';
     document.getElementById('variantForm').reset();
-    document.getElementById('variantModalTitle').textContent = 'Quản lý biến thể thuốc';
+    document.getElementById('variantModalTitle').textContent = 'Quản lý dạng thuốc';
+
+    // Show variant list again
+    const variantListContainer = document.getElementById('variantList').parentElement;
+    if (variantListContainer) {
+        variantListContainer.style.display = 'block';
+    }
 }
 
 function viewVariantDetail(variantId) {
     fetch(`/api/warehouse/medicine/variant/${variantId}`)
         .then(res => res.json())
         .then(data => {
-            document.getElementById('variantModalTitle').textContent = 'Chi tiết biến thể thuốc';
+            document.getElementById('variantModalTitle').textContent = 'Chi tiết dạng thuốc';
 
             // Set values safely with null checks
             const setValue = (id, value) => {
@@ -386,6 +417,7 @@ function viewVariantDetail(variantId) {
             setValue('dosageForm', data.dosageForm || data.dosage_form);
             setValue('dosage', data.dosage);
             setValue('strength', data.strength);
+            setValue('packaging', data.packaging);
             setValue('barcode', data.barcode || data.Barcode);
             setValue('registrationNumber', data.registrationNumber);
             setValue('storageConditions', data.storageConditions);
@@ -413,6 +445,12 @@ function viewVariantDetail(variantId) {
                 addButtons.forEach(btn => btn.style.display = 'none');
             }, 500);
 
+            // Hide variant list and show form
+            const variantListContainer = document.getElementById('variantList').parentElement;
+            if (variantListContainer) {
+                variantListContainer.style.display = 'none';
+            }
+
             // Show form container
             document.getElementById('variantFormContainer').style.display = 'block';
 
@@ -428,7 +466,7 @@ function viewVariantDetail(variantId) {
             document.getElementById('variantFormContainer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         })
         .catch(err => {
-            showToast('Không thể tải thông tin biến thể', 'error');
+            showToast('Không thể tải thông tin dạng thuốc', 'error');
         });
 }
 
@@ -441,6 +479,7 @@ function cancelViewVariant() {
     // Re-enable unit conversion controls
     document.querySelectorAll('#unitConversionTableBody .unit-select').forEach(el => el.disabled = false);
     document.querySelectorAll('#unitConversionTableBody .multiplier-input').forEach(el => el.disabled = false);
+    document.querySelectorAll('#unitConversionTableBody .note-input').forEach(el => el.disabled = false);
     document.querySelectorAll('#unitConversionTableBody .btn-link.delete').forEach(el => el.style.display = '');
 
     // Show add button
@@ -462,7 +501,7 @@ function cancelViewVariant() {
 }
 
 function confirmDeleteVariant(variantId) {
-    if (confirm('Bạn có chắc chắn muốn xóa biến thể này không?')) {
+    if (confirm('Bạn có chắc chắn muốn xóa dạng thuốc này không?')) {
         deleteVariant(variantId);
     }
 }
@@ -474,12 +513,12 @@ function deleteVariant(variantId) {
     })
     .then(res => {
         if (res.ok) {
-            showToast('Xóa biến thể thành công!', 'success');
+            showToast('Xóa dạng thuốc thành công!', 'success');
             const medicineId = document.getElementById('variantMedicineId').value;
             loadVariants(medicineId);
         } else {
             return res.json().then(data => {
-                const errorMessage = data.message || 'Không thể xóa biến thể';
+                const errorMessage = data.message || 'Không thể xóa dạng thuốc';
                 showToast(errorMessage, 'error');
             });
         }
@@ -631,22 +670,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const variantId = document.getElementById('variantId').value;
             const medicineId = parseInt(document.getElementById('variantMedicineId').value);
 
-            // Validate all required fields
+            // Validate all required fields (only fields that exist in the form)
             const dosageForm = document.getElementById('dosageForm').value.trim();
             const dosage = document.getElementById('dosage').value.trim();
             const strength = document.getElementById('strength').value.trim();
-            const packageUnitId = document.getElementById('packageUnitId').value;
-            const baseUnitId = document.getElementById('baseUnitId').value;
-            const quantityPerPackage = document.getElementById('quantityPerPackage').value;
+            const packaging = document.getElementById('packaging').value.trim();
             const barcode = document.getElementById('barcode').value.trim();
             const registrationNumber = document.getElementById('registrationNumber').value.trim();
             const storageConditions = document.getElementById('storageConditions').value.trim();
-            const indications = document.getElementById('indications').value.trim();
-            const contraindications = document.getElementById('contraindications').value.trim();
-            const sideEffects = document.getElementById('sideEffects').value.trim();
             const instructions = document.getElementById('instructions').value.trim();
             const prescriptionRequired = document.getElementById('prescriptionRequired').value;
-            const uses = document.getElementById('uses').value.trim();
 
             // Validation checks
             if (!dosageForm) {
@@ -664,21 +697,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('strength').focus();
                 return;
             }
-            if (!packageUnitId) {
-                showToast('Đơn vị đóng gói không được để trống', 'error');
-                document.getElementById('packageUnitId').focus();
-                return;
-            }
-            if (!baseUnitId) {
-                showToast('Đơn vị cơ bản không được để trống', 'error');
-                document.getElementById('baseUnitId').focus();
-                return;
-            }
-            if (!quantityPerPackage || parseFloat(quantityPerPackage) <= 0) {
-                showToast('Số lượng mỗi gói phải lớn hơn 0', 'error');
-                document.getElementById('quantityPerPackage').focus();
-                return;
-            }
             if (!barcode) {
                 showToast('Mã vạch không được để trống', 'error');
                 document.getElementById('barcode').focus();
@@ -694,29 +712,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('storageConditions').focus();
                 return;
             }
-            if (!indications) {
-                showToast('Chỉ định không được để trống', 'error');
-                document.getElementById('indications').focus();
-                return;
-            }
-            if (!contraindications) {
-                showToast('Chống chỉ định không được để trống', 'error');
-                document.getElementById('contraindications').focus();
-                return;
-            }
-            if (!sideEffects) {
-                showToast('Tác dụng phụ không được để trống', 'error');
-                document.getElementById('sideEffects').focus();
-                return;
-            }
             if (!instructions) {
                 showToast('Hướng dẫn sử dụng không được để trống', 'error');
                 document.getElementById('instructions').focus();
-                return;
-            }
-            if (!uses) {
-                showToast('Công dụng không được để trống', 'error');
-                document.getElementById('uses').focus();
                 return;
             }
 
@@ -728,18 +726,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 dosageForm: dosageForm,
                 dosage: dosage,
                 strength: strength,
-                packageUnitId: parseInt(packageUnitId),
-                baseUnitId: parseInt(baseUnitId),
-                quantityPerPackage: parseFloat(quantityPerPackage),
+                packaging: packaging || null,
                 barcode: barcode,
                 registrationNumber: registrationNumber,
                 storageConditions: storageConditions,
-                indications: indications,
-                contraindications: contraindications,
-                sideEffects: sideEffects,
                 instructions: instructions,
                 prescription_require: prescriptionRequired === 'true',
-                uses: uses,
                 unitConversions: unitConversionsData
             };
 
@@ -758,17 +750,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Try to read detailed error message from backend
                 return res.json()
                     .then(err => {
-                        const msg = err.message || err.error || 'Có lỗi xảy ra khi lưu biến thể';
+                        const msg = err.message || err.error || 'Có lỗi xảy ra khi lưu dạng thuốc';
                         throw new Error(msg);
                     })
                     .catch(() => {
-                        throw new Error('Có lỗi xảy ra khi lưu biến thể');
+                        throw new Error('Có lỗi xảy ra khi lưu dạng thuốc');
                     });
             })
             .then(data => {
                 cancelVariantForm();
                 loadVariants(medicineId);
-                showToast(variantId ? 'Cập nhật biến thể thành công!' : 'Thêm biến thể thành công!', 'success');
+                showToast(variantId ? 'Cập nhật dạng thuốc thành công!' : 'Thêm dạng thuốc thành công!', 'success');
             })
             .catch(err => {
                 showToast(err.message, 'error');
@@ -814,6 +806,10 @@ function addUnitConversionRow() {
             <input type="number" class="form-input multiplier-input" data-index="${rowIndex}" 
                    placeholder="VD: 1, 10, 100" step="0.01" min="0.01" required
                    onchange="updateTotalUnits()" style="width: 100%;">
+        </td>
+        <td style="padding: 12px;">
+            <input type="text" class="form-input note-input" data-index="${rowIndex}"
+                   placeholder="Ghi chú (tùy chọn)" style="width: 100%;">
         </td>
         <td style="padding: 12px; text-align: center;">
             <button type="button" onclick="removeUnitConversionRow(this)" class="btn-link delete">Xóa</button>
@@ -872,15 +868,18 @@ function getUnitConversionsFromForm() {
     rows.forEach(row => {
         const unitSelect = row.querySelector('.unit-select');
         const multiplierInput = row.querySelector('.multiplier-input');
+        const noteInput = row.querySelector('.note-input');
 
         if (unitSelect && multiplierInput) {
             const unitId = parseInt(unitSelect.value);
             const multiplier = parseFloat(multiplierInput.value);
+            const note = noteInput ? noteInput.value.trim() : '';
 
             if (unitId && !isNaN(multiplier) && multiplier > 0) {
                 conversions.push({
                     unitId: unitId,
-                    multiplier: multiplier
+                    multiplier: multiplier,
+                    note: note || null
                 });
             }
         }

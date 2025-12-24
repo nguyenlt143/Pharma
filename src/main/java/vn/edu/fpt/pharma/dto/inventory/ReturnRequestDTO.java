@@ -25,5 +25,8 @@ public class ReturnRequestDTO {
         private Long batchId;
         private Long inventoryId;
         private Integer quantity;
+        private Long packageUnitId;
+        private Long baseUnitId;
+        private Double quantityPerPackage;
     }
 }

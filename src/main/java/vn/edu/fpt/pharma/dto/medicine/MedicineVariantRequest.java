@@ -31,6 +31,8 @@ public class MedicineVariantRequest {
     @NotBlank(message = "Hàm lượng không được để trống")
     private String strength;
 
+    private String packaging;
+
     @NotNull(message = "Mã vạch không được để trống")
     @NotBlank(message = "Mã vạch không được để trống")
     private String barcode;

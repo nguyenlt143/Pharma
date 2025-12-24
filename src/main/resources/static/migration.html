@@ -213,6 +213,12 @@
                     }
                 });
 
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error(`Endpoint không tồn tại hoặc trả về định dạng không hợp lệ (Status: ${response.status})`);
+                }
+
                 const data = await response.json();
 
                 if (data.success) {
@@ -242,6 +248,12 @@
                         • Server có đang chạy không?<br>
                         • Bạn đã đăng nhập với quyền ADMIN chưa?<br>
                         • URL có đúng không? (http://localhost:8080)
+                    `;
+                } else if (error.message.includes('Endpoint không tồn tại')) {
+                    message.innerHTML = `
+                        <strong>❌ Endpoint chưa được implement!</strong><br>
+                        ${error.message}<br><br>
+                        <small>Cần thêm endpoint POST /api/admin/accounts/unit-conversion-migration vào AdminAccountApiController.java</small>
                     `;
                 } else {
                     message.innerHTML = `

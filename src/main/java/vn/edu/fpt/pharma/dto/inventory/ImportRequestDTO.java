@@ -20,6 +20,9 @@ public class ImportRequestDTO {
         private Long variantId;
         private Long batchId;
         private Integer quantity;
+        private Long packageUnitId;
+        private Long baseUnitId;
+        private Double quantityPerPackage;
     }
 }
 

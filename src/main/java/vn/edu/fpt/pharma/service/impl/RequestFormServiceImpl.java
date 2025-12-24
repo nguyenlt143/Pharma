@@ -40,6 +40,7 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     private final InventoryMovementDetailRepository movementDetailRepository;
     private final BatchRepository batchRepository;
     private final UnitConversionRepository unitConversionRepository;
+    private final UnitRepository unitRepository;
     private final vn.edu.fpt.pharma.service.InventoryMovementService inventoryMovementService;
 
     public RequestFormServiceImpl(RequestFormRepository repository, AuditService auditService,
@@ -52,6 +53,7 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
                                    InventoryMovementDetailRepository movementDetailRepository,
                                    BatchRepository batchRepository,
                                    UnitConversionRepository unitConversionRepository,
+                                   UnitRepository unitRepository,
                                    vn.edu.fpt.pharma.service.InventoryMovementService inventoryMovementService) {
         super(repository, auditService);
         this.repository = repository;
@@ -64,6 +66,7 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
         this.movementDetailRepository = movementDetailRepository;
         this.batchRepository = batchRepository;
         this.unitConversionRepository = unitConversionRepository;
+        this.unitRepository = unitRepository;
         this.inventoryMovementService = inventoryMovementService;
     }
 
@@ -313,6 +316,9 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
                     .requestForm(savedForm)
                     .variantId(item.getVariantId())
                     .quantity(item.getQuantity().longValue())
+                    .packageUnitId(item.getPackageUnitId() != null ? unitRepository.findById(item.getPackageUnitId()).orElse(null) : null)
+                    .baseUnitId(item.getBaseUnitId() != null ? unitRepository.findById(item.getBaseUnitId()).orElse(null) : null)
+                    .quantityPerPackage(item.getQuantityPerPackage())
                     .build();
             requestDetailRepository.save(detail);
         }
@@ -496,6 +502,9 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
                     .requestForm(savedForm)
                     .variantId(item.getVariantId())
                     .quantity(item.getQuantity().longValue())
+                    .packageUnitId(item.getPackageUnitId() != null ? unitRepository.findById(item.getPackageUnitId()).orElse(null) : null)
+                    .baseUnitId(item.getBaseUnitId() != null ? unitRepository.findById(item.getBaseUnitId()).orElse(null) : null)
+                    .quantityPerPackage(item.getQuantityPerPackage())
                     .build();
             requestDetailRepository.save(detail);
         }

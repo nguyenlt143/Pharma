@@ -66,7 +66,8 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                 .dosage_form(request.getDosageForm())
                 .dosage(request.getDosage())
                 .strength(request.getStrength())
-                .Barcode(request.getBarcode())
+                .packaging(request.getPackaging())
+                .barcode(request.getBarcode())
                 .registrationNumber(request.getRegistrationNumber())
                 .storageConditions(request.getStorageConditions())
                 .instructions(request.getInstructions())
@@ -103,6 +104,7 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
         if (request.getDosageForm() != null) variant.setDosage_form(request.getDosageForm());
         if (request.getDosage() != null) variant.setDosage(request.getDosage());
         if (request.getStrength() != null) variant.setStrength(request.getStrength());
+        if (request.getPackaging() != null) variant.setPackaging(request.getPackaging());
         if (request.getBarcode() != null) variant.setBarcode(request.getBarcode());
         if (request.getRegistrationNumber() != null) variant.setRegistrationNumber(request.getRegistrationNumber());
         if (request.getStorageConditions() != null) variant.setStorageConditions(request.getStorageConditions());

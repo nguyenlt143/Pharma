@@ -294,8 +294,8 @@ content = @`
 <!-- Variant Management Modal -->
 <div id="variantModal" class="modal">
     <div class="modal-content" style="max-width: 1000px;">
-        <h2 style="margin-bottom: 24px; font-size: 20px; font-weight: 700;" id="variantModalTitle">Quản lý biến thể thuốc</h2>
-        
+        <h2 style="margin-bottom: 24px; font-size: 20px; font-weight: 700;" id="variantModalTitle">Quản lý dạng thuốc</h2>
+
         <div style="margin-bottom: 24px; padding: 12px; background: #F3F4F6; border-radius: 6px;">
             <strong>Thuốc:</strong> <span id="variantMedicineName"></span>
             <input type="hidden" id="variantMedicineId">
@@ -304,9 +304,9 @@ content = @`
         <!-- Variant List -->
         <div style="margin-bottom: 24px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <h3 style="font-size: 16px; font-weight: 600; margin: 0;">Danh sách biến thể</h3>
+                <h3 style="font-size: 16px; font-weight: 600; margin: 0;">Danh sách dạng thuốc</h3>
                 <button type="button" class="btn-primary" onclick="openCreateVariantForm()" style="padding: 8px 16px; font-size: 14px;">
-                    <span style="font-size: 16px;">+</span> Thêm biến thể
+                    <span style="font-size: 16px;">+</span> Thêm dạng thuốc
                 </button>
             </div>
             <div id="variantList" style="border: 1px solid #E5E7EB; border-radius: 6px; overflow: hidden;">
@@ -316,14 +316,13 @@ content = @`
                             <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 14px; border-bottom: 1px solid #E5E7EB;">Dạng bào chế</th>
                             <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 14px; border-bottom: 1px solid #E5E7EB;">Liều dùng</th>
                             <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 14px; border-bottom: 1px solid #E5E7EB;">Hàm lượng</th>
-                            <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 14px; border-bottom: 1px solid #E5E7EB;">Đơn vị</th>
                             <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 14px; border-bottom: 1px solid #E5E7EB;">Mã vạch</th>
                             <th style="padding: 12px; text-align: center; font-weight: 600; font-size: 14px; border-bottom: 1px solid #E5E7EB;">Hành động</th>
                         </tr>
                     </thead>
                     <tbody id="variantTableBody">
                         <tr>
-                            <td colspan="6" style="padding: 24px; text-align: center; color: #6B7280;">Đang tải...</td>
+                            <td colspan="5" style="padding: 24px; text-align: center; color: #6B7280;">Đang tải...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -351,6 +350,13 @@ content = @`
                         <label class="form-label">Hàm lượng <span style="color: red;">*</span></label>
                         <input type="text" id="strength" class="form-input" placeholder="VD: 500mg/ml" required>
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Quy cách đóng gói</label>
+                        <input type="text" id="packaging" class="form-input" placeholder="VD: Hộp 10 vỉ x 10 viên">
+                    </div>
+                </div>
+
+                <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Mã vạch <span style="color: red;">*</span></label>
                         <input type="text" id="barcode" class="form-input" required>

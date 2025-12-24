@@ -19,6 +19,7 @@ public class MedicineVariantResponse {
     private String dosageForm;
     private String dosage;
     private String strength;
+    private String packaging;
     private String barcode;
     private String registrationNumber;
     private String storageConditions;
@@ -37,6 +38,7 @@ public class MedicineVariantResponse {
                 .dosageForm(variant.getDosage_form())
                 .dosage(variant.getDosage())
                 .strength(variant.getStrength())
+                .packaging(variant.getPackaging())
                 .barcode(variant.getBarcode())
                 .registrationNumber(variant.getRegistrationNumber())
                 .storageConditions(variant.getStorageConditions())

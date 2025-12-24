@@ -83,4 +83,25 @@ public class AdminAccountApiController {
         return ResponseEntity.noContent().build();
     }
 
+    // Unit Conversion Migration endpoint
+    @PostMapping("/unit-conversion-migration")
+    public ResponseEntity<Map<String, Object>> runUnitConversionMigration() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // Check if migration is needed
+            // The current MedicineVariant entity doesn't have baseUnitId, packageUnitId, or quantityPerPackage
+            // So this migration is not applicable to the current schema
+
+            response.put("success", false);
+            response.put("message", "Migration không khả dụng. Schema hiện tại không có các trường legacy (baseUnitId, packageUnitId, quantityPerPackage) cần migrate.");
+            response.put("info", "MedicineVariant hiện tại đã sử dụng UnitConversion từ đầu, không cần migrate.");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Lỗi khi chạy migration: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
 }

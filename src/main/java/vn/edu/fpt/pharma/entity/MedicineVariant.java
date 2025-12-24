@@ -22,7 +22,8 @@ public class MedicineVariant extends BaseEntity<Long> {
     private String dosage_form;
     private String dosage;
     private String strength;
-    private String Barcode;
+    private String packaging;
+    private String barcode;
     private String registrationNumber;
     private String storageConditions;
     private String instructions;
