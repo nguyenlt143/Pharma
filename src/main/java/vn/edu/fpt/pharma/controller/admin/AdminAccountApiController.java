@@ -83,32 +83,4 @@ public class AdminAccountApiController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Migrate all MedicineVariant to UnitConversion
-     * POST /api/admin/accounts/unit-conversion-migration
-     *
-     * Chạy một lần duy nhất để tạo UnitConversion cho tất cả MedicineVariant hiện có
-     */
-    @PostMapping("/unit-conversion-migration")
-    public ResponseEntity<?> migrateUnitConversions() {
-        //http://localhost:8080/migration.html
-
-        try {
-            System.out.println("\n🚀 Bắt đầu quá trình migrate UnitConversions...\n");
-
-            medicineVariantService.migrateAllVariantsToUnitConversions();
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "✅ Migration hoàn tất! Tất cả MedicineVariant đã được xử lý. Xem console để biết chi tiết.");
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("success", false);
-            errorResponse.put("message", "❌ Lỗi trong quá trình migration: " + e.getMessage());
-
-            return ResponseEntity.status(500).body(errorResponse);
-        }
-    }
 }

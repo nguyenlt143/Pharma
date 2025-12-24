@@ -37,6 +37,20 @@ public class OwnerInventoryApiController {
     private final InventoryMovementRepository inventoryMovementRepository;
     private final vn.edu.fpt.pharma.service.RequestFormService requestFormService;
     private final vn.edu.fpt.pharma.repository.MedicineVariantRepository medicineVariantRepository;
+    private final vn.edu.fpt.pharma.repository.UnitConversionRepository unitConversionRepository;
+
+    // Helper method to get display unit from variant's unit conversions
+    private String getDisplayUnitFromVariant(MedicineVariant variant) {
+        if (variant == null) return "-";
+        List<vn.edu.fpt.pharma.entity.UnitConversion> conversions = unitConversionRepository.findByVariantIdId(variant.getId());
+        if (conversions.isEmpty()) return "-";
+
+        // Strategy: Use conversion with smallest multiplier (typically the base unit)
+        return conversions.stream()
+                .min(Comparator.comparing(vn.edu.fpt.pharma.entity.UnitConversion::getMultiplier))
+                .map(uc -> uc.getUnitId().getName())
+                .orElse("-");
+    }
 
     /**
      * Get inventory summary for owner
@@ -381,12 +395,7 @@ public class OwnerInventoryApiController {
                         } else {
                             detail.put("medicineName", "-");
                         }
-                        if (variant.getPackageUnitId() != null) {
-                            detail.put("unit", variant.getPackageUnitId().getName() != null ? 
-                                variant.getPackageUnitId().getName() : "-");
-                        } else {
-                            detail.put("unit", "-");
-                        }
+                        detail.put("unit", getDisplayUnitFromVariant(variant));
                     });
                 } else {
                     detail.put("medicineName", "-");
@@ -473,13 +482,7 @@ public class OwnerInventoryApiController {
                 } else {
                     detail.put("medicineName", "-");
                 }
-                if (variant.getPackageUnitId() != null) {
-                    detail.put("unit", variant.getPackageUnitId().getName() != null
-                            ? variant.getPackageUnitId().getName()
-                            : "-");
-                } else {
-                    detail.put("unit", "-");
-                }
+                detail.put("unit", getDisplayUnitFromVariant(variant));
             } else {
                 detail.put("medicineName", "-");
                 detail.put("variantName", "-");

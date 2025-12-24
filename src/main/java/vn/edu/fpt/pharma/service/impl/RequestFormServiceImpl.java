@@ -39,6 +39,7 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
     private final InventoryMovementRepository movementRepository;
     private final InventoryMovementDetailRepository movementDetailRepository;
     private final BatchRepository batchRepository;
+    private final UnitConversionRepository unitConversionRepository;
     private final vn.edu.fpt.pharma.service.InventoryMovementService inventoryMovementService;
 
     public RequestFormServiceImpl(RequestFormRepository repository, AuditService auditService,
@@ -50,6 +51,7 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
                                    InventoryMovementRepository movementRepository,
                                    InventoryMovementDetailRepository movementDetailRepository,
                                    BatchRepository batchRepository,
+                                   UnitConversionRepository unitConversionRepository,
                                    vn.edu.fpt.pharma.service.InventoryMovementService inventoryMovementService) {
         super(repository, auditService);
         this.repository = repository;
@@ -61,7 +63,21 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
         this.movementRepository = movementRepository;
         this.movementDetailRepository = movementDetailRepository;
         this.batchRepository = batchRepository;
+        this.unitConversionRepository = unitConversionRepository;
         this.inventoryMovementService = inventoryMovementService;
+    }
+
+    // Helper method to get display unit from variant's unit conversions
+    private String getDisplayUnitFromVariant(MedicineVariant variant) {
+        if (variant == null) return "N/A";
+        List<UnitConversion> conversions = unitConversionRepository.findByVariantIdId(variant.getId());
+        if (conversions.isEmpty()) return "N/A";
+
+        // Strategy: Use conversion with smallest multiplier (typically the base unit)
+        return conversions.stream()
+                .min(Comparator.comparing(UnitConversion::getMultiplier))
+                .map(uc -> uc.getUnitId().getName())
+                .orElse("N/A");
     }
 
     @Override
@@ -255,9 +271,7 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
                             strength = variant.getStrength() != null ? variant.getStrength() : "N/A";
                             dosageForm = variant.getDosage_form() != null ? variant.getDosage_form() : "N/A";
 
-                            if (variant.getBaseUnitId() != null) {
-                                unit = variant.getBaseUnitId().getName() != null ? variant.getBaseUnitId().getName() : "N/A";
-                            }
+                            unit = getDisplayUnitFromVariant(variant);
 
                             // Count distinct batches available for this variant at warehouse
                             batchCount = inventoryRepository.findAll().stream()
@@ -370,7 +384,7 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
             ExportCreateDTO.MedicineWithBatches medicine = ExportCreateDTO.MedicineWithBatches.builder()
                     .variantId(variant.getId())
                     .medicineName(variant.getMedicine() != null ? variant.getMedicine().getName() : "N/A")
-                    .unit(variant.getPackageUnitId() != null ? variant.getPackageUnitId().getName() : "")
+                    .unit(getDisplayUnitFromVariant(variant))
                     .concentration(variant.getStrength() != null ? variant.getStrength() : "")
                     .requestedQuantity(detail.getQuantity())
                     .batches(batches)

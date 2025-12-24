@@ -86,7 +86,7 @@
                 <li class="nav-item">
                     <a href="/warehouse/category" class="nav-link">
                         <span class="material-icons nav-icon">category</span>
-                        <span class="nav-text">Quản lý danh mục</span>
+                        <span class="nav-text">Quản lý nhóm thuốc</span>
                     </a>
                 </li>
                 <li class="nav-item">

@@ -7,9 +7,7 @@ public record SearchMedicineVM(
         String manufacturer,
         String strength,
         String country,
-        String packageUnitName,
         Long quantity,
-        String baseUnitName,
         String uses,
         String contraindications,
         String sideEffect

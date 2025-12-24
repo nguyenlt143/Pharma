@@ -22,4 +22,5 @@ public class UnitConversion extends BaseEntity<Long> {
     @JoinColumn(name = "unit_id")
     private Unit unitId;
     private Double multiplier;
+    private String note;
 }

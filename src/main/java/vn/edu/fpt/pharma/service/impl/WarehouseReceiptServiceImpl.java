@@ -29,6 +29,20 @@ public class WarehouseReceiptServiceImpl implements WarehouseReceiptService {
     private final SupplierRepository supplierRepository;
     private final MedicineVariantRepository variantRepository;
     private final BranchRepository branchRepository;
+    private final UnitConversionRepository unitConversionRepository;
+
+    // Helper method to get display unit from variant's unit conversions
+    private String getDisplayUnitFromVariant(MedicineVariant variant) {
+        if (variant == null) return "";
+        List<UnitConversion> conversions = unitConversionRepository.findByVariantIdId(variant.getId());
+        if (conversions.isEmpty()) return "";
+
+        // Strategy: Use conversion with smallest multiplier (typically the base unit)
+        return conversions.stream()
+                .min(java.util.Comparator.comparing(UnitConversion::getMultiplier))
+                .map(uc -> uc.getUnitId().getName())
+                .orElse("");
+    }
 
     @Override
     @Transactional
@@ -87,14 +101,6 @@ public class WarehouseReceiptServiceImpl implements WarehouseReceiptService {
                     + variant.getMedicine().getName() + ". Vui lòng kiểm tra lại.");
             }
 
-            // VALIDATION 2: Kiểm tra số lượng phải chia hết cho số viên trong một hộp
-            if (variant.getQuantityPerPackage() != null && variant.getQuantityPerPackage() > 0) {
-                double remainder = detailReq.getQuantity() % variant.getQuantityPerPackage();
-                if (remainder != 0) {
-                    throw new RuntimeException("Số lượng nhập của thuốc " + variant.getMedicine().getName()
-                        + " phải chia hết cho số viên trong một hộp (" + variant.getQuantityPerPackage().intValue() + " viên/hộp).");
-                }
-            }
 
 
             // 4. Tạo Batch mới (mỗi lần nhập tạo batch mới)
@@ -179,7 +185,11 @@ public class WarehouseReceiptServiceImpl implements WarehouseReceiptService {
                         v.getMedicine().getName().toLowerCase().contains(query.toLowerCase()) ||
                         (v.getBarcode() != null && v.getBarcode().contains(query))))
                 .limit(20)
-                .map(MedicineVariantDTO::new)
+                .map(v -> {
+                    MedicineVariantDTO dto = new MedicineVariantDTO(v);
+                    dto.setUnit(getDisplayUnitFromVariant(v));
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 }
