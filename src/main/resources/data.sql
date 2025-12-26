@@ -135,27 +135,18 @@ VALUES
 (10, CURDATE(), NOW(), FALSE),                        -- hôm nay
 (10, DATE_ADD(CURDATE(), INTERVAL 1 DAY), NOW(), FALSE);
 
-INSERT INTO units (name, description, unit_type, packaging_level, base_unit, created_at, deleted)
-VALUES ('Viên', 'Dạng đơn vị thuốc nhỏ nhất, thường dùng cho thuốc viên nén hoặc viên nang', 'COUNT', 'SMALL', TRUE, NOW(), FALSE),
-       ('Vỉ', 'Gồm nhiều viên thuốc (thường 10 viên) đóng chung trong một vỉ nhôm hoặc nhựa', 'COUNT', 'MEDIUM', FALSE, NOW(), FALSE),
-       ('Hộp', 'Bao gồm nhiều vỉ hoặc gói thuốc, đơn vị bán phổ biến tại quầy', 'COUNT', 'LARGE', FALSE, NOW(), FALSE),
-       ('Chai', 'Đựng dung dịch, siro hoặc thuốc nhỏ giọt', 'PACKAGE', 'LARGE', TRUE, NOW(), FALSE),
-       ('Ống', 'Dùng cho thuốc tiêm, thuốc uống dạng ống nhựa hoặc thủy tinh', 'PACKAGE', 'SMALL', TRUE, NOW(), FALSE),
-       ('Gói', 'Thường dùng cho thuốc bột, cốm hoặc thuốc hòa tan', 'PACKAGE', 'SMALL', TRUE, NOW(), FALSE),
-       ('Tuýp', 'Dùng cho thuốc bôi, kem, gel hoặc thuốc mỡ', 'PACKAGE', 'SMALL', TRUE, NOW(), FALSE),
-       ('Lọ', 'Đựng viên nén, viên nang hoặc dung dịch nhỏ', 'PACKAGE', 'SMALL', TRUE, NOW(), FALSE),
-       ('Thùng', 'Đơn vị bao gồm nhiều hộp hoặc chai, thường dùng trong nhập hàng', 'COUNT', 'XLARGE', FALSE, NOW(), FALSE),
-       ('ml', 'Đơn vị đo thể tích cho dung dịch', 'VOLUME', NULL, TRUE, NOW(), FALSE),
-       ('g', 'Đơn vị đo khối lượng', 'WEIGHT', NULL, TRUE, NOW(), FALSE);
-
--- Insert dosage forms with base units
-INSERT INTO dosage_forms (name, base_unit_id, created_at, deleted)
-VALUES ('Viên nén', 1, NOW(), FALSE),          -- base_unit: Viên (id=1)
-       ('Viên nang', 1, NOW(), FALSE),         -- base_unit: Viên (id=1)
-       ('Viên sủi', 1, NOW(), FALSE),          -- base_unit: Viên (id=1)
-       ('Syrup', 4, NOW(), FALSE),             -- base_unit: Chai (id=4)
-       ('Dung dịch bôi', 7, NOW(), FALSE),     -- base_unit: Tuýp (id=7)
-       ('Dung dịch', 4, NOW(), FALSE);         -- base_unit: Chai (id=4)
+INSERT INTO units (name, description, created_at, deleted)
+VALUES ('Viên', 'Dạng đơn vị thuốc nhỏ nhất, thường dùng cho thuốc viên nén hoặc viên nang', NOW(), FALSE),
+       ('Vỉ', 'Gồm nhiều viên thuốc (thường 10 viên) đóng chung trong một vỉ nhôm hoặc nhựa', NOW(), FALSE),
+       ('Hộp', 'Bao gồm nhiều vỉ hoặc gói thuốc, đơn vị bán phổ biến tại quầy', NOW(), FALSE),
+       ('Chai', 'Đựng dung dịch, siro hoặc thuốc nhỏ giọt', NOW(), FALSE),
+       ('Ống', 'Dùng cho thuốc tiêm, thuốc uống dạng ống nhựa hoặc thủy tinh', NOW(), FALSE),
+       ('Gói', 'Thường dùng cho thuốc bột, cốm hoặc thuốc hòa tan', NOW(), FALSE),
+       ('Tuýp', 'Dùng cho thuốc bôi, kem, gel hoặc thuốc mỡ', NOW(), FALSE),
+       ('Lọ', 'Đựng viên nén, viên nang hoặc dung dịch nhỏ', NOW(), FALSE),
+       ('Thùng', 'Đơn vị bao gồm nhiều hộp hoặc chai, thường dùng trong nhập hàng', NOW(), FALSE),
+       ('Đơn vị', 'Đơn vị tính tổng quát, dùng khi chưa xác định rõ quy cách', NOW(), FALSE),
+       ('Gói nhỏ', 'Dùng cho thuốc hòa tan dạng gói nhỏ', NOW(), FALSE);
 
 INSERT INTO CATEGORYS (name, description, deleted)
 VALUES
@@ -184,355 +175,248 @@ VALUES
 ('Xịt mũi – nhỏ mũi trẻ em', 'Vệ sinh và hỗ trợ thông mũi cho trẻ', FALSE),
 ('Dinh dưỡng trẻ em', 'Sản phẩm dinh dưỡng và phát triển cho trẻ em', FALSE);
 
-INSERT INTO medicines (name, active_ingredient, brand_name, manufacturer, country, indications, contraindications, side_effects, uses, category_id, created_at, deleted)
+INSERT INTO medicines (name, active_ingredient, brand_name, manufacturer, country, category_id, created_at, deleted)
 VALUES
     -- ====== NHÓM THUỐC CẢM CÚM 5======
-    ('Paracetamol', 'Paracetamol', 'Panadol', 'GlaxoSmithKline', 'Anh',
-     'Giảm đau, hạ sốt', 'Mẫn cảm với Paracetamol', 'Buồn nôn, phát ban', 'Dùng cho đau nhẹ đến vừa và sốt', 1, NOW(), FALSE),
+    ('Paracetamol', 'Paracetamol', 'Panadol', 'GlaxoSmithKline', 'Anh', 1, NOW(), FALSE),
     ('Decolgen', 'Paracetamol + Phenylephrine HCl + Chlorpheniramine Maleate', 'Decolgen', 'United Pharma',
-     'Philippines', 'Giảm đau, hạ sốt, nghẹt mũi', 'Mẫn cảm với bất kỳ thành phần nào', 'Buồn nôn, chóng mặt', 'Dùng cho cảm cúm', 1, NOW(), FALSE),
-    ('Tiffy', 'Paracetamol + Chlorpheniramine Maleate', 'Tiffy', 'Medica Laboratories', 'Thái Lan',
-     'Giảm đau, hạ sốt', 'Mẫn cảm với Paracetamol', 'Hiếm gặp dị ứng', 'Dùng cho cảm cúm', 1, NOW(), FALSE),
-    ('Aspirin', 'Acetylsalicylic Acid', 'Aspirin Bayer', 'Bayer AG', 'Đức',
-     'Giảm đau, hạ sốt', 'Mẫn cảm với Aspirin', 'Buồn nôn, đau bụng', 'Dùng cho đau và sốt', 1, NOW(), FALSE),
-    ('Coldrex MaxGrip', 'Paracetamol + Phenylephrine HCl + Vitamin C', 'Coldrex', 'GlaxoSmithKline', 'Anh',
-     'Giảm đau, hạ sốt, nghẹt mũi', 'Mẫn cảm với bất kỳ thành phần nào', 'Buồn nôn', 'Dùng cho cảm cúm', 1, NOW(), FALSE),
-    ('Vicks Formula 44', 'Dextromethorphan HBr 15mg/5ml', 'Vicks', 'Procter & Gamble', 'Mỹ',
-     'Giảm ho', 'Mẫn cảm với bất kỳ thành phần nào', 'Buồn nôn, chóng mặt', 'Dùng cho ho', 1, NOW(), FALSE),
+     'Philippines', 1, NOW(), FALSE),
+    ('Tiffy', 'Paracetamol + Chlorpheniramine Maleate', 'Tiffy', 'Medica Laboratories', 'Thái Lan', 1, NOW(), FALSE),
+    ('Aspirin', 'Acetylsalicylic Acid', 'Aspirin Bayer', 'Bayer AG', 'Đức', 1, NOW(), FALSE),
+    ('Coldrex MaxGrip', 'Paracetamol + Phenylephrine HCl + Vitamin C', 'Coldrex', 'GlaxoSmithKline', 'Anh', 1, NOW(),
+     FALSE),
+    ('Vicks Formula 44', 'Dextromethorphan HBr 15mg/5ml', 'Vicks', 'Procter & Gamble', 'Mỹ', 1, NOW(), FALSE),
 
 -- ====== NHÓM THUỐC HO 6======
-    ('Prospan Syrup ', 'Hedera Helix Extract 7mg/ml', 'Prospan', 'Engelhard Arzneimittel', 'Đức',
-     'Giảm ho, long đờm', 'Mẫn cảm với thành phần', 'Buồn nôn nhẹ', 'Dùng cho ho có đờm', 2, NOW(), FALSE),
+    ('Prospan Syrup ', 'Hedera Helix Extract 7mg/ml', 'Prospan', 'Engelhard Arzneimittel', 'Đức', 2, NOW(), FALSE),
     ('Atussin Syrup ', 'Guaifenesin 100mg/5ml + Dextromethorphan HBr 10mg/5ml + Chlorpheniramine Maleate 2mg/5ml',
-     'Atussin', 'DHG Pharma', 'Việt Nam', 'Giảm ho, long đờm', 'Mẫn cảm với thành phần', 'Buồn nôn, chóng mặt', 'Dùng cho ho', 2, NOW(), FALSE),
-    ('Bromhexine ', 'Bromhexine Hydrochloride 8mg', 'Bromhexine Stella', 'Stella Pharma', 'Việt Nam',
-     'Giảm ho', 'Mẫn cảm với Bromhexine', 'Buồn nôn', 'Dùng cho ho', 2, NOW(), FALSE),
-    ('Terpin Codein', 'Codeine Phosphate 10mg + Terpin Hydrate 100mg', 'Terpin Codein', 'Imexpharm', 'Việt Nam',
-     'Giảm ho', 'Mẫn cảm với Codein hoặc Terpin', 'Buồn nôn, chóng mặt', 'Dùng cho ho', 2, NOW(), FALSE),
-    ('Ho Pha Viên', 'Dextromethorphan HBr + Guaifenesin', 'Ho Pha', 'Medipharm', 'Việt Nam',
-     'Giảm ho', 'Mẫn cảm với thành phần', 'Buồn nôn', 'Dùng cho ho', 2, NOW(), FALSE),
+     'Atussin', 'DHG Pharma', 'Việt Nam', 2, NOW(), FALSE),
+    ('Bromhexine ', 'Bromhexine Hydrochloride 8mg', 'Bromhexine Stella', 'Stella Pharma', 'Việt Nam', 2, NOW(), FALSE),
+    ('Terpin Codein', 'Codeine Phosphate 10mg + Terpin Hydrate 100mg', 'Terpin Codein', 'Imexpharm', 'Việt Nam', 2,
+     NOW(), FALSE),
+    ('Ho Pha Viên', 'Dextromethorphan HBr + Guaifenesin', 'Ho Pha', 'Medipharm', 'Việt Nam', 2, NOW(), FALSE),
 
 -- ====== NHÓM THUỐC HẠ SỐT – GIẢM ĐAU 7======
-    ('Panadol Extra ', 'Paracetamol + Caffeine', 'Panadol', 'GlaxoSmithKline', 'Anh',
-     'Giảm đau, hạ sốt', 'Mẫn cảm với Paracetamol hoặc Caffeine', 'Buồn nôn, phát ban', 'Dùng cho đau và sốt', 3, NOW(), FALSE),
-    ('Efferalgan ', 'Paracetamol', 'Efferalgan', 'Bristol-Myers', 'Pháp',
-     'Giảm đau, hạ sốt', 'Mẫn cảm với Paracetamol', 'Buồn nôn, phát ban', 'Dùng cho đau và sốt', 3, NOW(), FALSE),
-    ('Ibuprofen ', 'Ibuprofen', 'Nurofen', 'Reckitt Benckiser', 'Anh',
-     'Giảm đau, hạ sốt', 'Mẫn cảm với Ibuprofen', 'Buồn nôn, đau dạ dày', 'Dùng cho đau và viêm', 3, NOW(), FALSE),
+    ('Panadol Extra ', 'Paracetamol + Caffeine', 'Panadol', 'GlaxoSmithKline', 'Anh', 3, NOW(), FALSE),
+    ('Efferalgan ', 'Paracetamol', 'Efferalgan', 'Bristol-Myers', 'Pháp', 3, NOW(), FALSE),
+    ('Ibuprofen ', 'Ibuprofen', 'Nurofen', 'Reckitt Benckiser', 'Anh', 3, NOW(), FALSE),
 
     -- Thuốc dị ứng – kháng histamin (ID = 8)
-    ('Cetirizine', 'Cetirizine 10mg', 'Zyrtec', 'UCB Pharma', 'Belgium',
-     'Giảm triệu chứng dị ứng', 'Quá mẫn với cetirizine', 'Buồn ngủ nhẹ, mệt mỏi', 'Dùng cho dị ứng', 4, NOW(), FALSE),
-    ('Loratadine', 'Loratadine 10mg', 'Claritine', 'Bayer', 'Germany',
-     'Giảm dị ứng, mề đay', 'Quá mẫn với loratadine', 'Khô miệng, đau đầu', 'Dùng cho dị ứng', 4, NOW(), FALSE),
-    ('Fexofenadine', 'Fexofenadine Hydrochloride 180mg', 'Telfast', 'Sanofi', 'France',
-     'Giảm triệu chứng dị ứng', 'Quá mẫn với fexofenadine', 'Nhức đầu, buồn nôn', 'Dùng cho dị ứng', 4, NOW(), FALSE),
+    ('Cetirizine', 'Cetirizine 10mg', 'Zyrtec', 'UCB Pharma', 'Belgium', 4, NOW(), FALSE),
+    ('Loratadine', 'Loratadine 10mg', 'Claritine', 'Bayer', 'Germany', 4, NOW(), FALSE),
+    ('Fexofenadine', 'Fexofenadine Hydrochloride 180mg', 'Telfast', 'Sanofi', 'France', 4, NOW(), FALSE),
     -- Thuốc sát khuẩn – khử trùng (ID = 9)
-    ('Betadine', 'Povidone Iodine 10%', 'Betadine', 'Mundipharma', 'Singapore',
-     'Sát khuẩn vết thương', 'Không dùng ở vùng tổn thương nặng', 'Kích ứng da hiếm gặp', 'Sát khuẩn ngoài da', 5, NOW(), FALSE),
-    ('Oxy già', 'Hydrogen Peroxide 3%', 'Hydrogen Peroxide', 'Medipharma', 'Vietnam',
-     'Vệ sinh vết thương', 'Không nuốt, không dùng cho vết thương sâu', 'Rát nhẹ khi bôi', 'Vệ sinh vết thương', 5, NOW(), FALSE),
+    ('Betadine', 'Povidone Iodine 10%', 'Betadine', 'Mundipharma', 'Singapore', 5, NOW(), FALSE),
+    ('Oxy già', 'Hydrogen Peroxide 3%', 'Hydrogen Peroxide', 'Medipharma', 'Vietnam', 5, NOW(), FALSE),
     -- Dạ dày – tiêu hóa (ID = 10)
-    ('Omeprazole', 'Omeprazole 20mg', 'Losec', 'AstraZeneca', 'UK',
-     'Giảm ợ nóng, trào ngược', 'Quá mẫn với omeprazole', 'Đau đầu, tiêu chảy', 'Điều trị loét/GERD', 6, NOW(), FALSE),
-    ('Esomeprazole', 'Esomeprazole 40mg', 'Nexium', 'AstraZeneca', 'Sweden',
-     'Điều trị GERD, loét', 'Quá mẫn với esomeprazole', 'Đau đầu, tiêu chảy', 'Điều trị loét/GERD', 6, NOW(), FALSE),
-    ('Domperidone', 'Domperidone 10mg', 'Motilium', 'Janssen', 'Belgium',
-     'Giảm buồn nôn, nôn', 'Quá mẫn với domperidone; bệnh tim nặng', 'Mệt mỏi, khô miệng', 'Giảm buồn nôn', 6, NOW(), FALSE),
+    ('Omeprazole', 'Omeprazole 20mg', 'Losec', 'AstraZeneca', 'UK', 6, NOW(), FALSE),
+    ('Esomeprazole', 'Esomeprazole 40mg', 'Nexium', 'AstraZeneca', 'Sweden', 6, NOW(), FALSE),
+    ('Domperidone', 'Domperidone 10mg', 'Motilium', 'Janssen', 'Belgium', 6, NOW(), FALSE),
     -- Tim mạch – huyết áp (ID = 11
-    ('Amlodipine', 'Amlodipine 5mg', 'Amlor', 'Pfizer', 'USA',
-     'Hạ huyết áp', 'Suy tim nặng, quá mẫn', 'Chóng mặt, phù chân', 'Điều trị tăng huyết áp', 7, NOW(), FALSE),
-    ('Losartan', 'Losartan Potassium 50mg', 'Cozaar', 'Merck Sharp & Dohme', 'USA',
-     'Hỗ trợ điều trị huyết áp', 'Phụ nữ có thai, quá mẫn', 'Tiêu chảy, chóng mặt', 'Điều trị huyết áp', 7, NOW(), FALSE),
-    ('Bisoprolol', 'Bisoprolol Fumarate 5mg', 'Concor', 'Merck', 'Germany',
-     'Điều trị huyết áp, suy tim', 'Hen, block tim nặng', 'Mệt mỏi, mạch chậm', 'Tăng huyết áp, suy tim', 7, NOW(), FALSE),
+    ('Amlodipine', 'Amlodipine 5mg', 'Amlor', 'Pfizer', 'USA', 7, NOW(), FALSE),
+    ('Losartan', 'Losartan Potassium 50mg', 'Cozaar', 'Merck Sharp & Dohme', 'USA', 7, NOW(), FALSE),
+    ('Bisoprolol', 'Bisoprolol Fumarate 5mg', 'Concor', 'Merck', 'Germany', 7, NOW(), FALSE),
     -- Xương khớp – đau nhức (ID = 12)
-    ('Glucosamine', 'Glucosamine Sulfate 1500mg', 'Schiff Glucosamine', 'Schiff', 'USA',
-     'Hỗ trợ sụn khớp', 'Quá mẫn với thành phần', 'Tiêu hóa nhẹ, buồn nôn', 'Hỗ trợ xương khớp', 8, NOW(), FALSE),
-    ('Meloxicam', 'Meloxicam 7.5mg', 'Mobic', 'Boehringer Ingelheim', 'Germany',
-     'Giảm đau viêm xương khớp', 'Loét tiêu hóa, suy thận nặng', 'Đau dạ dày, chóng mặt', 'Giảm đau viêm', 8, NOW(), FALSE),
+    ('Glucosamine', 'Glucosamine Sulfate 1500mg', 'Schiff Glucosamine', 'Schiff', 'USA', 8, NOW(), FALSE),
+    ('Meloxicam', 'Meloxicam 7.5mg', 'Mobic', 'Boehringer Ingelheim', 'Germany', 8, NOW(), FALSE),
     -- Gan – giải độc (ID = 13)
-    ('Essentiale Forte', 'Phospholipid Extract', 'Essentiale', 'Sanofi', 'France',
-     'Hỗ trợ chức năng gan', 'Quá mẫn với thành phần', 'Tiêu hóa nhẹ', 'Hỗ trợ chức năng gan', 9, NOW(), FALSE),
-    ('LiverGold', 'Milk Thistle Extract', 'LiverGold', 'Nature''s Way', 'USA',
-     'Hỗ trợ giải độc gan', 'Quá mẫn với cây kế sữa', 'Tiêu hóa nhẹ', 'Hỗ trợ chức năng gan', 9, NOW(), FALSE),
+    ('Essentiale Forte', 'Phospholipid Extract', 'Essentiale', 'Sanofi', 'France', 9, NOW(), FALSE),
+    ('LiverGold', 'Milk Thistle Extract', 'LiverGold', 'Nature''s Way', 'USA', 9, NOW(), FALSE),
     -- Thần kinh – giấc ngủ (ID = 14)
-    ('Melatonin', 'Melatonin 3mg', 'Natrol Melatonin', 'Natrol', 'USA',
-     'Hỗ trợ giấc ngủ', 'Phụ nữ mang thai chưa có nghiên cứu đầy đủ', 'Buồn ngủ, chóng mặt', 'Hỗ trợ giấc ngủ', 10, NOW(), FALSE),
-    ('Magnesium B6', 'Magnesium + Vitamin B6', 'MagB6', 'Sanofi', 'France',
-     'Hỗ trợ giảm căng cơ', 'Quá mẫn với thành phần', 'Tiêu hóa nhẹ', 'Hỗ trợ thần kinh và giấc ngủ', 10, NOW(), FALSE),
+    ('Melatonin', 'Melatonin 3mg', 'Natrol Melatonin', 'Natrol', 'USA', 10, NOW(), FALSE),
+    ('Magnesium B6', 'Magnesium + Vitamin B6', 'MagB6', 'Sanofi', 'France', 10, NOW(), FALSE),
     -- Vitamin và khoáng chất (ID = 15)
-    ('Centrum', 'Multivitamins & Minerals', 'Centrum', 'Pfizer', 'USA',
-     'Bổ sung vitamin', 'Quá mẫn với thành phần', 'Hiếm gặp', 'Bổ sung dinh dưỡng', 11, NOW(), FALSE),
+    ('Centrum', 'Multivitamins & Minerals', 'Centrum', 'Pfizer', 'USA', 11, NOW(), FALSE),
     -- Tăng đề kháng – miễn dịch (ID = 16)
-    ('Vitamin C', 'Ascorbic Acid 1000mg', 'Vitamin C', 'Blackmores', 'Australia',
-     'Tăng cường miễn dịch', 'Quá mẫn với vitamin C', 'Đau dạ dày nhẹ', 'Tăng đề kháng', 12, NOW(), FALSE),
+    ('Vitamin C', 'Ascorbic Acid 1000mg', 'Vitamin C', 'Blackmores', 'Australia', 12, NOW(), FALSE),
     -- Điện giải – dinh dưỡng (ID = 17)
-    ('ORS', 'Oral Rehydration Salts', 'ORESOL', 'DHG Pharma', 'Vietnam',
-     'Bù nước, điện giải', 'Không có', 'Hiếm gặp', 'Bù nước điện giải', 13, NOW(), FALSE),
+    ('ORS', 'Oral Rehydration Salts', 'ORESOL', 'DHG Pharma', 'Vietnam', 13, NOW(), FALSE),
     -- Hỗ trợ tiêu hóa – men vi sinh (ID = 18
-    ('BioGaia', 'Lactobacillus reuteri Protectis', 'BioGaia', 'BioGaia AB', 'Sweden',
-     'Hỗ trợ tiêu hóa', 'Quá mẫn với thành phần', 'Hiếm gặp', 'Hỗ trợ hệ tiêu hóa', 14, NOW(), FALSE),
+    ('BioGaia', 'Lactobacillus reuteri Protectis', 'BioGaia', 'BioGaia AB', 'Sweden', 14, NOW(), FALSE),
     -- Sức khỏe phụ nữ (ID = 19)
-    ('Evening Primrose Oil', 'Evening Primrose Oil 1000mg', 'EPO', 'Blackmores', 'Australia',
-     'Hỗ trợ sức khỏe phụ nữ', 'Quá mẫn với thành phần', 'Tiêu hóa nhẹ', 'Hỗ trợ sức khỏe phụ nữ', 15, NOW(), FALSE),
+    ('Evening Primrose Oil', 'Evening Primrose Oil 1000mg', 'EPO', 'Blackmores', 'Australia', 15, NOW(), FALSE),
     -- Thuốc cảm – ho – sốt cho trẻ (ID = 20
-    ('Tylenol Children', 'Acetaminophen 160mg/5ml', 'Tylenol Children', 'Johnson & Johnson', 'USA',
-     'Giảm đau, hạ sốt cho trẻ', 'Mẫn cảm với acetaminophen', 'Hiếm gặp', 'Dùng cho trẻ em', 16, NOW(), FALSE),
+    ('Tylenol Children', 'Acetaminophen 160mg/5ml', 'Tylenol Children', 'Johnson & Johnson', 'USA', 16, NOW(), FALSE),
     -- Vitamin và khoáng chất trẻ em (ID = 21)
-    ('Kids Smart Vita Gummies', 'Multivitamins for Kids', 'Nature', ' Way', 'Australia',
-     'Bổ sung vitamin cho trẻ', 'Quá mẫn với thành phần', 'Hiếm gặp', 'Bổ sung dinh dưỡng cho trẻ', 17, NOW(), FALSE),
+    ('Kids Smart Vita Gummies', 'Multivitamins for Kids', 'Nature', ' Way', 'Australia', 17, NOW(), FALSE),
     -- Điện giải và tiêu hóa cho trẻ (ID = 22)
-    ('Hydrite', 'ORS for Kids', 'Hydrite', 'United Pharma', 'Philippines',
-     'Bù nước điện giải cho trẻ', 'Không có', 'Hiếm gặp', 'Bù nước cho trẻ', 18, NOW(), FALSE),
+    ('Hydrite', 'ORS for Kids', 'Hydrite', 'United Pharma', 'Philippines', 18, NOW(), FALSE),
     -- Xịt mũi – nhỏ mũi trẻ em (ID = 23)
-    ('Sterimar Baby', 'aaa', 'sea water', 'Sterimar', 'France',
-     'Vệ sinh mũi cho trẻ', 'Không có', 'Hiếm gặp', 'Vệ sinh mũi', 19, NOW(), FALSE),
+    ('Sterimar Baby', 'aaa', 'sea water', 'Sterimar', 'France', 19, NOW(), FALSE),
     -- Dinh dưỡng trẻ em (ID = 24)
-    ('PediaSure', 'Child Nutrition Formula', 'PediaSure', 'Abbott', 'USA',
-     'Bổ sung dinh dưỡng cho trẻ', 'Quá mẫn với thành phần', 'Hiếm gặp', 'Dinh dưỡng cho trẻ', 20, NOW(), FALSE);
+    ('PediaSure', 'Child Nutrition Formula', 'PediaSure', 'Abbott', 'USA', 20, NOW(), FALSE);
 
 INSERT INTO medicine_variant
-(dosage_form_id, dosage, strength, packaging, barcode, registration_number,
- storage_conditions, instructions, prescription_require, base_unit_id,
+(dosage_form, dosage, strength, package_unit_id, base_unit_id, quantity_per_package, barcode, registration_number,
+ storage_conditions, indications, contraindications, side_effects, instructions, prescription_require, uses,
  medicine_id, created_at, deleted)
 VALUES
     -- 1. Paracetamol (OTC + 1 variant kê đơn)
-    (1, 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '500mg', 'Hộp 10 vỉ x 10 viên', '8935000000011', 'VN-10001',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Không quá 8 viên/ngày. Uống với nhiều nước', FALSE, 1, 1, NOW(), FALSE),
-    (1, 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '650mg', 'Hộp 10 vỉ x 10 viên', '8935000000012', 'VN-10002',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Không quá 8 viên/ngày. Uống với nhiều nước', TRUE, 1, 1, NOW(), FALSE),
-    (3, 'Uống 1 gói mỗi 6 giờ nếu cần', '500mg', 'Hộp 10 gói', '8935000000013', 'VN-10003',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Hòa tan trong nước. Uống sau bữa ăn', FALSE, 1, 1, NOW(), FALSE),
+    ('Viên nén', 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '500mg', 3, 1, 10, '8935000000011', 'VN-10001',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm đau, hạ sốt', 'Mẫn cảm với Paracetamol', 'Buồn nôn, phát ban',
+     'Không quá 8 viên/ngày', FALSE, 'Uống với nhiều nước', 1, NOW(), FALSE),
+    ('Viên nén', 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '650mg', 3, 1, 10, '8935000000012', 'VN-10002',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm đau, hạ sốt', 'Mẫn cảm với Paracetamol', 'Buồn nôn, phát ban',
+     'Không quá 8 viên/ngày', TRUE, 'Uống với nhiều nước', 1, NOW(), FALSE),
+    ('Viên sủi', 'Uống 1 gói mỗi 6 giờ nếu cần', '500mg', 6, 1, 10, '8935000000013', 'VN-10003',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm đau, hạ sốt', 'Mẫn cảm với Paracetamol', 'Buồn nôn, phát ban',
+     'Hòa tan trong nước', FALSE, 'Uống sau bữa ăn', 1, NOW(), FALSE),
 -- 2. Decolgen (OTC)
-    (1, 'Uống 1 viên mỗi 8 giờ', '500mg', 'Hộp 10 vỉ x 10 viên', '8935000000021', 'VN-10004',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Uống với nước đầy. Sau bữa ăn', FALSE, 1, 2, NOW(), FALSE),
-    (1, 'Uống 1 viên mỗi 8 giờ', '500mg', 'Hộp 20 vỉ x 10 viên', '8935000000022', 'VN-10005',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Uống với nước đầy. Sau bữa ăn', FALSE, 1, 2, NOW(), FALSE),
+    ('Viên nén', 'Uống 1 viên mỗi 8 giờ', '500mg', 3, 1, 10, '8935000000021', 'VN-10004',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm đau, hạ sốt, nghẹt mũi', 'Mẫn cảm với bất kỳ thành phần nào',
+     'Buồn nôn, chóng mặt', 'Uống với nước đầy', FALSE, 'Sau bữa ăn', 2, NOW(), FALSE),
+    ('Viên nén', 'Uống 1 viên mỗi 8 giờ', '500mg', 3, 1, 20, '8935000000022', 'VN-10005',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm đau, hạ sốt, nghẹt mũi', 'Mẫn cảm với bất kỳ thành phần nào',
+     'Buồn nôn, chóng mặt', 'Uống với nước đầy', FALSE, 'Sau bữa ăn', 2, NOW(), FALSE),
 -- 3. Tiffy (OTC)
-    (1, 'Uống 1–2 viên mỗi 6 giờ nếu cần', '500mg', 'Hộp 10 vỉ x 10 viên', '8935000000031', 'VN-10006',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Không quá 8 viên/ngày. Uống với nhiều nước', FALSE, 1, 3, NOW(), FALSE),
-    (3, 'Uống 1 gói mỗi 6 giờ nếu cần', '500mg', 'Hộp 10 gói', '8935000000032', 'VN-10007',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Hòa tan trong nước. Sau bữa ăn', FALSE, 1, 3, NOW(), FALSE),
+    ('Viên nén', 'Uống 1–2 viên mỗi 6 giờ nếu cần', '500mg', 3, 1, 10, '8935000000031', 'VN-10006',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm đau, hạ sốt', 'Mẫn cảm với Paracetamol', 'Hiếm gặp dị ứng',
+     'Không quá 8 viên/ngày', FALSE, 'Uống với nhiều nước', 3, NOW(), FALSE),
+    ('Viên sủi', 'Uống 1 gói mỗi 6 giờ nếu cần', '500mg', 6, 1, 10, '8935000000032', 'VN-10007',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm đau, hạ sốt', 'Mẫn cảm với Paracetamol', 'Hiếm gặp dị ứng',
+     'Hòa tan trong nước', FALSE, 'Sau bữa ăn', 3, NOW(), FALSE),
 -- 4. Aspirin 500mg (OTC)
-    (1, 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '500mg', 'Hộp 10 vỉ x 10 viên', '8935000000041', 'VN-10008',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Không quá 8 viên/ngày. Uống sau bữa ăn', FALSE, 1, 4, NOW(), FALSE),
+    ('Viên nén', 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '500mg', 3, 1, 10, '8935000000041', 'VN-10008',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm đau, hạ sốt', 'Mẫn cảm với Aspirin', 'Buồn nôn, đau bụng',
+     'Không quá 8 viên/ngày', FALSE, 'Uống sau bữa ăn', 4, NOW(), FALSE),
 -- 5. Coldrex MaxGrip (OTC)
-    (1, 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '500mg', 'Hộp 10 vỉ x 10 viên', '8935000000051', 'VN-10009',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Uống với nước đầy. Sau bữa ăn', FALSE, 1, 5, NOW(), FALSE),
+    ('Viên nén', 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '500mg', 3, 1, 10, '8935000000051', 'VN-10009',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm đau, hạ sốt, nghẹt mũi', 'Mẫn cảm với bất kỳ thành phần nào', 'Buồn nôn',
+     'Uống với nước đầy', FALSE, 'Sau bữa ăn', 5, NOW(), FALSE),
 -- 6. Vicks Formula 44 (OTC)
-    (4, 'Uống 5ml mỗi 8 giờ nếu cần', '100ml', 'Chai 100ml', '8935000000061', 'VN-10010',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Lắc đều trước khi dùng. Sau bữa ăn', FALSE, 10, 6, NOW(), FALSE),
+    ('Syrup', 'Uống 5ml mỗi 8 giờ nếu cần', '100ml', 4, 4, 1, '8935000000061', 'VN-10010',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm ho', 'Mẫn cảm với bất kỳ thành phần nào', 'Buồn nôn, chóng mặt',
+     'Lắc đều trước khi dùng', FALSE, 'Sau bữa ăn', 6, NOW(), FALSE),
 -- 7. Prospan Syrup (OTC)
-    (4, 'Uống 5ml mỗi 8 giờ nếu cần', '100ml', 'Chai 100ml', '8935000000071', 'VN-10011',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Lắc đều trước khi dùng. Sau bữa ăn', FALSE, 10, 7, NOW(), FALSE),
+    ('Syrup', 'Uống 5ml mỗi 8 giờ nếu cần', '100ml', 4, 4, 1, '8935000000071', 'VN-10011',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm ho, long đờm', 'Mẫn cảm với bất kỳ thành phần nào', 'Buồn nôn, chóng mặt',
+     'Lắc đều trước khi dùng', FALSE, 'Sau bữa ăn', 7, NOW(), FALSE),
 -- 8. Atussin Syrup (OTC)
-    (4, 'Uống 5ml mỗi 8 giờ nếu cần', '100ml', 'Chai 100ml', '8935000000081', 'VN-10012',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Lắc đều trước khi dùng. Sau bữa ăn', FALSE, 10, 8, NOW(), FALSE),
+    ('Syrup', 'Uống 5ml mỗi 8 giờ nếu cần', '100ml', 4, 4, 1, '8935000000081', 'VN-10012',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm ho, long đờm', 'Mẫn cảm với bất kỳ thành phần nào', 'Buồn nôn, chóng mặt',
+     'Lắc đều trước khi dùng', FALSE, 'Sau bữa ăn', 8, NOW(), FALSE),
 -- 9. Bromhexine 8mg (OTC)
-    (1, 'Uống 1 viên mỗi 8 giờ nếu cần', '8mg', 'Hộp 10 vỉ x 10 viên', '8935000000091', 'VN-10013',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Uống với nước đầy. Sau bữa ăn', FALSE, 1, 9, NOW(), FALSE),
+    ('Viên nén', 'Uống 1 viên mỗi 8 giờ nếu cần', '8mg', 3, 1, 10, '8935000000091', 'VN-10013',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm ho', 'Mẫn cảm với Bromhexine', 'Buồn nôn', 'Uống với nước đầy', FALSE,
+     'Sau bữa ăn', 9, NOW(), FALSE),
 -- 10. Terpin Codein (OTC)
-    (1, 'Uống 1 viên mỗi 8 giờ nếu cần', '10mg + 100mg', 'Hộp 10 vỉ x 10 viên', '8935000000101', 'VN-10014',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Uống với nước đầy. Sau bữa ăn', FALSE, 1, 10, NOW(), FALSE),
+    ('Viên nén', 'Uống 1 viên mỗi 8 giờ nếu cần', '10mg + 100mg', 3, 1, 10, '8935000000101', 'VN-10014',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm ho', 'Mẫn cảm với Codein hoặc Terpin', 'Buồn nôn, chóng mặt',
+     'Uống với nước đầy', FALSE, 'Sau bữa ăn', 10, NOW(), FALSE),
 -- 11. Ho Pha Viên (OTC)
-    (1, 'Uống 1–2 viên mỗi 8 giờ nếu cần', '500mg', 'Hộp 10 vỉ x 10 viên', '8935000000111', 'VN-10015',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Uống với nước đầy. Sau bữa ăn', FALSE, 1, 11, NOW(), FALSE),
+    ('Viên nén', 'Uống 1–2 viên mỗi 8 giờ nếu cần', '500mg', 3, 1, 10, '8935000000111', 'VN-10015',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm ho', 'Mẫn cảm với bất kỳ thành phần nào', 'Buồn nôn', 'Uống với nước đầy',
+     FALSE, 'Sau bữa ăn', 11, NOW(), FALSE),
 -- 12. Panadol Extra 500mg (OTC)
-    (1, 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '500mg + Caffeine', 'Hộp 10 vỉ x 10 viên', '8935000000121', 'VN-10016',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Uống với nước đầy. Sau bữa ăn', FALSE, 1, 12, NOW(), FALSE),
+    ('Viên nén', 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '500mg + Caffeine', 3, 1, 10, '8935000000121', 'VN-10016',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm đau, hạ sốt', 'Mẫn cảm với Paracetamol hoặc Caffeine',
+     'Buồn nôn, phát ban', 'Uống với nước đầy', FALSE, 'Sau bữa ăn', 12, NOW(), FALSE),
 -- 13. Efferalgan 500mg (OTC)
-    (1, 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '500mg', 'Hộp 10 vỉ x 10 viên', '8935000000131', 'VN-10017',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Uống với nước đầy. Sau bữa ăn', FALSE, 1, 13, NOW(), FALSE),
+    ('Viên nén', 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '500mg', 3, 1, 10, '8935000000131', 'VN-10017',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm đau, hạ sốt', 'Mẫn cảm với Paracetamol', 'Buồn nôn, phát ban',
+     'Uống với nước đầy', FALSE, 'Sau bữa ăn', 13, NOW(), FALSE),
 -- 14. Ibuprofen 400mg (OTC)
-    (1, 'Uống 1–2 viên mỗi 6–8 giờ nếu cần', '400mg', 'Hộp 10 vỉ x 10 viên', '8935000000141', 'VN-10018',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Uống với nước đầy. Sau bữa ăn', FALSE, 1, 14, NOW(), FALSE),
+    ('Viên nén', 'Uống 1–2 viên mỗi 6–8 giờ nếu cần', '400mg', 3, 1, 10, '8935000000141', 'VN-10018',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm đau, hạ sốt', 'Mẫn cảm với Ibuprofen', 'Buồn nôn, đau dạ dày',
+     'Uống với nước đầy', FALSE, 'Sau bữa ăn', 14, NOW(), FALSE),
     -- Dị ứng 15: Cetirizine
-    (1, 'Uống 1 viên mỗi ngày khi cần', '10mg', 'Hộp 10 vỉ x 10 viên', '8935000001501', 'VN-15001',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Uống nguyên viên; không lái xe nếu thấy buồn ngủ', FALSE, 1, 15, NOW(), FALSE),
+    ('Viên nén', 'Uống 1 viên mỗi ngày khi cần', '10mg', 3, 1, 10, '8935000001501', 'VN-15001',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm triệu chứng dị ứng: ngứa, chảy nước mũi, sổ mũi', 'Quá mẫn với cetirizine',
+     'Buồn ngủ nhẹ, mệt mỏi',
+     'Uống nguyên viên; không lái xe nếu thấy buồn ngủ', FALSE, 'Giảm triệu chứng dị ứng', 15, NOW(), FALSE),
     -- Dị ứng 15: Cetirizine (variant lớn hộp)
-    (1, 'Uống 1 viên mỗi ngày khi cần', '10mg', 'Hộp 30 vỉ x 10 viên', '8935000001502', 'VN-15002',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Uống nguyên viên; không lái xe nếu thấy buồn ngủ', FALSE, 1, 15, NOW(), FALSE),
+    ('Viên nén', 'Uống 1 viên mỗi ngày khi cần', '10mg', 3, 1, 30, '8935000001502', 'VN-15002',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm triệu chứng dị ứng: ngứa, chảy nước mũi, sổ mũi', 'Quá mẫn với cetirizine',
+     'Buồn ngủ nhẹ, mệt mỏi',
+     'Uống nguyên viên; không lái xe nếu thấy buồn ngủ', FALSE, 'Giảm triệu chứng dị ứng', 15, NOW(), FALSE),
     -- Dị ứng 16: Loratadine
-    (1, 'Uống 1 viên mỗi ngày', '10mg', 'Hộp 10 vỉ x 10 viên', '8935000001601', 'VN-16001',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Uống nguyên viên, 1 lần/ngày', FALSE, 1, 16, NOW(), FALSE),
+    ('Viên nén', 'Uống 1 viên mỗi ngày', '10mg', 3, 1, 10, '8935000001601', 'VN-16001',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm dị ứng, mề đay, ngứa', 'Quá mẫn với loratadine', 'Khô miệng, đau đầu',
+     'Uống nguyên viên, 1 lần/ngày', FALSE, 'Giảm dị ứng', 16, NOW(), FALSE),
     -- Dị ứng 17: Fexofenadine (OTC thấp liều)
-    (1, 'Uống 1 viên mỗi ngày', '60mg', 'Hộp 10 vỉ x 10 viên', '8935000001701', 'VN-17001',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Uống nguyên viên, mỗi ngày', FALSE, 1, 17, NOW(), FALSE),
+    ('Viên nén', 'Uống 1 viên mỗi ngày', '60mg', 3, 1, 10, '8935000001701', 'VN-17001',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm triệu chứng dị ứng', 'Quá mẫn với fexofenadine', 'Nhức đầu, buồn nôn',
+     'Uống nguyên viên, mỗi ngày', FALSE, 'Giảm dị ứng nhẹ', 17, NOW(), FALSE),
     -- Dị ứng 17: Fexofenadine (Rx cao liều)
-    (1, 'Uống 1 viên mỗi ngày', '180mg', 'Hộp 10 vỉ x 10 viên', 'INT0000001702', 'INT-17002',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Dùng theo chỉ định bác sĩ', TRUE, 1, 17, NOW(), FALSE),
+    ('Viên nén', 'Uống 1 viên mỗi ngày', '180mg', 3, 1, 10, 'INT0000001702', 'INT-17002',
+     'Bảo quản nơi khô, dưới 30°C', 'Dị ứng nặng hoặc không đáp ứng với liệu pháp khác', 'Quá mẫn với fexofenadine',
+     'Nhức đầu, mệt mỏi',
+     'Dùng theo chỉ định bác sĩ', TRUE, 'Dị ứng trung bình–nặng', 17, NOW(), FALSE),
     -- Sát khuẩn 18: Betadine (chất sát khuẩn)
-    (5, 'Rửa hoặc bôi vùng cần sát khuẩn 1–2 lần/ngày', 'Povidone Iodine 10%', 'Chai 100ml', '8935000001801',
+    ('Dung dịch bôi', 'Rửa hoặc bôi vùng cần sát khuẩn 1–2 lần/ngày', 'Povidone Iodine 10%', 8, 8, 100, '8935000001801',
      'VN-18001',
-     'Bảo quản nơi khô, tránh ánh nắng trực tiếp',
-     'Rửa vết thương, bôi một lớp mỏng', FALSE, 10, 18, NOW(), FALSE),
+     'Bảo quản nơi khô, tránh ánh nắng trực tiếp', 'Sát khuẩn vết thương, vệ sinh da',
+     'Không dùng ở vùng có tổn thương nặng hoặc rách da lớn', 'Kích ứng da hiếm gặp',
+     'Rửa vết thương, bôi một lớp mỏng', FALSE, 'Sát khuẩn ngoài da', 18, NOW(), FALSE),
     -- Sát khuẩn 19: Oxy già (Hydrogen Peroxide)
-    (6, 'Rửa vùng cần sát khuẩn, sau đó rửa lại bằng nước', 'Hydrogen Peroxide 3%', 'Chai 100ml',
+    ('Dung dịch', 'Rửa vùng cần sát khuẩn, sau đó rửa lại bằng nước', 'Hydrogen Peroxide 3%', 4, 8, 100,
      '8935000001901', 'VN-19001',
-     'Bảo quản nơi khô, tránh ánh nắng',
-     'Sử dụng ngoài da, rửa kỹ sau khi dùng', FALSE, 10, 19, NOW(), FALSE),
+     'Bảo quản nơi khô, tránh ánh nắng', 'Vệ sinh vết thương, sát khuẩn nhẹ',
+     'Không nuốt, không dùng cho vết thương sâu', 'Rát nhẹ khi bôi',
+     'Sử dụng ngoài da, rửa kỹ sau khi dùng', FALSE, 'Vệ sinh vết thương', 19, NOW(), FALSE),
     -- Dạ dày 20: Omeprazole (OTC thấp liều)
-    (2, 'Uống 1 viên mỗi ngày trước bữa sáng', '10mg', 'Hộp 14 vỉ x 10 viên', '8935000002001', 'VN-20001',
-     'Bảo quản nơi khô, nhiệt độ phòng',
-     'Uống nguyên viên trước ăn', FALSE, 1, 20, NOW(), FALSE),
+    ('Viên nang', 'Uống 1 viên mỗi ngày trước bữa sáng', '10mg', 3, 1, 14, '8935000002001', 'VN-20001',
+     'Bảo quản nơi khô, nhiệt độ phòng', 'Giảm triệu chứng ợ nóng, trào ngược nhẹ', 'Quá mẫn với omeprazole',
+     'Đau đầu, tiêu chảy',
+     'Uống nguyên viên trước ăn', FALSE, 'Giảm ợ nóng/GERD nhẹ', 20, NOW(), FALSE),
     -- Dạ dày 20: Omeprazole (Rx cao liều)
-    (2, 'Uống 1 viên mỗi ngày trước bữa sáng', '20mg', 'Hộp 28 vỉ x 10 viên', 'INT0000002002', 'INT-20002',
-     'Bảo quản nơi khô, nhiệt độ phòng',
-     'Dùng theo hướng dẫn bác sĩ', TRUE, 1, 20, NOW(), FALSE),
+    ('Viên nang', 'Uống 1 viên mỗi ngày trước bữa sáng', '20mg', 3, 1, 28, 'INT0000002002', 'INT-20002',
+     'Bảo quản nơi khô, nhiệt độ phòng', 'Điều trị loét, GERD trung bình–nặng', 'Quá mẫn với omeprazole',
+     'Đau đầu, tiêu chảy, buồn nôn',
+     'Dùng theo hướng dẫn bác sĩ', TRUE, 'Điều trị loét/GERD', 20, NOW(), FALSE),
     -- Dạ dày 21: Esomeprazole (thường Rx)
-    (2, 'Uống 1 viên mỗi ngày trước ăn', '40mg', 'Hộp 28 vỉ x 10 viên', 'INT0000002101', 'INT-21001',
-     'Bảo quản nơi khô, nhiệt độ phòng',
-     'Dùng theo chỉ định bác sĩ', TRUE, 1, 21, NOW(), FALSE),
+    ('Viên nang', 'Uống 1 viên mỗi ngày trước ăn', '40mg', 3, 1, 28, 'INT0000002101', 'INT-21001',
+     'Bảo quản nơi khô, nhiệt độ phòng', 'Điều trị GERD, loét dạ dày tá tràng', 'Quá mẫn với esomeprazole',
+     'Đau đầu, tiêu chảy',
+     'Dùng theo chỉ định bác sĩ', TRUE, 'Điều trị loét/GERD', 21, NOW(), FALSE),
     -- Dạ dày 22: Domperidone (thường Rx)
-    (1, 'Uống 1 viên trước bữa ăn, 3 lần/ngày', '10mg', 'Hộp 20 vỉ x 10 viên', '8935000002201', 'VN-22001',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Dùng theo hướng dẫn; không dùng quá liều khuyến cáo', TRUE, 1, 22, NOW(), FALSE),
+    ('Viên nén', 'Uống 1 viên trước bữa ăn, 3 lần/ngày', '10mg', 3, 1, 20, '8935000002201', 'VN-22001',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm buồn nôn, nôn, hỗ trợ tiêu hóa', 'Quá mẫn với domperidone; bệnh tim nặng',
+     'Mệt mỏi, khô miệng',
+     'Dùng theo hướng dẫn; không dùng quá liều khuyến cáo', TRUE, 'Giảm buồn nôn, nôn', 22, NOW(), FALSE),
     -- Tim mạch 23: Amlodipine (Rx)
-    (1, 'Uống 1 viên mỗi ngày', '5mg', 'Hộp 30 vỉ x 10 viên', 'INT0000002301', 'INT-23001',
-     'Bảo quản nơi khô, nhiệt độ phòng',
-     'Uống vào cùng một thời điểm mỗi ngày', TRUE, 1, 23, NOW(), FALSE),
+    ('Viên nén', 'Uống 1 viên mỗi ngày', '5mg', 3, 1, 30, 'INT0000002301', 'INT-23001',
+     'Bảo quản nơi khô, nhiệt độ phòng', 'Hạ huyết áp, điều trị tăng huyết áp', 'Suy tim nặng chưa kiểm soát, quá mẫn',
+     'Chóng mặt, phù chân',
+     'Uống vào cùng một thời điểm mỗi ngày', TRUE, 'Điều trị tăng huyết áp', 23, NOW(), FALSE),
     -- Tim mạch 24: Losartan (Rx)
-    (1, 'Uống 1 viên mỗi ngày', '50mg', 'Hộp 30 vỉ x 10 viên', 'INT0000002401', 'INT-24001',
-     'Bảo quản nơi khô, nhiệt độ phòng',
-     'Uống theo chỉ dẫn bác sĩ', TRUE, 1, 24, NOW(), FALSE),
+    ('Viên nén', 'Uống 1 viên mỗi ngày', '50mg', 3, 1, 30, 'INT0000002401', 'INT-24001',
+     'Bảo quản nơi khô, nhiệt độ phòng', 'Hỗ trợ điều trị tăng huyết áp', 'Phụ nữ có thai, quá mẫn với losartan',
+     'Tiêu chảy, chóng mặt',
+     'Uống theo chỉ dẫn bác sĩ', TRUE, 'Điều trị huyết áp', 24, NOW(), FALSE),
     -- Tim mạch 25: Bisoprolol (Rx)
-    (1, 'Uống 1 viên mỗi ngày', '5mg', 'Hộp 28 vỉ x 10 viên', 'INT0000002501', 'INT-25001',
-     'Bảo quản nơi khô, nhiệt độ phòng',
-     'Dùng theo chỉ định bác sĩ', TRUE, 1, 25, NOW(), FALSE),
+    ('Viên nén', 'Uống 1 viên mỗi ngày', '5mg', 3, 1, 28, 'INT0000002501', 'INT-25001',
+     'Bảo quản nơi khô, nhiệt độ phòng', 'Hỗ trợ điều trị tăng huyết áp, suy tim', 'Hen, block tim nặng, quá mẫn',
+     'Mệt mỏi, mạch chậm',
+     'Dùng theo chỉ định bác sĩ', TRUE, 'Tăng huyết áp, suy tim', 25, NOW(), FALSE),
     -- Xương khớp 26: Glucosamine (OTC)
-    (2, 'Uống 1 viên mỗi ngày', '1500mg', 'Hộp 30 vỉ x 10 viên', '8935000002601', 'VN-26001',
-     'Bảo quản nơi khô, tránh ánh nắng',
-     'Uống cùng bữa ăn nếu đau dạ dày', FALSE, 1, 26, NOW(), FALSE),
+    ('Viên nang', 'Uống 1 viên mỗi ngày', '1500mg', 3, 1, 30, '8935000002601', 'VN-26001',
+     'Bảo quản nơi khô, tránh ánh nắng', 'Hỗ trợ sụn khớp, giảm đau nhẹ xương khớp', 'Quá mẫn với thành phần',
+     'Tiêu hóa nhẹ, buồn nôn',
+     'Uống cùng bữa ăn nếu đau dạ dày', FALSE, 'Hỗ trợ xương khớp', 26, NOW(), FALSE),
     -- Xương khớp 27: Meloxicam (Rx, NSAID)
-    (1, 'Uống 1 viên mỗi ngày', '7.5mg', 'Hộp 20 vỉ x 10 viên', 'INT0000002701', 'INT-27001',
-     'Bảo quản nơi khô, dưới 30°C',
-     'Dùng theo chỉ định; uống sau ăn để giảm kích ứng dạ dày', TRUE, 1, 27, NOW(), FALSE),
+    ('Viên nén', 'Uống 1 viên mỗi ngày', '7.5mg', 3, 1, 20, 'INT0000002701', 'INT-27001',
+     'Bảo quản nơi khô, dưới 30°C', 'Giảm đau viêm xương khớp', 'Loét tiêu hóa, suy thận nặng, quá mẫn',
+     'Đau dạ dày, chóng mặt',
+     'Dùng theo chỉ định; uống sau ăn để giảm kích ứng dạ dày', TRUE, 'Giảm đau viêm', 27, NOW(), FALSE),
     -- Gan 28: Essentiale Forte (OTC / hỗ trợ gan)
-    (2, 'Uống 1 viên, 2–3 lần/ngày', '300mg phospholipid', 'Hộp 30 vỉ x 10 viên', '8935000002801', 'VN-28001',
-     'Bảo quản nơi khô, tránh ánh nắng',
-     'Uống sau ăn để hỗ trợ hấp thu', FALSE, 1, 28, NOW(), FALSE),
+    ('Viên nang', 'Uống 1 viên, 2–3 lần/ngày', '300mg phospholipid', 3, 1, 30, '8935000002801', 'VN-28001',
+     'Bảo quản nơi khô, tránh ánh nắng', 'Hỗ trợ chức năng gan, giải độc', 'Quá mẫn với thành phần', 'Tiêu hóa nhẹ',
+     'Uống sau ăn để hỗ trợ hấp thu', FALSE, 'Hỗ trợ chức năng gan', 28, NOW(), FALSE),
     -- Gan 29: LiverGold (Milk Thistle, OTC)
-    (2, 'Uống 1 viên mỗi ngày', 'Silymarin 140mg', 'Hộp 30 vỉ x 10 viên', '8935000002901', 'VN-29001',
-     'Bảo quản nơi khô, tránh ánh nắng',
-     'Uống sau ăn', FALSE, 1, 29, NOW(), FALSE),
+    ('Viên nang', 'Uống 1 viên mỗi ngày', 'Silymarin 140mg', 3, 1, 30, '8935000002901', 'VN-29001',
+     'Bảo quản nơi khô, tránh ánh nắng', 'Hỗ trợ giải độc gan', 'Quá mẫn với cây kế sữa', 'Tiêu hóa nhẹ',
+     'Uống sau ăn', FALSE, 'Hỗ trợ chức năng gan', 29, NOW(), FALSE),
     -- Thần kinh 30: Melatonin (OTC)
-    (1, 'Uống 1 viên trước khi ngủ', '3mg', 'Hộp 30 vỉ x 10 viên', '8935000003001', 'VN-30001',
-     'Bảo quản nơi khô, tránh ánh nắng',
-     'Uống 30 phút trước khi ngủ; không lái xe nếu buồn ngủ', FALSE, 1, 30, NOW(), FALSE),
+    ('Viên nén', 'Uống 1 viên trước khi ngủ', '3mg', 3, 1, 30, '8935000003001', 'VN-30001',
+     'Bảo quản nơi khô, tránh ánh nắng', 'Hỗ trợ giấc ngủ, giảm thời gian khó ngủ',
+     'Phụ nữ mang thai cho con bú chưa có nghiên cứu đầy đủ', 'Buồn ngủ, chóng mặt',
+     'Uống 30 phút trước khi ngủ; không lái xe nếu buồn ngủ', FALSE, 'Hỗ trợ giấc ngủ', 30, NOW(), FALSE),
     -- Thần kinh 31: Magnesium B6 (OTC)
-    (1, 'Uống 1 viên mỗi ngày', 'Magnesium + Vitamin B6', 'Hộp 30 vỉ x 10 viên', '8935000003101', 'VN-31001',
-     'Bảo quản nơi khô, tránh ánh nắng',
-     'Uống sau ăn nếu gây khó chịu dạ dày', FALSE, 1, 31, NOW(), FALSE);
-
--- =========================================================
--- PACKAGINGS: Define packaging units for medicine variants
--- =========================================================
-INSERT INTO packagings (medicine_variant_id, package_type, quantity, unit_id, created_at, deleted)
-VALUES
-    -- Paracetamol 500mg (variant 1): Viên -> Vỉ -> Hộp
-    (1, 'Viên', 1, 1, NOW(), FALSE),
-    (1, 'Vỉ', 10, 1, NOW(), FALSE),
-    (1, 'Hộp', 100, 1, NOW(), FALSE),
-    -- Paracetamol 650mg (variant 2): Viên -> Vỉ -> Hộp
-    (2, 'Viên', 1, 1, NOW(), FALSE),
-    (2, 'Vỉ', 10, 1, NOW(), FALSE),
-    (2, 'Hộp', 100, 1, NOW(), FALSE),
-    -- Paracetamol Sủi (variant 3): Gói -> Hộp
-    (3, 'Gói', 1, 1, NOW(), FALSE),
-    (3, 'Hộp', 10, 1, NOW(), FALSE),
-    -- Decolgen 500mg (variant 4): Viên -> Vỉ -> Hộp
-    (4, 'Viên', 1, 1, NOW(), FALSE),
-    (4, 'Vỉ', 10, 1, NOW(), FALSE),
-    (4, 'Hộp', 100, 1, NOW(), FALSE),
-    -- Decolgen 500mg large (variant 5): Viên -> Vỉ -> Hộp
-    (5, 'Viên', 1, 1, NOW(), FALSE),
-    (5, 'Vỉ', 10, 1, NOW(), FALSE),
-    (5, 'Hộp', 200, 1, NOW(), FALSE),
-    -- Tiffy (variant 6): Viên -> Vỉ -> Hộp
-    (6, 'Viên', 1, 1, NOW(), FALSE),
-    (6, 'Vỉ', 10, 1, NOW(), FALSE),
-    (6, 'Hộp', 100, 1, NOW(), FALSE),
-    -- Tiffy Sủi (variant 7): Gói -> Hộp
-    (7, 'Gói', 1, 1, NOW(), FALSE),
-    (7, 'Hộp', 10, 1, NOW(), FALSE),
-    -- Aspirin (variant 8): Viên -> Vỉ -> Hộp
-    (8, 'Viên', 1, 1, NOW(), FALSE),
-    (8, 'Vỉ', 10, 1, NOW(), FALSE),
-    (8, 'Hộp', 100, 1, NOW(), FALSE),
-    -- Coldrex (variant 9): Viên -> Vỉ -> Hộp
-    (9, 'Viên', 1, 1, NOW(), FALSE),
-    (9, 'Vỉ', 10, 1, NOW(), FALSE),
-    (9, 'Hộp', 100, 1, NOW(), FALSE),
-    -- Vicks Formula 44 (variant 10): Chai (ml)
-    (10, 'Chai', 100, 10, NOW(), FALSE),
-    -- Prospan Syrup (variant 11): Chai (ml)
-    (11, 'Chai', 100, 10, NOW(), FALSE),
-    -- Atussin Syrup (variant 12): Chai (ml)
-    (12, 'Chai', 100, 10, NOW(), FALSE),
-    -- Bromhexine (variant 13): Viên -> Vỉ -> Hộp
-    (13, 'Viên', 1, 1, NOW(), FALSE),
-    (13, 'Vỉ', 10, 1, NOW(), FALSE),
-    (13, 'Hộp', 100, 1, NOW(), FALSE),
-    -- Terpin Codein (variant 14): Viên -> Vỉ -> Hộp
-    (14, 'Viên', 1, 1, NOW(), FALSE),
-    (14, 'Vỉ', 10, 1, NOW(), FALSE),
-    (14, 'Hộp', 100, 1, NOW(), FALSE),
-    -- Ho Pha Viên (variant 15): Viên -> Vỉ -> Hộp
-    (15, 'Viên', 1, 1, NOW(), FALSE),
-    (15, 'Vỉ', 10, 1, NOW(), FALSE),
-    (15, 'Hộp', 100, 1, NOW(), FALSE),
-    -- Panadol Extra (variant 16): Viên -> Vỉ -> Hộp
-    (16, 'Viên', 1, 1, NOW(), FALSE),
-    (16, 'Vỉ', 10, 1, NOW(), FALSE),
-    (16, 'Hộp', 100, 1, NOW(), FALSE),
-    -- Efferalgan (variant 17): Viên -> Vỉ -> Hộp
-    (17, 'Viên', 1, 1, NOW(), FALSE),
-    (17, 'Vỉ', 10, 1, NOW(), FALSE),
-    (17, 'Hộp', 100, 1, NOW(), FALSE),
-    -- Ibuprofen (variant 18): Viên -> Vỉ -> Hộp
-    (18, 'Viên', 1, 1, NOW(), FALSE),
-    (18, 'Vỉ', 10, 1, NOW(), FALSE),
-    (18, 'Hộp', 100, 1, NOW(), FALSE),
-    -- Cetirizine 10mg (variant 19): Viên -> Vỉ -> Hộp
-    (19, 'Viên', 1, 1, NOW(), FALSE),
-    (19, 'Vỉ', 10, 1, NOW(), FALSE),
-    (19, 'Hộp', 100, 1, NOW(), FALSE),
-    -- Cetirizine 10mg large (variant 20): Viên -> Vỉ -> Hộp
-    (20, 'Viên', 1, 1, NOW(), FALSE),
-    (20, 'Vỉ', 10, 1, NOW(), FALSE),
-    (20, 'Hộp', 300, 1, NOW(), FALSE),
-    -- Loratadine (variant 21): Viên -> Vỉ -> Hộp
-    (21, 'Viên', 1, 1, NOW(), FALSE),
-    (21, 'Vỉ', 10, 1, NOW(), FALSE),
-    (21, 'Hộp', 100, 1, NOW(), FALSE),
-    -- Fexofenadine 60mg (variant 22): Viên -> Vỉ -> Hộp
-    (22, 'Viên', 1, 1, NOW(), FALSE),
-    (22, 'Vỉ', 10, 1, NOW(), FALSE),
-    (22, 'Hộp', 100, 1, NOW(), FALSE);
+    ('Viên nén', 'Uống 1 viên mỗi ngày', 'Magnesium + Vitamin B6', 3, 1, 30, '8935000003101', 'VN-31001',
+     'Bảo quản nơi khô, tránh ánh nắng', 'Hỗ trợ giảm căng cơ, mệt mỏi, cải thiện giấc ngủ', 'Quá mẫn với thành phần',
+     'Tiêu hóa nhẹ',
+     'Uống sau ăn nếu gây khó chịu dạ dày', FALSE, 'Hỗ trợ thần kinh và giấc ngủ', 31, NOW(), FALSE);
 
 INSERT INTO batches
 (batch_code, mfg_date, expiry_date, source_movement_id, total_received, batch_status, variant_id,
@@ -913,48 +797,48 @@ VALUES (47, 1, 1, 150, 2000,  2000, NOW(), FALSE),     -- qty: 15*10=150, price:
 --    We'll compute coarse balances: total_received - total_sent (approx)
 
 -- Inventory at HQ (warehouse, branch_id=1) - cost_price = giá từ SUP_TO_WARE (giá NCC) chia cho quantity_per_package
-INSERT INTO inventory (id, created_at, deleted, branch_id, variant_id, batch_id, quantity, base_unit_id, cost_price, min_stock)
-VALUES (1, NOW(),  FALSE, 1, 1, 1, ((20000 + 10000) - (6000 + 4000 + 8000 + 2000 + 2500 + 2100 + 150)), 1, 2000, 0),     -- qty*10, price/10
-       (2, NOW(),  FALSE, 1, 2, 2, ((15000 + 8000) - (2000 + 1500 + 2200 + 1900)), 1, 1600, 0),                           -- qty*10, price/10
-       (3, NOW(),  FALSE, 1, 3, 3, ((12000 + 9000) - (2500 + 1800 + 1700 + 2000 + 1200)), 1, 7000, 0),                    -- qty*10, price/10
-       (4, NOW(),  FALSE, 1, 4, 4, ((10000 + 5000) - (2000 + 1200 + 1800 + 600 + 50)), 1, 8000, 0),                       -- qty*10, price/10
-       (5, NOW(),  FALSE, 1, 5, 5, ((36000 + 14000) - (10000 + 8000 + 2800 + 3200)), 1, 5500, 0),                         -- qty*20, price/20
-       (6, NOW(),  FALSE, 1, 6, 6, ((12000 + 6000) - (3000 + 2000 + 1600 + 1400 + 300)), 1, 5000, 0),                     -- qty*10, price/10
-       (7, NOW(), FALSE, 1, 7, 7, ((1000 + 700) - (250 + 130 + 120)), 10, 68000, 0),                                       -- qty*1, price/1
-       (8, NOW(), FALSE, 1, 8, 8, ((800 + 300) - (180 + 110 + 110)), 10, 88000, 0),                                        -- qty*1, price/1
-       (9, NOW(), FALSE, 1, 9, 9, ((6000 + 4000) - (900 + 1000 + 1000)), 1, 3800, 0),                                     -- qty*10, price/10
-       (10, NOW(), FALSE, 1, 10, 10, ((500 + 350) - (100 + 90 + 50)), 10, 18000, 0),                                       -- qty*1, price/1
-       (11, NOW(),  FALSE, 1, 11, 11, 10500, 10, 3300, 0),                                                                 -- qty*10, price/10
-       (12, NOW(),  FALSE, 1, 12, 12, ((1200 + 400) - (400 + 80)), 10, 5100, 0),                                           -- qty*10, price/10
-       (13, NOW(),  FALSE, 1, 13, 13, 23000, 1, 5800, 0),                                                                 -- qty*10, price/10
-       (14, NOW(),  FALSE, 1, 14, 14, 15000, 1, 4800, 0),                                                                 -- qty*10, price/10
-       (15, NOW(), FALSE, 1, 15, 15, 20000, 1, 3800, 0),                                                                  -- qty*10, price/10
-       (16, NOW(),  FALSE, 1, 16, 16, 30000, 1, 4300, 0),                                                                 -- qty*10, price/10
-       (17, NOW(),  FALSE, 1, 17, 17, 25000, 1, 4000, 0),                                                                 -- qty*10, price/10
-       (18, NOW(),  FALSE, 1, 18, 18, 18000, 1, 4800, 0),                                                                 -- qty*10, price/10
-       (19, NOW(), FALSE, 1, 19, 19, 135000, 10, 180, 0),                                                                  -- qty*100, price/100
-       (20, NOW(), FALSE, 1, 20, 20, 25200, 1, 1100, 0),                                                               -- qty*28, cost_price updated to 1100 for variant 20
-       (21, NOW(),  FALSE, 1, 21, 21, 10000, 1, 4300, 0),                                                                 -- qty*10, price/10
-       (22, NOW(), FALSE, 1, 22, 22, 27000, 1, 1950, 0);                                                                  -- qty*20, price/20
+INSERT INTO inventory (id, created_at, deleted, branch_id, variant_id, batch_id, quantity, cost_price, min_stock)
+VALUES (1, NOW(),  FALSE, 1, 1, 1, ((20000 + 10000) - (6000 + 4000 + 8000 + 2000 + 2500 + 2100 + 150)), 2000, 0),     -- qty*10, price/10
+       (2, NOW(),  FALSE, 1, 2, 2, ((15000 + 8000) - (2000 + 1500 + 2200 + 1900)), 1600, 0),                           -- qty*10, price/10
+       (3, NOW(),  FALSE, 1, 3, 3, ((12000 + 9000) - (2500 + 1800 + 1700 + 2000 + 1200)), 7000, 0),                    -- qty*10, price/10
+       (4, NOW(),  FALSE, 1, 4, 4, ((10000 + 5000) - (2000 + 1200 + 1800 + 600 + 50)), 8000, 0),                       -- qty*10, price/10
+       (5, NOW(),  FALSE, 1, 5, 5, ((36000 + 14000) - (10000 + 8000 + 2800 + 3200)), 5500, 0),                         -- qty*20, price/20
+       (6, NOW(),  FALSE, 1, 6, 6, ((12000 + 6000) - (3000 + 2000 + 1600 + 1400 + 300)), 5000, 0),                     -- qty*10, price/10
+       (7, NOW(), FALSE, 1, 7, 7, ((1000 + 700) - (250 + 130 + 120)), 68000, 0),                                       -- qty*1, price/1
+       (8, NOW(), FALSE, 1, 8, 8, ((800 + 300) - (180 + 110 + 110)), 88000, 0),                                        -- qty*1, price/1
+       (9, NOW(), FALSE, 1, 9, 9, ((6000 + 4000) - (900 + 1000 + 1000)), 3800, 0),                                     -- qty*10, price/10
+       (10, NOW(), FALSE, 1, 10, 10, ((500 + 350) - (100 + 90 + 50)), 18000, 0),                                       -- qty*1, price/1
+       (11, NOW(),  FALSE, 1, 11, 11, 10500, 3300, 0),                                                                 -- qty*10, price/10
+       (12, NOW(),  FALSE, 1, 12, 12, ((1200 + 400) - (400 + 80)), 5100, 0),                                           -- qty*10, price/10
+       (13, NOW(),  FALSE, 1, 13, 13, 23000, 5800, 0),                                                                 -- qty*10, price/10
+       (14, NOW(),  FALSE, 1, 14, 14, 15000, 4800, 0),                                                                 -- qty*10, price/10
+       (15, NOW(), FALSE, 1, 15, 15, 20000, 3800, 0),                                                                  -- qty*10, price/10
+       (16, NOW(),  FALSE, 1, 16, 16, 30000, 4300, 0),                                                                 -- qty*10, price/10
+       (17, NOW(),  FALSE, 1, 17, 17, 25000, 4000, 0),                                                                 -- qty*10, price/10
+       (18, NOW(),  FALSE, 1, 18, 18, 18000, 4800, 0),                                                                 -- qty*10, price/10
+       (19, NOW(), FALSE, 1, 19, 19, 135000, 180, 0),                                                                  -- qty*100, price/100
+       (20, NOW(), FALSE, 1, 20, 20, 25200, 1100, 0),                                                               -- qty*28, cost_price updated to 1100 for variant 20
+       (21, NOW(),  FALSE, 1, 21, 21, 10000, 4300, 0),                                                                 -- qty*10, price/10
+       (22, NOW(), FALSE, 1, 22, 22, 27000, 1950, 0);                                                                  -- qty*20, price/20
 
 -- Inventory at Branch 3 (Hà Nội) - cost_price = WARE_TO_BR price (warehouse_price × 1.25) chia cho quantity_per_package
-INSERT INTO inventory (id, created_at,  deleted, branch_id, variant_id, batch_id, quantity, base_unit_id, cost_price, min_stock)
-VALUES (23, NOW() , FALSE, 3, 1, 1, (6000 + 4000 + 8000 + 2000 + 2500 + 2100), 1, 2500, 300),    -- qty*10, price/10, min*10
-       (24, NOW(),  FALSE, 3, 2, 2, (2000 + 1500 + 2200 + 1900), 1, 2000, 200),                   -- qty*10, price/10, min*10
-       (25, NOW(),   FALSE, 3, 3, 3, (2500 + 1800 + 2000), 1, 8750, 200),                         -- qty*10, price/10, min*10
-       (26, NOW(),   FALSE, 3, 4, 4, ((2000 + 1200 + 1800) - 600), 1, 10000, 200),                -- qty*10, price/10, min*10
-       (27, NOW(),  FALSE, 3, 5, 5, (10000 + 8000 + 2800 + 3200), 1, 6875, 600),                  -- qty*20, price/20, min*20
-       (28, NOW(),   FALSE, 3, 6, 6, ((3000 + 2000 + 1600 + 1400) - 300), 1, 6250, 200),          -- qty*10, price/10, min*10
-       (29, NOW(),  FALSE, 3, 7, 7, (250 + 130 + 120), 10, 85000, 20),                             -- qty*1, price/1, min*1
-       (30, NOW(),  FALSE, 3, 8, 8, (180 + 110 + 110), 10, 110000, 20),                            -- qty*1, price/1, min*1
-       (31, NOW(),   FALSE, 3, 9, 9, (900 + 1000), 1, 4750, 150),                                 -- qty*10, price/10, min*10
-       (32, NOW(),   FALSE, 3, 10, 10, (100 + 90), 10, 22500, 15),                                 -- qty*1, price/1, min*1
-       (33, NOW(),   FALSE, 3, 11, 11, 1500, 10, 3300, 100),                                       -- qty*10, price/10, min*10
-       (34, NOW(),   FALSE, 3, 12, 12, ((1200 - 400)), 10, 5100, 100),                             -- qty*10, price/10, min*10
-       (35, NOW(),   FALSE, 3, 18, 18, 2000, 1, 4800, 100),                                       -- qty*10, price/10, min*10
-       (36, NOW(),  FALSE, 3, 19, 19, 15000, 10, 180, 1000),                                       -- qty*100, price/100, min*100
-       (37, NOW(),  FALSE, 3, 20, 20, 8400, 1, 1100, 420),                                     -- qty*28, cost_price updated to 1100 for variant 20 at branch 3
-       (38, NOW(),   FALSE, 3, 22, 22, 3000, 1, 1950, 200);                                       -- qty*20, price/20, min*20
+INSERT INTO inventory (id, created_at,  deleted, branch_id, variant_id, batch_id, quantity, cost_price, min_stock)
+VALUES (23, NOW() , FALSE, 3, 1, 1, (6000 + 4000 + 8000 + 2000 + 2500 + 2100), 2500, 300),    -- qty*10, price/10, min*10
+       (24, NOW(),  FALSE, 3, 2, 2, (2000 + 1500 + 2200 + 1900), 2000, 200),                   -- qty*10, price/10, min*10
+       (25, NOW(),   FALSE, 3, 3, 3, (2500 + 1800 + 2000), 8750, 200),                         -- qty*10, price/10, min*10
+       (26, NOW(),   FALSE, 3, 4, 4, ((2000 + 1200 + 1800) - 600), 10000, 200),                -- qty*10, price/10, min*10
+       (27, NOW(),  FALSE, 3, 5, 5, (10000 + 8000 + 2800 + 3200), 6875, 600),                  -- qty*20, price/20, min*20
+       (28, NOW(),   FALSE, 3, 6, 6, ((3000 + 2000 + 1600 + 1400) - 300), 6250, 200),          -- qty*10, price/10, min*10
+       (29, NOW(),  FALSE, 3, 7, 7, (250 + 130 + 120), 85000, 20),                             -- qty*1, price/1, min*1
+       (30, NOW(),  FALSE, 3, 8, 8, (180 + 110 + 110), 110000, 20),                            -- qty*1, price/1, min*1
+       (31, NOW(),   FALSE, 3, 9, 9, (900 + 1000), 4750, 150),                                 -- qty*10, price/10, min*10
+       (32, NOW(),   FALSE, 3, 10, 10, (100 + 90), 22500, 15),                                 -- qty*1, price/1, min*1
+       (33, NOW(),   FALSE, 3, 11, 11, 1500, 3300, 100),                                       -- qty*10, price/10, min*10
+       (34, NOW(),   FALSE, 3, 12, 12, ((1200 - 400)), 5100, 100),                             -- qty*10, price/10, min*10
+       (35, NOW(),   FALSE, 3, 18, 18, 2000, 4800, 100),                                       -- qty*10, price/10, min*10
+       (36, NOW(),  FALSE, 3, 19, 19, 15000, 180, 1000),                                       -- qty*100, price/100, min*100
+       (37, NOW(),  FALSE, 3, 20, 20, 8400, 1100, 420),                                     -- qty*28, cost_price updated to 1100 for variant 20 at branch 3
+       (38, NOW(),   FALSE, 3, 22, 22, 3000, 1950, 200);                                       -- qty*20, price/20, min*20
 
 -- Note: quantities above are coarse aggregates built from movement_details; adjust as needed.
 
@@ -962,29 +846,29 @@ VALUES (23, NOW() , FALSE, 3, 1, 1, (6000 + 4000 + 8000 + 2000 + 2500 + 2100), 1
 -- 9) PRICES: tạo giá bán cho các variant được dùng (insert or update)
 -- =========================================================
 -- Prices (Bậc 3): branch_price và sale_price chia cho quantity_per_package để có giá đơn vị cơ bản
-INSERT INTO prices (variant_id, branch_id, sale_price, branch_price, start_date, end_date, created_at, deleted)
-    VALUES (1, NULL, 3500, 2500, NOW(), NULL, NOW(), FALSE),       -- 35000/10=3500, 25000/10=2500
-       (2, NULL, 2500, 2000, NOW(), NULL, NOW(), FALSE),       -- 25000/10=2500, 20000/10=2000
-       (3, NULL, 11000, 8750, NOW(), NULL, NOW(), FALSE),      -- 110000/10=11000, 87500/10=8750
-       (4, NULL, 12500, 10000, NOW(), NULL, NOW(), FALSE),     -- 125000/10=12500, 100000/10=10000
-       (5, NULL, 8750, 6875, NOW(), NULL, NOW(), FALSE),       -- 175000/20=8750, 137500/20=6875
-       (6, NULL, 8000, 6250, NOW(), NULL, NOW(), FALSE),       -- 80000/10=8000, 62500/10=6250
-       (7, NULL, 110000, 85000, NOW(), NULL, NOW(), FALSE),    -- 110000/1=110000, 85000/1=85000
-       (8, NULL, 140000, 110000, NOW(), NULL, NOW(), FALSE),   -- 140000/1=140000, 110000/1=110000
-       (9, NULL, 6000, 4750, NOW(), NULL, NOW(), FALSE),       -- 60000/10=6000, 47500/10=4750
-       (10, NULL, 30000, 22500, NOW(), NULL, NOW(), FALSE),    -- 30000/1=30000, 22500/1=22500
-       (11, NULL, 4500, 3300, NOW(), NULL, NOW(), FALSE),      -- 45000/10=4500, 33000/10=3300
-       (12, NULL, 6500, 5100, NOW(), NULL, NOW(), FALSE),      -- 65000/10=6500, 51000/10=5100
-       (13, NULL, 7500, 5800, NOW(), NULL, NOW(), FALSE),      -- 75000/10=7500, 58000/10=5800
-       (14, NULL, 6000, 4800, NOW(), NULL, NOW(), FALSE),      -- 60000/10=6000, 48000/10=4800
-       (15, NULL, 5000, 3800, NOW(), NULL, NOW(), FALSE),      -- 50000/10=5000, 38000/10=3800
-       (16, NULL, 5500, 4300, NOW(), NULL, NOW(), FALSE),      -- 55000/10=5500, 43000/10=4300
-       (17, NULL, 5000, 4000, NOW(), NULL, NOW(), FALSE),      -- 50000/10=5000, 40000/10=4000
-       (18, NULL, 6000, 4800, NOW(), NULL, NOW(), FALSE),      -- 60000/10=6000, 48000/10=4800
-       (19, NULL, 250, 180, NOW(), NULL, NOW(), FALSE),        -- 25000/100=250, 18000/100=180
-       (20, NULL, 1500, 1100, NOW(), NULL, NOW(), FALSE),-- sale_price=1500, branch_price=1100 for variant 20 (rounded)
-       (21, NULL, 5500, 4300, NOW(), NULL, NOW(), FALSE),      -- 55000/10=5500, 43000/10=4300
-       (22, NULL, 2500, 1950, NOW(), NULL, NOW(), FALSE);      -- 50000/20=2500, 39000/20=1950
+INSERT INTO prices (variant_id, sale_price, branch_price, start_date, end_date, created_at, deleted)
+    VALUES (1, 3500, 2500, NOW(), NULL, NOW(), FALSE),       -- 35000/10=3500, 25000/10=2500
+       (2, 2500, 2000, NOW(), NULL, NOW(), FALSE),       -- 25000/10=2500, 20000/10=2000
+       (3, 11000, 8750, NOW(), NULL, NOW(), FALSE),      -- 110000/10=11000, 87500/10=8750
+       (4, 12500, 10000, NOW(), NULL, NOW(), FALSE),     -- 125000/10=12500, 100000/10=10000
+       (5, 8750, 6875, NOW(), NULL, NOW(), FALSE),       -- 175000/20=8750, 137500/20=6875
+       (6, 8000, 6250, NOW(), NULL, NOW(), FALSE),       -- 80000/10=8000, 62500/10=6250
+       (7, 110000, 85000, NOW(), NULL, NOW(), FALSE),    -- 110000/1=110000, 85000/1=85000
+       (8, 140000, 110000, NOW(), NULL, NOW(), FALSE),   -- 140000/1=140000, 110000/1=110000
+       (9, 6000, 4750, NOW(), NULL, NOW(), FALSE),       -- 60000/10=6000, 47500/10=4750
+       (10, 30000, 22500, NOW(), NULL, NOW(), FALSE),    -- 30000/1=30000, 22500/1=22500
+       (11, 4500, 3300, NOW(), NULL, NOW(), FALSE),      -- 45000/10=4500, 33000/10=3300
+       (12, 6500, 5100, NOW(), NULL, NOW(), FALSE),      -- 65000/10=6500, 51000/10=5100
+       (13, 7500, 5800, NOW(), NULL, NOW(), FALSE),      -- 75000/10=7500, 58000/10=5800
+       (14, 6000, 4800, NOW(), NULL, NOW(), FALSE),      -- 60000/10=6000, 48000/10=4800
+       (15, 5000, 3800, NOW(), NULL, NOW(), FALSE),      -- 50000/10=5000, 38000/10=3800
+       (16, 5500, 4300, NOW(), NULL, NOW(), FALSE),      -- 55000/10=5500, 43000/10=4300
+       (17, 5000, 4000, NOW(), NULL, NOW(), FALSE),      -- 50000/10=5000, 40000/10=4000
+       (18, 6000, 4800, NOW(), NULL, NOW(), FALSE),      -- 60000/10=6000, 48000/10=4800
+       (19, 250, 180, NOW(), NULL, NOW(), FALSE),        -- 25000/100=250, 18000/100=180
+       (20, 1500, 1100, NOW(), NULL, NOW(), FALSE),-- sale_price=1500, branch_price=1100 for variant 20 (rounded)
+       (21, 5500, 4300, NOW(), NULL, NOW(), FALSE),      -- 55000/10=5500, 43000/10=4300
+       (22, 2500, 1950, NOW(), NULL, NOW(), FALSE);      -- 50000/20=2500, 39000/20=1950
 -- Done
 -- total_price = sum of invoice_details with new rounded prices
 INSERT INTO invoices (invoice_code, customer_id, shift_work_id, branch_id, total_price,
@@ -1016,46 +900,44 @@ VALUES
 ('INV-HN-2008', 3, 6, 3, 175000, 'Cash', 'PAID', DATE_SUB(NOW(), INTERVAL 1 DAY), 8, FALSE, 8), -- inv19: 140000*1
 ('INV-HN-2009', 4, 9, 3, 125000, 'Cash', 'PAID', NOW(), 8, FALSE, 8);                            -- inv20: 105000*1
 -- Done: price = sale_price (đơn vị cơ bản), quantity = số lượng đơn vị cơ bản
-INSERT INTO invoice_details (invoice_id, inventory_id, quantity, price, multiplier, created_at, deleted)
+INSERT INTO invoice_details (invoice_id, inventory_id, quantity, price, created_at, deleted)
 VALUES
-    (1, 23,  20, 3500, 1.0,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),     -- inv_id=23 (var 1, qty/pkg=10): 2 hộp → 20 viên, 35000/10=3500đ/viên
-    (1, 24,  10, 2500, 1.0,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),     -- inv_id=24 (var 2, qty/pkg=10): 1 hộp → 10 viên, 25000/10=2500đ/viên
-    (2, 28,  10, 8000, 1.0,  DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),     -- inv_id=28 (var 6, qty/pkg=10): 1 hộp → 10 viên, 80000/10=8000đ/viên
-    (3, 32,  1, 30000, 1.0,  NOW(), FALSE),                               -- inv_id=32 (var 10, qty/pkg=1): 1 chai → 1 chai, 30000/1=30000đ/chai
-    (4, 23,  100, 3500, 1.0,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),    -- inv_id=23 (var 1, qty/pkg=10): 10 hộp → 100 viên, 35000/10=3500đ/viên
-    (5, 28,  10, 8000, 1.0,  DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),     -- inv_id=28 (var 6, qty/pkg=10): 1 hộp → 10 viên, 80000/10=8000đ/viên
-    (6, 25,  10, 11000, 1.0,  NOW(), FALSE),                              -- inv_id=25 (var 3, qty/pkg=10): 1 hộp → 10 viên, 110000/10=11000đ/viên
-    (7, 29,  1, 110000, 1.0,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),    -- inv_id=29 (var 7, qty/pkg=1): 1 chai → 1 chai, 110000/1=110000đ/chai
-    (8, 24,  10, 2500, 1.0, DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),      -- inv_id=24 (var 2, qty/pkg=10): 1 hộp → 10 viên, 25000/10=2500đ/viên
-    (9, 31,  20, 6000, 1.0,  NOW(), FALSE),                               -- inv_id=31 (var 9, qty/pkg=10): 2 hộp → 20 viên, 60000/10=6000đ/viên
-    (10, 25,  10, 11000, 1.0,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),   -- inv_id=25 (var 3, qty/pkg=10): 1 hộp → 10 viên, 110000/10=11000đ/viên
-    (11, 29,  2, 110000, 1.0,  DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),   -- inv_id=29 (var 7, qty/pkg=1): 2 chai → 2 chai, 110000/1=110000đ/chai
-    (12, 23,  30, 3500, 1.0,  NOW(), FALSE),                               -- inv_id=23 (var 1, qty/pkg=10): 3 hộp → 30 viên, 35000/10=3500đ/viên
-    (13, 24,  20, 2500, 1.0,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),    -- inv_id=24 (var 2, qty/pkg=10): 2 hộp → 20 viên, 25000/10=2500đ/viên
-    (14, 26,  50, 12500, 1.0,  DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),   -- inv_id=26 (var 4, qty/pkg=10): 5 hộp → 50 viên, 125000/10=12500đ/viên
-    (15, 32,  1, 30000, 1.0,  NOW(), FALSE),                              -- inv_id=32 (var 10, qty/pkg=1): 1 chai → 1 chai, 30000/1=30000đ/chai
-    (16, 27,  20, 8750, 1.0,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),    -- inv_id=27 (var 5, qty/pkg=20): 1 hộp → 20 viên, 175000/20=8750đ/viên
-    (17, 30,  1, 140000, 1.0,  DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),   -- inv_id=30 (var 8, qty/pkg=1): 1 chai → 1 chai, 140000/1=140000đ/chai
-    (18, 27,  20, 8750, 1.0,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),    -- inv_id=27 (var 5, qty/pkg=20): 1 hộp → 20 viên, 175000/20=8750đ/viên
-    (19, 27,  20, 8750, 1.0, DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),     -- inv_id=27 (var 5, qty/pkg=20): 1 hộp → 20 viên, 175000/20=8750đ/viên
-    (20, 26,  10, 12500, 1.0,  NOW(), FALSE);                             -- inv_id=26 (var 4, qty/pkg=10): 1 hộp → 10 viên, 125000/10=12500đ/viên
+    (1, 23,  20, 3500,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),     -- inv_id=23 (var 1, qty/pkg=10): 2 hộp → 20 viên, 35000/10=3500đ/viên
+    (1, 24,  10, 2500,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),     -- inv_id=24 (var 2, qty/pkg=10): 1 hộp → 10 viên, 25000/10=2500đ/viên
+    (2, 28,  10, 8000,  DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),     -- inv_id=28 (var 6, qty/pkg=10): 1 hộp → 10 viên, 80000/10=8000đ/viên
+    (3, 32,  1, 30000,  NOW(), FALSE),                               -- inv_id=32 (var 10, qty/pkg=1): 1 chai → 1 chai, 30000/1=30000đ/chai
+    (4, 23,  100, 3500,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),    -- inv_id=23 (var 1, qty/pkg=10): 10 hộp → 100 viên, 35000/10=3500đ/viên
+    (5, 28,  10, 8000,  DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),     -- inv_id=28 (var 6, qty/pkg=10): 1 hộp → 10 viên, 80000/10=8000đ/viên
+    (6, 25,  10, 11000,  NOW(), FALSE),                              -- inv_id=25 (var 3, qty/pkg=10): 1 hộp → 10 viên, 110000/10=11000đ/viên
+    (7, 29,  1, 110000,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),    -- inv_id=29 (var 7, qty/pkg=1): 1 chai → 1 chai, 110000/1=110000đ/chai
+    (8, 24,  10, 2500, DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),      -- inv_id=24 (var 2, qty/pkg=10): 1 hộp → 10 viên, 25000/10=2500đ/viên
+    (9, 31,  20, 6000,  NOW(), FALSE),                               -- inv_id=31 (var 9, qty/pkg=10): 2 hộp → 20 viên, 60000/10=6000đ/viên
+    (10, 25,  10, 11000,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),   -- inv_id=25 (var 3, qty/pkg=10): 1 hộp → 10 viên, 110000/10=11000đ/viên
+    (11, 29,  2, 110000,  DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),   -- inv_id=29 (var 7, qty/pkg=1): 2 chai → 2 chai, 110000/1=110000đ/chai
+    (12, 23,  30, 3500,  NOW(), FALSE),                               -- inv_id=23 (var 1, qty/pkg=10): 3 hộp → 30 viên, 35000/10=3500đ/viên
+    (13, 24,  20, 2500,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),    -- inv_id=24 (var 2, qty/pkg=10): 2 hộp → 20 viên, 25000/10=2500đ/viên
+    (14, 26,  50, 12500,  DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),   -- inv_id=26 (var 4, qty/pkg=10): 5 hộp → 50 viên, 125000/10=12500đ/viên
+    (15, 32,  1, 30000,  NOW(), FALSE),                              -- inv_id=32 (var 10, qty/pkg=1): 1 chai → 1 chai, 30000/1=30000đ/chai
+    (16, 27,  20, 8750,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),    -- inv_id=27 (var 5, qty/pkg=20): 1 hộp → 20 viên, 175000/20=8750đ/viên
+    (17, 30,  1, 140000,  DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),   -- inv_id=30 (var 8, qty/pkg=1): 1 chai → 1 chai, 140000/1=140000đ/chai
+    (18, 27,  20, 8750,  DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),    -- inv_id=27 (var 5, qty/pkg=20): 1 hộp → 20 viên, 175000/20=8750đ/viên
+    (19, 27,  20, 8750, DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),     -- inv_id=27 (var 5, qty/pkg=20): 1 hộp → 20 viên, 175000/20=8750đ/viên
+    (20, 26,  10, 12500,  NOW(), FALSE);                             -- inv_id=26 (var 4, qty/pkg=10): 1 hộp → 10 viên, 125000/10=12500đ/viên
 
 
 -- =========================================================
 -- 12) STOCK ADJUSTMENTS: vài dòng để test kiểm kê
 -- =========================================================
--- 12) STOCK ADJUSTMENTS: vài dòng để test kiểm kê
--- =========================================================
-INSERT INTO stock_adjustments (variant_id, batch_id, before_quantity, after_quantity, difference_quantity,
+INSERT INTO stock_adjustments (variant_id, brand_id, batch_id, before_quantity, after_quantity, difference_quantity,
                                reason, created_at, deleted)
-VALUES (1, 1, 2500, 2480, -20, 'Hư hỏng trong quá trình vận chuyển', NOW(), FALSE),    -- qty*10: 250*10, 248*10, -2*10
-       (4, 4, 1200, 1150, -50, 'Trả kiểm tra chất lượng', NOW(), FALSE),               -- qty*10: 120*10, 115*10, -5*10
-       (6, 6, 3000, 2950, -50, 'Hư hỏng do ẩm', NOW(), FALSE),                         -- qty*10: 300*10, 295*10, -5*10
-       (7, 7, 130, 132, 2, 'Tồn thực tế hơn hệ thống', NOW(), FALSE),                  -- qty*1: 130*1, 132*1, 2*1
-       (12, 12, 600, 520, -80, 'Hết hạn', NOW(), FALSE),                               -- qty*10: 60*10, 52*10, -8*10
-       (5, 5, 3200, 3300, 100, 'Nhập nhầm', NOW(), FALSE),                             -- qty*20: 160*20, 165*20, 5*20
-       (9, 9, 900, 880, -20, 'Kiểm kê', NOW(), FALSE),                                 -- qty*10: 90*10, 88*10, -2*10
-       (10, 10, 100, 98, -2, 'Kiểm kê', NOW(), FALSE);                                 -- qty*1: 100*1, 98*1, -2*1
+VALUES (1, 1, 1, 2500, 2480, -20, 'Hư hỏng trong quá trình vận chuyển', NOW(), FALSE),    -- qty*10: 250*10, 248*10, -2*10
+       (4, 2, 4, 1200, 1150, -50, 'Trả kiểm tra chất lượng', NOW(), FALSE),               -- qty*10: 120*10, 115*10, -5*10
+       (6, 1, 6, 3000, 2950, -50, 'Hư hỏng do ẩm', NOW(), FALSE),                         -- qty*10: 300*10, 295*10, -5*10
+       (7, 1, 7, 130, 132, 2, 'Tồn thực tế hơn hệ thống', NOW(), FALSE),                  -- qty*1: 130*1, 132*1, 2*1
+       (12, 3, 12, 600, 520, -80, 'Hết hạn', NOW(), FALSE),                               -- qty*10: 60*10, 52*10, -8*10
+       (5, 1, 5, 3200, 3300, 100, 'Nhập nhầm', NOW(), FALSE),                             -- qty*20: 160*20, 165*20, 5*20
+       (9, 1, 9, 900, 880, -20, 'Kiểm kê', NOW(), FALSE),                                 -- qty*10: 90*10, 88*10, -2*10
+       (10, 1, 10, 100, 98, -2, 'Kiểm kê', NOW(), FALSE);                                 -- qty*1: 100*1, 98*1, -2*1
 
 
 
@@ -1092,11 +974,11 @@ VALUES
 SET FOREIGN_KEY_CHECKS = 1;
 
 
-INSERT INTO unit_conversions (variant_id, unit_id, base_unit_quantity, deleted)
+INSERT INTO unit_conversions (variant_id, unit_id, multiplier, deleted)
 VALUES
        (1, 1, 1, FALSE),
        (1, 2, 10, FALSE),
-       (1, 3, 100, FALSE),
+       (1, 3, 50, FALSE),
        (2, 1, 1, FALSE),
-       (2, 2, 10, FALSE),
-       (2, 3, 100, FALSE);
+       (2, 2, 8, FALSE),
+       (2, 3, 40, FALSE);

@@ -188,39 +188,6 @@ public class WarehouseReceiptServiceImpl implements WarehouseReceiptService {
                 .map(v -> {
                     MedicineVariantDTO dto = new MedicineVariantDTO(v);
                     dto.setUnit(getDisplayUnitFromVariant(v));
-
-                    // Lấy thông tin unit conversions
-                    List<UnitConversion> conversions = unitConversionRepository.findByVariantIdId(v.getId());
-                    if (!conversions.isEmpty()) {
-                        // Sắp xếp theo multiplier tăng dần
-                        conversions.sort(java.util.Comparator.comparing(UnitConversion::getMultiplier));
-
-                        // Đơn vị cơ bản (base unit) - đơn vị có multiplier nhỏ nhất
-                        UnitConversion baseConversion = conversions.get(0);
-                        dto.setBaseUnit(baseConversion.getUnitId().getName());
-
-                        // Đơn vị nhập (package unit) - đơn vị có multiplier lớn nhất
-                        UnitConversion packageConversion = conversions.get(conversions.size() - 1);
-                        dto.setPackageUnit(packageConversion.getUnitId().getName());
-
-                        // Tỉ lệ quy đổi: số đơn vị cơ bản trong 1 đơn vị nhập
-                        dto.setQuantityPerPackage(packageConversion.getMultiplier() / baseConversion.getMultiplier());
-
-                        // Thêm danh sách tất cả các đơn vị quy đổi (trừ đơn vị cơ bản)
-                        List<MedicineVariantDTO.UnitConversionInfo> unitConversionInfos = new java.util.ArrayList<>();
-                        for (int i = 1; i < conversions.size(); i++) {
-                            UnitConversion uc = conversions.get(i);
-                            double conversionRate = uc.getMultiplier() / baseConversion.getMultiplier();
-                            unitConversionInfos.add(new MedicineVariantDTO.UnitConversionInfo(
-                                    uc.getUnitId().getId(),
-                                    uc.getUnitId().getName(),
-                                    conversionRate,
-                                    uc.getNote()
-                            ));
-                        }
-                        dto.setUnitConversions(unitConversionInfos);
-                    }
-
                     return dto;
                 })
                 .collect(Collectors.toList());

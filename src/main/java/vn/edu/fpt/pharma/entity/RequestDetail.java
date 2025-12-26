@@ -33,16 +33,5 @@ public class RequestDetail extends BaseEntity<Long> {
     @JoinColumn(name = "base_unit_id")
     private Unit baseUnitId;
 
-    // số lượng nhập theo bao bì
-    @Column(nullable = false)
-    private Long packageQuantity;
-
-    // 1 hộp = ? viên | 1 chai = ? ml | 1 gói = ? g
-    @Column(nullable = false)
     private Double quantityPerPackage;
-
-    // packageQuantity × quantityPerPackage
-    @Column(nullable = false)
-    private Double baseQuantity;
-
 }

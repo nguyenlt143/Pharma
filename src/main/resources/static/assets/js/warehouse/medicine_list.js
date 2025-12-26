@@ -384,19 +384,6 @@ function openEditVariantForm(variantId) {
             // Load unit conversions for this variant
             loadUnitConversions(variantId);
 
-            // Ensure add button and controls are enabled
-            setTimeout(() => {
-                // Re-enable all unit conversion controls
-                document.querySelectorAll('#unitConversionTableBody .unit-select').forEach(el => el.disabled = false);
-                document.querySelectorAll('#unitConversionTableBody .multiplier-input').forEach(el => el.disabled = false);
-                document.querySelectorAll('#unitConversionTableBody .note-input').forEach(el => el.disabled = false);
-                document.querySelectorAll('#unitConversionTableBody .btn-link.delete').forEach(el => el.style.display = '');
-
-                // Show add button
-                const addButtons = document.querySelectorAll('button[onclick="addUnitConversionRow()"]');
-                addButtons.forEach(btn => btn.style.display = '');
-            }, 500);
-
             // Hide variant list and show form
             const variantListContainer = document.getElementById('variantList').parentElement;
             if (variantListContainer) {
@@ -563,6 +550,10 @@ function viewDetails(id) {
             const detailContent = document.getElementById('detailContent');
             detailContent.innerHTML = `
                 <div class="detail-item">
+                    <div class="detail-label">ID</div>
+                    <div class="detail-value">${data.id}</div>
+                </div>
+                <div class="detail-item">
                     <div class="detail-label">Tên thuốc</div>
                     <div class="detail-value">${data.name || data.medicineName || '-'}</div>
                 </div>
@@ -585,22 +576,6 @@ function viewDetails(id) {
                 <div class="detail-item">
                     <div class="detail-label">Hoạt chất</div>
                     <div class="detail-value">${data.activeIngredient || '-'}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Chỉ định</div>
-                    <div class="detail-value">${data.indications || '-'}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Chống chỉ định</div>
-                    <div class="detail-value">${data.contraindications || '-'}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Tác dụng phụ</div>
-                    <div class="detail-value">${data.sideEffects || '-'}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Công dụng</div>
-                    <div class="detail-value">${data.uses || '-'}</div>
                 </div>
             `;
             document.getElementById('detailModal').style.display = 'block';
@@ -761,17 +736,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Get unit conversions from form
             const unitConversionsData = getUnitConversionsFromForm();
 
-            // Check if there are duplicate units
-            if (unitConversionsData === null) {
-                return; // Có đơn vị trùng lặp, dừng lại
-            }
-
-            // Validate must have at least 1 unit conversion
-            if (unitConversionsData.length === 0) {
-                showToast('Bắt buộc phải thêm ít nhất 1 đơn vị quy đổi', 'error');
-                return;
-            }
-
             // Validate unit conversion order
             if (!validateUnitConversionsOrder(unitConversionsData)) {
                 return;
@@ -844,41 +808,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ========== Unit Conversion Management ==========
 let unitConversions = []; // Store unit conversions for the current variant
-
-// Hàm kiểm tra đơn vị trùng lặp
-function validateUniqueUnit(select) {
-    const tbody = document.getElementById('unitConversionTableBody');
-    const rows = Array.from(tbody.querySelectorAll('tr'));
-    const currentRow = select.closest('tr');
-    const currentValue = select.value;
-
-    if (!currentValue) {
-        return true; // Bỏ qua nếu chưa chọn
-    }
-
-    // Kiểm tra xem đơn vị này đã được chọn ở row khác chưa
-    let isDuplicate = false;
-    rows.forEach(row => {
-        if (row !== currentRow) {
-            const otherSelect = row.querySelector('.unit-select');
-            if (otherSelect && otherSelect.value === currentValue) {
-                isDuplicate = true;
-            }
-        }
-    });
-
-    if (isDuplicate) {
-        select.style.borderColor = '#DC2626';
-        const selectedUnit = units.find(u => u.id == currentValue);
-        showToast(`Đơn vị "${selectedUnit ? selectedUnit.name : 'này'}" đã được chọn. Vui lòng chọn đơn vị khác!`, 'error');
-        select.value = ''; // Reset lại giá trị
-        return false;
-    }
-
-    // Nếu hợp lệ, reset border color
-    select.style.borderColor = '';
-    return true;
-}
 
 // Hàm tính giá trị min cho đơn vị mới (phải lớn hơn giá trị lớn nhất hiện có)
 function getMinValueForNewUnit() {
@@ -963,7 +892,7 @@ function addUnitConversionRow() {
     row.style.borderBottom = '1px solid #E5E7EB';
     row.innerHTML = `
         <td style="padding: 12px;">
-            <select class="form-select unit-select" data-index="${rowIndex}" onchange="validateUniqueUnit(this); updateTotalUnits();">
+            <select class="form-select unit-select" data-index="${rowIndex}" onchange="updateTotalUnits()">
                 <option value="">Chọn đơn vị</option>
                 ${units.map(unit => `<option value="${unit.id}">${unit.name}</option>`).join('')}
             </select>
@@ -1060,9 +989,8 @@ function getUnitConversionsFromForm() {
     const tbody = document.getElementById('unitConversionTableBody');
     const rows = tbody.querySelectorAll('tr');
     const conversions = [];
-    const usedUnits = new Set(); // Để kiểm tra đơn vị trùng lặp
 
-    for (let row of rows) {
+    rows.forEach(row => {
         const unitSelect = row.querySelector('.unit-select');
         const multiplierInput = row.querySelector('.multiplier-input');
         const noteInput = row.querySelector('.note-input');
@@ -1073,15 +1001,6 @@ function getUnitConversionsFromForm() {
             const note = noteInput ? noteInput.value.trim() : '';
 
             if (unitId && !isNaN(multiplier) && multiplier > 0) {
-                // Kiểm tra đơn vị trùng lặp
-                if (usedUnits.has(unitId)) {
-                    const unit = units.find(u => u.id === unitId);
-                    showToast(`Đơn vị "${unit ? unit.name : 'này'}" đã được chọn. Vui lòng kiểm tra lại!`, 'error');
-                    unitSelect.style.borderColor = '#DC2626';
-                    return null; // Trả về null để báo lỗi
-                }
-                usedUnits.add(unitId);
-
                 conversions.push({
                     unitId: unitId,
                     multiplier: multiplier,
@@ -1089,7 +1008,7 @@ function getUnitConversionsFromForm() {
                 });
             }
         }
-    }
+    });
 
     return conversions;
 }
@@ -1154,7 +1073,7 @@ function renderUnitConversions(conversions) {
 
             row.innerHTML = `
                 <td style="padding: 12px;">
-                    <select class="form-select unit-select" data-index="${index}" onchange="validateUniqueUnit(this); updateTotalUnits();">
+                    <select class="form-select unit-select" data-index="${index}" onchange="updateTotalUnits()">
                         <option value="">Chọn đơn vị</option>
                         ${units.map(unit => {
                             const selected = unit.id == unitId ? 'selected' : '';

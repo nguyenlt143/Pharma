@@ -21,9 +21,6 @@ public class UnitConversion extends BaseEntity<Long> {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "unit_id")
     private Unit unitId;
-
-    @Column(nullable = false)
-    private Integer baseUnitQuantity;
-
+    private Double multiplier;
     private String note;
 }
