@@ -6,6 +6,8 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import vn.edu.fpt.pharma.base.BaseEntity;
 
+import java.util.List;
+
 @Entity
 @Table(name = "medicine_variant")
 @Builder
@@ -18,8 +20,19 @@ import vn.edu.fpt.pharma.base.BaseEntity;
 public class MedicineVariant extends BaseEntity<Long> {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "medicine_id")
-    private Medicine  medicine;
-    private String dosage_form;
+    private Medicine medicine;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "dosage_form_id", nullable = false)
+    private DosageForm dosageForm;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "base_unit_id", nullable = false)
+    private Unit baseUnit;
+
+    @OneToMany(mappedBy = "medicineVariant", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Packaging> packagings;
+
     private String dosage;
     private String strength;
     private String packaging;

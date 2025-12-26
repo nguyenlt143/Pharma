@@ -27,6 +27,11 @@ public class Inventory extends BaseEntity<Long> {
     private Batch batch;
     @Column(name = "quantity")
     private Long quantity;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "base_unit_id", nullable = false)
+    private Unit baseUnit;
+
     @Column(name = "cost_price")
     private Double costPrice;
     @Column(name = "min_stock")
