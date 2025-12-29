@@ -6,14 +6,14 @@ public record UnitConversionVM(
         Long unitId,
         String unitName,
         Double multiplier,
-        String note
+        Boolean isSale
 ) {
     public UnitConversionVM(UnitConversion unitConversion){
         this(
                 unitConversion.getId(),
                 unitConversion.getUnitId().getName() != null ? unitConversion.getUnitId().getName() : null,
                 unitConversion.getMultiplier(),
-                unitConversion.getNote()
+                unitConversion.getIsSale()
         );
     }
 }

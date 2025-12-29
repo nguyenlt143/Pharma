@@ -3,6 +3,7 @@ package vn.edu.fpt.pharma.service.impl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.pharma.base.BaseServiceImpl;
+import vn.edu.fpt.pharma.constant.DosageForm;
 import vn.edu.fpt.pharma.dto.medicine.MedicineVariantRequest;
 import vn.edu.fpt.pharma.dto.medicine.MedicineVariantResponse;
 import vn.edu.fpt.pharma.dto.medicine.SearchMedicineVM;
@@ -50,10 +51,13 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
         Medicine medicine = medicineRepository.findById(request.getMedicineId())
                 .orElseThrow(() -> new RuntimeException("Medicine not found"));
 
+        // Convert String dosageForm to enum
+        DosageForm dosageFormEnum = DosageForm.fromDisplayName(request.getDosageForm());
+
         // Prevent duplicate variant with same basic data
         long duplicateCount = medicineVariantRepository.countDuplicateVariant(
                 request.getMedicineId(),
-                request.getDosageForm(),
+                dosageFormEnum,
                 request.getDosage(),
                 request.getStrength()
         );
@@ -63,7 +67,7 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
 
         MedicineVariant variant = MedicineVariant.builder()
                 .medicine(medicine)
-                .dosage_form(request.getDosageForm())
+                .dosageForm(dosageFormEnum)
                 .dosage(request.getDosage())
                 .strength(request.getStrength())
                 .packaging(request.getPackaging())
@@ -72,6 +76,7 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                 .storageConditions(request.getStorageConditions())
                 .instructions(request.getInstructions())
                 .prescription_require(request.getPrescription_require() != null ? request.getPrescription_require() : false)
+                .note(request.getNote())
                 .build();
 
         MedicineVariant saved = repository.save(variant);
@@ -101,7 +106,10 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                 medicineRepository.findById(request.getMedicineId())
                         .orElseThrow(() -> new RuntimeException("Medicine not found")) : variant.getMedicine();
 
-        if (request.getDosageForm() != null) variant.setDosage_form(request.getDosageForm());
+        if (request.getDosageForm() != null) {
+            DosageForm dosageFormEnum = DosageForm.fromDisplayName(request.getDosageForm());
+            variant.setDosageForm(dosageFormEnum);
+        }
         if (request.getDosage() != null) variant.setDosage(request.getDosage());
         if (request.getStrength() != null) variant.setStrength(request.getStrength());
         if (request.getPackaging() != null) variant.setPackaging(request.getPackaging());
@@ -110,6 +118,7 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
         if (request.getStorageConditions() != null) variant.setStorageConditions(request.getStorageConditions());
         if (request.getInstructions() != null) variant.setInstructions(request.getInstructions());
         if (request.getPrescription_require() != null) variant.setPrescription_require(request.getPrescription_require());
+        if (request.getNote() != null) variant.setNote(request.getNote());
 
         variant.setMedicine(medicine);
 
@@ -138,7 +147,7 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                     .variantId(variant)
                     .unitId(unit)
                     .multiplier(dto.getMultiplier())
-                    .note(dto.getNote())
+                    .isSale(dto.getIsSale() != null ? dto.getIsSale() : false)
                     .build();
 
             unitConversionRepository.save(conversion);
@@ -179,7 +188,7 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                         (String) r[3],  // manufacturer
                         (String) r[4],  // strength
                         (String) r[5],  // country
-                        r[6] != null ? (long) ((Number) r[6]).doubleValue() : 0L,  // quantity_per_package
+                        (String) r[6],  // packaging (changed from quantity_per_package)
                         (String) r[7],  // uses (from medicine)
                         (String) r[8],  // contraindications (from medicine)
                         (String) r[9]   // side_effects (from medicine)
@@ -204,7 +213,7 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                                     u.getUnitId().getId(),
                                     u.getUnitId().getName(),
                                     u.getMultiplier(),
-                                    u.getNote()
+                                    u.getIsSale()
                             ))
                             .collect(Collectors.toList());
 
@@ -224,6 +233,8 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                             (String) r[12], // uses (from medicine)
                             (String) r[13], // country
                             (String) r[14], // manufacturer
+                            (String) r[15], // note (new field)
+                            (String) r[16], // packaging (new field)
                             inventories,
                             units
                     );

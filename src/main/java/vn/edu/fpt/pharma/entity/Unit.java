@@ -21,4 +21,11 @@ public class Unit extends BaseEntity<Long> {
     @Column(unique = true, nullable = false)
     private String name;
     private String description;
+
+    @Builder.Default
+    @Column(name = "is_base", nullable = false)
+    private Boolean isBase = false;
+
+    @Column(name = "list_unit_available", columnDefinition = "TEXT")
+    private String listUnitAvailable; // Comma-separated list of available unit IDs for this dosage form
 }

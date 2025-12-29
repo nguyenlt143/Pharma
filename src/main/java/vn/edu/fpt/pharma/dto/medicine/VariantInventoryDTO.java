@@ -18,6 +18,8 @@ public record VariantInventoryDTO(
         String uses,
         String country,
         String manufacturer,
+        String note,  // Added: moved from UnitConversion
+        String packaging,  // Added: replaced quantity_per_package
         List<InventoryDetailDTO> inventories,
         List<UnitConversionVM> unitConversion
 ) {

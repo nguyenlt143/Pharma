@@ -360,4 +360,10 @@ public class WarehouseController {
         return "pages/warehouse/medicine_list";
     }
 
+    // -------------------- UNIT MANAGEMENT --------------------
+    @GetMapping("/unit")
+    public String unitList(Model model) {
+        return "pages/warehouse/unit_list";
+    }
+
 }

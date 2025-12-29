@@ -42,8 +42,8 @@ public class PriceResponse {
             if (variant.getStrength() != null && !variant.getStrength().isEmpty()) {
                 displayName += " - " + variant.getStrength();
             }
-            if (variant.getDosage_form() != null && !variant.getDosage_form().isEmpty()) {
-                displayName += " (" + variant.getDosage_form() + ")";
+            if (variant.getDosageForm() != null) {
+                displayName += " (" + variant.getDosageForm().getDisplayName() + ")";
             }
         }
         

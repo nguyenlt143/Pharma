@@ -388,7 +388,7 @@ public class OwnerInventoryApiController {
                 // Get variant info
                 if (d.variantId() != null) {
                     medicineVariantRepository.findById(d.variantId()).ifPresent(variant -> {
-                        detail.put("variantName", variant.getDosage_form() != null ? variant.getDosage_form() : "-");
+                        detail.put("variantName", variant.getDosageForm() != null ? variant.getDosageForm().getDisplayName() : "-");
                         if (variant.getMedicine() != null) {
                             detail.put("medicineName", variant.getMedicine().getName() != null ? 
                                 variant.getMedicine().getName() : "-");
@@ -475,7 +475,7 @@ public class OwnerInventoryApiController {
 
             MedicineVariant variant = d.getVariant();
             if (variant != null) {
-                detail.put("variantName", variant.getDosage_form() != null ? variant.getDosage_form() : "-");
+                detail.put("variantName", variant.getDosageForm() != null ? variant.getDosageForm().getDisplayName() : "-");
                 Medicine med = variant.getMedicine();
                 if (med != null) {
                     detail.put("medicineName", med.getName() != null ? med.getName() : "-");

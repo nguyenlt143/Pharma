@@ -101,6 +101,12 @@
                         <span class="nav-text">Quản lý giá</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="/warehouse/unit" class="nav-link">
+                        <span class="material-icons nav-icon">straighten</span>
+                        <span class="nav-text">Quản lý đơn vị</span>
+                    </a>
+                </li>
             </ul>
         </nav>
 

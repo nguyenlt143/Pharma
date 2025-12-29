@@ -289,7 +289,7 @@ public class ImportExportApiController {
                     detail.put("quantity", imd.getQuantity() != null ? imd.getQuantity() : 0);
                     if (imd.getVariant() != null) {
                         detail.put("variantId", imd.getVariant().getId());
-                        detail.put("variantName", imd.getVariant().getDosage_form() != null ? imd.getVariant().getDosage_form() : "-");
+                        detail.put("variantName", imd.getVariant().getDosageForm() != null ? imd.getVariant().getDosageForm().getDisplayName() : "-");
                         detail.put("medicineName", imd.getVariant().getMedicine() != null && imd.getVariant().getMedicine().getName() != null ? imd.getVariant().getMedicine().getName() : "-");
                         detail.put("unit", getDisplayUnitFromVariant(imd.getVariant()));
                     } else {

@@ -265,7 +265,7 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
                                     }
 
                                     concentration = variant.getStrength() != null ? variant.getStrength() : "N/A";
-                                    dosageForm = variant.getDosage_form() != null ? variant.getDosage_form() : "N/A";
+                                    dosageForm = variant.getDosageForm() != null ? variant.getDosageForm().getDisplayName() : "N/A";
 
                                     unit = getDisplayUnitFromVariant(variant);
 

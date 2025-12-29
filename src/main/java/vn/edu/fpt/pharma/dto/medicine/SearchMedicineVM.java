@@ -7,7 +7,7 @@ public record SearchMedicineVM(
         String manufacturer,
         String strength,
         String country,
-        Long quantity,
+        String packaging,  // Changed from Long quantity to String packaging
         String uses,
         String contraindications,
         String sideEffect

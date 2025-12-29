@@ -18,9 +18,14 @@ public class UnitConversion extends BaseEntity<Long> {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "variant_id")
     private MedicineVariant variantId;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "unit_id")
     private Unit unitId;
+
     private Double multiplier;
-    private String note;
+
+    @Builder.Default
+    @Column(name = "is_sale", nullable = false)
+    private Boolean isSale = false;
 }

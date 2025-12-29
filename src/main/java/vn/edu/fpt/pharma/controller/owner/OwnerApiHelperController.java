@@ -69,8 +69,8 @@ public class OwnerApiHelperController {
                     if (v.getStrength() != null && !v.getStrength().isEmpty()) {
                         displayName += " - " + v.getStrength();
                     }
-                    if (v.getDosage_form() != null && !v.getDosage_form().isEmpty()) {
-                        displayName += " (" + v.getDosage_form() + ")";
+                    if (v.getDosageForm() != null) {
+                        displayName += " (" + v.getDosageForm().getDisplayName() + ")";
                     }
                     return new VariantResponse(v.getId(), displayName, v.getMedicine() != null ? v.getMedicine().getId() : null);
                 })

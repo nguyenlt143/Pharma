@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import vn.edu.fpt.pharma.constant.DosageForm;
 
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,7 @@ public class MedicineVariantRequest {
 
     @NotNull(message = "Dạng bào chế không được để trống")
     @NotBlank(message = "Dạng bào chế không được để trống")
-    private String dosageForm;
+    private String dosageForm; // String for backward compatibility, will be converted to DosageForm enum
 
     @NotNull(message = "Liều dùng không được để trống")
     @NotBlank(message = "Liều dùng không được để trống")
@@ -52,6 +53,8 @@ public class MedicineVariantRequest {
     @NotNull(message = "Cần kê đơn không được để trống")
     private Boolean prescription_require;
 
+    private String note; // Moved from UnitConversion
+
     private List<UnitConversionDTO> unitConversions;
 
     @Data
@@ -61,7 +64,7 @@ public class MedicineVariantRequest {
     public static class UnitConversionDTO {
         private Long unitId;
         private Double multiplier;
-        private String note;
+        private Boolean isSale; // Indicates if this conversion is for sale purposes
     }
 }
 

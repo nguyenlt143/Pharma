@@ -272,7 +272,7 @@ public class RequestFormServiceImpl extends BaseServiceImpl<RequestForm, Long, R
                             }
 
                             strength = variant.getStrength() != null ? variant.getStrength() : "N/A";
-                            dosageForm = variant.getDosage_form() != null ? variant.getDosage_form() : "N/A";
+                            dosageForm = variant.getDosageForm() != null ? variant.getDosageForm().getDisplayName() : "N/A";
 
                             unit = getDisplayUnitFromVariant(variant);
 
