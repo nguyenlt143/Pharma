@@ -62,13 +62,13 @@ public interface MedicineVariantRepository extends JpaRepository<MedicineVariant
     @Query("""
         SELECT COUNT(v) FROM MedicineVariant v
         WHERE v.medicine.id = :medicineId
-          AND v.dosageForm = :dosageForm
+          AND v.dosageForm.id = :dosageFormId
           AND LOWER(COALESCE(v.dosage, '')) = LOWER(COALESCE(:dosage, ''))
           AND LOWER(COALESCE(v.strength, '')) = LOWER(COALESCE(:strength, ''))
     """)
     long countDuplicateVariant(
             @Param("medicineId") Long medicineId,
-            @Param("dosageForm") vn.edu.fpt.pharma.constant.DosageForm dosageForm,
+            @Param("dosageFormId") Long dosageFormId,
             @Param("dosage") String dosage,
             @Param("strength") String strength
     );

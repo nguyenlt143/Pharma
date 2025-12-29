@@ -5,7 +5,6 @@ import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import vn.edu.fpt.pharma.base.BaseEntity;
-import vn.edu.fpt.pharma.constant.DosageForm;
 
 @Entity
 @Table(name = "medicine_variant")
@@ -21,8 +20,8 @@ public class MedicineVariant extends BaseEntity<Long> {
     @JoinColumn(name = "medicine_id")
     private Medicine  medicine;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "dosage_form")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "dosage_form_id", nullable = false)
     private DosageForm dosageForm;
 
     private String dosage;

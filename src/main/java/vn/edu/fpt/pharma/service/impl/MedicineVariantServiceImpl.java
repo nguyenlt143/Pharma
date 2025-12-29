@@ -3,13 +3,14 @@ package vn.edu.fpt.pharma.service.impl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.pharma.base.BaseServiceImpl;
-import vn.edu.fpt.pharma.constant.DosageForm;
 import vn.edu.fpt.pharma.dto.medicine.MedicineVariantRequest;
 import vn.edu.fpt.pharma.dto.medicine.MedicineVariantResponse;
 import vn.edu.fpt.pharma.dto.medicine.SearchMedicineVM;
 import vn.edu.fpt.pharma.dto.medicine.UnitConversionVM;
+import vn.edu.fpt.pharma.entity.DosageForm;
 import vn.edu.fpt.pharma.entity.Medicine;
 import vn.edu.fpt.pharma.entity.MedicineVariant;
+import vn.edu.fpt.pharma.repository.DosageFormRepository;
 import vn.edu.fpt.pharma.entity.Unit;
 import vn.edu.fpt.pharma.entity.UnitConversion;
 import vn.edu.fpt.pharma.repository.*;
@@ -29,13 +30,15 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
     private final InventoryRepository inventoryRepository;
     private final vn.edu.fpt.pharma.repository.PriceRepository priceRepository;
     private final UnitConversionRepository unitConversionRepository;
+    private final DosageFormRepository dosageFormRepository;
 
     public MedicineVariantServiceImpl(MedicineVariantRepository repository, AuditService auditService,
                                       MedicineRepository medicineRepository, UnitRepository unitRepository,
                                       MedicineVariantRepository medicineVariantRepository,
                                       InventoryRepository inventoryRepository,
                                       vn.edu.fpt.pharma.repository.PriceRepository priceRepository,
-                                      UnitConversionRepository unitConversionRepository) {
+                                      UnitConversionRepository unitConversionRepository,
+                                      DosageFormRepository dosageFormRepository) {
         super(repository, auditService);
         this.medicineRepository = medicineRepository;
         this.unitRepository = unitRepository;
@@ -43,6 +46,7 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
         this.inventoryRepository = inventoryRepository;
         this.priceRepository = priceRepository;
         this.unitConversionRepository = unitConversionRepository;
+        this.dosageFormRepository = dosageFormRepository;
     }
 
     @Override
@@ -51,13 +55,15 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
         Medicine medicine = medicineRepository.findById(request.getMedicineId())
                 .orElseThrow(() -> new RuntimeException("Medicine not found"));
 
-        // Convert String dosageForm to enum
-        DosageForm dosageFormEnum = DosageForm.fromDisplayName(request.getDosageForm());
+        // Load DosageForm from repository by ID
+        DosageForm dosageForm = dosageFormRepository
+                .findById(request.getDosageFormId())
+                .orElseThrow(() -> new RuntimeException("Dạng bào chế không tồn tại"));
 
         // Prevent duplicate variant with same basic data
         long duplicateCount = medicineVariantRepository.countDuplicateVariant(
                 request.getMedicineId(),
-                dosageFormEnum,
+                dosageForm.getId(),
                 request.getDosage(),
                 request.getStrength()
         );
@@ -67,7 +73,7 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
 
         MedicineVariant variant = MedicineVariant.builder()
                 .medicine(medicine)
-                .dosageForm(dosageFormEnum)
+                .dosageForm(dosageForm)
                 .dosage(request.getDosage())
                 .strength(request.getStrength())
                 .packaging(request.getPackaging())
@@ -106,9 +112,11 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                 medicineRepository.findById(request.getMedicineId())
                         .orElseThrow(() -> new RuntimeException("Medicine not found")) : variant.getMedicine();
 
-        if (request.getDosageForm() != null) {
-            DosageForm dosageFormEnum = DosageForm.fromDisplayName(request.getDosageForm());
-            variant.setDosageForm(dosageFormEnum);
+        if (request.getDosageFormId() != null) {
+            DosageForm dosageForm = dosageFormRepository
+                    .findById(request.getDosageFormId())
+                    .orElseThrow(() -> new RuntimeException("Dạng bào chế không tồn tại"));
+            variant.setDosageForm(dosageForm);
         }
         if (request.getDosage() != null) variant.setDosage(request.getDosage());
         if (request.getStrength() != null) variant.setStrength(request.getStrength());

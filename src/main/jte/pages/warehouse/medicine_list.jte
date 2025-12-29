@@ -373,11 +373,9 @@ content = @`
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Dạng bào chế <span style="color: red;">*</span></label>
-                        <input type="text" id="dosageForm" class="form-input" placeholder="VD: Viên nén, Siro..." required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Liều dùng <span style="color: red;">*</span></label>
-                        <input type="text" id="dosage" class="form-input" placeholder="VD: 500mg" required>
+                        <select id="dosageForm" class="form-select" required>
+                            <option value="">Chọn dạng bào chế</option>
+                        </select>
                     </div>
                 </div>
 
@@ -387,8 +385,16 @@ content = @`
                         <input type="text" id="strength" class="form-input" placeholder="VD: 500mg/ml" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Quy cách đóng gói</label>
-                        <input type="text" id="packaging" class="form-input" placeholder="VD: Hộp 10 vỉ x 10 viên">
+                        <label class="form-label">Quy cách đóng gói <span style="color: red;">*</span></label>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <input type="text" id="packaging" class="form-input" placeholder="VD: Hộp x 10 Vỉ x 10 Viên" readonly style="background-color: #F9FAFB;">
+                            <button type="button" onclick="generatePackagingFromUnits()" class="btn-primary" style="padding: 8px 12px; font-size: 14px; white-space: nowrap;">
+                                🔄 Tạo tự động
+                            </button>
+                        </div>
+                        <div style="font-size: 12px; color: #6B7280; margin-top: 4px;">
+                            Quy cách sẽ được tự động tạo từ đơn vị quy đổi
+                        </div>
                     </div>
                 </div>
 
@@ -419,25 +425,43 @@ content = @`
                 </div>
 
                 <div class="form-group">
+                    <label class="form-label">Liều dùng <span style="color: red;">*</span></label>
+                    <textarea id="dosage" class="form-textarea" placeholder="VD: Người lớn: 1-2 viên/lần, ngày 2-3 lần..." required></textarea>
+                </div>
+
+                <div class="form-group">
                     <label class="form-label">Hướng dẫn sử dụng <span style="color: red;">*</span></label>
                     <textarea id="instructions" class="form-textarea" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Ghi chú</label>
+                    <textarea id="note" class="form-textarea" placeholder="Ghi chú thêm về dạng thuốc này..." rows="3"></textarea>
                 </div>
 
                 <!-- Unit Conversions Section -->
                 <div style="margin-top: 32px; padding-top: 24px; border-top: 2px solid #E5E7EB;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                        <h3 style="font-size: 16px; font-weight: 600; margin: 0;">Danh sách đơn vị quy đổi </h3>
+                        <h3 style="font-size: 16px; font-weight: 600; margin: 0;">Danh sách đơn vị quy đổi</h3>
                         <button type="button" onclick="addUnitConversionRow()" class="btn-primary" style="padding: 6px 12px; font-size: 14px;">
                             + Thêm đơn vị tính
                         </button>
                     </div>
+
+                    <!-- Info về đơn vị cơ bản -->
+                    <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 6px; padding: 12px; margin-bottom: 16px; font-size: 14px;">
+                        <div style="display: flex; align-items: center; gap: 8px; color: #1E40AF;">
+                            <span style="font-weight: 600;">ℹ️ Lưu ý:</span>
+                            <span>Khi chọn dạng bào chế, đơn vị cơ bản sẽ tự động được thêm với tỉ lệ quy đổi = 1 (không thể chỉnh sửa). Các đơn vị quy đổi phải có giá trị > 1 và chia hết cho đơn vị trước đó.</span>
+                        </div>
+                    </div>
+
                     <div style="border: 1px solid #E5E7EB; border-radius: 6px; overflow: hidden; margin-bottom: 16px;">
                         <table style="width: 100%; border-collapse: collapse;">
                             <thead style="background: #3B82F6; color: white;">
                                 <tr>
                                     <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 14px;">Tên đơn vị</th>
                                     <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 14px;">Quy đổi</th>
-                                    <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 14px;">Ghi chú</th>
                                     <th style="padding: 12px; text-align: center; font-weight: 600; font-size: 14px; width: 80px;">Hành động</th>
                                 </tr>
                             </thead>

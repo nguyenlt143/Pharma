@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import vn.edu.fpt.pharma.constant.DosageForm;
 import vn.edu.fpt.pharma.entity.MedicineVariant;
 
 import java.time.LocalDateTime;
@@ -17,6 +16,7 @@ public class MedicineVariantResponse {
     private Long id;
     private Long medicineId;
     private String medicineName;
+    private Long dosageFormId; // ID for editing
     private String dosageForm; // Display name for frontend
     private String dosageFormEnum; // Enum name for reference
     private String dosage;
@@ -34,17 +34,20 @@ public class MedicineVariantResponse {
     public static MedicineVariantResponse fromEntity(MedicineVariant variant) {
         if (variant == null) return null;
         
+        Long dosageFormId = null;
         String dosageFormDisplay = null;
         String dosageFormEnumName = null;
         if (variant.getDosageForm() != null) {
+            dosageFormId = variant.getDosageForm().getId();
             dosageFormDisplay = variant.getDosageForm().getDisplayName();
-            dosageFormEnumName = variant.getDosageForm().name();
+            dosageFormEnumName = variant.getDosageForm().getDisplayName(); // Use displayName since name field was removed
         }
 
         return MedicineVariantResponse.builder()
                 .id(variant.getId())
                 .medicineId(variant.getMedicine() != null ? variant.getMedicine().getId() : null)
                 .medicineName(variant.getMedicine() != null ? variant.getMedicine().getName() : null)
+                .dosageFormId(dosageFormId)
                 .dosageForm(dosageFormDisplay)
                 .dosageFormEnum(dosageFormEnumName)
                 .dosage(variant.getDosage())

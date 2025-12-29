@@ -5,13 +5,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.pharma.base.BaseServiceImpl;
-import vn.edu.fpt.pharma.constant.DosageForm;
 import vn.edu.fpt.pharma.dto.DataTableRequest;
 import vn.edu.fpt.pharma.dto.DataTableResponse;
 import vn.edu.fpt.pharma.dto.unit.UnitRequest;
 import vn.edu.fpt.pharma.dto.unit.UnitResponse;
+import vn.edu.fpt.pharma.entity.DosageForm;
 import vn.edu.fpt.pharma.entity.Unit;
 import vn.edu.fpt.pharma.exception.EntityInUseException;
+import vn.edu.fpt.pharma.repository.DosageFormRepository;
 import vn.edu.fpt.pharma.repository.UnitRepository;
 import vn.edu.fpt.pharma.service.AuditService;
 import vn.edu.fpt.pharma.service.UnitService;
@@ -22,8 +23,12 @@ import java.util.stream.Collectors;
 @Service
 public class UnitServiceImpl extends BaseServiceImpl<Unit, Long, UnitRepository> implements UnitService {
 
-    public UnitServiceImpl(UnitRepository repository, AuditService auditService) {
+    private final DosageFormRepository dosageFormRepository;
+
+    public UnitServiceImpl(UnitRepository repository, AuditService auditService,
+                          DosageFormRepository dosageFormRepository) {
         super(repository, auditService);
+        this.dosageFormRepository = dosageFormRepository;
     }
 
     @Override
@@ -87,13 +92,20 @@ public class UnitServiceImpl extends BaseServiceImpl<Unit, Long, UnitRepository>
     }
 
     @Override
-    public List<UnitResponse> getAvailableUnitsForDosageForm(DosageForm dosageForm) {
+    public List<UnitResponse> getAvailableUnitsForDosageForm(Long dosageFormId) {
+        if (dosageFormId == null) {
+            return List.of();
+        }
+
+        // Load dosage form entity
+        DosageForm dosageForm = dosageFormRepository.findById(dosageFormId)
+                .orElse(null);
         if (dosageForm == null) {
             return List.of();
         }
 
         // Get the base unit for this dosage form
-        Unit baseUnit = getBaseUnitForDosageForm(dosageForm);
+        Unit baseUnit = dosageForm.getBaseUnit();
         if (baseUnit == null || baseUnit.getListUnitAvailable() == null || baseUnit.getListUnitAvailable().isEmpty()) {
             return List.of();
         }
@@ -115,18 +127,19 @@ public class UnitServiceImpl extends BaseServiceImpl<Unit, Long, UnitRepository>
     }
 
     @Override
-    public Unit getBaseUnitForDosageForm(DosageForm dosageForm) {
-        if (dosageForm == null) {
+    public Unit getBaseUnitForDosageForm(Long dosageFormId) {
+        if (dosageFormId == null) {
             return null;
         }
 
-        String baseUnitName = DosageForm.getBaseUnitForForm(dosageForm);
-        return repository.findBaseUnitByName(baseUnitName).orElse(null);
+        return dosageFormRepository.findById(dosageFormId)
+                .map(DosageForm::getBaseUnit)
+                .orElse(null);
     }
 
     @Override
-    public boolean isValidBaseUnit(DosageForm dosageForm, Long unitId) {
-        if (dosageForm == null || unitId == null) {
+    public boolean isValidBaseUnit(Long dosageFormId, Long unitId) {
+        if (dosageFormId == null || unitId == null) {
             return false;
         }
 
@@ -135,7 +148,9 @@ public class UnitServiceImpl extends BaseServiceImpl<Unit, Long, UnitRepository>
             return false;
         }
 
-        return DosageForm.isValidBaseUnit(dosageForm, unit.getName());
+        return dosageFormRepository.findById(dosageFormId)
+                .map(df -> df.getBaseUnit().getId().equals(unitId))
+                .orElse(false);
     }
 
     @Override

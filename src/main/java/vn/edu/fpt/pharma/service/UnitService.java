@@ -1,7 +1,6 @@
 package vn.edu.fpt.pharma.service;
 
 import vn.edu.fpt.pharma.base.BaseService;
-import vn.edu.fpt.pharma.constant.DosageForm;
 import vn.edu.fpt.pharma.dto.DataTableRequest;
 import vn.edu.fpt.pharma.dto.DataTableResponse;
 import vn.edu.fpt.pharma.dto.unit.UnitRequest;
@@ -16,8 +15,8 @@ public interface UnitService extends BaseService<Unit, Long> {
     UnitResponse updateUnit(Long id, UnitRequest request);
     UnitResponse getUnitById(Long id);
     List<UnitResponse> getAllBaseUnits();
-    List<UnitResponse> getAvailableUnitsForDosageForm(DosageForm dosageForm);
-    Unit getBaseUnitForDosageForm(DosageForm dosageForm);
-    boolean isValidBaseUnit(DosageForm dosageForm, Long unitId);
+    List<UnitResponse> getAvailableUnitsForDosageForm(Long dosageFormId);
+    Unit getBaseUnitForDosageForm(Long dosageFormId);
+    boolean isValidBaseUnit(Long dosageFormId, Long unitId);
 }
 

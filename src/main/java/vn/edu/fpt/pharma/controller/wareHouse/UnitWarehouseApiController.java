@@ -7,14 +7,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.pharma.config.CustomUserDetails;
-import vn.edu.fpt.pharma.constant.DosageForm;
 import vn.edu.fpt.pharma.dto.DataTableRequest;
 import vn.edu.fpt.pharma.dto.DataTableResponse;
 import vn.edu.fpt.pharma.dto.unit.UnitRequest;
 import vn.edu.fpt.pharma.dto.unit.UnitResponse;
+import vn.edu.fpt.pharma.repository.DosageFormRepository;
 import vn.edu.fpt.pharma.service.UnitService;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,6 +24,7 @@ import java.util.stream.Collectors;
 public class UnitWarehouseApiController {
 
     private final UnitService unitService;
+    private final DosageFormRepository dosageFormRepository;
 
     /**
      * Get all units with pagination and search
@@ -80,24 +80,19 @@ public class UnitWarehouseApiController {
 
     /**
      * Get available units for a specific dosage form
-     * GET /api/warehouse/unit/available?dosageForm=VIEN_NEN
+     * GET /api/warehouse/unit/available?dosageFormId=1
      */
     @GetMapping("/available")
     public ResponseEntity<List<UnitResponse>> getAvailableUnits(
-            @RequestParam String dosageForm,
+            @RequestParam Long dosageFormId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         if (userDetails == null || !"WAREHOUSE".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        try {
-            DosageForm form = DosageForm.valueOf(dosageForm);
-            List<UnitResponse> availableUnits = unitService.getAvailableUnitsForDosageForm(form);
-            return ResponseEntity.ok(availableUnits);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        List<UnitResponse> availableUnits = unitService.getAvailableUnitsForDosageForm(dosageFormId);
+        return ResponseEntity.ok(availableUnits);
     }
 
     /**
@@ -105,19 +100,25 @@ public class UnitWarehouseApiController {
      * GET /api/warehouse/unit/dosage-forms
      */
     @GetMapping("/dosage-forms")
-    public ResponseEntity<List<Map<String, String>>> getAllDosageForms(
+    public ResponseEntity<List<Map<String, Object>>> getAllDosageForms(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         if (userDetails == null || !"WAREHOUSE".equalsIgnoreCase(userDetails.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        List<Map<String, String>> dosageForms = Arrays.stream(DosageForm.values())
-                .map(form -> Map.of(
-                        "name", form.name(),
-                        "displayName", form.getDisplayName(),
-                        "baseUnit", form.getBaseUnitName()
-                ))
+        // Query from database instead of enum
+        List<Map<String, Object>> dosageForms = dosageFormRepository.findAllActiveOrderByDisplayOrder()
+                .stream()
+                .map(form -> {
+                    Map<String, Object> map = new java.util.HashMap<>();
+                    map.put("id", form.getId());
+                    map.put("name", form.getDisplayName());
+                    map.put("displayName", form.getDisplayName());
+                    map.put("baseUnit", form.getBaseUnit().getName());
+                    map.put("baseUnitId", form.getBaseUnit().getId());
+                    return map;
+                })
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(dosageForms);

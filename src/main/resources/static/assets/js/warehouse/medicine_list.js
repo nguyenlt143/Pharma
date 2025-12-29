@@ -2,11 +2,42 @@
 let medicineTable;
 let categories = [];
 let units = [];
+let dosageForms = [];
 
 $(document).ready(function() {
     loadCategories();
     loadUnits();
+    loadDosageForms();
     initDataTable();
+
+    // Add event listener for dosage form selection
+    $(document).on('change', '#dosageForm', function() {
+        const dosageFormId = $(this).val();
+        const previousValue = $(this).data('previous-value');
+
+        // Check if there are existing unit conversions
+        const tbody = document.getElementById('unitConversionTableBody');
+        const hasExistingUnits = tbody && tbody.children.length > 0;
+
+        if (hasExistingUnits && previousValue && previousValue !== dosageFormId) {
+            // Ask for confirmation before changing
+            if (!confirm('Thay đổi dạng bào chế sẽ xóa tất cả các đơn vị quy đổi hiện tại. Bạn có chắc chắn muốn tiếp tục?')) {
+                // Revert to previous value
+                $(this).val(previousValue);
+                return;
+            }
+        }
+
+        // Store current value as previous for next change
+        $(this).data('previous-value', dosageFormId);
+
+        if (dosageFormId) {
+            loadAvailableUnitsForDosageForm(dosageFormId);
+        } else {
+            clearUnitConversions();
+            units = [];
+        }
+    });
 });
 
 // Toast Notification Utility
@@ -181,6 +212,79 @@ function loadUnits() {
         });
 }
 
+function loadDosageForms() {
+    // Load dosage forms from API
+    fetch('/api/warehouse/dosage-form')
+        .then(res => res.json())
+        .then(data => {
+            // Store dosage forms in global variable
+            if (Array.isArray(data)) {
+                dosageForms = data;
+            }
+
+            // Load into dosage form dropdown
+            const dosageFormSelect = document.getElementById('dosageForm');
+            if (dosageFormSelect) {
+                dosageFormSelect.innerHTML = '<option value="">Chọn dạng bào chế</option>';
+                if (Array.isArray(data)) {
+                    data.forEach(form => {
+                        const option = document.createElement('option');
+                        option.value = form.id;
+                        // Display format: "Tên dạng bào chế (đơn vị cơ bản)"
+                        const displayText = form.displayName + (form.baseUnitName ? ` (${form.baseUnitName})` : '');
+                        option.textContent = displayText;
+                        dosageFormSelect.appendChild(option);
+                    });
+                }
+            }
+        })
+        .catch(err => {
+            console.error('Error loading dosage forms:', err);
+            dosageForms = [];
+            const dosageFormSelect = document.getElementById('dosageForm');
+            if (dosageFormSelect) {
+                dosageFormSelect.innerHTML = '<option value="">Chọn dạng bào chế</option>';
+            }
+        });
+}
+
+function loadAvailableUnitsForDosageForm(dosageFormId) {
+    // Load available units for the selected dosage form
+    fetch(`/api/warehouse/unit/available?dosageFormId=${dosageFormId}`)
+        .then(res => res.json())
+        .then(data => {
+            // Update global units variable with available units
+            if (Array.isArray(data)) {
+                units = data;
+            } else {
+                units = [];
+            }
+
+            // Clear existing unit conversion rows
+            clearUnitConversions();
+
+            // Load dosage form info to get base unit
+            return fetch(`/api/warehouse/dosage-form/${dosageFormId}`);
+        })
+        .then(res => res.json())
+        .then(dosageFormData => {
+            // Add base unit automatically with multiplier = 1 (locked)
+            if (dosageFormData && dosageFormData.baseUnitId) {
+                addBaseUnitConversion(dosageFormData.baseUnitId, dosageFormData.baseUnitName);
+            }
+
+            // Show message if no available units
+            if (units.length === 0) {
+                showToast('Không có đơn vị khả dụng cho dạng bào chế này', 'info');
+            }
+        })
+        .catch(err => {
+            console.error('Error loading available units or dosage form:', err);
+            units = [];
+            showToast('Không thể tải danh sách đơn vị', 'error');
+        });
+}
+
 function openCreateModal() {
     // Close other modals if they're open
     closeVariantModal();
@@ -321,7 +425,7 @@ function openCreateVariantForm() {
         'packageUnitId', 'baseUnitId', 'quantityPerPackage',
         'barcode', 'registrationNumber', 'storageConditions',
         'indications', 'contraindications', 'sideEffects',
-        'instructions', 'prescriptionRequired', 'uses'
+        'instructions', 'prescriptionRequired', 'uses', 'note'
     ];
 
     fields.forEach(fieldId => {
@@ -343,6 +447,12 @@ function openCreateVariantForm() {
 
     // Clear unit conversions
     clearUnitConversions();
+
+    // Reset previous-value data attribute for dosageForm
+    const dosageFormSelect = document.getElementById('dosageForm');
+    if (dosageFormSelect) {
+        $(dosageFormSelect).data('previous-value', '');
+    }
 
     // Hide variant list and show form
     const variantListContainer = document.getElementById('variantList').parentElement;
@@ -367,7 +477,7 @@ function openEditVariantForm(variantId) {
             };
 
             setValue('variantId', data.id);
-            setValue('dosageForm', data.dosageForm || data.dosage_form);
+            setValue('dosageForm', data.dosageFormId); // Set the dosageFormId in dropdown
             setValue('dosage', data.dosage);
             setValue('strength', data.strength);
             setValue('packaging', data.packaging);
@@ -375,14 +485,38 @@ function openEditVariantForm(variantId) {
             setValue('registrationNumber', data.registrationNumber);
             setValue('storageConditions', data.storageConditions);
             setValue('instructions', data.instructions);
+            setValue('note', data.note);
+
+            // Store current dosageFormId as previous-value
+            const dosageFormSelect = document.getElementById('dosageForm');
+            if (dosageFormSelect && data.dosageFormId) {
+                $(dosageFormSelect).data('previous-value', data.dosageFormId);
+            }
 
             const prescriptionField = document.getElementById('prescriptionRequired');
             if (prescriptionField) {
                 prescriptionField.value = (data.prescription_require !== undefined ? data.prescription_require : data.prescriptionRequired) ? 'true' : 'false';
             }
 
-            // Load unit conversions for this variant
-            loadUnitConversions(variantId);
+            // Load available units for the dosage form first, then load unit conversions
+            if (data.dosageFormId) {
+                fetch(`/api/warehouse/unit/available?dosageFormId=${data.dosageFormId}`)
+                    .then(res => res.json())
+                    .then(availableUnits => {
+                        // Update global units variable
+                        if (Array.isArray(availableUnits)) {
+                            units = availableUnits;
+                        }
+                        // Then load unit conversions
+                        loadUnitConversions(variantId);
+                    })
+                    .catch(err => {
+                        console.error('Error loading available units:', err);
+                        loadUnitConversions(variantId);
+                    });
+            } else {
+                loadUnitConversions(variantId);
+            }
 
             // Hide variant list and show form
             const variantListContainer = document.getElementById('variantList').parentElement;
@@ -686,7 +820,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const medicineId = parseInt(document.getElementById('variantMedicineId').value);
 
             // Validate all required fields (only fields that exist in the form)
-            const dosageForm = document.getElementById('dosageForm').value.trim();
+            const dosageFormId = document.getElementById('dosageForm').value.trim();
             const dosage = document.getElementById('dosage').value.trim();
             const strength = document.getElementById('strength').value.trim();
             const packaging = document.getElementById('packaging').value.trim();
@@ -695,9 +829,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const storageConditions = document.getElementById('storageConditions').value.trim();
             const instructions = document.getElementById('instructions').value.trim();
             const prescriptionRequired = document.getElementById('prescriptionRequired').value;
+            const note = document.getElementById('note') ? document.getElementById('note').value.trim() : '';
 
             // Validation checks
-            if (!dosageForm) {
+            if (!dosageFormId) {
                 showToast('Dạng bào chế không được để trống', 'error');
                 document.getElementById('dosageForm').focus();
                 return;
@@ -743,7 +878,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const data = {
                 medicineId: medicineId,
-                dosageForm: dosageForm,
+                dosageFormId: parseInt(dosageFormId),
                 dosage: dosage,
                 strength: strength,
                 packaging: packaging || null,
@@ -752,6 +887,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 storageConditions: storageConditions,
                 instructions: instructions,
                 prescription_require: prescriptionRequired === 'true',
+                note: note || null,
                 unitConversions: unitConversionsData
             };
 
@@ -804,10 +940,48 @@ document.addEventListener('DOMContentLoaded', function() {
             closeDetailModal();
         }
     }
+
+    // Note: Event listener for dosageForm dropdown is already handled in $(document).ready()
+    // to avoid duplicate calls to loadAvailableUnitsForDosageForm
 });
 
 // ========== Unit Conversion Management ==========
 let unitConversions = []; // Store unit conversions for the current variant
+
+// Hàm thêm đơn vị cơ bản tự động khi chọn dạng bào chế
+function addBaseUnitConversion(baseUnitId, baseUnitName) {
+    const tbody = document.getElementById('unitConversionTableBody');
+
+    // Check if base unit already exists
+    const existingBaseUnit = tbody.querySelector('tr[data-is-base-unit="true"]');
+    if (existingBaseUnit) {
+        console.log('Base unit already exists, skipping duplicate addition');
+        return;
+    }
+
+    const row = document.createElement('tr');
+    row.style.borderBottom = '1px solid #E5E7EB';
+    row.setAttribute('data-is-base-unit', 'true'); // Đánh dấu là đơn vị cơ bản
+
+    row.innerHTML = `
+        <td style="padding: 12px; background-color: #F9FAFB;">
+            <input type="text" class="form-input" value="${baseUnitName || 'Đơn vị cơ bản'}"
+                   readonly style="background-color: #F9FAFB; border-color: #E5E7EB;">
+            <input type="hidden" class="base-unit-id" value="${baseUnitId}">
+        </td>
+        <td style="padding: 12px; background-color: #F9FAFB;">
+            <input type="number" class="form-input multiplier-input" value="1"
+                   readonly style="background-color: #F9FAFB; border-color: #E5E7EB;">
+        </td>
+        <td style="padding: 12px; text-align: center; background-color: #F9FAFB;">
+            <span style="color: #6B7280; font-size: 12px;">Đơn vị cơ bản</span>
+        </td>
+    `;
+
+    tbody.appendChild(row);
+    updateTotalUnits();
+    autoUpdatePackaging();
+}
 
 // Hàm tính giá trị min cho đơn vị mới (phải lớn hơn giá trị lớn nhất hiện có)
 function getMinValueForNewUnit() {
@@ -828,6 +1002,43 @@ function getMinValueForNewUnit() {
     return maxValue + 1; // Giá trị mới phải lớn hơn giá trị lớn nhất hiện có
 }
 
+// Hàm kiểm tra đơn vị trùng lặp
+function validateUnitDuplication(selectElement) {
+    const tbody = document.getElementById('unitConversionTableBody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const currentValue = selectElement.value;
+
+    if (!currentValue) {
+        return true; // Bỏ qua nếu chưa chọn đơn vị
+    }
+
+    // Đếm số lần đơn vị này xuất hiện
+    let count = 0;
+    rows.forEach(row => {
+        const select = row.querySelector('.unit-select');
+        if (select && select.value === currentValue) {
+            count++;
+        }
+    });
+
+    // Nếu xuất hiện hơn 1 lần = trùng lặp
+    if (count > 1) {
+        selectElement.style.borderColor = '#DC2626';
+
+        // Lấy tên đơn vị để hiển thị
+        const unitName = selectElement.options[selectElement.selectedIndex].text;
+        showToast(`Đơn vị "${unitName}" đã được sử dụng. Vui lòng chọn đơn vị khác.`, 'error');
+
+        // Reset về giá trị rỗng
+        selectElement.value = '';
+        return false;
+    }
+
+    // Reset border nếu hợp lệ
+    selectElement.style.borderColor = '';
+    return true;
+}
+
 // Hàm validate thứ tự các giá trị quy đổi
 function validateMultiplierOrder(input) {
     const tbody = document.getElementById('unitConversionTableBody');
@@ -836,29 +1047,54 @@ function validateMultiplierOrder(input) {
     const currentIndex = rows.indexOf(currentRow);
     const currentValue = parseFloat(input.value);
 
+    // Bỏ qua validation cho đơn vị cơ bản
+    if (currentRow.getAttribute('data-is-base-unit') === 'true') {
+        return true;
+    }
+
     if (isNaN(currentValue) || currentValue <= 0) {
         input.style.borderColor = '#DC2626';
         showToast('Giá trị quy đổi phải lớn hơn 0', 'error');
         return false;
     }
 
-    // Kiểm tra với các giá trị trước đó
-    for (let i = 0; i < currentIndex; i++) {
-        const prevInput = rows[i].querySelector('.multiplier-input');
+    // Kiểm tra đơn vị đầu tiên (không phải base unit) phải > 1
+    const nonBaseRows = rows.filter(row => row.getAttribute('data-is-base-unit') !== 'true');
+    const currentNonBaseIndex = nonBaseRows.indexOf(currentRow);
+
+    if (currentNonBaseIndex === 0 && currentValue <= 1) {
+        input.style.borderColor = '#DC2626';
+        showToast('Đơn vị đầu tiên phải có giá trị lớn hơn 1 (vì đơn vị cơ bản có tỉ lệ = 1)', 'error');
+        return false;
+    }
+
+    // Kiểm tra với các giá trị trước đó (chỉ các đơn vị quy đổi)
+    for (let i = 0; i < currentNonBaseIndex; i++) {
+        const prevInput = nonBaseRows[i].querySelector('.multiplier-input');
         if (prevInput) {
             const prevValue = parseFloat(prevInput.value);
-            if (!isNaN(prevValue) && currentValue <= prevValue) {
-                input.style.borderColor = '#DC2626';
-                showToast(`Giá trị quy đổi phải lớn hơn ${prevValue} (đơn vị trước đó)`, 'error');
-                input.value = '';
-                return false;
+            if (!isNaN(prevValue)) {
+                if (currentValue <= prevValue) {
+                    input.style.borderColor = '#DC2626';
+                    showToast(`Giá trị quy đổi phải lớn hơn ${prevValue} (đơn vị trước đó)`, 'error');
+                    input.value = '';
+                    return false;
+                }
+
+                // Kiểm tra chia hết cho giá trị trước đó gần nhất
+                if (i === currentNonBaseIndex - 1 && currentValue % prevValue !== 0) {
+                    input.style.borderColor = '#DC2626';
+                    showToast(`Giá trị quy đổi ${currentValue} phải chia hết cho ${prevValue}`, 'error');
+                    input.value = '';
+                    return false;
+                }
             }
         }
     }
 
-    // Kiểm tra với các giá trị sau đó
-    for (let i = currentIndex + 1; i < rows.length; i++) {
-        const nextInput = rows[i].querySelector('.multiplier-input');
+    // Kiểm tra với các giá trị sau đó (chỉ các đơn vị quy đổi)
+    for (let i = currentNonBaseIndex + 1; i < nonBaseRows.length; i++) {
+        const nextInput = nonBaseRows[i].querySelector('.multiplier-input');
         if (nextInput && nextInput.value) {
             const nextValue = parseFloat(nextInput.value);
             if (!isNaN(nextValue) && currentValue >= nextValue) {
@@ -877,13 +1113,21 @@ function validateMultiplierOrder(input) {
 }
 
 function addUnitConversionRow() {
+    // Check if dosage form is selected
+    const dosageFormSelect = document.getElementById('dosageForm');
+    if (!dosageFormSelect || !dosageFormSelect.value) {
+        showToast('Vui lòng chọn dạng bào chế trước khi thêm đơn vị quy đổi', 'error');
+        return;
+    }
+
+    // Check if there are available units
+    if (!units || units.length === 0) {
+        showToast('Không có đơn vị khả dụng cho dạng bào chế này', 'error');
+        return;
+    }
+
     const tbody = document.getElementById('unitConversionTableBody');
     const rowIndex = tbody.children.length;
-
-    // Nếu là đơn vị đầu tiên, giá trị mặc định là 1 và không cho sửa
-    const defaultValue = rowIndex === 0 ? '1' : '';
-    const isDisabled = rowIndex === 0 ? 'disabled' : '';
-    const bgColor = rowIndex === 0 ? 'background-color: #F3F4F6;' : '';
 
     // Tính giá trị min cho đơn vị mới (phải lớn hơn giá trị lớn nhất hiện tại)
     const minValue = getMinValueForNewUnit();
@@ -892,21 +1136,16 @@ function addUnitConversionRow() {
     row.style.borderBottom = '1px solid #E5E7EB';
     row.innerHTML = `
         <td style="padding: 12px;">
-            <select class="form-select unit-select" data-index="${rowIndex}" onchange="updateTotalUnits()">
+            <select class="form-select unit-select" data-index="${rowIndex}">
                 <option value="">Chọn đơn vị</option>
                 ${units.map(unit => `<option value="${unit.id}">${unit.name}</option>`).join('')}
             </select>
         </td>
         <td style="padding: 12px;">
             <input type="number" class="form-input multiplier-input" data-index="${rowIndex}" 
-                   value="${defaultValue}"
-                   placeholder="Phải > ${minValue - 1}" step="1" min="${minValue}" required
-                   ${isDisabled}
-                   onchange="validateMultiplierOrder(this)" style="width: 100%; ${bgColor}">
-        </td>
-        <td style="padding: 12px;">
-            <input type="text" class="form-input note-input" data-index="${rowIndex}"
-                   placeholder="Ghi chú (tùy chọn)" style="width: 100%;">
+                   value=""
+                   placeholder="Nhập giá trị quy đổi" step="0.01" min="0.01" required
+                   onchange="validateMultiplierOrder(this)" style="width: 100%;">
         </td>
         <td style="padding: 12px; text-align: center;">
             <button type="button" onclick="removeUnitConversionRow(this)" class="btn-link delete">Xóa</button>
@@ -914,7 +1153,106 @@ function addUnitConversionRow() {
     `;
 
     tbody.appendChild(row);
+
+    // Add event listener for unit select to validate duplication
+    const unitSelect = row.querySelector('.unit-select');
+    const multiplierInput = row.querySelector('.multiplier-input');
+
+    if (unitSelect) {
+        unitSelect.addEventListener('change', function() {
+            validateUnitDuplication(this);
+            updateTotalUnits();
+            autoUpdatePackaging();
+        });
+    }
+
+    if (multiplierInput) {
+        multiplierInput.addEventListener('input', function() {
+            updateTotalUnits();
+            autoUpdatePackaging();
+        });
+    }
+
     updateTotalUnits();
+}
+
+// Function to auto-update packaging when unit conversions change
+function autoUpdatePackaging() {
+    const tbody = document.getElementById('unitConversionTableBody');
+    const rows = tbody.querySelectorAll('tr');
+
+    // Check if we have enough complete data for auto-generation
+    let completeUnits = 0;
+    rows.forEach(row => {
+        const isBaseUnit = row.getAttribute('data-is-base-unit') === 'true';
+
+        if (isBaseUnit) {
+            completeUnits++;
+        } else {
+            const unitSelect = row.querySelector('.unit-select');
+            const multiplierInput = row.querySelector('.multiplier-input');
+
+            if (unitSelect && multiplierInput && unitSelect.value && multiplierInput.value && parseFloat(multiplierInput.value) > 0) {
+                completeUnits++;
+            }
+        }
+    });
+
+    // Auto-generate if we have at least 2 complete units
+    if (completeUnits >= 2) {
+        // Silently generate without showing toast
+        const packagingField = document.getElementById('packaging');
+        const unitData = [];
+
+        rows.forEach(row => {
+            const isBaseUnit = row.getAttribute('data-is-base-unit') === 'true';
+
+            if (isBaseUnit) {
+                const baseUnitInput = row.querySelector('input[type="text"]');
+                if (baseUnitInput && baseUnitInput.value) {
+                    unitData.push({
+                        name: baseUnitInput.value,
+                        multiplier: 1,
+                        isBase: true
+                    });
+                }
+            } else {
+                const unitSelect = row.querySelector('.unit-select');
+                const multiplierInput = row.querySelector('.multiplier-input');
+
+                if (unitSelect && multiplierInput) {
+                    const unitId = parseInt(unitSelect.value);
+                    const multiplier = parseFloat(multiplierInput.value);
+
+                    if (unitId && !isNaN(multiplier) && multiplier > 0) {
+                        const unitName = unitSelect.options[unitSelect.selectedIndex].text;
+                        unitData.push({
+                            name: unitName,
+                            multiplier: multiplier,
+                            isBase: false
+                        });
+                    }
+                }
+            }
+        });
+
+        if (unitData.length >= 2) {
+            unitData.sort((a, b) => b.multiplier - a.multiplier);
+
+            let packagingSpec = unitData[0].name;
+
+            for (let i = 0; i < unitData.length - 1; i++) {
+                const currentUnit = unitData[i];
+                const nextUnit = unitData[i + 1];
+                const quantity = currentUnit.multiplier / nextUnit.multiplier;
+
+                // All levels have the same format: "x 10 Hộp"
+                packagingSpec += ` x ${quantity} ${nextUnit.name}`;
+            }
+
+            packagingField.value = packagingSpec;
+        }
+    }
 }
 
 function removeUnitConversionRow(button) {
@@ -930,34 +1268,11 @@ function removeUnitConversionRow(button) {
         if (select) select.setAttribute('data-index', index);
         if (input) {
             input.setAttribute('data-index', index);
-
-            // Đơn vị đầu tiên phải có giá trị = 1 và disabled
-            if (index === 0) {
-                input.value = '1';
-                input.disabled = true;
-                input.style.backgroundColor = '#F3F4F6';
-                input.setAttribute('min', '1');
-                input.setAttribute('placeholder', 'VD: 1');
-            } else {
-                input.disabled = false;
-                input.style.backgroundColor = '';
-
-                // Cập nhật min value dựa trên giá trị của row trước đó
-                const prevRow = tbody.children[index - 1];
-                if (prevRow) {
-                    const prevInput = prevRow.querySelector('.multiplier-input');
-                    if (prevInput && prevInput.value) {
-                        const prevValue = parseFloat(prevInput.value);
-                        if (!isNaN(prevValue)) {
-                            const newMin = prevValue + 1;
-                            input.setAttribute('min', newMin);
-                            input.setAttribute('placeholder', `Phải > ${prevValue}`);
-                        }
-                    }
-                }
-            }
         }
     });
+
+    // Auto-update packaging after removal
+    autoUpdatePackaging();
 }
 
 function updateTotalUnits() {
@@ -991,21 +1306,32 @@ function getUnitConversionsFromForm() {
     const conversions = [];
 
     rows.forEach(row => {
-        const unitSelect = row.querySelector('.unit-select');
-        const multiplierInput = row.querySelector('.multiplier-input');
-        const noteInput = row.querySelector('.note-input');
+        const isBaseUnit = row.getAttribute('data-is-base-unit') === 'true';
 
-        if (unitSelect && multiplierInput) {
-            const unitId = parseInt(unitSelect.value);
-            const multiplier = parseFloat(multiplierInput.value);
-            const note = noteInput ? noteInput.value.trim() : '';
-
-            if (unitId && !isNaN(multiplier) && multiplier > 0) {
+        if (isBaseUnit) {
+            // Xử lý đơn vị cơ bản
+            const baseUnitId = row.querySelector('.base-unit-id');
+            if (baseUnitId && baseUnitId.value) {
                 conversions.push({
-                    unitId: unitId,
-                    multiplier: multiplier,
-                    note: note || null
+                    unitId: parseInt(baseUnitId.value),
+                    multiplier: 1
                 });
+            }
+        } else {
+            // Xử lý đơn vị quy đổi thông thường
+            const unitSelect = row.querySelector('.unit-select');
+            const multiplierInput = row.querySelector('.multiplier-input');
+
+            if (unitSelect && multiplierInput) {
+                const unitId = parseInt(unitSelect.value);
+                const multiplier = parseFloat(multiplierInput.value);
+
+                if (unitId && !isNaN(multiplier) && multiplier > 0) {
+                    conversions.push({
+                        unitId: unitId,
+                        multiplier: multiplier
+                    });
+                }
             }
         }
     });
@@ -1018,18 +1344,37 @@ function validateUnitConversionsOrder(conversions) {
         return true; // Cho phép không có đơn vị quy đổi
     }
 
-    // Kiểm tra thứ tự tăng dần
-    for (let i = 1; i < conversions.length; i++) {
-        if (conversions[i].multiplier <= conversions[i - 1].multiplier) {
-            showToast(`Giá trị quy đổi phải tăng dần! Đơn vị thứ ${i + 1} (${conversions[i].multiplier}) phải lớn hơn đơn vị thứ ${i} (${conversions[i - 1].multiplier})`, 'error');
-            return false;
-        }
+    // Kiểm tra đơn vị trùng lặp
+    const unitIds = conversions.map(c => c.unitId);
+    const uniqueUnitIds = new Set(unitIds);
+    if (unitIds.length !== uniqueUnitIds.size) {
+        showToast('Không được chọn trùng đơn vị quy đổi', 'error');
+        return false;
     }
 
-    // Kiểm tra đơn vị đầu tiên phải bằng 1
-    if (conversions[0].multiplier !== 1) {
-        showToast('Đơn vị đầu tiên phải có giá trị quy đổi bằng 1', 'error');
+    // Tìm đơn vị cơ bản (multiplier = 1) và các đơn vị quy đổi
+    const baseUnitIndex = conversions.findIndex(c => c.multiplier === 1);
+    const conversionUnits = conversions.filter(c => c.multiplier > 1);
+
+    if (baseUnitIndex === -1) {
+        showToast('Phải có đơn vị cơ bản với tỉ lệ quy đổi = 1', 'error');
         return false;
+    }
+
+    // Kiểm tra thứ tự tăng dần và chia hết cho các đơn vị quy đổi (không bao gồm đơn vị cơ bản)
+    conversionUnits.sort((a, b) => a.multiplier - b.multiplier);
+
+    for (let i = 1; i < conversionUnits.length; i++) {
+        if (conversionUnits[i].multiplier <= conversionUnits[i - 1].multiplier) {
+            showToast(`Giá trị quy đổi phải tăng dần! Đơn vị (${conversionUnits[i].multiplier}) phải lớn hơn đơn vị trước (${conversionUnits[i - 1].multiplier})`, 'error');
+            return false;
+        }
+
+        // Kiểm tra chia hết
+        if (conversionUnits[i].multiplier % conversionUnits[i - 1].multiplier !== 0) {
+            showToast(`Đơn vị (${conversionUnits[i].multiplier}) phải chia hết cho đơn vị trước (${conversionUnits[i - 1].multiplier})`, 'error');
+            return false;
+        }
     }
 
     return true;
@@ -1060,49 +1405,75 @@ function renderUnitConversions(conversions) {
 
             const unitId = conversion.unitId ? (typeof conversion.unitId === 'object' ? conversion.unitId.id : conversion.unitId) : '';
             const unitName = conversion.unitId ? (typeof conversion.unitId === 'object' ? conversion.unitId.name : '') : '';
+            const multiplier = conversion.multiplier || '';
+            const isBaseUnit = multiplier === 1;
 
-            // Đơn vị đầu tiên không cho sửa giá trị quy đổi
-            const isDisabled = index === 0 ? 'disabled' : '';
-            const bgColor = index === 0 ? 'background-color: #F3F4F6;' : '';
+            if (isBaseUnit) {
+                // Render đơn vị cơ bản (readonly)
+                row.setAttribute('data-is-base-unit', 'true');
+                row.innerHTML = `
+                    <td style="padding: 12px; background-color: #F9FAFB;">
+                        <input type="text" class="form-input" value="${unitName || 'Đơn vị cơ bản'}"
+                               readonly style="background-color: #F9FAFB; border-color: #E5E7EB;">
+                        <input type="hidden" class="base-unit-id" value="${unitId}">
+                    </td>
+                    <td style="padding: 12px; background-color: #F9FAFB;">
+                        <input type="number" class="form-input multiplier-input" value="1"
+                               readonly style="background-color: #F9FAFB; border-color: #E5E7EB;">
+                    </td>
+                    <td style="padding: 12px; text-align: center; background-color: #F9FAFB;">
+                        <span style="color: #6B7280; font-size: 12px;">Đơn vị cơ bản</span>
+                    </td>
+                `;
+            } else {
+                // Render đơn vị quy đổi thông thường
+                row.innerHTML = `
+                    <td style="padding: 12px;">
+                        <select class="form-select unit-select" data-index="${index}">
+                            <option value="">Chọn đơn vị</option>
+                            ${units.map(unit => {
+                                const selected = unit.id == unitId ? 'selected' : '';
+                                return `<option value="${unit.id}" ${selected}>${unit.name}</option>`;
+                            }).join('')}
+                        </select>
+                    </td>
+                    <td style="padding: 12px;">
+                        <input type="number" class="form-input multiplier-input" data-index="${index}"
+                               value="${multiplier}"
+                               placeholder="Phải > 1" step="1" min="2" required
+                               onchange="validateMultiplierOrder(this)" style="width: 100%;">
+                    </td>
+                    <td style="padding: 12px; text-align: center;">
+                        <button type="button" onclick="removeUnitConversionRow(this)" class="btn-link delete">Xóa</button>
+                    </td>
+                `;
 
-            // Tính giá trị min (phải lớn hơn giá trị trước đó)
-            let minValue = 1;
-            if (index > 0 && conversions[index - 1].multiplier) {
-                minValue = conversions[index - 1].multiplier + 1;
+                // Add event listener for unit select to validate duplication
+                const unitSelect = row.querySelector('.unit-select');
+                const multiplierInput = row.querySelector('.multiplier-input');
+
+                if (unitSelect) {
+                    unitSelect.addEventListener('change', function() {
+                        validateUnitDuplication(this);
+                        updateTotalUnits();
+                        autoUpdatePackaging();
+                    });
+                }
+
+                if (multiplierInput) {
+                    multiplierInput.addEventListener('input', function() {
+                        updateTotalUnits();
+                        autoUpdatePackaging();
+                    });
+                }
             }
-
-            row.innerHTML = `
-                <td style="padding: 12px;">
-                    <select class="form-select unit-select" data-index="${index}" onchange="updateTotalUnits()">
-                        <option value="">Chọn đơn vị</option>
-                        ${units.map(unit => {
-                            const selected = unit.id == unitId ? 'selected' : '';
-                            return `<option value="${unit.id}" ${selected}>${unit.name}</option>`;
-                        }).join('')}
-                    </select>
-                </td>
-                <td style="padding: 12px;">
-                    <input type="number" class="form-input multiplier-input" data-index="${index}" 
-                           value="${conversion.multiplier || ''}" 
-                           placeholder="${index === 0 ? 'VD: 1' : 'Phải > ' + (minValue - 1)}" step="1" min="${minValue}" required
-                           ${isDisabled}
-                           onchange="validateMultiplierOrder(this)" style="width: 100%; ${bgColor}">
-                </td>
-                <td style="padding: 12px;">
-                    <input type="text" class="form-input note-input" data-index="${index}" 
-                           value="${conversion.note || ''}"
-                           placeholder="Ghi chú (tùy chọn)" style="width: 100%;">
-                </td>
-                <td style="padding: 12px; text-align: center;">
-                    <button type="button" onclick="removeUnitConversionRow(this)" class="btn-link delete">Xóa</button>
-                </td>
-            `;
 
             tbody.appendChild(row);
         });
     }
 
     updateTotalUnits();
+    autoUpdatePackaging();
 }
 
 function clearUnitConversions() {
@@ -1110,5 +1481,96 @@ function clearUnitConversions() {
     tbody.innerHTML = '';
     unitConversions = [];
     updateTotalUnits();
+
+    // Clear packaging field when resetting unit conversions
+    const packagingField = document.getElementById('packaging');
+    if (packagingField) {
+        packagingField.value = '';
+    }
+}
+
+// Function to generate packaging specification from unit conversions
+function generatePackagingFromUnits() {
+    const tbody = document.getElementById('unitConversionTableBody');
+    const rows = tbody.querySelectorAll('tr');
+    const packagingField = document.getElementById('packaging');
+
+    if (!rows.length) {
+        showToast('Vui lòng thêm các đơn vị quy đổi trước', 'error');
+        return;
+    }
+
+    // Collect all units and their multipliers
+    const unitData = [];
+    let hasError = false;
+
+    rows.forEach(row => {
+        const isBaseUnit = row.getAttribute('data-is-base-unit') === 'true';
+
+        if (isBaseUnit) {
+            // Base unit
+            const baseUnitInput = row.querySelector('input[type="text"]');
+            if (baseUnitInput && baseUnitInput.value) {
+                unitData.push({
+                    name: baseUnitInput.value,
+                    multiplier: 1,
+                    isBase: true
+                });
+            }
+        } else {
+            // Conversion units
+            const unitSelect = row.querySelector('.unit-select');
+            const multiplierInput = row.querySelector('.multiplier-input');
+
+            if (unitSelect && multiplierInput) {
+                const unitId = parseInt(unitSelect.value);
+                const multiplier = parseFloat(multiplierInput.value);
+
+                if (unitId && !isNaN(multiplier) && multiplier > 0) {
+                    const unitName = unitSelect.options[unitSelect.selectedIndex].text;
+                    unitData.push({
+                        name: unitName,
+                        multiplier: multiplier,
+                        isBase: false
+                    });
+                } else if (unitSelect.value || multiplierInput.value) {
+                    hasError = true;
+                }
+            }
+        }
+    });
+
+    if (hasError) {
+        showToast('Vui lòng hoàn thành thông tin các đơn vị quy đổi', 'error');
+        return;
+    }
+
+    if (unitData.length < 2) {
+        showToast('Cần ít nhất 2 đơn vị để tạo quy cách đóng gói', 'error');
+        return;
+    }
+
+    // Sort by multiplier (descending order for packaging display)
+    unitData.sort((a, b) => b.multiplier - a.multiplier);
+
+    // Generate packaging specification
+    // Example: If we have Thùng(100), Hộp(10), Gói(1)
+    // Result: "Thùng x 10 Hộp x 10 Gói"
+    let packagingSpec = unitData[0].name; // Start with largest unit
+
+    for (let i = 0; i < unitData.length - 1; i++) {
+        const currentUnit = unitData[i];
+        const nextUnit = unitData[i + 1];
+
+        // Calculate quantity: how many of next unit fit in current unit
+        const quantity = currentUnit.multiplier / nextUnit.multiplier;
+
+        // All levels have the same format: "x 10 Hộp"
+        packagingSpec += ` x ${quantity} ${nextUnit.name}`;
+    }
+
+    // Set the generated packaging specification
+    packagingField.value = packagingSpec;
+    showToast('Đã tạo quy cách đóng gói tự động', 'success');
 }
 

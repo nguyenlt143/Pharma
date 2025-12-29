@@ -140,11 +140,11 @@ content = @`
     <div class="page-header">
         <h1 class="page-title">Quản lý Đơn vị theo Dạng bào chế</h1>
         <div>
-            <button class="btn-primary" onclick="openManageUnitsModal()" style="margin-right: 10px;">
-                <i class="fas fa-cog"></i> Quản lý đơn vị
+            <button class="btn-success" onclick="openAddDosageFormModal()" style="margin-right: 10px;">
+                <i class="fas fa-plus"></i> Thêm dạng bào chế
             </button>
-            <button class="btn-primary" onclick="refreshTable()">
-                <i class="fas fa-sync"></i> Làm mới
+            <button class="btn-primary" onclick="openManageUnitsModal()">
+                <i class="fas fa-cog"></i> Quản lý đơn vị
             </button>
         </div>
     </div>
@@ -272,6 +272,42 @@ content = @`
         </div>
     </div>
 
+    <!-- Add/Edit Dosage Form Modal -->
+    <div id="addEditDosageFormModal" class="modal">
+        <div class="modal-content">
+            <h2 id="dosageFormModalTitle">Thêm dạng bào chế mới</h2>
+            <form id="dosageFormDetailsForm">
+                <input type="hidden" id="dosageFormId">
+
+                <div class="form-group">
+                    <label for="dosageFormName">Tên dạng bào chế *</label>
+                    <input type="text" id="dosageFormName" required placeholder="Ví dụ: Viên nén, Siro, Thuốc tiêm...">
+                </div>
+
+                <div class="form-group">
+                    <label for="dosageFormBaseUnit">Đơn vị cơ bản *</label>
+                    <select id="dosageFormBaseUnit" required>
+                        <option value="">-- Chọn đơn vị cơ bản --</option>
+                    </select>
+                    <small style="display: block; color: #6B7280; margin-top: 5px;">
+                        Chỉ hiển thị các đơn vị được đánh dấu là Base Unit
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="dosageFormDescriptionField">Mô tả</label>
+                    <textarea id="dosageFormDescriptionField" rows="3" placeholder="Mô tả về dạng bào chế này..."></textarea>
+                </div>
+
+
+                <div style="margin-top: 24px;">
+                    <button type="submit" class="btn-success">Lưu</button>
+                    <button type="button" class="btn-secondary" onclick="closeAddEditDosageFormModal()">Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         let table;
         let allUnits = {}; // Cache for all units {id: name}
@@ -349,8 +385,14 @@ content = @`
                         data: null,
                         orderable: false,
                         render: function(data, type, row) {
-                            return '<button onclick="editDosageForm(\'' + row.name + '\', \'' + row.displayName + '\', \'' + row.baseUnit + '\')" class="btn btn-sm btn-primary">' +
+                            return '<button onclick="editDosageForm(\'' + row.displayName + '\', \'' + row.displayName + '\', \'' + row.baseUnit + '\')" class="btn btn-sm btn-primary" style="margin-right: 5px;">' +
                                    '<i class="fas fa-edit"></i> Cấu hình' +
+                                   '</button>' +
+                                   '<button onclick="editDosageFormDetails(' + (row.id || 0) + ')" class="btn btn-sm" style="background: #F59E0B; color: white; margin-right: 5px;">' +
+                                   '<i class="fas fa-pencil-alt"></i> Sửa' +
+                                   '</button>' +
+                                   '<button onclick="deleteDosageFormItem(' + (row.id || 0) + ', \'' + row.displayName.replace(/'/g, "\\'") + '\')" class="btn btn-sm" style="background: #EF4444; color: white;">' +
+                                   '<i class="fas fa-trash"></i>' +
                                    '</button>';
                         }
                     }
@@ -454,10 +496,20 @@ content = @`
                 success: function() {
                     closeModal();
                     refreshTable();
-                    alert('Cập nhật cấu hình thành công!');
+                    alert('✓ Cập nhật cấu hình thành công!');
                 },
                 error: function(xhr) {
-                    alert('Có lỗi xảy ra: ' + (xhr.responseText || 'Vui lòng thử lại'));
+                    let errorMsg = 'Có lỗi xảy ra';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    } else if (xhr.responseText) {
+                        errorMsg = xhr.responseText;
+                    } else if (xhr.status === 400) {
+                        errorMsg = 'Dữ liệu không hợp lệ';
+                    } else if (xhr.status === 404) {
+                        errorMsg = 'Không tìm thấy đơn vị';
+                    }
+                    alert('❌ Lỗi: ' + errorMsg);
                 }
             });
         }
@@ -497,6 +549,8 @@ content = @`
             }
 
             unitsTable = $('#unitsManageTable').DataTable({
+                processing: true,
+                serverSide: true,
                 ajax: {
                     url: '/api/warehouse/unit',
                     type: 'GET',
@@ -505,16 +559,28 @@ content = @`
                             draw: d.draw,
                             start: d.start,
                             length: d.length,
-                            orderColumn: 'name',
-                            orderDir: 'asc',
-                            'search[value]': d.search.value
+                            orderColumn: d.columns && d.order && d.order[0] ? d.columns[d.order[0].column].data : 'name',
+                            orderDir: d.order && d.order[0] ? d.order[0].dir : 'asc',
+                            'search[value]': d.search ? d.search.value : ''
                         };
+                    },
+                    dataSrc: function(json) {
+                        console.log('Units API Response:', json);
+                        return json.data || [];
+                    },
+                    error: function(xhr, error, thrown) {
+                        console.error('DataTable Ajax Error:', error, thrown);
+                        console.error('Response:', xhr.responseText);
+                        alert('Không thể tải danh sách đơn vị. Vui lòng kiểm tra console để biết chi tiết.');
                     }
                 },
                 columns: [
                     { data: 'id' },
                     { data: 'name' },
-                    { data: 'description' },
+                    {
+                        data: 'description',
+                        defaultContent: '-'
+                    },
                     {
                         data: 'isBase',
                         render: function(data) {
@@ -529,14 +595,17 @@ content = @`
                             return '<button onclick="editUnit(' + row.id + ')" class="btn btn-sm btn-primary" style="margin-right: 5px;">' +
                                    '<i class="fas fa-edit"></i>' +
                                    '</button>' +
-                                   '<button onclick="deleteUnit(' + row.id + ', \'' + row.name + '\')" class="btn btn-sm" style="background: #EF4444; color: white;">' +
+                                   '<button onclick="deleteUnit(' + row.id + ', \'' + row.name.replace(/'/g, "\\'") + '\')" class="btn btn-sm" style="background: #EF4444; color: white;">' +
                                    '<i class="fas fa-trash"></i>' +
                                    '</button>';
                         }
                     }
                 ],
                 language: {
-                    url: '/assets/datatable_vi.json'
+                    url: '/assets/datatable_vi.json',
+                    processing: "Đang tải dữ liệu...",
+                    emptyTable: "Không có dữ liệu",
+                    zeroRecords: "Không tìm thấy kết quả"
                 }
             });
         }
@@ -564,20 +633,28 @@ content = @`
         }
 
         function deleteUnit(id, name) {
-            if(confirm('Bạn có chắc chắn muốn xóa đơn vị "' + name + '"?\n\nLưu ý: Không thể xóa nếu đơn vị đang được sử dụng.')) {
+            if(confirm('Bạn có chắc chắn muốn xóa đơn vị "' + name + '"?\n\n⚠️ Cảnh báo:\n- Hành động này không thể hoàn tác\n- Không thể xóa nếu đơn vị đang được sử dụng\n- Các cấu hình liên quan sẽ bị mất')) {
                 $.ajax({
                     url: '/api/warehouse/unit/' + id,
                     type: 'DELETE',
-                    success: function() {
-                        alert('Xóa đơn vị thành công!');
+                    success: function(response) {
+                        alert('✓ Xóa đơn vị "' + name + '" thành công!');
                         loadUnitsTable();
                         // Refresh main table to show updated data
                         refreshTable();
                     },
                     error: function(xhr) {
-                        alert('Không thể xóa đơn vị này.\n\n' +
-                              (xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message :
-                               'Đơn vị có thể đang được sử dụng trong các chuyển đổi.'));
+                        let errorMsg = 'Không thể xóa đơn vị này.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        } else if (xhr.responseText) {
+                            errorMsg = xhr.responseText;
+                        } else if (xhr.status === 409) {
+                            errorMsg = 'Đơn vị đang được sử dụng trong hệ thống.';
+                        } else if (xhr.status === 404) {
+                            errorMsg = 'Không tìm thấy đơn vị này.';
+                        }
+                        alert('❌ Lỗi: ' + errorMsg);
                     }
                 });
             }
@@ -590,30 +667,52 @@ content = @`
 
         function saveUnit() {
             const unitId = $('#unitId').val();
+            const unitName = $('#unitName').val().trim();
+            const unitDescription = $('#unitDescription').val().trim();
+            const isBase = $('#unitIsBase').is(':checked');
+
+            // Validation
+            if (!unitName) {
+                alert('⚠️ Vui lòng nhập tên đơn vị');
+                $('#unitName').focus();
+                return;
+            }
+
             const data = {
-                name: $('#unitName').val(),
-                description: $('#unitDescription').val(),
-                isBase: $('#unitIsBase').is(':checked'),
+                name: unitName,
+                description: unitDescription,
+                isBase: isBase,
                 listUnitAvailable: null // Will be configured later via dosage form config
             };
 
             const url = unitId ? '/api/warehouse/unit/' + unitId : '/api/warehouse/unit';
             const method = unitId ? 'PUT' : 'POST';
+            const actionText = unitId ? 'Cập nhật' : 'Thêm';
 
             $.ajax({
                 url: url,
                 type: method,
                 contentType: 'application/json',
                 data: JSON.stringify(data),
-                success: function() {
-                    alert(unitId ? 'Cập nhật đơn vị thành công!' : 'Thêm đơn vị mới thành công!');
+                success: function(response) {
+                    alert('✓ ' + actionText + ' đơn vị "' + unitName + '" thành công!');
                     closeAddEditUnitModal();
                     loadUnitsTable();
                     // Refresh main table and cache
                     refreshTable();
                 },
                 error: function(xhr) {
-                    alert('Có lỗi xảy ra: ' + (xhr.responseText || 'Vui lòng thử lại'));
+                    let errorMsg = 'Có lỗi xảy ra';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    } else if (xhr.responseText) {
+                        errorMsg = xhr.responseText;
+                    } else if (xhr.status === 409) {
+                        errorMsg = 'Đơn vị đã tồn tại';
+                    } else if (xhr.status === 400) {
+                        errorMsg = 'Dữ liệu không hợp lệ';
+                    }
+                    alert('❌ Lỗi: ' + errorMsg);
                 }
             });
         }
@@ -630,6 +729,160 @@ content = @`
             saveDosageFormConfig();
         });
 
+        // ========== Dosage Form Management Functions ==========
+
+        function openAddDosageFormModal() {
+            $('#dosageFormModalTitle').text('Thêm dạng bào chế mới');
+            $('#dosageFormId').val('');
+            $('#dosageFormName').val('');
+            $('#dosageFormDescriptionField').val('');
+
+            // Load base units into select
+            loadBaseUnitsDropdown();
+
+            $('#addEditDosageFormModal').show();
+        }
+
+        function loadBaseUnitsDropdown() {
+            const select = $('#dosageFormBaseUnit');
+            select.empty();
+            select.append('<option value="">-- Chọn đơn vị cơ bản --</option>');
+
+            $.get('/api/warehouse/unit/base', function(baseUnits) {
+                baseUnits.forEach(function(unit) {
+                    select.append('<option value="' + unit.id + '">' + unit.name + '</option>');
+                });
+            }).fail(function() {
+                alert('Không thể tải danh sách đơn vị cơ bản');
+            });
+        }
+
+        function editDosageFormDetails(id) {
+            if (!id || id === 0 || id === '0') {
+                alert('Dạng bào chế này chưa có ID trong hệ thống. Không thể chỉnh sửa.\n\nLưu ý: Chỉ có thể sửa các dạng bào chế đã được tạo.');
+                return;
+            }
+
+            $.get('/api/warehouse/dosage-form/' + id, function(dosageForm) {
+                $('#dosageFormModalTitle').text('Sửa dạng bào chế');
+                $('#dosageFormId').val(dosageForm.id);
+                $('#dosageFormName').val(dosageForm.displayName);
+                $('#dosageFormDescriptionField').val(dosageForm.description || '');
+
+                // Load base units and select current
+                loadBaseUnitsDropdown();
+                setTimeout(function() {
+                    if (dosageForm.baseUnitId) {
+                        $('#dosageFormBaseUnit').val(dosageForm.baseUnitId);
+                    }
+                }, 100);
+
+                $('#addEditDosageFormModal').show();
+            }).fail(function(xhr) {
+                const errorMsg = xhr.responseJSON && xhr.responseJSON.message
+                    ? xhr.responseJSON.message
+                    : 'Không thể tải thông tin dạng bào chế';
+                alert('Lỗi: ' + errorMsg);
+            });
+        }
+
+        function deleteDosageFormItem(id, name) {
+            if (!id || id === 0 || id === '0') {
+                alert('Dạng bào chế này chưa có ID trong hệ thống. Không thể xóa.\n\nLưu ý: Chỉ có thể xóa các dạng bào chế đã được tạo.');
+                return;
+            }
+
+            if(confirm('Bạn có chắc chắn muốn xóa dạng bào chế "' + name + '"?\n\n⚠️ Cảnh báo:\n- Hành động này không thể hoàn tác\n- Không thể xóa nếu dạng bào chế đang được sử dụng\n- Các cấu hình liên quan sẽ bị mất')) {
+                $.ajax({
+                    url: '/api/warehouse/dosage-form/' + id,
+                    type: 'DELETE',
+                    success: function(response) {
+                        alert('✓ Xóa dạng bào chế "' + name + '" thành công!');
+                        refreshTable();
+                    },
+                    error: function(xhr) {
+                        let errorMsg = 'Không thể xóa dạng bào chế này.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        } else if (xhr.responseText) {
+                            errorMsg = xhr.responseText;
+                        } else if (xhr.status === 409) {
+                            errorMsg = 'Dạng bào chế đang được sử dụng trong hệ thống.';
+                        } else if (xhr.status === 404) {
+                            errorMsg = 'Không tìm thấy dạng bào chế này.';
+                        }
+                        alert('❌ Lỗi: ' + errorMsg);
+                    }
+                });
+            }
+        }
+
+        function saveDosageForm() {
+            const dosageFormId = $('#dosageFormId').val();
+            const displayName = $('#dosageFormName').val().trim();
+            const baseUnitId = parseInt($('#dosageFormBaseUnit').val());
+            const description = $('#dosageFormDescriptionField').val().trim();
+
+            // Validation
+            if (!displayName) {
+                alert('⚠️ Vui lòng nhập tên dạng bào chế');
+                $('#dosageFormName').focus();
+                return;
+            }
+
+            if (!baseUnitId || isNaN(baseUnitId)) {
+                alert('⚠️ Vui lòng chọn đơn vị cơ bản');
+                $('#dosageFormBaseUnit').focus();
+                return;
+            }
+
+            const data = {
+                displayName: displayName,
+                baseUnitId: baseUnitId,
+                description: description
+            };
+
+            const url = dosageFormId ? '/api/warehouse/dosage-form/' + dosageFormId : '/api/warehouse/dosage-form';
+            const method = dosageFormId ? 'PUT' : 'POST';
+            const actionText = dosageFormId ? 'Cập nhật' : 'Thêm';
+
+            $.ajax({
+                url: url,
+                type: method,
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function(response) {
+                    alert('✓ ' + actionText + ' dạng bào chế "' + displayName + '" thành công!');
+                    closeAddEditDosageFormModal();
+                    refreshTable();
+                },
+                error: function(xhr) {
+                    let errorMsg = 'Có lỗi xảy ra';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    } else if (xhr.responseText) {
+                        errorMsg = xhr.responseText;
+                    } else if (xhr.status === 409) {
+                        errorMsg = 'Dạng bào chế đã tồn tại';
+                    } else if (xhr.status === 400) {
+                        errorMsg = 'Dữ liệu không hợp lệ';
+                    }
+                    alert('❌ Lỗi: ' + errorMsg);
+                }
+            });
+        }
+
+        function closeAddEditDosageFormModal() {
+            $('#addEditDosageFormModal').hide();
+            $('#dosageFormDetailsForm')[0].reset();
+        }
+
+        // Form submission for dosage form
+        $(document).on('submit', '#dosageFormDetailsForm', function(e) {
+            e.preventDefault();
+            saveDosageForm();
+        });
+
         // Close modal when clicking outside
         window.onclick = function(event) {
             if (event.target == document.getElementById('dosageFormModal')) {
@@ -640,6 +893,9 @@ content = @`
             }
             if (event.target == document.getElementById('addEditUnitModal')) {
                 closeAddEditUnitModal();
+            }
+            if (event.target == document.getElementById('addEditDosageFormModal')) {
+                closeAddEditDosageFormModal();
             }
         }
     </script>
