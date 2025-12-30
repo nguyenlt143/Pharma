@@ -25,10 +25,6 @@ public class MedicineResponse {
     private String contraindications;
     private String sideEffects;
     private String uses;
-    private String registrationNumber;
-    private String storageConditions;
-    private String instructions;
-    private Boolean prescriptionRequired;
     private Integer status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

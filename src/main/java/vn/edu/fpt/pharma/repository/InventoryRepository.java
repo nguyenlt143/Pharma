@@ -37,12 +37,15 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>, Jpa
             COALESCE(m.name, 'N/A') as medicineName,
             COALESCE(m.active_ingredient, '') as activeIngredient,
             COALESCE(mv.strength, '') as strength,
-            COALESCE(mv.dosage_form, '') as dosageForm,
+            COALESCE(df.display_name, '') as dosageForm,
             COALESCE(m.manufacturer, '') as manufacturer,
             COALESCE(b.batch_code, '') as batchCode,
             b.expiry_date as expiryDate,
             i.quantity as quantity,
-            COALESCE(u.name, '') as unit,
+            COALESCE((SELECT u.name FROM unit_conversions uc 
+                      JOIN units u ON uc.unit_id = u.id 
+                      WHERE uc.variant_id = mv.id AND uc.multiplier = 1 AND uc.deleted = false 
+                      LIMIT 1), '') as unit,
             COALESCE(c.name, '') as categoryName,
             c.id as categoryId,
             i.branch_id as branchId,
@@ -52,7 +55,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>, Jpa
         LEFT JOIN medicine_variant mv ON i.variant_id = mv.id
         LEFT JOIN medicines m ON mv.medicine_id = m.id
         LEFT JOIN categorys c ON m.category_id = c.id
-        LEFT JOIN units u ON mv.base_unit_id = u.id
+        LEFT JOIN dosage_forms df ON mv.dosage_form_id = df.id
         WHERE i.branch_id = :branchId 
           AND i.deleted = false
         ORDER BY m.name, b.expiry_date
@@ -66,17 +69,20 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>, Jpa
             m.name as medicineName,
             COALESCE(m.active_ingredient, '') as activeIngredient,
             COALESCE(mv.strength, '') as strength,
-            COALESCE(mv.dosage_form, '') as dosageForm,
+            COALESCE(df.display_name, '') as dosageForm,
             COALESCE(b.batch_code, '') as batchCode,
             FORMATDATETIME(b.expiry_date, 'dd/MM/yyyy') as expiryDate,
             i.quantity as currentStock,
-            COALESCE(u.name, '') as unit,
+            COALESCE((SELECT u.name FROM unit_conversions uc 
+                      JOIN units u ON uc.unit_id = u.id 
+                      WHERE uc.variant_id = mv.id AND uc.multiplier = 1 AND uc.deleted = false 
+                      LIMIT 1), '') as unit,
             COALESCE(m.manufacturer, '') as manufacturer
         FROM inventory i
         LEFT JOIN batches b ON i.batch_id = b.id
         LEFT JOIN medicine_variant mv ON i.variant_id = mv.id
         LEFT JOIN medicines m ON mv.medicine_id = m.id
-        LEFT JOIN units u ON mv.base_unit_id = u.id
+        LEFT JOIN dosage_forms df ON mv.dosage_form_id = df.id
         WHERE i.branch_id = 1
           AND i.deleted = false
           AND (m.name LIKE CONCAT('%', :query, '%') 

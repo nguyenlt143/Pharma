@@ -974,6 +974,10 @@ function addBaseUnitConversion(baseUnitId, baseUnitName) {
                    readonly style="background-color: #F9FAFB; border-color: #E5E7EB;">
         </td>
         <td style="padding: 12px; text-align: center; background-color: #F9FAFB;">
+            <input type="checkbox" class="show-in-pos-checkbox" checked
+                   style="width: 18px; height: 18px; cursor: pointer;">
+        </td>
+        <td style="padding: 12px; text-align: center; background-color: #F9FAFB;">
             <span style="color: #6B7280; font-size: 12px;">Đơn vị cơ bản</span>
         </td>
     `;
@@ -1148,6 +1152,10 @@ function addUnitConversionRow() {
                    onchange="validateMultiplierOrder(this)" style="width: 100%;">
         </td>
         <td style="padding: 12px; text-align: center;">
+            <input type="checkbox" class="show-in-pos-checkbox" data-index="${rowIndex}" checked
+                   style="width: 18px; height: 18px; cursor: pointer;">
+        </td>
+        <td style="padding: 12px; text-align: center;">
             <button type="button" onclick="removeUnitConversionRow(this)" class="btn-link delete">Xóa</button>
         </td>
     `;
@@ -1307,6 +1315,8 @@ function getUnitConversionsFromForm() {
 
     rows.forEach(row => {
         const isBaseUnit = row.getAttribute('data-is-base-unit') === 'true';
+        const showInPosCheckbox = row.querySelector('.show-in-pos-checkbox');
+        const isSale = showInPosCheckbox ? showInPosCheckbox.checked : true;
 
         if (isBaseUnit) {
             // Xử lý đơn vị cơ bản
@@ -1314,7 +1324,8 @@ function getUnitConversionsFromForm() {
             if (baseUnitId && baseUnitId.value) {
                 conversions.push({
                     unitId: parseInt(baseUnitId.value),
-                    multiplier: 1
+                    multiplier: 1,
+                    isSale: isSale
                 });
             }
         } else {
@@ -1329,7 +1340,8 @@ function getUnitConversionsFromForm() {
                 if (unitId && !isNaN(multiplier) && multiplier > 0) {
                     conversions.push({
                         unitId: unitId,
-                        multiplier: multiplier
+                        multiplier: multiplier,
+                        isSale: isSale
                     });
                 }
             }
@@ -1411,6 +1423,7 @@ function renderUnitConversions(conversions) {
             if (isBaseUnit) {
                 // Render đơn vị cơ bản (readonly)
                 row.setAttribute('data-is-base-unit', 'true');
+                const isSale = conversion.isSale !== false; // Default true if not specified
                 row.innerHTML = `
                     <td style="padding: 12px; background-color: #F9FAFB;">
                         <input type="text" class="form-input" value="${unitName || 'Đơn vị cơ bản'}"
@@ -1422,11 +1435,16 @@ function renderUnitConversions(conversions) {
                                readonly style="background-color: #F9FAFB; border-color: #E5E7EB;">
                     </td>
                     <td style="padding: 12px; text-align: center; background-color: #F9FAFB;">
+                        <input type="checkbox" class="show-in-pos-checkbox" data-index="${index}" ${isSale ? 'checked' : ''}
+                               style="width: 18px; height: 18px; cursor: pointer;">
+                    </td>
+                    <td style="padding: 12px; text-align: center; background-color: #F9FAFB;">
                         <span style="color: #6B7280; font-size: 12px;">Đơn vị cơ bản</span>
                     </td>
                 `;
             } else {
                 // Render đơn vị quy đổi thông thường
+                const isSale = conversion.isSale !== false; // Default true if not specified
                 row.innerHTML = `
                     <td style="padding: 12px;">
                         <select class="form-select unit-select" data-index="${index}">
@@ -1442,6 +1460,10 @@ function renderUnitConversions(conversions) {
                                value="${multiplier}"
                                placeholder="Phải > 1" step="1" min="2" required
                                onchange="validateMultiplierOrder(this)" style="width: 100%;">
+                    </td>
+                    <td style="padding: 12px; text-align: center;">
+                        <input type="checkbox" class="show-in-pos-checkbox" data-index="${index}" ${isSale ? 'checked' : ''}
+                               style="width: 18px; height: 18px; cursor: pointer;">
                     </td>
                     <td style="padding: 12px; text-align: center;">
                         <button type="button" onclick="removeUnitConversionRow(this)" class="btn-link delete">Xóa</button>
@@ -1556,7 +1578,7 @@ function generatePackagingFromUnits() {
     // Generate packaging specification
     // Example: If we have Thùng(100), Hộp(10), Gói(1)
     // Result: "Thùng x 10 Hộp x 10 Gói"
-    let packagingSpec = unitData[0].name; // Start with largest unit
+    let packagingSpec = '';
 
     for (let i = 0; i < unitData.length - 1; i++) {
         const currentUnit = unitData[i];
@@ -1565,8 +1587,12 @@ function generatePackagingFromUnits() {
         // Calculate quantity: how many of next unit fit in current unit
         const quantity = currentUnit.multiplier / nextUnit.multiplier;
 
-        // All levels have the same format: "x 10 Hộp"
-        packagingSpec += ` x ${quantity} ${nextUnit.name}`;
+        // Add "x" before all units including the first one
+        if (packagingSpec === '') {
+            packagingSpec = `${currentUnit.name} x ${quantity} ${nextUnit.name}`;
+        } else {
+            packagingSpec += ` x ${quantity} ${nextUnit.name}`;
+        }
     }
 
     // Set the generated packaging specification

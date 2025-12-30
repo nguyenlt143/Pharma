@@ -35,7 +35,7 @@ public interface MedicineVariantRepository extends JpaRepository<MedicineVariant
     @Query(value = """
         SELECT 
             v.id as variantId,
-            v.dosage_form,
+            df.display_name as dosage_form,
             v.dosage,
             v.strength,
             v.barcode,
@@ -53,6 +53,7 @@ public interface MedicineVariantRepository extends JpaRepository<MedicineVariant
             v.packaging
         FROM medicine_variant v
         JOIN medicines m ON v.medicine_id = m.id
+        LEFT JOIN dosage_forms df ON v.dosage_form_id = df.id
         WHERE v.medicine_id = :medicineId
           AND v.deleted = false
         ORDER BY v.strength

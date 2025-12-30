@@ -172,6 +172,7 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                     map.put("id", conv.getId());
                     map.put("unitId", conv.getUnitId());
                     map.put("multiplier", conv.getMultiplier());
+                    map.put("isSale", conv.getIsSale());
                     return map;
                 })
                 .collect(Collectors.toList());

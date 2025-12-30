@@ -462,6 +462,7 @@ content = @`
                                 <tr>
                                     <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 14px;">Tên đơn vị</th>
                                     <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 14px;">Quy đổi</th>
+                                    <th style="padding: 12px; text-align: center; font-weight: 600; font-size: 14px; width: 120px;">Hiển thị bán hàng</th>
                                     <th style="padding: 12px; text-align: center; font-weight: 600; font-size: 14px; width: 80px;">Hành động</th>
                                 </tr>
                             </thead>

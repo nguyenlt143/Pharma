@@ -15,6 +15,7 @@ import vn.edu.fpt.pharma.repository.*;
 import vn.edu.fpt.pharma.service.WarehouseReceiptService;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -179,18 +180,113 @@ public class WarehouseReceiptServiceImpl implements WarehouseReceiptService {
 
     @Override
     public List<MedicineVariantDTO> searchMedicineVariants(String query) {
-        return variantRepository.findAll().stream()
-                .filter(v -> v.getMedicine() != null &&
-                        (query == null || query.isEmpty() ||
-                        v.getMedicine().getName().toLowerCase().contains(query.toLowerCase()) ||
-                        (v.getBarcode() != null && v.getBarcode().contains(query))))
-                .limit(20)
-                .map(v -> {
-                    MedicineVariantDTO dto = new MedicineVariantDTO(v);
-                    dto.setUnit(getDisplayUnitFromVariant(v));
-                    return dto;
-                })
-                .collect(Collectors.toList());
+        try {
+            List<MedicineVariant> allVariants = variantRepository.findAll();
+            System.out.println("Total variants in database: " + allVariants.size());
+
+            List<MedicineVariantDTO> results = allVariants.stream()
+                    .filter(v -> {
+                        // Check if medicine is null
+                        if (v.getMedicine() == null) {
+                            System.out.println("Variant " + v.getId() + " has null medicine");
+                            return false;
+                        }
+
+                        // If no query, return all
+                        if (query == null || query.isEmpty()) {
+                            return true;
+                        }
+
+                        // Search by medicine name or barcode
+                        String medicineName = v.getMedicine().getName();
+                        String barcode = v.getBarcode();
+
+                        boolean nameMatch = medicineName != null &&
+                                medicineName.toLowerCase().contains(query.toLowerCase());
+                        boolean barcodeMatch = barcode != null &&
+                                barcode.contains(query);
+
+                        return nameMatch || barcodeMatch;
+                    })
+                    .limit(20)
+                    .map(v -> {
+                        try {
+                            MedicineVariantDTO dto = new MedicineVariantDTO(v);
+
+                            // Load unit conversions
+                            List<UnitConversion> conversions = unitConversionRepository
+                                    .findByVariantIdId(v.getId())
+                                    .stream()
+                                    .sorted(java.util.Comparator.comparing(UnitConversion::getMultiplier).reversed())
+                                    .collect(java.util.stream.Collectors.toList());
+
+                            if (!conversions.isEmpty()) {
+                                // Base unit = smallest multiplier
+                                UnitConversion baseConversion = conversions.get(conversions.size() - 1);
+                                dto.setBaseUnit(baseConversion.getUnitId().getName());
+
+                                // Import unit = largest multiplier
+                                UnitConversion importConversion = conversions.get(0);
+                                dto.setImportUnit(importConversion.getUnitId().getName());
+
+                                // Conversion ratio
+                                dto.setConversionRatio(importConversion.getMultiplier() / baseConversion.getMultiplier());
+
+                                // Generate packaging spec
+                                StringBuilder spec = new StringBuilder();
+                                for (int i = 0; i < conversions.size() - 1; i++) {
+                                    UnitConversion current = conversions.get(i);
+                                    UnitConversion next = conversions.get(i + 1);
+                                    double ratio = current.getMultiplier() / next.getMultiplier();
+
+                                    if (i > 0) spec.append(" x ");
+                                    spec.append(current.getUnitId().getName())
+                                        .append(" x ")
+                                        .append(Math.round(ratio));
+                                }
+                                // Add the last (base) unit
+                                if (conversions.size() > 1) {
+                                    spec.append(" x ").append(baseConversion.getUnitId().getName());
+                                } else {
+                                    spec.append(baseConversion.getUnitId().getName());
+                                }
+                                dto.setPackagingSpec(spec.toString());
+
+                                // Map unit conversions to DTOs
+                                List<MedicineVariantDTO.UnitConversionInfo> ucInfoList = conversions.stream()
+                                        .map(uc -> new MedicineVariantDTO.UnitConversionInfo(
+                                                uc.getUnitId().getId(),
+                                                uc.getUnitId().getName(),
+                                                uc.getMultiplier(),
+                                                uc.getIsSale()
+                                        ))
+                                        .collect(java.util.stream.Collectors.toList());
+                                dto.setUnitConversions(ucInfoList);
+                            } else {
+                                dto.setBaseUnit("N/A");
+                                dto.setImportUnit("N/A");
+                                dto.setConversionRatio(1.0);
+                                dto.setPackagingSpec("N/A");
+                                dto.setUnitConversions(new ArrayList<>());
+                            }
+
+                            return dto;
+                        } catch (Exception e) {
+                            System.err.println("Error mapping variant " + v.getId() + ": " + e.getMessage());
+                            e.printStackTrace();
+                            return null;
+                        }
+                    })
+                    .filter(dto -> dto != null)
+                    .collect(java.util.stream.Collectors.toList());
+
+            System.out.println("Returning " + results.size() + " medicine variants");
+            return results;
+        } catch (Exception e) {
+            System.err.println("Error in searchMedicineVariants: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 }
 
