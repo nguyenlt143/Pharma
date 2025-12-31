@@ -271,130 +271,115 @@ VALUES
     ('Khác', (SELECT id FROM units WHERE name = 'Đơn vị' AND is_base = TRUE LIMIT 1), 'Các dạng khác', TRUE, 99, NOW(), FALSE);
 
 -- Medicine Variants using DosageForm Entity (FK to dosage_forms table)
+-- Note: dosage_form_id values: 1=Viên nén, 2=Viên nang, 3=Viên nội, 4=Siro, etc.
 INSERT INTO medicine_variant
 (dosage_form_id, dosage, strength, packaging, barcode, registration_number,
  storage_conditions, instructions, prescription_require, note,
  medicine_id, created_at, deleted)
 VALUES
     -- 1. Paracetamol (OTC + 1 variant kê đơn)
-    ((SELECT id FROM dosage_forms WHERE display_name = 'Vi�n n�n'), 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '500mg', 'Hộp 10 viên', '8935000000011', 'VN-10001',
+    (1, 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '500mg', 'Hộp 10 viên', '8935000000011', 'VN-10001',
      'Bảo quản nơi khô, dưới 30°C', 'Không quá 8 viên/ngày. Uống với nhiều nước', FALSE,
      'Giảm đau, hạ sốt. Chống chỉ định: Mẫn cảm với Paracetamol. Tác dụng phụ: Buồn nôn, phát ban', 1, NOW(), FALSE),
 
-    ((SELECT id FROM dosage_forms WHERE display_name = 'Vi�n n�n'), 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '650mg', 'Hộp 10 viên', '8935000000012', 'VN-10002',
+    (1, 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '650mg', 'Hộp 10 viên', '8935000000012', 'VN-10002',
      'Bảo quản nơi khô, dưới 30°C', 'Không quá 8 viên/ngày. Uống với nhiều nước', TRUE,
      'Giảm đau, hạ sốt. Chống chỉ định: Mẫn cảm với Paracetamol. Tác dụng phụ: Buồn nôn, phát ban', 1, NOW(), FALSE),
 
-    ((SELECT id FROM dosage_forms WHERE display_name = 'Vi�n n�n'), 'Uống 1 gói mỗi 6 giờ nếu cần', '500mg', 'Hộp 10 gói sủi', '8935000000013', 'VN-10003',
+    (1, 'Uống 1 gói mỗi 6 giờ nếu cần', '500mg', 'Hộp 10 gói sủi', '8935000000013', 'VN-10003',
      'Bảo quản nơi khô, dưới 30°C', 'Hòa tan trong nước. Uống sau bữa ăn', FALSE,
      'Giảm đau, hạ sốt. Chống chỉ định: Mẫn cảm với Paracetamol', 1, NOW(), FALSE),
 
 -- 2. Decolgen (OTC)
-    ((SELECT id FROM dosage_forms WHERE display_name = 'Vi�n n�n'), 'Uống 1 viên mỗi 8 giờ', '500mg', 'Hộp 10 viên', '8935000000021', 'VN-10004',
+    (1, 'Uống 1 viên mỗi 8 giờ', '500mg', 'Hộp 10 viên', '8935000000021', 'VN-10004',
      'Bảo quản nơi khô, dưới 30°C', 'Uống với nước đầy. Sau bữa ăn', FALSE,
      'Giảm đau, hạ sốt, nghẹt mũi. Tác dụng phụ: Buồn nôn, chóng mặt', 2, NOW(), FALSE),
 
-    ((SELECT id FROM dosage_forms WHERE display_name = 'Vi�n n�n'), 'Uống 1 viên mỗi 8 giờ', '500mg', 'Hộp 20 viên', '8935000000022', 'VN-10005',
+    (1, 'Uống 1 viên mỗi 8 giờ', '500mg', 'Hộp 20 viên', '8935000000022', 'VN-10005',
      'Bảo quản nơi khô, dưới 30°C', 'Uống với nước đầy. Sau bữa ăn', FALSE,
      'Giảm đau, hạ sốt, nghẹt mũi. Tác dụng phụ: Buồn nôn, chóng mặt', 2, NOW(), FALSE),
 
 -- 3. Tiffy (OTC)
-    ((SELECT id FROM dosage_forms WHERE display_name = 'Vi�n n�n'), 'Uống 1–2 viên mỗi 6 giờ nếu cần', '500mg', 'Hộp 10 viên', '8935000000031', 'VN-10006',
+    (1, 'Uống 1–2 viên mỗi 6 giờ nếu cần', '500mg', 'Hộp 10 viên', '8935000000031', 'VN-10006',
      'Bảo quản nơi khô, dưới 30°C', 'Không quá 8 viên/ngày. Uống với nhiều nước', FALSE,
      'Giảm đau, hạ sốt. Hiếm gặp dị ứng', 3, NOW(), FALSE),
 
-    ((SELECT id FROM dosage_forms WHERE display_name = 'Vi�n n�n'), 'Uống 1 gói mỗi 6 giờ nếu cần', '500mg', 'Hộp 10 gói sủi', '8935000000032', 'VN-10007',
+    (1, 'Uống 1 gói mỗi 6 giờ nếu cần', '500mg', 'Hộp 10 gói sủi', '8935000000032', 'VN-10007',
      'Bảo quản nơi khô, dưới 30°C', 'Hòa tan trong nước. Sau bữa ăn', FALSE,
      'Giảm đau, hạ sốt. Hiếm gặp dị ứng', 3, NOW(), FALSE),
 
 -- 4. Aspirin 500mg (OTC)
-    ((SELECT id FROM dosage_forms WHERE display_name = 'Vi�n n�n'), 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '500mg', 'Hộp 10 viên', '8935000000041', 'VN-10008',
+    (1, 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '500mg', 'Hộp 10 viên', '8935000000041', 'VN-10008',
      'Bảo quản nơi khô, dưới 30°C', 'Không quá 8 viên/ngày. Uống sau bữa ăn', FALSE,
      'Giảm đau, hạ sốt. Tác dụng phụ: Buồn nôn, đau bụng', 4, NOW(), FALSE),
 
 -- 5. Coldrex MaxGrip (OTC)
-    ((SELECT id FROM dosage_forms WHERE display_name = 'Vi�n n�n'), 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '500mg', 'Hộp 10 viên', '8935000000051', 'VN-10009',
+    (1, 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '500mg', 'Hộp 10 viên', '8935000000051', 'VN-10009',
      'Bảo quản nơi khô, dưới 30°C', 'Uống với nước đầy. Sau bữa ăn', FALSE,
      'Giảm đau, hạ sốt, nghẹt mũi. Tác dụng phụ: Buồn nôn', 5, NOW(), FALSE),
 
 -- 6. Vicks Formula 44 (OTC)
-    ((SELECT id FROM dosage_forms WHERE display_name = 'Siro'), 'Uống 5ml mỗi 8 giờ nếu cần', '100ml', 'Chai 100ml', '8935000000061', 'VN-10010',
+    (4, 'Uống 5ml mỗi 8 giờ nếu cần', '100ml', 'Chai 100ml', '8935000000061', 'VN-10010',
      'Bảo quản nơi khô, dưới 30°C', 'Lắc đều trước khi dùng. Sau bữa ăn', FALSE,
      'Giảm ho. Tác dụng phụ: Buồn nôn, chóng mặt', 6, NOW(), FALSE),
 
 -- 7. Prospan Syrup (OTC)
-    ((SELECT id FROM dosage_forms WHERE display_name = 'Siro'), 'Uống 5ml mỗi 8 giờ nếu cần', '100ml', 'Chai 100ml', '8935000000071', 'VN-10011',
+    (4, 'Uống 5ml mỗi 8 giờ nếu cần', '100ml', 'Chai 100ml', '8935000000071', 'VN-10011',
      'Bảo quản nơi khô, dưới 30°C', 'Lắc đều trước khi dùng. Sau bữa ăn', FALSE,
      'Giảm ho, long đờm. Tác dụng phụ: Buồn nôn, chóng mặt', 7, NOW(), FALSE),
 
 -- 8. Atussin Syrup (OTC)
-    ((SELECT id FROM dosage_forms WHERE display_name = 'Siro'), 'Uống 5ml mỗi 8 giờ nếu cần', '100ml', 'Chai 100ml', '8935000000081', 'VN-10012',
+    (4, 'Uống 5ml mỗi 8 giờ nếu cần', '100ml', 'Chai 100ml', '8935000000081', 'VN-10012',
      'Bảo quản nơi khô, dưới 30°C', 'Lắc đều trước khi dùng. Sau bữa ăn', FALSE,
      'Giảm ho, long đờm. Tác dụng phụ: Buồn nôn, chóng mặt', 8, NOW(), FALSE),
 
 -- 9. Bromhexine 8mg (OTC)
-    ((SELECT id FROM dosage_forms WHERE display_name = 'Vi�n n�n'), 'Uống 1 viên mỗi 8 giờ nếu cần', '8mg', 'Hộp 10 viên', '8935000000091', 'VN-10013',
+    (1, 'Uống 1 viên mỗi 8 giờ nếu cần', '8mg', 'Hộp 10 viên', '8935000000091', 'VN-10013',
      'Bảo quản nơi khô, dưới 30°C', 'Uống với nước đầy. Sau bữa ăn', FALSE,
      'Giảm ho. Tác dụng phụ: Buồn nôn', 9, NOW(), FALSE),
 
 -- 10. Terpin Codein (OTC)
-    ((SELECT id FROM dosage_forms WHERE display_name = 'Vi�n n�n'), 'Uống 1 viên mỗi 8 giờ nếu cần', '10mg + 100mg', 'Hộp 10 viên', '8935000000101', 'VN-10014',
+    (1, 'Uống 1 viên mỗi 8 giờ nếu cần', '10mg + 100mg', 'Hộp 10 viên', '8935000000101', 'VN-10014',
      'Bảo quản nơi khô, dưới 30°C', 'Uống với nước đầy. Sau bữa ăn', FALSE,
      'Giảm ho. Chống chỉ định: Mẫn cảm với Codein hoặc Terpin. Tác dụng phụ: Buồn nôn, chóng mặt', 10, NOW(), FALSE),
 
 -- 11. Ho Pha Viên (OTC)
-    ((SELECT id FROM dosage_forms WHERE display_name = 'Vi�n n�n'), 'Uống 1–2 viên mỗi 8 giờ nếu cần', '500mg', 'Hộp 10 viên', '8935000000111', 'VN-10015',
+    (1, 'Uống 1–2 viên mỗi 8 giờ nếu cần', '500mg', 'Hộp 10 viên', '8935000000111', 'VN-10015',
      'Bảo quản nơi khô, dưới 30°C', 'Uống với nước đầy. Sau bữa ăn', FALSE,
      'Giảm ho. Tác dụng phụ: Buồn nôn', 11, NOW(), FALSE),
 
 -- 12. Panadol Extra 500mg (OTC)
-    ((SELECT id FROM dosage_forms WHERE display_name = 'Vi�n n�n'), 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '500mg + Caffeine', 'Hộp 10 viên', '8935000000121', 'VN-10016',
+    (1, 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '500mg + Caffeine', 'Hộp 10 viên', '8935000000121', 'VN-10016',
      'Bảo quản nơi khô, dưới 30°C', 'Uống với nước đầy. Sau bữa ăn', FALSE,
      'Giảm đau, hạ sốt. Chống chỉ định: Mẫn cảm với Paracetamol hoặc Caffeine. Tác dụng phụ: Buồn nôn, phát ban', 12, NOW(), FALSE),
 
 -- 13. Efferalgan 500mg (OTC)
-    ((SELECT id FROM dosage_forms WHERE display_name = 'Vi�n n�n'), 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '500mg', 'Hộp 10 viên', '8935000000131', 'VN-10017',
+    (1, 'Uống 1–2 viên mỗi 4–6 giờ nếu cần', '500mg', 'Hộp 10 viên', '8935000000131', 'VN-10017',
      'Bảo quản nơi khô, dưới 30°C', 'Uống với nước đầy. Sau bữa ăn', FALSE,
      'Giảm đau, hạ sốt. Chống chỉ định: Mẫn cảm với Paracetamol. Tác dụng phụ: Buồn nôn, phát ban', 13, NOW(), FALSE),
 
 -- 14. Ibuprofen 400mg (OTC)
-    ((SELECT id FROM dosage_forms WHERE display_name = 'Vi�n n�n'), 'Uống 1–2 viên mỗi 6–8 giờ nếu cần', '400mg', 'Hộp 10 viên', '8935000000141', 'VN-10018',
+    (1, 'Uống 1–2 viên mỗi 6–8 giờ nếu cần', '400mg', 'Hộp 10 viên', '8935000000141', 'VN-10018',
      'Bảo quản nơi khô, dưới 30°C', 'Uống với nước đầy. Sau bữa ăn', FALSE,
      'Giảm đau, hạ sốt. Chống chỉ định: Mẫn cảm với Ibuprofen. Tác dụng phụ: Buồn nôn, đau dạ dày', 14, NOW(), FALSE),
 
     -- 15: Cetirizine (Dị ứng)
-    ((SELECT id FROM dosage_forms WHERE display_name = 'Vi�n n�n'), 'Uống 1 viên mỗi ngày khi cần', '10mg', 'Hộp 10 viên', '8935000001501', 'VN-15001',
+    (1, 'Uống 1 viên mỗi ngày khi cần', '10mg', 'Hộp 10 viên', '8935000001501', 'VN-15001',
      'Bảo quản nơi khô, dưới 30°C', 'Uống nguyên viên; không lái xe nếu thấy buồn ngủ', FALSE,
      'Giảm triệu chứng dị ứng: ngứa, chảy nước mũi, sổ mũi. Tác dụng phụ: Buồn ngủ nhẹ, mệt mỏi', 15, NOW(), FALSE),
 
-    ((SELECT id FROM dosage_forms WHERE display_name = 'Vi�n n�n'), 'Uống 1 viên mỗi ngày khi cần', '10mg', 'Hộp 30 viên', '8935000001502', 'VN-15002',
+    (1, 'Uống 1 viên mỗi ngày khi cần', '10mg', 'Hộp 30 viên', '8935000001502', 'VN-15002',
      'Bảo quản nơi khô, dưới 30°C', 'Uống nguyên viên; không lái xe nếu thấy buồn ngủ', FALSE,
      'Giảm triệu chứng dị ứng: ngứa, chảy nước mũi, sổ mũi. Tác dụng phụ: Buồn ngủ nhẹ, mệt mỏi', 15, NOW(), FALSE),
 
     -- 16: Loratadine (Dị ứng)
-    ((SELECT id FROM dosage_forms WHERE display_name = 'Vi�n n�n'), 'Uống 1 viên mỗi ngày', '10mg', 'Hộp 10 viên', '8935000001601', 'VN-16001',
+    (1, 'Uống 1 viên mỗi ngày', '10mg', 'Hộp 10 viên', '8935000001601', 'VN-16001',
      'Bảo quản nơi khô, dưới 30°C', 'Uống nguyên viên, 1 lần/ngày', FALSE,
      'Giảm dị ứng, mề đay, ngứa. Chống chỉ định: Quá mẫn với loratadine. Tác dụng phụ: Khô miệng, đau đầu', 16, NOW(), FALSE);
 
--- Batches data
-
-     'Bảo quản nơi khô, tránh ánh nắng', 'Hỗ trợ chức năng gan, giải độc', 'Quá mẫn với thành phần', 'Tiêu hóa nhẹ',
-     'Uống sau ăn để hỗ trợ hấp thu', FALSE, 'Hỗ trợ chức năng gan', 28, NOW(), FALSE),
-    -- Gan 29: LiverGold (Milk Thistle, OTC)
-    ('Viên nang', 'Uống 1 viên mỗi ngày', 'Silymarin 140mg', 3, 1, 30, '8935000002901', 'VN-29001',
-     'Bảo quản nơi khô, tránh ánh nắng', 'Hỗ trợ giải độc gan', 'Quá mẫn với cây kế sữa', 'Tiêu hóa nhẹ',
-     'Uống sau ăn', FALSE, 'Hỗ trợ chức năng gan', 29, NOW(), FALSE),
-    -- Thần kinh 30: Melatonin (OTC)
-    ('Viên nén', 'Uống 1 viên trước khi ngủ', '3mg', 3, 1, 30, '8935000003001', 'VN-30001',
-     'Bảo quản nơi khô, tránh ánh nắng', 'Hỗ trợ giấc ngủ, giảm thời gian khó ngủ',
-     'Phụ nữ mang thai cho con bú chưa có nghiên cứu đầy đủ', 'Buồn ngủ, chóng mặt',
-     'Uống 30 phút trước khi ngủ; không lái xe nếu buồn ngủ', FALSE, 'Hỗ trợ giấc ngủ', 30, NOW(), FALSE),
-    -- Thần kinh 31: Magnesium B6 (OTC)
-    ('Viên nén', 'Uống 1 viên mỗi ngày', 'Magnesium + Vitamin B6', 3, 1, 30, '8935000003101', 'VN-31001',
-     'Bảo quản nơi khô, tránh ánh nắng', 'Hỗ trợ giảm căng cơ, mệt mỏi, cải thiện giấc ngủ', 'Quá mẫn với thành phần',
-     'Tiêu hóa nhẹ',
-     'Uống sau ăn nếu gây khó chịu dạ dày', FALSE, 'Hỗ trợ thần kinh và giấc ngủ', 31, NOW(), FALSE);
-
+-- ============================================================
+-- BATCHES DATA
+-- ============================================================
 INSERT INTO batches
 (batch_code, mfg_date, expiry_date, source_movement_id, total_received, batch_status, variant_id,
  supplier_id, created_at, deleted)
@@ -948,9 +933,10 @@ VALUES
 (5, 'REVENUE', '2025-10-01', 296000000.00, 0, 0, NOW(), FALSE),
 (5, 'PROFIT', '2025-10-01', 0, 69500000.00, 0, NOW(), FALSE),
 (5, 'IMPORT', '2025-10-01', 205000000.00, 0, 60, NOW(), FALSE);
-SET FOREIGN_KEY_CHECKS = 1;
-
-
+-- ============================================================
+-- UNIT CONVERSIONS DATA
+-- Note: FOREIGN_KEY_CHECKS still OFF to allow insertion
+-- ============================================================
 -- Unit Conversions with is_sale flag
 -- Format: variant_id, unit_id, multiplier, is_sale
 -- is_sale = TRUE means this conversion is used for selling/dispensing
@@ -1051,4 +1037,179 @@ VALUES
     -- Variant 21: Loratadine (Hộp 10 viên)
     (21, 1, 1.0, FALSE, NOW(), FALSE),
     (21, 2, 10.0, FALSE, NOW(), FALSE),
-    (21, 3, 10.0, TRUE, NOW(), FALSE);
+    (21, 3, 10.0, TRUE, NOW(), FALSE),
+
+    -- ===== Dị ứng - Kháng Histamin (continued) =====
+    -- Variant 22: Fexofenadine (Hộp 10 viên)
+    (22, 1, 1.0, FALSE, NOW(), FALSE),      -- Base: 1 Viên = 1 Viên
+    (22, 2, 10.0, FALSE, NOW(), FALSE),     -- 1 Vỉ = 10 Viên
+    (22, 3, 10.0, TRUE, NOW(), FALSE),      -- 1 Hộp = 10 Viên (for sale)
+    (22, 9, 100.0, FALSE, NOW(), FALSE),    -- 1 Thùng = 100 Viên
+
+    -- ===== Sát khuẩn - Khử trùng =====
+    -- Variant 23: Betadine (Chai 100ml)
+    (23, 4, 1.0, TRUE, NOW(), FALSE),       -- Base: 1 Chai = 1 Chai (for sale)
+    (23, 3, 1.0, FALSE, NOW(), FALSE),      -- 1 Hộp = 1 Chai
+    (23, 9, 12.0, FALSE, NOW(), FALSE),     -- 1 Thùng = 12 Chai
+
+    -- Variant 24: Oxy già (Chai 100ml)
+    (24, 4, 1.0, TRUE, NOW(), FALSE),       -- Base: 1 Chai
+    (24, 3, 1.0, FALSE, NOW(), FALSE),      -- 1 Hộp = 1 Chai
+    (24, 9, 12.0, FALSE, NOW(), FALSE),     -- 1 Thùng = 12 Chai
+
+    -- ===== Dạ dày - Tiêu hóa =====
+    -- Variant 25: Omeprazole (Hộp 10 viên)
+    (25, 1, 1.0, FALSE, NOW(), FALSE),
+    (25, 2, 10.0, FALSE, NOW(), FALSE),
+    (25, 3, 10.0, TRUE, NOW(), FALSE),
+    (25, 9, 100.0, FALSE, NOW(), FALSE),
+
+    -- Variant 26: Esomeprazole (Hộp 10 viên)
+    (26, 1, 1.0, FALSE, NOW(), FALSE),
+    (26, 2, 10.0, FALSE, NOW(), FALSE),
+    (26, 3, 10.0, TRUE, NOW(), FALSE),
+    (26, 9, 100.0, FALSE, NOW(), FALSE),
+
+    -- Variant 27: Domperidone (Hộp 10 viên)
+    (27, 1, 1.0, FALSE, NOW(), FALSE),
+    (27, 2, 10.0, FALSE, NOW(), FALSE),
+    (27, 3, 10.0, TRUE, NOW(), FALSE),
+    (27, 9, 100.0, FALSE, NOW(), FALSE),
+
+    -- ===== Tim mạch - Huyết áp =====
+    -- Variant 28: Amlodipine (Hộp 10 viên)
+    (28, 1, 1.0, FALSE, NOW(), FALSE),
+    (28, 2, 10.0, FALSE, NOW(), FALSE),
+    (28, 3, 10.0, TRUE, NOW(), FALSE),
+    (28, 9, 100.0, FALSE, NOW(), FALSE),
+
+    -- Variant 29: Losartan (Hộp 10 viên)
+    (29, 1, 1.0, FALSE, NOW(), FALSE),
+    (29, 2, 10.0, FALSE, NOW(), FALSE),
+    (29, 3, 10.0, TRUE, NOW(), FALSE),
+    (29, 9, 100.0, FALSE, NOW(), FALSE),
+
+    -- Variant 30: Bisoprolol (Hộp 10 viên)
+    (30, 1, 1.0, FALSE, NOW(), FALSE),
+    (30, 2, 10.0, FALSE, NOW(), FALSE),
+    (30, 3, 10.0, TRUE, NOW(), FALSE),
+    (30, 9, 100.0, FALSE, NOW(), FALSE),
+
+    -- ===== Xương khớp - Đau nhức =====
+    -- Variant 31: Glucosamine (Hộp 30 viên)
+    (31, 1, 1.0, FALSE, NOW(), FALSE),      -- Base: 1 Viên
+    (31, 3, 30.0, TRUE, NOW(), FALSE),      -- 1 Hộp = 30 Viên (for sale)
+    (31, 9, 300.0, FALSE, NOW(), FALSE),    -- 1 Thùng = 300 Viên
+
+    -- Variant 32: Meloxicam (Hộp 10 viên)
+    (32, 1, 1.0, FALSE, NOW(), FALSE),
+    (32, 2, 10.0, FALSE, NOW(), FALSE),
+    (32, 3, 10.0, TRUE, NOW(), FALSE),
+    (32, 9, 100.0, FALSE, NOW(), FALSE),
+
+    -- ===== Gan - Giải độc =====
+    -- Variant 33: Essentiale Forte (Hộp 30 viên)
+    (33, 1, 1.0, FALSE, NOW(), FALSE),
+    (33, 3, 30.0, TRUE, NOW(), FALSE),
+    (33, 9, 300.0, FALSE, NOW(), FALSE),
+
+    -- Variant 34: LiverGold (Hộp 30 viên)
+    (34, 1, 1.0, FALSE, NOW(), FALSE),
+    (34, 3, 30.0, TRUE, NOW(), FALSE),
+    (34, 9, 300.0, FALSE, NOW(), FALSE),
+
+    -- ===== Thần kinh - Giấc ngủ =====
+    -- Variant 35: Melatonin (Hộp 30 viên)
+    (35, 1, 1.0, FALSE, NOW(), FALSE),
+    (35, 3, 30.0, TRUE, NOW(), FALSE),
+    (35, 9, 300.0, FALSE, NOW(), FALSE),
+
+    -- Variant 36: Magnesium B6 (Hộp 30 viên)
+    (36, 1, 1.0, FALSE, NOW(), FALSE),
+    (36, 3, 30.0, TRUE, NOW(), FALSE),
+    (36, 9, 300.0, FALSE, NOW(), FALSE),
+
+    -- ===== Vitamin và khoáng chất =====
+    -- Variant 37: Centrum (Hộp 30 viên)
+    (37, 1, 1.0, FALSE, NOW(), FALSE),
+    (37, 3, 30.0, TRUE, NOW(), FALSE),
+    (37, 9, 300.0, FALSE, NOW(), FALSE),
+
+    -- ===== Tăng đề kháng - Miễn dịch =====
+    -- Variant 38: Vitamin C (Hộp 100 viên) - Special 4-level conversion
+    (38, 1, 1.0, FALSE, NOW(), FALSE),      -- Base: Viên
+    (38, 2, 10.0, FALSE, NOW(), FALSE),     -- Vỉ = 10 Viên
+    (38, 3, 100.0, TRUE, NOW(), FALSE),     -- Hộp = 100 Viên (for sale)
+    (38, 9, 1000.0, FALSE, NOW(), FALSE),   -- Thùng = 1000 Viên (10 hộp)
+
+    -- ===== Điện giải - Dinh dưỡng =====
+    -- Variant 39: ORS (Gói)
+    (39, 8, 1.0, TRUE, NOW(), FALSE),       -- Base: 1 Gói (for sale)
+    (39, 3, 20.0, FALSE, NOW(), FALSE),     -- 1 Hộp = 20 Gói
+    (39, 9, 200.0, FALSE, NOW(), FALSE),    -- 1 Thùng = 200 Gói (10 hộp)
+
+    -- ===== Hỗ trợ tiêu hóa - Men vi sinh =====
+    -- Variant 40: BioGaia (Hộp 30 viên)
+    (40, 1, 1.0, FALSE, NOW(), FALSE),
+    (40, 3, 30.0, TRUE, NOW(), FALSE),
+    (40, 9, 300.0, FALSE, NOW(), FALSE),
+
+    -- ===== Sức khỏe phụ nữ =====
+    -- Variant 41: Evening Primrose Oil (Hộp 30 viên)
+    (41, 1, 1.0, FALSE, NOW(), FALSE),
+    (41, 3, 30.0, TRUE, NOW(), FALSE),
+    (41, 9, 300.0, FALSE, NOW(), FALSE),
+
+    -- ===== Thuốc cảm - Ho - Sốt cho trẻ =====
+    -- Variant 42: Tylenol Children (Chai 100ml)
+    (42, 4, 1.0, TRUE, NOW(), FALSE),       -- Base: 1 Chai (for sale)
+    (42, 3, 1.0, FALSE, NOW(), FALSE),      -- 1 Hộp = 1 Chai
+    (42, 9, 12.0, FALSE, NOW(), FALSE),     -- 1 Thùng = 12 Chai
+
+    -- ===== Vitamin và khoáng chất trẻ em =====
+    -- Variant 43: Kids Smart Vita Gummies (Hộp 60 viên)
+    (43, 1, 1.0, FALSE, NOW(), FALSE),      -- Base: 1 Viên
+    (43, 3, 60.0, TRUE, NOW(), FALSE),      -- 1 Hộp = 60 Viên (for sale)
+    (43, 9, 360.0, FALSE, NOW(), FALSE),    -- 1 Thùng = 360 Viên (6 hộp)
+
+    -- ===== Điện giải và tiêu hóa cho trẻ =====
+    -- Variant 44: Hydrite (Gói)
+    (44, 8, 1.0, TRUE, NOW(), FALSE),       -- Base: 1 Gói (for sale)
+    (44, 3, 20.0, FALSE, NOW(), FALSE),     -- 1 Hộp = 20 Gói
+    (44, 9, 200.0, FALSE, NOW(), FALSE),    -- 1 Thùng = 200 Gói
+
+    -- ===== Xịt mũi - Nhỏ mũi trẻ em =====
+    -- Variant 45: Sterimar Baby (Chai xịt)
+    (45, 4, 1.0, TRUE, NOW(), FALSE),       -- Base: 1 Chai (for sale)
+    (45, 3, 1.0, FALSE, NOW(), FALSE),      -- 1 Hộp = 1 Chai
+    (45, 9, 12.0, FALSE, NOW(), FALSE),     -- 1 Thùng = 12 Chai
+
+    -- ===== Dinh dưỡng trẻ em =====
+    -- Variant 46: PediaSure (Hộp 900g as unit)
+    (46, 11, 1.0, TRUE, NOW(), FALSE),      -- Base: 1 Hộp (special - sold as box)
+    (46, 9, 6.0, FALSE, NOW(), FALSE),      -- 1 Thùng = 6 Hộp
+
+    -- ===== Additional variants (if exist) =====
+    -- Variant 47-50: Generic pattern for any additional viên nén (Hộp 10 viên)
+    (47, 1, 1.0, FALSE, NOW(), FALSE),
+    (47, 2, 10.0, FALSE, NOW(), FALSE),
+    (47, 3, 10.0, TRUE, NOW(), FALSE),
+
+    (48, 1, 1.0, FALSE, NOW(), FALSE),
+    (48, 2, 10.0, FALSE, NOW(), FALSE),
+    (48, 3, 10.0, TRUE, NOW(), FALSE)
+
+ON DUPLICATE KEY UPDATE
+    multiplier = VALUES(multiplier),
+    is_sale = VALUES(is_sale),
+    deleted = FALSE;
+
+-- ============================================================
+-- END OF UNIT CONVERSIONS ADDITIONS
+-- ============================================================
+
+-- ============================================================
+-- RE-ENABLE FOREIGN KEY CHECKS
+-- ============================================================
+SET FOREIGN_KEY_CHECKS = 1;
+

@@ -117,34 +117,24 @@ content = @`
                 <table class="w-full table-auto">
                     <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-4 py-3 text-left font-medium text-gray-600">STT</th>
+                        <th class="px-4 py-3 text-center font-medium text-gray-600">STT</th>
                         <th class="px-4 py-3 text-left font-medium text-gray-600">Tên Thuốc</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-600">ĐVT</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-600">Hàm Lượng</th>
                         <th class="px-4 py-3 text-left font-medium text-gray-600">Số Lô</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-600">NSX</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-600">HSD</th>
-                        <th class="px-4 py-3 text-center font-medium text-gray-600">Số Lượng</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-600">Hạn Sử Dụng</th>
+                        <th class="px-4 py-3 text-center font-medium text-gray-600">ĐVT</th>
+                        <th class="px-4 py-3 text-right font-medium text-gray-600">Số Lượng Nhập</th>
                         @if(!hidePrice)
-                            <th class="px-4 py-3 text-right font-medium text-gray-600">Giá Nhập</th>
+                            <th class="px-4 py-3 text-right font-medium text-gray-600">Đơn Giá (VNĐ)</th>
+                            <th class="px-4 py-3 text-right font-medium text-gray-600">Thành Tiền (VNĐ)</th>
                         @endif
                     </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
                     @for(ReceiptDetailVM detail : details)
                         <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-3 text-gray-600">${details.indexOf(detail) + 1}</td>
+                            <td class="px-4 py-3 text-center text-gray-600">${details.indexOf(detail) + 1}</td>
                             <td class="px-4 py-3 font-medium text-gray-900">${detail.getMedicineName()}</td>
-                            <td class="px-4 py-3 text-gray-700">${detail.getUnit()}</td>
-                            <td class="px-4 py-3 text-gray-700">${detail.getConcentration()}</td>
                             <td class="px-4 py-3 text-gray-700">${detail.getBatchCode()}</td>
-                            <td class="px-4 py-3 text-gray-700">
-                                @if(detail.getMfgDate() != null)
-                                    ${detail.getMfgDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}
-                                @else
-                                    -
-                                @endif
-                            </td>
                             <td class="px-4 py-3 text-gray-700">
                                 @if(detail.getExpiryDate() != null)
                                     ${detail.getExpiryDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}
@@ -152,22 +142,32 @@ content = @`
                                     -
                                 @endif
                             </td>
-                            <td class="px-4 py-3 text-center">
+                            <td class="px-4 py-3 text-center text-gray-700">
+                                @if(detail.getImportUnit() != null && !detail.getImportUnit().equals("N/A"))
+                                    ${detail.getImportUnit()}
+                                @else
+                                    ${detail.getUnit()}
+                                @endif
+                            </td>
+                            <td class="px-4 py-3 text-right">
                                 <span class="inline-flex items-center px-3 py-1 rounded-md text-sm font-semibold bg-blue-50 text-blue-700">
                                     ${detail.getQuantity()}
                                 </span>
                             </td>
                             @if(!hidePrice)
-                                <td class="px-4 py-3 text-right text-gray-900 font-medium">${String.format("%,.0f", detail.getImportPrice())} VNĐ</td>
+                                <td class="px-4 py-3 text-right text-gray-900 font-medium">${String.format("%,d", detail.getImportPrice().longValue())}</td>
+                                <td class="px-4 py-3 text-right text-gray-900 font-semibold text-green-600">
+                                    ${String.format("%,d", (long)(detail.getQuantity() * detail.getImportPrice()))}
+                                </td>
                             @endif
                         </tr>
                     @endfor
                     @if(!hidePrice)
                         <tr class="bg-gray-50 font-semibold">
-                            <td colspan="8" class="px-4 py-3 text-right">Tổng tiền:</td>
-                            <td class="px-4 py-3 text-right text-blue-600">
+                            <td colspan="7" class="px-4 py-3 text-right text-lg">Tổng tiền:</td>
+                            <td class="px-4 py-3 text-right text-lg text-blue-600">
                                 !{var totalMoney = details.stream().mapToDouble(d -> d.getQuantity() * d.getImportPrice()).sum();}
-                                ${String.format("%,.0f", totalMoney)} VNĐ
+                                ${String.format("%,d", (long)totalMoney)} VNĐ
                             </td>
                         </tr>
                     @endif

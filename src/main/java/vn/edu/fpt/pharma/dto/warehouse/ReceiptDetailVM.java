@@ -12,7 +12,8 @@ public class ReceiptDetailVM {
     private String concentration;
     private String dosageForm;
     private String categoryName;
-    private String unit;
+    private String unit;  // Base unit (đơn vị cơ bản)
+    private String importUnit;  // Import unit (đơn vị nhập) - NEW
     private Integer quantity;
     private String batchCode;
     private LocalDate mfgDate;

@@ -216,7 +216,7 @@ body {
     width: 100%;
     border-collapse: collapse;
     font-size: 14px;
-    table-layout: auto;
+    table-layout: fixed;
 }
 
 .product-table th {
@@ -231,57 +231,74 @@ body {
     white-space: nowrap;
 }
 
-/* Column width optimization */
+/* Column width optimization - Updated for new table structure */
+/* STT */
 .product-table th:nth-child(1),
 .product-table td:nth-child(1) {
     width: 50px;
     text-align: center;
 }
 
+/* Tên thuốc */
 .product-table th:nth-child(2),
 .product-table td:nth-child(2) {
-    min-width: 200px;
+    width: 250px;
+    max-width: 250px;
 }
 
+/* Số lô */
 .product-table th:nth-child(3),
 .product-table td:nth-child(3) {
-    width: 80px;
+    width: 120px;
 }
 
+/* Hạn sử dụng */
 .product-table th:nth-child(4),
 .product-table td:nth-child(4) {
     width: 120px;
 }
 
+/* ĐVT */
 .product-table th:nth-child(5),
 .product-table td:nth-child(5) {
-    width: 100px;
+    width: 80px;
+    text-align: center;
 }
 
+/* Số lượng nhập */
 .product-table th:nth-child(6),
 .product-table td:nth-child(6) {
     width: 110px;
+    text-align: right;
 }
 
+/* Đơn giá */
 .product-table th:nth-child(7),
 .product-table td:nth-child(7) {
-    width: 110px;
+    width: 130px;
+    text-align: right;
 }
 
+/* Thành tiền */
 .product-table th:nth-child(8),
 .product-table td:nth-child(8) {
-    width: 100px;
+    width: 140px;
+    text-align: right;
+    font-weight: 600;
 }
 
+/* Actions */
 .product-table th:nth-child(9),
 .product-table td:nth-child(9) {
-    width: 120px;
+    width: 80px;
+    text-align: center;
 }
 
-.product-table th:nth-child(10),
-.product-table td:nth-child(10) {
-    width: 50px;
-    text-align: center;
+/* Text overflow handling for medicine name */
+.product-table td.col-medicine {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .product-table td {
@@ -413,6 +430,26 @@ body {
     outline: none;
     border-color: #4361EE;
     background-color: #FFFFFF;
+}
+
+.btn-edit {
+    background: none;
+    border: none;
+    color: #6B7280;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: color 0.2s, background-color 0.2s;
+    margin-right: 4px;
+}
+
+.btn-edit:hover {
+    color: #3B82F6;
+    background-color: #DBEAFE;
+}
+
+.btn-edit .material-icons {
+    font-size: 20px;
 }
 
 .btn-delete {

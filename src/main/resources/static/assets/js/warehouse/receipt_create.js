@@ -86,13 +86,27 @@ document.addEventListener('DOMContentLoaded', function() {
         importDateInput.value = new Date().toISOString().split('T')[0];
     }
 
+    // Format date from yyyy-MM-dd to dd/MM/yyyy
+    function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        const [year, month, day] = dateString.split('-');
+        return `${day}/${month}/${year}`;
+    }
+
+    // Format number as Vietnamese currency
+    function formatCurrency(amount) {
+        if (!amount && amount !== 0) return '0';
+        return Math.round(amount).toLocaleString('vi-VN');
+    }
+
     // Tính tổng tiền
     function calculateTotal() {
         let total = 0;
         document.querySelectorAll('.table-row').forEach(row => {
-            const quantity = parseFloat(row.querySelector('.quantity-input').value) || 0;
-            const price = parseFloat(row.querySelector('.price-input').value) || 0;
-            total += quantity * price;
+            const quantity = parseFloat(row.dataset.quantity) || 0;
+            const price = parseFloat(row.dataset.price) || 0;
+            const conversionRatio = parseFloat(row.dataset.conversionRatio) || 1;
+            total += quantity * price * conversionRatio;
         });
         totalAmountElement.textContent = total.toLocaleString('vi-VN');
     }
@@ -105,9 +119,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Hiển thị popup nhập thông tin thuốc
-    function showProductDetailModal(product) {
+    function showProductDetailModal(product, preFilledDetails = null) {
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
+
+        // Debug: Log product data to check unitConversions
+        console.log('Product data:', product);
+        console.log('Unit conversions:', product.unitConversions);
 
         // Prepare unit conversions table rows
         const unitConversionsHtml = product.unitConversions && product.unitConversions.length > 0
@@ -182,35 +200,39 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div style="display: grid; gap: 15px; margin-bottom: 20px;">
                         <div>
                             <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #374151;">Số lô <span style="color: #dc3545;">*</span></label>
-                            <input type="text" id="modal-batch" class="modal-input" placeholder="Nhập số lô" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;">
+                            <input type="text" id="modal-batch" class="modal-input" placeholder="Nhập số lô" value="${preFilledDetails ? preFilledDetails.batchCode : ''}" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;">
                             <div class="invalid-feedback" style="display: none; color: #dc3545; font-size: 0.875rem; margin-top: 5px;"></div>
                         </div>
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                             <div>
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #374151;">Ngày sản xuất <span style="color: #dc3545;">*</span></label>
-                                <input type="date" id="modal-mfg-date" class="modal-input" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;">
+                                <input type="date" id="modal-mfg-date" class="modal-input" value="${preFilledDetails ? preFilledDetails.manufactureDate : ''}" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;">
                                 <div class="invalid-feedback" style="display: none; color: #dc3545; font-size: 0.875rem; margin-top: 5px;"></div>
                             </div>
                             <div>
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #374151;">Hạn sử dụng <span style="color: #dc3545;">*</span></label>
-                                <input type="date" id="modal-exp-date" class="modal-input" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;">
+                                <input type="date" id="modal-exp-date" class="modal-input" value="${preFilledDetails ? preFilledDetails.expiryDate : ''}" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;">
                                 <div class="invalid-feedback" style="display: none; color: #dc3545; font-size: 0.875rem; margin-top: 5px;"></div>
                             </div>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
                             <div>
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #374151;">
                                     Số lượng nhập (${product.importUnit || 'đơn vị'}) <span style="color: #dc3545;">*</span>
                                 </label>
-                                <input type="number" id="modal-quantity" class="modal-input" value="1" min="1" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;">
+                                <input type="number" id="modal-quantity" class="modal-input" value="${preFilledDetails ? preFilledDetails.quantity : 1}" min="1" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;">
                                 <div class="invalid-feedback" style="display: none; color: #dc3545; font-size: 0.875rem; margin-top: 5px;"></div>
                             </div>
                             <div>
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #374151;">Đơn giá <span style="color: #dc3545;">*</span></label>
-                                <input type="number" id="modal-price" class="modal-input" placeholder="0" min="1" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;">
+                                <input type="number" id="modal-price" class="modal-input" placeholder="0" value="${preFilledDetails ? preFilledDetails.price : ''}" min="1" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;">
                                 <div class="invalid-feedback" style="display: none; color: #dc3545; font-size: 0.875rem; margin-top: 5px;"></div>
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #374151;">Thành tiền</label>
+                                <input type="text" id="modal-total" class="modal-input" placeholder="0" readonly style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px; background: #f9fafb; color: #374151; font-weight: 600;">
                             </div>
                         </div>
                     </div>
@@ -251,9 +273,19 @@ document.addEventListener('DOMContentLoaded', function() {
         const expInput = modal.querySelector('#modal-exp-date');
         const qtyInput = modal.querySelector('#modal-quantity');
         const priceInput = modal.querySelector('#modal-price');
+        const totalInput = modal.querySelector('#modal-total');
         const btnCancel = modal.querySelector('.btn-modal-cancel');
         const btnAdd = modal.querySelector('.btn-modal-add');
         const closeBtn = modal.querySelector('.modal-close');
+
+        // Function to calculate and update total amount
+        function updateTotalAmount() {
+            const quantity = parseFloat(qtyInput.value) || 0;
+            const price = parseFloat(priceInput.value) || 0;
+            const conversionRatio = parseFloat(product.conversionRatio) || 1;
+            const total = quantity * price * conversionRatio;
+            totalInput.value = total.toLocaleString('vi-VN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        }
 
         // Helper function to show error
         function showModalError(input, message) {
@@ -278,8 +310,17 @@ document.addEventListener('DOMContentLoaded', function() {
         batchInput.addEventListener('input', () => clearModalError(batchInput));
         mfgInput.addEventListener('change', () => clearModalError(mfgInput));
         expInput.addEventListener('change', () => clearModalError(expInput));
-        qtyInput.addEventListener('input', () => clearModalError(qtyInput));
-        priceInput.addEventListener('input', () => clearModalError(priceInput));
+        qtyInput.addEventListener('input', () => {
+            clearModalError(qtyInput);
+            updateTotalAmount();
+        });
+        priceInput.addEventListener('input', () => {
+            clearModalError(priceInput);
+            updateTotalAmount();
+        });
+
+        // Initialize total amount on load
+        updateTotalAmount();
 
         // Validate and add product
         function validateAndAddProduct() {
@@ -299,7 +340,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const allRows = productTableBody.querySelectorAll('.table-row');
                     let isDuplicate = false;
                     allRows.forEach(row => {
-                        const existingBatch = row.querySelector('.batch-input').value.trim();
+                        const existingBatch = row.dataset.batchCode;
                         const existingVariantId = row.dataset.variantId;
                         if (existingVariantId === product.variantId && existingBatch === batchInput.value.trim()) {
                             isDuplicate = true;
@@ -388,38 +429,45 @@ document.addEventListener('DOMContentLoaded', function() {
         const rowCount = productTableBody.querySelectorAll('.table-row').length;
         const row = document.createElement('tr');
         row.className = 'table-row';
-        row.dataset.variantId = product.variantId;
-        row.dataset.quantityPerPackage = product.quantityPerPackage || '';
 
-        const qtyPerPackage = product.quantityPerPackage ? Math.round(product.quantityPerPackage) : 'N/A';
+        // Store all necessary data in dataset (including product info for editing)
+        row.dataset.variantId = product.variantId;
+        row.dataset.conversionRatio = product.conversionRatio || 1;
+        row.dataset.importUnit = product.importUnit || '';
+        row.dataset.baseUnit = product.baseUnit || '';
+        row.dataset.batchCode = details.batchCode;
+        row.dataset.expiryDate = details.expiryDate;
+        row.dataset.manufactureDate = details.manufactureDate;
+        row.dataset.quantity = details.quantity;
+        row.dataset.price = details.price;
+
+        // Store additional product info for editing
+        row.dataset.categoryName = product.categoryName || 'N/A';
+        row.dataset.activeIngredient = product.activeIngredient || 'N/A';
+        row.dataset.dosageFormName = product.dosageFormName || 'N/A';
+        row.dataset.concentration = product.concentration || 'N/A';
+        row.dataset.registrationNumber = product.registrationNumber || 'N/A';
+        row.dataset.manufacturer = product.manufacturer || 'N/A';
+        row.dataset.country = product.country || 'N/A';
+        row.dataset.packagingSpec = product.packagingSpec || 'N/A';
+        row.dataset.unitConversions = JSON.stringify(product.unitConversions || []);
+
+        // Calculate total amount for this row
+        const totalAmount = details.quantity * details.price * (product.conversionRatio || 1);
 
         row.innerHTML = `
             <td class="col-stt">${rowCount + 1}</td>
             <td class="col-medicine">${product.medicineName}</td>
-            <td class="col-unit">${product.unit}</td>
-            <td class="col-qty-per-package">${qtyPerPackage}</td>
-            <td class="col-concentration">${product.concentration}</td>
-            <td class="col-batch">
-                <input type="text" class="batch-input" placeholder="Nhập số lô" value="${details.batchCode || ''}" required>
-                <div class="invalid-feedback">Số lô đã tồn tại</div>
-            </td>
-            <td class="col-manufacture-date">
-                <input type="date" class="manufacture-date-input" value="${details.manufactureDate || ''}" required>
-                <div class="invalid-feedback">NSX không hợp lệ</div>
-            </td>
-            <td class="col-expiry-date">
-                <input type="date" class="expiry-date-input" value="${details.expiryDate || ''}" required>
-                <div class="invalid-feedback">HSD không hợp lệ</div>
-            </td>
-            <td class="col-quantity">
-                <input type="number" class="quantity-input" value="${details.quantity || 1}" min="1" required>
-                <div class="invalid-feedback">Giá nhập phải lớn hơn 0</div>
-            </td>
-            <td class="col-price">
-                <input type="number" class="price-input" value="${details.price || ''}" min="1" placeholder="Giá nhập" required>
-                <div class="invalid-feedback">Giá nhập phải lớn hơn 0</div>
-            </td>
+            <td class="col-batch">${details.batchCode}</td>
+            <td class="col-expiry-date">${formatDate(details.expiryDate)}</td>
+            <td class="col-unit">${product.importUnit || 'N/A'}</td>
+            <td class="col-quantity">${details.quantity}</td>
+            <td class="col-price">${formatCurrency(details.price)}</td>
+            <td class="col-total">${formatCurrency(totalAmount)}</td>
             <td class="col-actions">
+                <button type="button" class="btn-edit" title="Sửa">
+                    <span class="material-icons">edit</span>
+                </button>
                 <button type="button" class="btn-delete" title="Xóa">
                     <span class="material-icons">delete</span>
                 </button>
@@ -430,122 +478,49 @@ document.addEventListener('DOMContentLoaded', function() {
         calculateTotal();
     }
 
-    // Lắng nghe thay đổi số lượng và giá
-    productTableBody.addEventListener('input', function(e) {
-        if (e.target.classList.contains('quantity-input')) {
-            // Remove previous validation state
-            e.target.classList.remove('is-invalid');
-            calculateTotal();
-        }
 
-        if (e.target.classList.contains('price-input')) {
-            const price = parseFloat(e.target.value);
-
-            // Validate price > 0
-            if (!e.target.value || price <= 0) {
-                e.target.classList.add('is-invalid');
-            } else {
-                e.target.classList.remove('is-invalid');
-            }
-
-            calculateTotal();
-        }
-
-        // Validate batch code
-        if (e.target.classList.contains('batch-input')) {
-            const currentRow = e.target.closest('.table-row');
-            let currentBatchCode = e.target.value;
-            const currentVariantId = currentRow.dataset.variantId;
-
-            // Remove previous validation state
-            e.target.classList.remove('is-invalid');
-
-            // Validate character set: only alphanumeric and hyphen allowed
-            const validBatchPattern = /^[A-Za-z0-9\-]*$/;
-            if (currentBatchCode && !validBatchPattern.test(currentBatchCode)) {
-                e.target.classList.add('is-invalid');
-                e.target.nextElementSibling.textContent = 'Số lô chỉ được chứa chữ cái, số và dấu gạch ngang (-)';
-                // Remove invalid characters
-                e.target.value = currentBatchCode.replace(/[^A-Za-z0-9\-]/g, '');
-                return;
-            }
-
-            currentBatchCode = currentBatchCode.trim();
-
-            if (currentBatchCode) {
-                // Check for duplicate batch code with same variant
-                const allRows = productTableBody.querySelectorAll('.table-row');
-                let isDuplicate = false;
-
-                allRows.forEach(row => {
-                    if (row !== currentRow) {
-                        const batchInput = row.querySelector('.batch-input');
-                        const variantId = row.dataset.variantId;
-
-                        if (variantId === currentVariantId &&
-                            batchInput.value.trim() === currentBatchCode) {
-                            isDuplicate = true;
-                        }
-                    }
-                });
-
-                if (isDuplicate) {
-                    e.target.classList.add('is-invalid');
-                    e.target.nextElementSibling.textContent = 'Số lô đã tồn tại';
-                }
-            }
-        }
-
-        // Validate manufacture date
-        if (e.target.classList.contains('manufacture-date-input')) {
-            const mfgDate = new Date(e.target.value);
-            const currentDate = new Date();
-            currentDate.setHours(0, 0, 0, 0);
-
-            // Remove previous validation state
-            e.target.classList.remove('is-invalid');
-
-            if (e.target.value) {
-                // Allow NSX = current date, only reject if NSX > current date
-                if (mfgDate > currentDate) {
-                    e.target.classList.add('is-invalid');
-                    e.target.nextElementSibling.textContent = 'NSX không được lớn hơn ngày hiện tại';
-                }
-            }
-        }
-
-        // Validate expiry date
-        if (e.target.classList.contains('expiry-date-input')) {
-            const row = e.target.closest('.table-row');
-            const mfgInput = row.querySelector('.manufacture-date-input');
-            const expDate = new Date(e.target.value);
-            const mfgDate = new Date(mfgInput.value);
-
-            // Remove previous validation state
-            e.target.classList.remove('is-invalid');
-
-            if (e.target.value && mfgInput.value) {
-                // Check if HSD > NSX
-                if (expDate <= mfgDate) {
-                    e.target.classList.add('is-invalid');
-                    e.target.nextElementSibling.textContent = 'HSD phải sau NSX';
-                    return;
-                }
-
-                // Check if HSD <= NSX + 20 years
-                const maxExpiryDate = new Date(mfgDate);
-                maxExpiryDate.setFullYear(maxExpiryDate.getFullYear() + 20);
-
-                if (expDate > maxExpiryDate) {
-                    e.target.classList.add('is-invalid');
-                    e.target.nextElementSibling.textContent = 'HSD không được quá 20 năm từ NSX';
-                }
-            }
-        }
-    });
-
-    // Xóa dòng
+    // Xóa và sửa dòng
     productTableBody.addEventListener('click', function(e) {
+        // Handle edit button
+        if (e.target.closest('.btn-edit')) {
+            const row = e.target.closest('.table-row');
+
+            // Reconstruct product object from dataset
+            const product = {
+                variantId: row.dataset.variantId,
+                medicineName: row.querySelector('.col-medicine').textContent,
+                conversionRatio: parseFloat(row.dataset.conversionRatio) || 1,
+                importUnit: row.dataset.importUnit,
+                baseUnit: row.dataset.baseUnit,
+                // Get other product info from the original product (will need to fetch or store)
+                categoryName: row.dataset.categoryName || 'N/A',
+                activeIngredient: row.dataset.activeIngredient || 'N/A',
+                dosageFormName: row.dataset.dosageFormName || 'N/A',
+                concentration: row.dataset.concentration || 'N/A',
+                registrationNumber: row.dataset.registrationNumber || 'N/A',
+                manufacturer: row.dataset.manufacturer || 'N/A',
+                country: row.dataset.country || 'N/A',
+                packagingSpec: row.dataset.packagingSpec || 'N/A',
+                unitConversions: JSON.parse(row.dataset.unitConversions || '[]')
+            };
+
+            // Reconstruct details from dataset
+            const details = {
+                batchCode: row.dataset.batchCode,
+                manufactureDate: row.dataset.manufactureDate,
+                expiryDate: row.dataset.expiryDate,
+                quantity: parseInt(row.dataset.quantity),
+                price: parseFloat(row.dataset.price)
+            };
+
+            // Remove the current row
+            row.remove();
+
+            // Show modal with pre-filled data
+            showProductDetailModal(product, details);
+        }
+
+        // Handle delete button
         if (e.target.closest('.btn-delete')) {
             const rowToDelete = e.target.closest('.table-row');
             showConfirmModal('Xác nhận xóa', 'Bạn có chắc muốn xóa sản phẩm này?', function() {
@@ -616,150 +591,7 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
 
-        if (!isValid) return false;
-
-        // Check for any validation errors
-        let hasErrors = false;
-        const batchCodes = new Map(); // Map to track batch codes by variant
-
-        for (let row of rows) {
-            const batchInput = row.querySelector('.batch-input');
-            const mfgInput = row.querySelector('.manufacture-date-input');
-            const expInput = row.querySelector('.expiry-date-input');
-            const qtyInput = row.querySelector('.quantity-input');
-            const priceInput = row.querySelector('.price-input');
-            const variantId = row.dataset.variantId;
-
-            // Clear all validation states
-            batchInput.classList.remove('is-invalid');
-            mfgInput.classList.remove('is-invalid');
-            expInput.classList.remove('is-invalid');
-            qtyInput.classList.remove('is-invalid');
-            priceInput.classList.remove('is-invalid');
-
-            // Validate batch code
-            if (!batchInput.value.trim()) {
-                batchInput.classList.add('is-invalid');
-                batchInput.nextElementSibling.textContent = 'Vui lòng nhập số lô';
-                if (!hasErrors) {
-                    batchInput.focus();
-                    hasErrors = true;
-                }
-                continue;
-            }
-
-            // Validate batch code characters
-            const validBatchPattern = /^[A-Za-z0-9\-]+$/;
-            if (!validBatchPattern.test(batchInput.value.trim())) {
-                batchInput.classList.add('is-invalid');
-                batchInput.nextElementSibling.textContent = 'Số lô chỉ được chứa chữ cái, số và dấu gạch ngang (-)';
-                if (!hasErrors) {
-                    batchInput.focus();
-                    hasErrors = true;
-                }
-                continue;
-            }
-
-            // Check for duplicate batch codes
-            const batchKey = `${variantId}_${batchInput.value.trim()}`;
-            if (batchCodes.has(batchKey)) {
-                batchInput.classList.add('is-invalid');
-                batchInput.nextElementSibling.textContent = 'Số lô đã tồn tại';
-                if (!hasErrors) {
-                    batchInput.focus();
-                    hasErrors = true;
-                }
-                continue;
-            }
-            batchCodes.set(batchKey, true);
-
-            // Validate manufacture date
-            if (!mfgInput.value) {
-                mfgInput.classList.add('is-invalid');
-                mfgInput.nextElementSibling.textContent = 'Vui lòng nhập NSX';
-                if (!hasErrors) {
-                    mfgInput.focus();
-                    hasErrors = true;
-                }
-                continue;
-            }
-
-            const mfgDate = new Date(mfgInput.value);
-            const currentDate = new Date();
-            currentDate.setHours(0, 0, 0, 0);
-
-            // Allow NSX = currentDate, only reject if NSX > currentDate
-            if (mfgDate > currentDate) {
-                mfgInput.classList.add('is-invalid');
-                mfgInput.nextElementSibling.textContent = 'NSX không được lớn hơn ngày hiện tại';
-                if (!hasErrors) {
-                    mfgInput.focus();
-                    hasErrors = true;
-                }
-                continue;
-            }
-
-            // Validate expiry date
-            if (!expInput.value) {
-                expInput.classList.add('is-invalid');
-                expInput.nextElementSibling.textContent = 'Vui lòng nhập HSD';
-                if (!hasErrors) {
-                    expInput.focus();
-                    hasErrors = true;
-                }
-                continue;
-            }
-
-            const expDate = new Date(expInput.value);
-
-            // HSD must be after NSX
-            if (expDate <= mfgDate) {
-                expInput.classList.add('is-invalid');
-                expInput.nextElementSibling.textContent = 'HSD phải sau NSX';
-                if (!hasErrors) {
-                    expInput.focus();
-                    hasErrors = true;
-                }
-                continue;
-            }
-
-            // HSD max 20 years from NSX
-            const maxExpiryDate = new Date(mfgDate);
-            maxExpiryDate.setFullYear(maxExpiryDate.getFullYear() + 20);
-
-            if (expDate > maxExpiryDate) {
-                expInput.classList.add('is-invalid');
-                expInput.nextElementSibling.textContent = 'HSD không được quá 20 năm từ NSX';
-                if (!hasErrors) {
-                    expInput.focus();
-                    hasErrors = true;
-                }
-                continue;
-            }
-
-            // Validate quantity
-            if (!qtyInput.value || parseInt(qtyInput.value) < 1) {
-                qtyInput.classList.add('is-invalid');
-                qtyInput.nextElementSibling.textContent = 'Số lượng phải lớn hơn 0';
-                if (!hasErrors) {
-                    qtyInput.focus();
-                    hasErrors = true;
-                }
-                continue;
-            }
-
-            // Validate price
-            if (!priceInput.value || parseFloat(priceInput.value) <= 0) {
-                priceInput.classList.add('is-invalid');
-                if (!hasErrors) {
-                    priceInput.focus();
-                    hasErrors = true;
-                }
-                continue;
-            }
-        }
-
-        return !hasErrors;
+        return isValid;
     }
 
     // Thu thập dữ liệu form
@@ -767,16 +599,24 @@ document.addEventListener('DOMContentLoaded', function() {
         const details = [];
 
         document.querySelectorAll('.table-row').forEach(row => {
-            const price = parseFloat(row.querySelector('.price-input').value);
+            const importQuantity = parseInt(row.dataset.quantity);
+            const conversionRatio = parseFloat(row.dataset.conversionRatio) || 1;
+            const baseUnitQuantity = importQuantity * conversionRatio;
+            const price = parseFloat(row.dataset.price);
 
             details.push({
                 variantId: row.dataset.variantId,
-                batchCode: row.querySelector('.batch-input').value.trim(),
-                manufactureDate: row.querySelector('.manufacture-date-input').value,
-                expiryDate: row.querySelector('.expiry-date-input').value,
-                quantity: parseInt(row.querySelector('.quantity-input').value),
-                price: price,           // Giá nhập kho
-                snapCost: price         // Theo flow: price = snap_cost khi nhập từ supplier
+                batchCode: row.dataset.batchCode,
+                manufactureDate: row.dataset.manufactureDate,
+                expiryDate: row.dataset.expiryDate,
+                quantity: baseUnitQuantity,  // Store in base unit
+                price: price,                // Giá nhập kho
+                snapCost: price,             // Theo flow: price = snap_cost khi nhập từ supplier
+                // Additional metadata for audit trail
+                importUnit: row.dataset.importUnit,
+                importQuantity: importQuantity,
+                conversionRatio: conversionRatio,
+                baseUnit: row.dataset.baseUnit
             });
         });
 

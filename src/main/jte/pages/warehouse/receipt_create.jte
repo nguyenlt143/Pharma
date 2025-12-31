@@ -70,14 +70,12 @@ content = @`
                         <tr>
                             <th>STT</th>
                             <th>Tên thuốc</th>
-                            <th>ĐVT</th>
-                            <th>S.lg/Hộp</th>
-                            <th>Hàm lượng</th>
                             <th>Số lô</th>
-                            <th>NSX</th>
-                            <th>HSD</th>
-                            <th>Số lượng</th>
-                            <th>Giá nhập(VNĐ)</th>
+                            <th>Hạn sử dụng</th>
+                            <th>ĐVT</th>
+                            <th>Số lượng nhập</th>
+                            <th>Đơn giá (VNĐ)</th>
+                            <th>Thành tiền (VNĐ)</th>
                             <th></th>
                         </tr>
                         </thead>

@@ -72,6 +72,19 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
                 .orElse("N/A");
     }
 
+    // Helper method to get import unit from variant's unit conversions
+    private String getImportUnitFromVariant(MedicineVariant variant) {
+        if (variant == null) return "N/A";
+        List<UnitConversion> conversions = unitConversionRepository.findByVariantIdId(variant.getId());
+        if (conversions.isEmpty()) return "N/A";
+
+        // Strategy: Use conversion with largest multiplier (typically the import unit)
+        return conversions.stream()
+                .max(java.util.Comparator.comparing(UnitConversion::getMultiplier))
+                .map(uc -> uc.getUnitId().getName())
+                .orElse("N/A");
+    }
+
     @Override
     public List<InventoryMovementVM> getAllMovements() {
         return movementRepository.findAll().stream()
@@ -201,7 +214,8 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
                                 String concentration = detail.getVariant().getStrength() != null
                                     ? detail.getVariant().getStrength()
                                     : "N/A";
-                                String unit = getDisplayUnitFromVariant(detail.getVariant());
+                                String unit = getDisplayUnitFromVariant(detail.getVariant()); // Base unit
+                                String importUnit = getImportUnitFromVariant(detail.getVariant()); // Import unit
                                 Integer quantity = detail.getQuantity() != null
                                     ? detail.getQuantity().intValue()
                                     : 0;
@@ -223,8 +237,10 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
                                     : 0.0;
 
                                 // Use full constructor with batch info and price
-                                return new ReceiptDetailVM(medicineName, concentration, unit, quantity,
+                                ReceiptDetailVM vm = new ReceiptDetailVM(medicineName, concentration, unit, quantity,
                                         batchCode, mfgDate, expiryDate, importPrice);
+                                vm.setImportUnit(importUnit); // Set import unit
+                                return vm;
                             })
                             .collect(Collectors.toList());
                 })
