@@ -289,6 +289,10 @@ public class RevenueServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
     }
 
     private String safeString(String v) {
-        return v == null ? "" : v;
+        if (v == null || v.trim().isEmpty() ||
+            "unknow".equalsIgnoreCase(v) || "unknown".equalsIgnoreCase(v)) {
+            return "Không rõ";
+        }
+        return v;
     }
 }

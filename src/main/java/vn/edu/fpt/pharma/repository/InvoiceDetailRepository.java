@@ -16,18 +16,24 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, Lo
     SELECT
         m.name AS medicineName,
         mv.strength AS strength,
-        u.name AS unitName,
-        (idt.price * uc.multiplier) AS unitPrice,
-        (idt.quantity / uc.multiplier) AS quantity
+        COALESCE(
+            (SELECT u.name 
+             FROM unit_conversions uc 
+             JOIN units u ON uc.unit_id = u.id 
+             WHERE uc.variant_id = inv.variant_id 
+               AND uc.multiplier = idt.multiplier 
+               AND uc.is_sale = TRUE 
+             LIMIT 1),
+            'Đơn vị'
+        ) AS unitName,
+        (idt.price * idt.multiplier) AS unitPrice,
+        (idt.quantity / idt.multiplier) AS quantity
     FROM invoice_details idt
     JOIN inventory inv ON idt.inventory_id = inv.id
     JOIN medicine_variant mv ON inv.variant_id = mv.id
     JOIN medicines m ON mv.medicine_id = m.id
-    LEFT JOIN unit_conversions uc
-        ON inv.variant_id = uc.variant_id
-        AND uc.multiplier = idt.multiplier
-    LEFT JOIN units u ON uc.unit_id = u.id
-        WHERE idt.invoice_id = :id
+    WHERE idt.invoice_id = :id
+    ORDER BY idt.id
 """, nativeQuery = true)
     List<Object[]> findByInvoiceId(@Param("id") long id);
 
@@ -38,8 +44,8 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, Lo
         COALESCE(b.batch_code, 'unknow') AS batch,
         COALESCE(m.manufacturer, 'unknow') AS manufacturer,
         COALESCE(m.country, 'unknow') AS country,
-        COALESCE(SUM(idt.quantity) / uc.multiplier, 0) AS quantity,
-        COALESCE(idt.price * uc.multiplier, 0) AS unitPrice,
+        COALESCE(SUM(idt.quantity) / idt.multiplier, 0) AS quantity,
+        COALESCE(idt.price * idt.multiplier, 0) AS unitPrice,
         COALESCE(SUM(idt.quantity * idt.price), 0) AS total_amount
     FROM invoice_details idt
     JOIN invoices iv ON idt.invoice_id = iv.id
@@ -51,6 +57,7 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, Lo
     LEFT JOIN unit_conversions uc
         ON inv.variant_id = uc.variant_id
         AND uc.multiplier = idt.multiplier
+        AND uc.is_sale = TRUE
     LEFT JOIN units u ON uc.unit_id = u.id
     LEFT JOIN shift_works sw ON iv.shift_work_id = sw.id
     LEFT JOIN shift_assignments sa ON sw.assignment_id = sa.id
@@ -65,7 +72,7 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, Lo
         manufacturer,
         country,
         idt.price,
-        uc.multiplier
+        idt.multiplier
     ORDER BY
         name, unitPrice;
     """, nativeQuery = true)
@@ -82,8 +89,8 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, Lo
             COALESCE(b.batch_code, 'unknow') AS batch,
             COALESCE(m.manufacturer, 'unknow') AS manufacturer,
             COALESCE(m.country, 'unknow') AS country,
-            COALESCE(SUM(idt.quantity) / uc.multiplier, 0) AS quantity,
-            COALESCE(idt.price * uc.multiplier, 0) AS unitPrice,
+            COALESCE(SUM(idt.quantity) / idt.multiplier, 0) AS quantity,
+            COALESCE(idt.price * idt.multiplier, 0) AS unitPrice,
             COALESCE(SUM(idt.quantity * idt.price), 0) AS total_amount
         FROM invoice_details idt
         JOIN invoices iv ON idt.invoice_id = iv.id
@@ -95,6 +102,7 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, Lo
         LEFT JOIN unit_conversions uc
             ON inv.variant_id = uc.variant_id
             AND uc.multiplier = idt.multiplier
+            AND uc.is_sale = TRUE
         LEFT JOIN units u ON uc.unit_id = u.id
         LEFT JOIN shift_works sw ON iv.shift_work_id = sw.id
         LEFT JOIN shift_assignments sa ON sw.assignment_id = sa.id
@@ -110,7 +118,7 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, Lo
             manufacturer,
             country,
             idt.price,
-            uc.multiplier
+            idt.multiplier
         ORDER BY
             name, unitPrice;
     """, nativeQuery = true)

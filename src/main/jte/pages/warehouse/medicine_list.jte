@@ -435,8 +435,8 @@ content = @`
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Ghi chú</label>
-                    <textarea id="note" class="form-textarea" placeholder="Ghi chú thêm về dạng thuốc này..." rows="3"></textarea>
+                    <label class="form-label">Quy cách</label>
+                    <textarea id="note" class="form-textarea" placeholder="VD: 90ml, 10g, 500mg, 250ml, 100g, v.v." rows="3"></textarea>
                 </div>
 
                 <!-- Unit Conversions Section -->

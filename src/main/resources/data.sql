@@ -180,76 +180,275 @@ VALUES
 ('Xịt mũi – nhỏ mũi trẻ em', 'Vệ sinh và hỗ trợ thông mũi cho trẻ', FALSE),
 ('Dinh dưỡng trẻ em', 'Sản phẩm dinh dưỡng và phát triển cho trẻ em', FALSE);
 
-INSERT INTO medicines (name, active_ingredient, brand_name, manufacturer, country, category_id, created_at, deleted)
+INSERT INTO medicines (name, active_ingredient, brand_name, manufacturer, country, category_id, indications, contraindications, side_effects, uses, created_at, deleted)
 VALUES
-    -- ====== NHÓM THUỐC CẢM CÚM 5======
-    ('Paracetamol', 'Paracetamol', 'Panadol', 'GlaxoSmithKline', 'Anh', 1, NOW(), FALSE),
+    -- ====== NHÓM THUỐC CẢM CÚM======
+    ('Paracetamol', 'Paracetamol', 'Panadol', 'GlaxoSmithKline', 'Anh', 1,
+     'Giảm đau nhẹ đến trung bình, hạ sốt',
+     'Mẫn cảm với Paracetamol, suy gan nặng',
+     'Buồn nôn, phát ban, rối loạn tiêu hóa',
+     'Dùng cho đau đầu, đau răng, đau cơ, sốt do cảm cúm', NOW(), FALSE),
+
     ('Decolgen', 'Paracetamol + Phenylephrine HCl + Chlorpheniramine Maleate', 'Decolgen', 'United Pharma',
-     'Philippines', 1, NOW(), FALSE),
-    ('Tiffy', 'Paracetamol + Chlorpheniramine Maleate', 'Tiffy', 'Medica Laboratories', 'Thái Lan', 1, NOW(), FALSE),
-    ('Aspirin', 'Acetylsalicylic Acid', 'Aspirin Bayer', 'Bayer AG', 'Đức', 1, NOW(), FALSE),
-    ('Coldrex MaxGrip', 'Paracetamol + Phenylephrine HCl + Vitamin C', 'Coldrex', 'GlaxoSmithKline', 'Anh', 1, NOW(),
-     FALSE),
-    ('Vicks Formula 44', 'Dextromethorphan HBr 15mg/5ml', 'Vicks', 'Procter & Gamble', 'Mỹ', 1, NOW(), FALSE),
+     'Philippines', 1,
+     'Giảm triệu chứng cảm cúm: sốt, đau đầu, nghẹt mũi',
+     'Quá mẫn với thành phần thuốc, tăng huyết áp nặng',
+     'Buồn nôn, chóng mặt, khô miệng, buồn ngủ',
+     'Điều trị triệu chứng cảm cúm, viêm mũi dị ứng', NOW(), FALSE),
 
--- ====== NHÓM THUỐC HO 6======
-    ('Prospan Syrup ', 'Hedera Helix Extract 7mg/ml', 'Prospan', 'Engelhard Arzneimittel', 'Đức', 2, NOW(), FALSE),
-    ('Atussin Syrup ', 'Guaifenesin 100mg/5ml + Dextromethorphan HBr 10mg/5ml + Chlorpheniramine Maleate 2mg/5ml',
-     'Atussin', 'DHG Pharma', 'Việt Nam', 2, NOW(), FALSE),
-    ('Bromhexine ', 'Bromhexine Hydrochloride 8mg', 'Bromhexine Stella', 'Stella Pharma', 'Việt Nam', 2, NOW(), FALSE),
+    ('Tiffy', 'Paracetamol + Chlorpheniramine Maleate', 'Tiffy', 'Medica Laboratories', 'Thái Lan', 1,
+     'Giảm đau, hạ sốt, giảm triệu chứng dị ứng',
+     'Mẫn cảm với thành phần thuốc',
+     'Buồn ngủ, khô miệng, chóng mặt',
+     'Điều trị cảm cúm, sốt, đau đầu', NOW(), FALSE),
+
+    ('Aspirin', 'Acetylsalicylic Acid', 'Aspirin Bayer', 'Bayer AG', 'Đức', 1,
+     'Giảm đau, hạ sốt, chống viêm, chống đông máu',
+     'Loét dạ dày, rối loạn đông máu, trẻ dưới 16 tuổi',
+     'Đau dạ dày, chảy máu dạ dày, dị ứng',
+     'Giảm đau nhẹ đến trung bình, phòng ngừa đột quỵ', NOW(), FALSE),
+
+    ('Coldrex MaxGrip', 'Paracetamol + Phenylephrine HCl + Vitamin C', 'Coldrex', 'GlaxoSmithKline', 'Anh', 1,
+     'Giảm triệu chứng cảm cúm, sốt, nghẹt mũi',
+     'Quá mẫn với thành phần thuốc, bệnh tim mạch nặng',
+     'Buồn nôn, chóng mặt, tim đập nhanh',
+     'Điều trị cảm cúm, sốt, đau đầu', NOW(), FALSE),
+
+    ('Vicks Formula 44', 'Dextromethorphan HBr 15mg/5ml', 'Vicks', 'Procter & Gamble', 'Mỹ', 1,
+     'Giảm ho khan, ho kích ứng',
+     'Quá mẫn với dextromethorphan, đang dùng thuốc ức chế MAO',
+     'Buồn nôn, chóng mặt, buồn ngủ',
+     'Giảm ho không đờm', NOW(), FALSE),
+
+    -- ====== NHÓM THUỐC HO======
+    ('Prospan Syrup', 'Hedera Helix Extract 7mg/ml', 'Prospan', 'Engelhard Arzneimittel', 'Đức', 2,
+     'Long đờm, giảm ho có đờm',
+     'Quá mẫn với thành phần thảo dược',
+     'Buồn nôn nhẹ, rối loạn tiêu hóa',
+     'Điều trị ho có đờm, viêm phế quản', NOW(), FALSE),
+
+    ('Atussin Syrup', 'Guaifenesin 100mg/5ml + Dextromethorphan HBr 10mg/5ml + Chlorpheniramine Maleate 2mg/5ml',
+     'Atussin', 'DHG Pharma', 'Việt Nam', 2,
+     'Giảm ho, long đờm, giảm triệu chứng dị ứng',
+     'Quá mẫn với thành phần thuốc',
+     'Buồn ngủ, khô miệng, chóng mặt',
+     'Điều trị ho có đờm, ho do dị ứng', NOW(), FALSE),
+
+    ('Bromhexine', 'Bromhexine Hydrochloride 8mg', 'Bromhexine Stella', 'Stella Pharma', 'Việt Nam', 2,
+     'Long đờm, làm loãng đờm',
+     'Quá mẫn với bromhexine, loét dạ dày',
+     'Buồn nôn, đau dạ dày, phát ban',
+     'Điều trị ho có đờm đặc, viêm phế quản', NOW(), FALSE),
+
     ('Terpin Codein', 'Codeine Phosphate 10mg + Terpin Hydrate 100mg', 'Terpin Codein', 'Imexpharm', 'Việt Nam', 2,
-     NOW(), FALSE),
-    ('Ho Pha Viên', 'Dextromethorphan HBr + Guaifenesin', 'Ho Pha', 'Medipharm', 'Việt Nam', 2, NOW(), FALSE),
+     'Giảm ho, long đờm',
+     'Quá mẫn với codein hoặc terpin, suy hô hấp, trẻ dưới 12 tuổi',
+     'Buồn nôn, chóng mặt, táo bón, buồn ngủ',
+     'Điều trị ho có đờm', NOW(), FALSE),
 
--- ====== NHÓM THUỐC HẠ SỐT – GIẢM ĐAU 7======
-    ('Panadol Extra ', 'Paracetamol + Caffeine', 'Panadol', 'GlaxoSmithKline', 'Anh', 3, NOW(), FALSE),
-    ('Efferalgan ', 'Paracetamol', 'Efferalgan', 'Bristol-Myers', 'Pháp', 3, NOW(), FALSE),
-    ('Ibuprofen ', 'Ibuprofen', 'Nurofen', 'Reckitt Benckiser', 'Anh', 3, NOW(), FALSE),
+    ('Ho Pha Viên', 'Dextromethorphan HBr + Guaifenesin', 'Ho Pha', 'Medipharm', 'Việt Nam', 2,
+     'Giảm ho, long đờm',
+     'Quá mẫn với thành phần thuốc',
+     'Buồn nôn, chóng mặt',
+     'Điều trị ho có đờm', NOW(), FALSE),
 
-    -- Thuốc dị ứng – kháng histamin (ID = 8)
-    ('Cetirizine', 'Cetirizine 10mg', 'Zyrtec', 'UCB Pharma', 'Belgium', 4, NOW(), FALSE),
-    ('Loratadine', 'Loratadine 10mg', 'Claritine', 'Bayer', 'Germany', 4, NOW(), FALSE),
-    ('Fexofenadine', 'Fexofenadine Hydrochloride 180mg', 'Telfast', 'Sanofi', 'France', 4, NOW(), FALSE),
-    -- Thuốc sát khuẩn – khử trùng (ID = 9)
-    ('Betadine', 'Povidone Iodine 10%', 'Betadine', 'Mundipharma', 'Singapore', 5, NOW(), FALSE),
-    ('Oxy già', 'Hydrogen Peroxide 3%', 'Hydrogen Peroxide', 'Medipharma', 'Vietnam', 5, NOW(), FALSE),
-    -- Dạ dày – tiêu hóa (ID = 10)
-    ('Omeprazole', 'Omeprazole 20mg', 'Losec', 'AstraZeneca', 'UK', 6, NOW(), FALSE),
-    ('Esomeprazole', 'Esomeprazole 40mg', 'Nexium', 'AstraZeneca', 'Sweden', 6, NOW(), FALSE),
-    ('Domperidone', 'Domperidone 10mg', 'Motilium', 'Janssen', 'Belgium', 6, NOW(), FALSE),
-    -- Tim mạch – huyết áp (ID = 11
-    ('Amlodipine', 'Amlodipine 5mg', 'Amlor', 'Pfizer', 'USA', 7, NOW(), FALSE),
-    ('Losartan', 'Losartan Potassium 50mg', 'Cozaar', 'Merck Sharp & Dohme', 'USA', 7, NOW(), FALSE),
-    ('Bisoprolol', 'Bisoprolol Fumarate 5mg', 'Concor', 'Merck', 'Germany', 7, NOW(), FALSE),
-    -- Xương khớp – đau nhức (ID = 12)
-    ('Glucosamine', 'Glucosamine Sulfate 1500mg', 'Schiff Glucosamine', 'Schiff', 'USA', 8, NOW(), FALSE),
-    ('Meloxicam', 'Meloxicam 7.5mg', 'Mobic', 'Boehringer Ingelheim', 'Germany', 8, NOW(), FALSE),
-    -- Gan – giải độc (ID = 13)
-    ('Essentiale Forte', 'Phospholipid Extract', 'Essentiale', 'Sanofi', 'France', 9, NOW(), FALSE),
-    ('LiverGold', 'Milk Thistle Extract', 'LiverGold', 'Nature''s Way', 'USA', 9, NOW(), FALSE),
-    -- Thần kinh – giấc ngủ (ID = 14)
-    ('Melatonin', 'Melatonin 3mg', 'Natrol Melatonin', 'Natrol', 'USA', 10, NOW(), FALSE),
-    ('Magnesium B6', 'Magnesium + Vitamin B6', 'MagB6', 'Sanofi', 'France', 10, NOW(), FALSE),
-    -- Vitamin và khoáng chất (ID = 15)
-    ('Centrum', 'Multivitamins & Minerals', 'Centrum', 'Pfizer', 'USA', 11, NOW(), FALSE),
-    -- Tăng đề kháng – miễn dịch (ID = 16)
-    ('Vitamin C', 'Ascorbic Acid 1000mg', 'Vitamin C', 'Blackmores', 'Australia', 12, NOW(), FALSE),
-    -- Điện giải – dinh dưỡng (ID = 17)
-    ('ORS', 'Oral Rehydration Salts', 'ORESOL', 'DHG Pharma', 'Vietnam', 13, NOW(), FALSE),
-    -- Hỗ trợ tiêu hóa – men vi sinh (ID = 18
-    ('BioGaia', 'Lactobacillus reuteri Protectis', 'BioGaia', 'BioGaia AB', 'Sweden', 14, NOW(), FALSE),
-    -- Sức khỏe phụ nữ (ID = 19)
-    ('Evening Primrose Oil', 'Evening Primrose Oil 1000mg', 'EPO', 'Blackmores', 'Australia', 15, NOW(), FALSE),
-    -- Thuốc cảm – ho – sốt cho trẻ (ID = 20
-    ('Tylenol Children', 'Acetaminophen 160mg/5ml', 'Tylenol Children', 'Johnson & Johnson', 'USA', 16, NOW(), FALSE),
-    -- Vitamin và khoáng chất trẻ em (ID = 21)
-    ('Kids Smart Vita Gummies', 'Multivitamins for Kids', 'Nature', ' Way', 'Australia', 17, NOW(), FALSE),
-    -- Điện giải và tiêu hóa cho trẻ (ID = 22)
-    ('Hydrite', 'ORS for Kids', 'Hydrite', 'United Pharma', 'Philippines', 18, NOW(), FALSE),
-    -- Xịt mũi – nhỏ mũi trẻ em (ID = 23)
-    ('Sterimar Baby', 'aaa', 'sea water', 'Sterimar', 'France', 19, NOW(), FALSE),
-    -- Dinh dưỡng trẻ em (ID = 24)
-    ('PediaSure', 'Child Nutrition Formula', 'PediaSure', 'Abbott', 'USA', 20, NOW(), FALSE);
+    -- ====== NHÓM THUỐC HẠ SỐT – GIẢM ĐAU======
+    ('Panadol Extra', 'Paracetamol + Caffeine', 'Panadol', 'GlaxoSmithKline', 'Anh', 3,
+     'Giảm đau nhanh hơn nhờ caffeine, hạ sốt',
+     'Mẫn cảm với paracetamol hoặc caffeine, suy gan',
+     'Buồn nôn, phát ban, mất ngủ do caffeine',
+     'Giảm đau đầu, đau răng, đau cơ, hạ sốt', NOW(), FALSE),
+
+    ('Efferalgan', 'Paracetamol', 'Efferalgan', 'Bristol-Myers', 'Pháp', 3,
+     'Giảm đau, hạ sốt',
+     'Mẫn cảm với paracetamol, suy gan nặng',
+     'Buồn nôn, phát ban',
+     'Giảm đau nhẹ đến trung bình, hạ sốt', NOW(), FALSE),
+
+    ('Ibuprofen', 'Ibuprofen', 'Nurofen', 'Reckitt Benckiser', 'Anh', 3,
+     'Giảm đau, hạ sốt, chống viêm',
+     'Loét dạ dày, dị ứng với NSAID, suy thận nặng',
+     'Đau dạ dày, buồn nôn, chảy máu dạ dày',
+     'Giảm đau do viêm, đau khớp, đau răng, hạ sốt', NOW(), FALSE),
+
+    -- Thuốc dị ứng – kháng histamin
+    ('Cetirizine', 'Cetirizine 10mg', 'Zyrtec', 'UCB Pharma', 'Bỉ', 4,
+     'Giảm triệu chứng dị ứng: ngứa, chảy nước mũi, mề đay',
+     'Quá mẫn với cetirizine, suy thận nặng',
+     'Buồn ngủ nhẹ, mệt mỏi, khô miệng',
+     'Điều trị viêm mũi dị ứng, mề đay', NOW(), FALSE),
+
+    ('Loratadine', 'Loratadine 10mg', 'Claritine', 'Bayer', 'Đức', 4,
+     'Giảm dị ứng, mề đay, ngứa',
+     'Quá mẫn với loratadine',
+     'Khô miệng, đau đầu, buồn ngủ nhẹ',
+     'Điều trị viêm mũi dị ứng, mề đay mạn tính', NOW(), FALSE),
+
+    ('Fexofenadine', 'Fexofenadine Hydrochloride 180mg', 'Telfast', 'Sanofi', 'Pháp', 4,
+     'Giảm triệu chứng dị ứng, không gây buồn ngủ',
+     'Quá mẫn với fexofenadine',
+     'Đau đầu, buồn nôn nhẹ',
+     'Điều trị viêm mũi dị ứng theo mùa', NOW(), FALSE),
+
+    -- Thuốc sát khuẩn – khử trùng
+    ('Betadine', 'Povidone Iodine 10%', 'Betadine', 'Mundipharma', 'Singapore', 5,
+     'Sát khuẩn, khử trùng vết thương',
+     'Quá mẫn với iodine, rối loạn tuyến giáp',
+     'Kích ứng da nhẹ',
+     'Sát khuẩn da, vết thương, trước phẫu thuật', NOW(), FALSE),
+
+    ('Oxy già', 'Hydrogen Peroxide 3%', 'Hydrogen Peroxide', 'Medipharma', 'Việt Nam', 5,
+     'Sát khuẩn, làm sạch vết thương',
+     'Vết thương sâu, bỏng nặng',
+     'Kích ứng da, đau rát nhẹ',
+     'Làm sạch và khử trùng vết thương nông', NOW(), FALSE),
+
+    -- Dạ dày – tiêu hóa
+    ('Omeprazole', 'Omeprazole 20mg', 'Losec', 'AstraZeneca', 'Anh', 6,
+     'Điều trị loét dạ dày, trào ngược dạ dày thực quản',
+     'Quá mẫn với omeprazole',
+     'Đau đầu, buồn nôn, tiêu chảy',
+     'Giảm tiết acid dạ dày, điều trị loét', NOW(), FALSE),
+
+    ('Esomeprazole', 'Esomeprazole 40mg', 'Nexium', 'AstraZeneca', 'Thụy Điển', 6,
+     'Điều trị trào ngược dạ dày, loét dạ dày',
+     'Quá mẫn với esomeprazole',
+     'Đau đầu, tiêu chảy, đau bụng',
+     'Giảm tiết acid, bảo vệ niêm mạc dạ dày', NOW(), FALSE),
+
+    ('Domperidone', 'Domperidone 10mg', 'Motilium', 'Janssen', 'Bỉ', 6,
+     'Chống nôn, tăng nhu động dạ dày',
+     'Quá mẫn với domperidone, rối loạn nhịp tim',
+     'Đau bụng, khô miệng',
+     'Điều trị buồn nôn, ợ hơi, đầy bụng', NOW(), FALSE),
+
+    -- Tim mạch – huyết áp
+    ('Amlodipine', 'Amlodipine 5mg', 'Amlor', 'Pfizer', 'Mỹ', 7,
+     'Điều trị tăng huyết áp, đau thắt ngực',
+     'Quá mẫn với amlodipine, hạ huyết áp nặng',
+     'Phù chân, đau đầu, mệt mỏi',
+     'Hạ huyết áp, giảm đau thắt ngực', NOW(), FALSE),
+
+    ('Losartan', 'Losartan Potassium 50mg', 'Cozaar', 'Merck Sharp & Dohme', 'Mỹ', 7,
+     'Điều trị tăng huyết áp, bảo vệ thận',
+     'Quá mẫn với losartan, thai kỳ',
+     'Chóng mặt, tăng kali máu',
+     'Hạ huyết áp, bảo vệ chức năng thận', NOW(), FALSE),
+
+    ('Bisoprolol', 'Bisoprolol Fumarate 5mg', 'Concor', 'Merck', 'Đức', 7,
+     'Điều trị tăng huyết áp, suy tim',
+     'Quá mẫn với bisoprolol, block tim nặng, hen',
+     'Mệt mỏi, chóng mặt, nhịp tim chậm',
+     'Hạ huyết áp, giảm gánh nặng tim', NOW(), FALSE),
+
+    -- Xương khớp – đau nhức
+    ('Glucosamine', 'Glucosamine Sulfate 1500mg', 'Schiff Glucosamine', 'Schiff', 'Mỹ', 8,
+     'Hỗ trợ sửa chữa sụn khớp, giảm đau khớp',
+     'Quá mẫn với glucosamine, dị ứng hải sản',
+     'Buồn nôn, tiêu chảy nhẹ',
+     'Hỗ trợ điều trị thoái hóa khớp', NOW(), FALSE),
+
+    ('Meloxicam', 'Meloxicam 7.5mg', 'Mobic', 'Boehringer Ingelheim', 'Đức', 8,
+     'Giảm đau, chống viêm khớp',
+     'Loét dạ dày, dị ứng với NSAID',
+     'Đau dạ dày, buồn nôn, chóng mặt',
+     'Giảm đau viêm khớp, thoái hóa khớp', NOW(), FALSE),
+
+    -- Gan – giải độc
+    ('Essentiale Forte', 'Phospholipid Extract', 'Essentiale', 'Sanofi', 'Pháp', 9,
+     'Hỗ trợ chức năng gan, tái tạo tế bào gan',
+     'Quá mẫn với phospholipid',
+     'Rối loạn tiêu hóa nhẹ',
+     'Hỗ trợ điều trị gan nhiễm mỡ, viêm gan', NOW(), FALSE),
+
+    ('LiverGold', 'Milk Thistle Extract', 'LiverGold', 'Nature''s Way', 'Mỹ', 9,
+     'Bảo vệ gan, giải độc gan',
+     'Quá mẫn với cây kế sữa',
+     'Tiêu chảy nhẹ',
+     'Hỗ trợ chức năng gan, giải độc', NOW(), FALSE),
+
+    -- Thần kinh – giấc ngủ
+    ('Melatonin', 'Melatonin 3mg', 'Natrol Melatonin', 'Natrol', 'Mỹ', 10,
+     'Hỗ trợ giấc ngủ, điều hòa chu kỳ ngủ',
+     'Quá mẫn với melatonin, thai kỳ',
+     'Buồn ngủ ban ngày, đau đầu nhẹ',
+     'Hỗ trợ điều trị mất ngủ, rối loạn giấc ngủ', NOW(), FALSE),
+
+    ('Magnesium B6', 'Magnesium + Vitamin B6', 'MagB6', 'Sanofi', 'Pháp', 10,
+     'Giảm căng thẳng, cải thiện giấc ngủ',
+     'Quá mẫn với magnesium, suy thận nặng',
+     'Tiêu chảy nhẹ',
+     'Bổ sung magie, giảm stress, hỗ trợ giấc ngủ', NOW(), FALSE),
+
+    -- Vitamin và khoáng chất
+    ('Centrum', 'Multivitamins & Minerals', 'Centrum', 'Pfizer', 'Mỹ', 11,
+     'Bổ sung đa vitamin và khoáng chất',
+     'Quá mẫn với thành phần',
+     'Buồn nôn nhẹ, táo bón',
+     'Bổ sung vitamin tổng hợp hàng ngày', NOW(), FALSE),
+
+    -- Tăng đề kháng – miễn dịch
+    ('Vitamin C', 'Ascorbic Acid 1000mg', 'Vitamin C', 'Blackmores', 'Úc', 12,
+     'Tăng cường miễn dịch, chống oxy hóa',
+     'Quá mẫn với vitamin C, sỏi thận',
+     'Tiêu chảy nếu dùng liều cao',
+     'Tăng cường đề kháng, phòng ngừa cảm cúm', NOW(), FALSE),
+
+    -- Điện giải – dinh dưỡng
+    ('ORS', 'Oral Rehydration Salts', 'ORESOL', 'DHG Pharma', 'Việt Nam', 13,
+     'Bù nước và điện giải',
+     'Tắc ruột, suy thận nặng',
+     'Buồn nôn nếu uống quá nhanh',
+     'Điều trị mất nước do tiêu chảy, nôn', NOW(), FALSE),
+
+    -- Hỗ trợ tiêu hóa – men vi sinh
+    ('BioGaia', 'Lactobacillus reuteri Protectis', 'BioGaia', 'BioGaia AB', 'Thụy Điển', 14,
+     'Cân bằng hệ vi sinh đường ruột',
+     'Quá mẫn với thành phần',
+     'Đầy hơi nhẹ',
+     'Hỗ trợ tiêu hóa, điều trị tiêu chảy', NOW(), FALSE),
+
+    -- Sức khỏe phụ nữ
+    ('Evening Primrose Oil', 'Evening Primrose Oil 1000mg', 'EPO', 'Blackmores', 'Úc', 15,
+     'Cân bằng nội tiết tố nữ, giảm triệu chứng tiền kinh nguyệt',
+     'Quá mẫn với tinh dầu hoa anh thảo, rối loạn đông máu',
+     'Buồn nôn nhẹ, đau đầu',
+     'Hỗ trợ sức khỏe phụ nữ, giảm triệu chứng PMS', NOW(), FALSE),
+
+    -- Thuốc cảm – ho – sốt cho trẻ
+    ('Tylenol Children', 'Acetaminophen 160mg/5ml', 'Tylenol Children', 'Johnson & Johnson', 'Mỹ', 16,
+     'Giảm đau, hạ sốt cho trẻ em',
+     'Quá mẫn với acetaminophen, suy gan',
+     'Buồn nôn, phát ban',
+     'Hạ sốt, giảm đau cho trẻ từ 2 tuổi', NOW(), FALSE),
+
+    -- Vitamin và khoáng chất trẻ em
+    ('Kids Smart Vita Gummies', 'Multivitamins for Kids', 'Nature''s Way', 'Nature''s Way', 'Úc', 17,
+     'Bổ sung vitamin cho trẻ',
+     'Quá mẫn với thành phần',
+     'Rối loạn tiêu hóa nhẹ nếu dùng quá liều',
+     'Bổ sung vitamin tổng hợp cho trẻ em', NOW(), FALSE),
+
+    -- Điện giải và tiêu hóa cho trẻ
+    ('Hydrite', 'ORS for Kids', 'Hydrite', 'United Pharma', 'Philippines', 18,
+     'Bù nước và điện giải cho trẻ',
+     'Tắc ruột',
+     'Buồn nôn nếu uống quá nhanh',
+     'Điều trị mất nước do tiêu chảy ở trẻ', NOW(), FALSE),
+
+    -- Xịt mũi – nhỏ mũi trẻ em
+    ('Sterimar Baby', 'Nước biển sinh lý', 'Sterimar', 'Sterimar', 'Pháp', 19,
+     'Vệ sinh mũi, thông mũi cho trẻ',
+     'Không có',
+     'Không có',
+     'Vệ sinh mũi hàng ngày cho trẻ sơ sinh', NOW(), FALSE),
+
+    -- Dinh dưỡng trẻ em
+    ('PediaSure', 'Child Nutrition Formula', 'PediaSure', 'Abbott', 'Mỹ', 20,
+     'Bổ sung dinh dưỡng toàn diện cho trẻ',
+     'Dị ứng với sữa',
+     'Rối loạn tiêu hóa nhẹ',
+     'Hỗ trợ tăng trưởng và phát triển cho trẻ', NOW(), FALSE);
 
 -- Medicine Variants with DosageForm ENUM
 -- Dosage Forms Table (Entity instead of Enum)

@@ -200,34 +200,19 @@
                     }
                 },
                 {
-                    data: 'drugName',
-                    render: function(data, type, row) {
-                        return data || 'N/A';
-                    }
+                    data: 'drugName'
                 },
                 {
-                    data: 'unit',
-                    render: function(data, type, row) {
-                        return data || 'N/A';
-                    }
+                    data: 'unit'
                 },
                 {
-                    data: 'batch',
-                    render: function(data, type, row) {
-                        return data || 'N/A';
-                    }
+                    data: 'batch'
                 },
                 {
-                    data: 'manufacturer',
-                    render: function(data, type, row) {
-                        return data || 'N/A';
-                    }
+                    data: 'manufacturer'
                 },
                 {
-                    data: 'country',
-                    render: function(data, type, row) {
-                        return data || 'N/A';
-                    }
+                    data: 'country'
                 },
                 {
                     data: 'quantity',

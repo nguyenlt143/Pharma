@@ -321,20 +321,41 @@ function addEventListenersToMedicineCards() {
                             detailsHtml += '<thead><tr style="background-color: #f0f0f0;"><th style="border: 1px solid #ddd; padding: 8px;">Thông tin biến thể</th><th style="border: 1px solid #ddd; padding: 8px;">Chi tiết kho</th></tr></thead><tbody>';
 
                             variants.forEach(variant => {
-                                // Variant information column
+                                // Variant information column with better default values
+                                const dosageForm = variant.dosageForm || 'Chưa xác định';
+                                const strength = variant.strength || 'Không có';
+                                const dosage = variant.dosage || 'Chưa có thông tin';
+                                const packaging = variant.packaging || 'Chưa cập nhật';
+                                const storageConditions = variant.storageConditions || 'Bảo quản nơi khô ráo, tránh ánh sáng';
+                                const indications = variant.indications || 'Chưa cập nhật';
+                                const contraindications = variant.contraindications || 'Chưa cập nhật';
+                                const sideEffects = variant.sideEffects || 'Chưa cập nhật';
+                                const instructions = variant.instructions || 'Xem hướng dẫn sử dụng';
+                                const uses = variant.uses || 'Chưa cập nhật';
+                                const country = variant.country || 'Chưa rõ';
+                                const manufacturer = variant.manufacturer || 'Chưa rõ';
+
+                                // Prescription requirement with emphasis
+                                const prescriptionHtml = variant.prescriptionRequire
+                                    ? '<div style="background-color: #fff3cd; border: 2px solid #ff9800; border-radius: 6px; padding: 10px; margin: 10px 0; text-align: center;"><span style="color: #ff6600; font-size: 16px; font-weight: bold;">⚠️ CẦN ĐƠN THUỐC ⚠️</span><br><small style="color: #856404;">Thuốc này chỉ được bán khi có đơn thuốc của bác sĩ</small></div>'
+                                    : '<div style="background-color: #d4edda; border: 2px solid #28a745; border-radius: 6px; padding: 8px; margin: 10px 0; text-align: center;"><span style="color: #155724; font-size: 14px; font-weight: bold;">✓ KHÔNG CẦN ĐƠN THUỐC</span><br><small style="color: #155724;">Thuốc không kê đơn (OTC)</small></div>';
+
                                 let variantInfoHtml = `<td style="border: 1px solid #ddd; padding: 8px; vertical-align: top;">
-                                    <strong>Dạng: ${variant.dosageForm || 'N/A'}</strong><br>
-                                    <strong>Nồng độ: ${variant.strength || 'N/A'}</strong><br>
-                                    Liều lượng: ${variant.dosage || 'N/A'}<br>
-                                    Đóng gói: ${variant.quantityPerPackage || 'N/A'} ${variant.baseUnitName || ''} / ${variant.packageUnitName || ''}<br>
-                                    Điều kiện bảo quản: ${variant.storageConditions || 'N/A'}<br>
-                                    Chỉ định: ${variant.indications || 'N/A'}<br>
-                                    Chống chỉ định: ${variant.contraindications || 'N/A'}<br>
-                                    Tác dụng phụ: ${variant.sideEffects || 'N/A'}<br>
-                                    Hướng dẫn: ${variant.instructions || 'N/A'}<br>
-                                    Cần đơn thuốc: ${variant.prescriptionRequire ? 'Có' : 'Không'}<br>
-                                    Công dụng: ${variant.uses || 'N/A'}<br>
-                                    Quốc gia: ${variant.country || 'N/A'}<br>
+                                    ${prescriptionHtml}
+                                    <strong>Dạng: ${dosageForm}</strong><br>
+                                    <strong>Nồng độ: ${strength}</strong><br>
+                                    <strong>Nhà sản xuất: ${manufacturer}</strong><br>
+                                    <strong>Quốc gia: ${country}</strong><br>
+                                    <hr style="margin: 8px 0; border: none; border-top: 1px solid #e0e0e0;">
+                                    <strong>Quy cách đóng gói:</strong> ${packaging}<br>
+                                    <strong>Liều dùng:</strong> ${dosage}<br>
+                                    <strong>Điều kiện bảo quản:</strong> ${storageConditions}<br>
+                                    <hr style="margin: 8px 0; border: none; border-top: 1px solid #e0e0e0;">
+                                    <strong>Chỉ định:</strong> ${indications}<br>
+                                    <strong>Chống chỉ định:</strong> ${contraindications}<br>
+                                    <strong>Tác dụng phụ:</strong> ${sideEffects}<br>
+                                    <strong>Công dụng:</strong> ${uses}<br>
+                                    <strong>Hướng dẫn:</strong> ${instructions}<br>
                                 </td>`;
 
                                 // Inventory details column
@@ -354,26 +375,28 @@ function addEventListenersToMedicineCards() {
                                         inventoryInfoHtml += '<span style="color: red; font-weight: bold;">⚠️ Hết hàng (Thuốc đã hết hạn)</span>';
                                     } else {
                                         validInventories.forEach(inv => {
-                                            const expiryDate = inv.expiryDate ? new Date(inv.expiryDate).toLocaleDateString('vi-VN') : 'N/A';
+                                            const expiryDate = inv.expiryDate ? new Date(inv.expiryDate).toLocaleDateString('vi-VN') : 'Không xác định';
                                             const salePrice = inv.salePrice ? inv.salePrice.toLocaleString('vi-VN') + ' VNĐ' : 'Chưa có giá';
+                                            const batchNumber = inv.batchNumber || 'Chưa có số lô';
+                                            const baseUnitName = variant.baseUnitName || 'đơn vị';
                                         inventoryInfoHtml += `
                                             <div class="inventory-wrapper" style="margin-bottom: 10px; padding: 8px; background-color: #f9f9f9; border-radius: 4px;">
                                                 <div class="inventory-item"
                                                 data-inventory-id="${inv.id}"
                                                 data-medicine-name="${medicineName}"
                                                 data-units='${JSON.stringify(variant.unitConversion)}'
-                                                data-strength="${variant.strength}"
-                                                data-base-unit-name="${variant.baseUnitName}"
+                                                data-strength="${variant.strength || ''}"
+                                                data-base-unit-name="${baseUnitName}"
                                                 data-variant-id="${variant.variantId}"
-                                                data-batch-number="${inv.batchNumber}"
-                                                data-expiry-date="${inv.expiryDate}"
-                                                data-sale-price="${inv.salePrice}"
+                                                data-batch-number="${inv.batchNumber || ''}"
+                                                data-expiry-date="${inv.expiryDate || ''}"
+                                                data-sale-price="${inv.salePrice || 0}"
                                                 data-max-quantity="${inv.quantity}"
                                                 style="cursor: pointer; padding: 4px; border-radius: 2px;"
                                                 title="Click để thêm vào đơn thuốc">
-                                                    <strong>Số lô: ${inv.batchNumber || 'N/A'}</strong><br>
+                                                    <strong>Số lô: ${batchNumber}</strong><br>
                                                     HSD: ${expiryDate}<br>
-                                                    Tồn kho: <strong>${inv.quantity}</strong> ${variant.baseUnitName || ''}<br>
+                                                    Tồn kho: <strong>${inv.quantity}</strong> ${baseUnitName}<br>
                                                     Giá bán: <strong style="color: #c0392b;">${salePrice}</strong>
                                                 </div>
                                                 <div style="margin-top: 8px;">
@@ -619,23 +642,29 @@ function addItemToPrescription(inventoryData, button) {
                 return;
             }
         } else {
-            // Create new prescription item
+            // Create new prescription item with better default values
+            // Find the first sale unit as default
+            const saleUnits = inventoryData.unitConversions.filter(u => u.isSale === true);
+            const defaultUnit = saleUnits.length > 0 ? saleUnits[0] : inventoryData.unitConversions[0];
+            const defaultMultiplier = defaultUnit ? defaultUnit.multiplier : 1;
+            const defaultPrice = inventoryData.salePrice * defaultMultiplier;
+
             const newItem = {
                 inventoryId: inventoryData.inventoryId,
-                medicineName: inventoryData.medicineName || 'N/A',
+                medicineName: inventoryData.medicineName || 'Thuốc không tên',
                 strength: inventoryData.strength || '',
-                dosageForm: 'N/A',
+                dosageForm: 'Chưa xác định',
                 baseUnitName: inventoryData.baseUnitName || 'Đơn vị',
                 packageUnitName: '',
-                batchNumber: inventoryData.batchNumber || 'N/A',
-                expiryDate: inventoryData.expiryDate || 'N/A',
+                batchNumber: inventoryData.batchNumber || 'Chưa có số lô',
+                expiryDate: inventoryData.expiryDate || 'Chưa xác định',
                 salePrice: inventoryData.salePrice,
-                currentPrice: inventoryData.salePrice,
+                currentPrice: defaultPrice,
                 unitPrice: inventoryData.salePrice,
                 quantity: 1,
-                maxQuantity: inventoryData.maxQuantity,
+                maxQuantity: Math.floor(inventoryData.maxQuantity / defaultMultiplier),
                 baseStock: inventoryData.maxQuantity,
-                selectedMultiplier: 1,
+                selectedMultiplier: defaultMultiplier,
                 units: inventoryData.unitConversions
             };
 
@@ -686,7 +715,7 @@ function renderPrescription() {
         const row = document.createElement('tr');
 
         const medicineDisplayName = item.strength ? `${item.medicineName} - ${item.strength}` : item.medicineName;
-        const formattedExpiryDate = item.expiryDate ? formatDateDMY(item.expiryDate) : 'N/A';
+        const formattedExpiryDate = item.expiryDate ? formatDateDMY(item.expiryDate) : 'Chưa xác định';
 
         row.innerHTML = `
             <td>${index + 1}</td>
@@ -703,7 +732,7 @@ function renderPrescription() {
                 <select class="unit-select"
                         data-inventory-id="${item.inventoryId}"
                         title="Chọn đơn vị bán hàng">
-                    ${item.units.map(u => `
+                    ${item.units.filter(u => u.isSale === true).map(u => `
                     <option value="${u.multiplier}"
                             data-unit="${u.unitName}"
                             ${item.selectedMultiplier === u.multiplier ? "selected" : ""}>
@@ -1804,7 +1833,8 @@ function fetchInvoiceDetailsAndPrint(invoiceId, paymentData) {
                 paymentMethod: paymentData.paymentMethod,
                 note: invoiceDetail.description || paymentData.note,
                 date: invoiceDetail.createdAt ? new Date(invoiceDetail.createdAt) : new Date(),
-                medicines: invoiceDetail.medicines // Backend medicine list
+                medicines: invoiceDetail.medicines, // Backend medicine list
+                prescriptionSnapshot: paymentData.prescriptionSnapshot  // Thêm snapshot
             });
         })
         .catch(error => {
@@ -1822,7 +1852,8 @@ function fetchInvoiceDetailsAndPrint(invoiceId, paymentData) {
                 totalAmount: paymentData.totalAmount,
                 paymentMethod: paymentData.paymentMethod,
                 note: paymentData.note,
-                date: new Date()
+                date: new Date(),
+                prescriptionSnapshot: paymentData.prescriptionSnapshot  // Thêm snapshot
             });
         });
 }
@@ -1852,14 +1883,25 @@ function printInvoice(invoiceData) {
     let itemsHTML = '';
     let itemNumber = 1;
 
+    // Sử dụng prescriptionSnapshot nếu có, nếu không dùng prescriptionItems global
+    const prescriptionData = invoiceData.prescriptionSnapshot || prescriptionItems;
+
     invoiceData.items.forEach(item => {
         const itemTotal = item.quantity * item.unitPrice;
 
-        // Get medicine name from prescriptionItems or use inventoryId
-        const prescriptionItem = prescriptionItems.find(p => p.inventoryId === item.inventoryId);
+        // Get medicine name and unit from prescriptionData
+        const prescriptionItem = prescriptionData.find(p => p.inventoryId === item.inventoryId);
         const medicineName = prescriptionItem ? prescriptionItem.medicineName : `Thuốc #${item.inventoryId}`;
         const medicineStrength = prescriptionItem && prescriptionItem.strength ? ` - ${prescriptionItem.strength}` : '';
-        const unitName = prescriptionItem ? prescriptionItem.baseUnitName : 'Đơn vị';
+
+        // Get the actual selected unit name (not base unit)
+        let unitName = 'Đơn vị';
+        if (prescriptionItem && prescriptionItem.units && prescriptionItem.selectedMultiplier) {
+            const selectedUnit = prescriptionItem.units.find(u => u.multiplier === prescriptionItem.selectedMultiplier);
+            unitName = selectedUnit ? selectedUnit.unitName : prescriptionItem.baseUnitName;
+        } else if (prescriptionItem) {
+            unitName = prescriptionItem.baseUnitName;
+        }
 
         itemsHTML += `
             <tr>
@@ -2213,6 +2255,10 @@ function processPaymentWithValidation(paymentData) {
         payButton.textContent = 'Đang xử lý...';
     }
 
+    // Lưu snapshot của prescriptionItems để dùng khi in hóa đơn
+    // Vì sau khi thanh toán thành công, prescriptionItems sẽ bị clear
+    const prescriptionSnapshot = JSON.parse(JSON.stringify(prescriptionItems));
+
     // Chuẩn bị dữ liệu InvoiceCreateRequest đầy đủ
     const invoiceData = {
         customerName: paymentData.customerName,
@@ -2249,7 +2295,8 @@ function processPaymentWithValidation(paymentData) {
         // Fetch full invoice details then print
         fetchInvoiceDetailsAndPrint(result.id, {
             ...paymentData,
-            invoiceCode: result.invoiceCode
+            invoiceCode: result.invoiceCode,
+            prescriptionSnapshot: prescriptionSnapshot  // Thêm snapshot để dùng khi in
         });
 
         // Complete form reset

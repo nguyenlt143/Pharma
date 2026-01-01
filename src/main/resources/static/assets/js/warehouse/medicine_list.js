@@ -290,6 +290,16 @@ function openCreateModal() {
     closeVariantModal();
     closeDetailModal();
 
+    // Force clean up detail modal completely
+    const detailModal = document.getElementById('detailModal');
+    const detailContent = document.getElementById('detailContent');
+    if (detailModal) {
+        detailModal.style.display = 'none';
+    }
+    if (detailContent) {
+        detailContent.innerHTML = '';
+    }
+
     document.getElementById('modalTitle').textContent = 'Thêm thuốc mới';
     document.getElementById('medicineForm').reset();
     document.getElementById('medicineId').value = '';
@@ -300,6 +310,22 @@ function openEditModal(id) {
     // Close other modals if they're open
     closeVariantModal();
     closeDetailModal();
+
+    // Force clean up detail modal completely
+    const detailModal = document.getElementById('detailModal');
+    const detailContent = document.getElementById('detailContent');
+    if (detailModal) {
+        detailModal.style.display = 'none';
+    }
+    if (detailContent) {
+        detailContent.innerHTML = '';
+    }
+
+    // Reset form first to ensure clean state
+    const medicineForm = document.getElementById('medicineForm');
+    if (medicineForm) {
+        medicineForm.reset();
+    }
 
     fetch(`/api/warehouse/medicine/${id}`)
         .then(res => res.json())
@@ -348,12 +374,38 @@ function openEditModal(id) {
 
 function closeMedicineModal() {
     document.getElementById('medicineModal').style.display = 'none';
+    // Reset form to ensure clean state
+    const medicineForm = document.getElementById('medicineForm');
+    if (medicineForm) {
+        medicineForm.reset();
+    }
+    document.getElementById('medicineId').value = '';
+
+    // Force clean up detail modal completely to prevent interference
+    const detailModal = document.getElementById('detailModal');
+    const detailContent = document.getElementById('detailContent');
+    if (detailModal) {
+        detailModal.style.display = 'none';
+    }
+    if (detailContent) {
+        detailContent.innerHTML = '';
+    }
 }
 
 function openVariantModal(medicineId, medicineName) {
     // Close other modals if they're open
     closeMedicineModal();
     closeDetailModal();
+
+    // Force clean up detail modal completely
+    const detailModal = document.getElementById('detailModal');
+    const detailContent = document.getElementById('detailContent');
+    if (detailModal) {
+        detailModal.style.display = 'none';
+    }
+    if (detailContent) {
+        detailContent.innerHTML = '';
+    }
 
     document.getElementById('variantMedicineId').value = medicineId;
     document.getElementById('variantMedicineName').textContent = medicineName;
@@ -380,6 +432,44 @@ function closeVariantModal() {
     if (variantListContainer) {
         variantListContainer.style.display = 'block';
     }
+
+    // Reset title to default
+    document.getElementById('variantModalTitle').textContent = 'Quản lý dạng thuốc';
+
+    // Re-enable all fields (in case view mode left them disabled)
+    document.querySelectorAll('#variantForm input, #variantForm select, #variantForm textarea').forEach(el => {
+        el.disabled = false;
+    });
+
+    // Re-enable unit conversion controls
+    document.querySelectorAll('#unitConversionTableBody .unit-select').forEach(el => el.disabled = false);
+    document.querySelectorAll('#unitConversionTableBody .multiplier-input').forEach(el => el.disabled = false);
+    document.querySelectorAll('#unitConversionTableBody .note-input').forEach(el => el.disabled = false);
+    document.querySelectorAll('#unitConversionTableBody .btn-link.delete').forEach(el => el.style.display = '');
+
+    // Show add button
+    const addButtons = document.querySelectorAll('button[onclick="addUnitConversionRow()"]');
+    addButtons.forEach(btn => btn.style.display = '');
+
+    // Restore original button group (in case view mode changed it)
+    const variantForm = document.getElementById('variantForm');
+    const btnGroup = variantForm.querySelector('.btn-group');
+    if (btnGroup) {
+        btnGroup.innerHTML = `
+            <button type="button" class="btn-secondary" onclick="cancelVariantForm()">Hủy</button>
+            <button type="submit" class="btn-primary">Lưu</button>
+        `;
+    }
+
+    // Force clean up detail modal completely to prevent interference
+    const detailModal = document.getElementById('detailModal');
+    const detailContent = document.getElementById('detailContent');
+    if (detailModal) {
+        detailModal.style.display = 'none';
+    }
+    if (detailContent) {
+        detailContent.innerHTML = '';
+    }
 }
 
 function loadVariants(medicineId) {
@@ -392,9 +482,17 @@ function loadVariants(medicineId) {
                 return;
             }
 
-            tbody.innerHTML = data.map(variant => `
+            tbody.innerHTML = data.map(variant => {
+                // Tạo display text cho dạng bào chế với quy cách (nếu có)
+                const dosageFormDisplay = variant.dosageForm || variant.dosage_form || '-';
+                const note = variant.note || '';
+                const dosageFormWithSpec = note.trim() 
+                    ? `${dosageFormDisplay} (${note.trim()})`
+                    : dosageFormDisplay;
+                
+                return `
                 <tr style="border-bottom: 1px solid #E5E7EB;">
-                    <td style="padding: 12px;">${variant.dosageForm || variant.dosage_form || '-'}</td>
+                    <td style="padding: 12px;">${dosageFormWithSpec}</td>
                     <td style="padding: 12px;">${variant.dosage || '-'}</td>
                     <td style="padding: 12px;">${variant.strength || '-'}</td>
                     <td style="padding: 12px;">${variant.barcode || variant.Barcode || '-'}</td>
@@ -404,7 +502,7 @@ function loadVariants(medicineId) {
                         <button onclick="confirmDeleteVariant(${variant.id})" class="btn-link delete" style="margin: 0 4px;">Xóa</button>
                     </td>
                 </tr>
-            `).join('');
+            `}).join('');
         })
         .catch(err => {
             console.error('Error loading variants:', err);
@@ -417,6 +515,31 @@ function openCreateVariantForm() {
     const form = document.getElementById('variantForm');
     if (form) {
         form.reset();
+    }
+
+    // Ensure all fields are enabled (in case view mode left them disabled)
+    document.querySelectorAll('#variantForm input, #variantForm select, #variantForm textarea').forEach(el => {
+        el.disabled = false;
+    });
+
+    // Ensure unit conversion controls are enabled
+    document.querySelectorAll('#unitConversionTableBody .unit-select').forEach(el => el.disabled = false);
+    document.querySelectorAll('#unitConversionTableBody .multiplier-input').forEach(el => el.disabled = false);
+    document.querySelectorAll('#unitConversionTableBody .note-input').forEach(el => el.disabled = false);
+    document.querySelectorAll('#unitConversionTableBody .btn-link.delete').forEach(el => el.style.display = '');
+
+    // Show add button
+    const addButtons = document.querySelectorAll('button[onclick="addUnitConversionRow()"]');
+    addButtons.forEach(btn => btn.style.display = '');
+
+    // Restore button group to normal mode
+    const variantForm = document.getElementById('variantForm');
+    const btnGroup = variantForm.querySelector('.btn-group');
+    if (btnGroup) {
+        btnGroup.innerHTML = `
+            <button type="button" class="btn-secondary" onclick="cancelVariantForm()">Hủy</button>
+            <button type="submit" class="btn-primary">Lưu</button>
+        `;
     }
 
     // Reset all variant form fields safely
@@ -465,6 +588,31 @@ function openCreateVariantForm() {
 }
 
 function openEditVariantForm(variantId) {
+    // Ensure all fields are enabled (in case we're coming from view mode)
+    document.querySelectorAll('#variantForm input, #variantForm select, #variantForm textarea').forEach(el => {
+        el.disabled = false;
+    });
+
+    // Ensure unit conversion controls are enabled
+    document.querySelectorAll('#unitConversionTableBody .unit-select').forEach(el => el.disabled = false);
+    document.querySelectorAll('#unitConversionTableBody .multiplier-input').forEach(el => el.disabled = false);
+    document.querySelectorAll('#unitConversionTableBody .note-input').forEach(el => el.disabled = false);
+    document.querySelectorAll('#unitConversionTableBody .btn-link.delete').forEach(el => el.style.display = '');
+
+    // Show add button
+    const addButtons = document.querySelectorAll('button[onclick="addUnitConversionRow()"]');
+    addButtons.forEach(btn => btn.style.display = '');
+
+    // Restore button group to edit mode
+    const variantForm = document.getElementById('variantForm');
+    const btnGroup = variantForm.querySelector('.btn-group');
+    if (btnGroup) {
+        btnGroup.innerHTML = `
+            <button type="button" class="btn-secondary" onclick="cancelVariantForm()">Hủy</button>
+            <button type="submit" class="btn-primary">Lưu</button>
+        `;
+    }
+
     fetch(`/api/warehouse/medicine/variant/${variantId}`)
         .then(res => res.json())
         .then(data => {
@@ -526,6 +674,18 @@ function openEditVariantForm(variantId) {
 
             document.getElementById('variantFormContainer').style.display = 'block';
             document.getElementById('variantFormContainer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            // Ensure button group is in edit mode (restore again after loading data)
+            setTimeout(() => {
+                const variantForm = document.getElementById('variantForm');
+                const btnGroup = variantForm.querySelector('.btn-group');
+                if (btnGroup) {
+                    btnGroup.innerHTML = `
+                        <button type="button" class="btn-secondary" onclick="cancelVariantForm()">Hủy</button>
+                        <button type="submit" class="btn-primary">Lưu</button>
+                    `;
+                }
+            }, 100);
         })
         .catch(err => {
             showToast('Không thể tải thông tin dạng thuốc', 'error');
@@ -541,6 +701,31 @@ function cancelVariantForm() {
     const variantListContainer = document.getElementById('variantList').parentElement;
     if (variantListContainer) {
         variantListContainer.style.display = 'block';
+    }
+
+    // Re-enable all fields (in case view mode left them disabled)
+    document.querySelectorAll('#variantForm input, #variantForm select, #variantForm textarea').forEach(el => {
+        el.disabled = false;
+    });
+
+    // Re-enable unit conversion controls
+    document.querySelectorAll('#unitConversionTableBody .unit-select').forEach(el => el.disabled = false);
+    document.querySelectorAll('#unitConversionTableBody .multiplier-input').forEach(el => el.disabled = false);
+    document.querySelectorAll('#unitConversionTableBody .note-input').forEach(el => el.disabled = false);
+    document.querySelectorAll('#unitConversionTableBody .btn-link.delete').forEach(el => el.style.display = '');
+
+    // Show add button
+    const addButtons = document.querySelectorAll('button[onclick="addUnitConversionRow()"]');
+    addButtons.forEach(btn => btn.style.display = '');
+
+    // Restore original button group
+    const variantForm = document.getElementById('variantForm');
+    const btnGroup = variantForm.querySelector('.btn-group');
+    if (btnGroup) {
+        btnGroup.innerHTML = `
+            <button type="button" class="btn-secondary" onclick="cancelVariantForm()">Hủy</button>
+            <button type="submit" class="btn-primary">Lưu</button>
+        `;
     }
 }
 
@@ -560,7 +745,7 @@ function viewVariantDetail(variantId) {
             };
 
             setValue('variantId', data.id);
-            setValue('dosageForm', data.dosageForm || data.dosage_form);
+            setValue('dosageForm', data.dosageFormId); // Use dosageFormId to select the correct option
             setValue('dosage', data.dosage);
             setValue('strength', data.strength);
             setValue('packaging', data.packaging);
@@ -568,6 +753,7 @@ function viewVariantDetail(variantId) {
             setValue('registrationNumber', data.registrationNumber);
             setValue('storageConditions', data.storageConditions);
             setValue('instructions', data.instructions);
+            setValue('note', data.note); // Add note field
 
             const prescriptionField = document.getElementById('prescriptionRequired');
             if (prescriptionField) {
@@ -675,18 +861,15 @@ function deleteVariant(variantId) {
 }
 
 function viewDetails(id) {
-    // Close variant modal if it's open
+    // Close other modals if they're open
     closeVariantModal();
+    closeMedicineModal();
 
     fetch(`/api/warehouse/medicine/${id}`)
         .then(res => res.json())
         .then(data => {
             const detailContent = document.getElementById('detailContent');
             detailContent.innerHTML = `
-                <div class="detail-item">
-                    <div class="detail-label">ID</div>
-                    <div class="detail-value">${data.id}</div>
-                </div>
                 <div class="detail-item">
                     <div class="detail-label">Tên thuốc</div>
                     <div class="detail-value">${data.name || data.medicineName || '-'}</div>
@@ -721,6 +904,11 @@ function viewDetails(id) {
 
 function closeDetailModal() {
     document.getElementById('detailModal').style.display = 'none';
+    // Clear detail content to prevent interference with other modals
+    const detailContent = document.getElementById('detailContent');
+    if (detailContent) {
+        detailContent.innerHTML = '';
+    }
 }
 
 function confirmDelete(id) {
@@ -887,9 +1075,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 storageConditions: storageConditions,
                 instructions: instructions,
                 prescription_require: prescriptionRequired === 'true',
-                note: note || null,
+                note: note, // Send empty string if cleared, to allow deleting note
                 unitConversions: unitConversionsData
             };
+
+            // Debug: Log note value
+            console.log('Submitting variant data:', {
+                variantId: variantId,
+                note: note,
+                noteIsEmpty: note === '',
+                noteLength: note ? note.length : 0,
+                noteRaw: document.getElementById('note') ? document.getElementById('note').value : 'field not found'
+            });
 
             const url = variantId ? `/api/warehouse/medicine/variant/${variantId}` : '/api/warehouse/medicine/variant';
             const method = variantId ? 'PUT' : 'POST';
@@ -930,12 +1127,76 @@ document.addEventListener('DOMContentLoaded', function() {
     const detailModal = document.getElementById('detailModal');
 
     window.onclick = function(event) {
+        // Medicine modal - check if user has made changes before closing
         if (event.target == medicineModal) {
-            closeMedicineModal();
+            const medicineForm = document.getElementById('medicineForm');
+            const medicineId = document.getElementById('medicineId').value;
+
+            // Check if form has any data (excluding hidden ID field)
+            let hasData = false;
+            if (medicineForm) {
+                const inputs = medicineForm.querySelectorAll('input:not([type="hidden"]), select, textarea');
+                for (let input of inputs) {
+                    if (input.value && input.value.trim() !== '') {
+                        hasData = true;
+                        break;
+                    }
+                }
+            }
+
+            // If editing or has data, confirm before closing
+            if (hasData) {
+                if (confirm('Bạn có chắc chắn muốn đóng? Dữ liệu chưa lưu sẽ bị mất.')) {
+                    closeMedicineModal();
+                }
+            } else {
+                closeMedicineModal();
+            }
         }
+
+        // Variant modal - check if in edit mode before confirming
         if (event.target == variantModal) {
-            closeVariantModal();
+            const variantFormContainer = document.getElementById('variantFormContainer');
+            const isFormVisible = variantFormContainer && variantFormContainer.style.display !== 'none';
+
+            if (isFormVisible) {
+                // Check if in view mode (read-only) by checking if fields are disabled
+                const variantForm = document.getElementById('variantForm');
+                const firstInput = variantForm ? variantForm.querySelector('input:not([type="hidden"]), select, textarea') : null;
+                const isViewMode = firstInput && firstInput.disabled;
+
+                if (isViewMode) {
+                    // View mode (chi tiết) - close directly without confirm
+                    closeVariantModal();
+                } else {
+                    // Edit mode - check if has data before closing
+                    let hasData = false;
+                    if (variantForm) {
+                        const inputs = variantForm.querySelectorAll('input:not([type="hidden"]), select, textarea');
+                        for (let input of inputs) {
+                            if (input.value && input.value.trim() !== '') {
+                                hasData = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    // If has data, confirm before closing
+                    if (hasData) {
+                        if (confirm('Bạn có chắc chắn muốn đóng? Dữ liệu chưa lưu sẽ bị mất.')) {
+                            closeVariantModal();
+                        }
+                    } else {
+                        closeVariantModal();
+                    }
+                }
+            } else {
+                // If just viewing variant list (not in form), close directly
+                closeVariantModal();
+            }
         }
+
+        // Detail modal - close directly (no data loss concern)
         if (event.target == detailModal) {
             closeDetailModal();
         }
@@ -1516,6 +1777,7 @@ function generatePackagingFromUnits() {
     const tbody = document.getElementById('unitConversionTableBody');
     const rows = tbody.querySelectorAll('tr');
     const packagingField = document.getElementById('packaging');
+    const noteField = document.getElementById('note');
 
     if (!rows.length) {
         showToast('Vui lòng thêm các đơn vị quy đổi trước', 'error');
@@ -1593,6 +1855,11 @@ function generatePackagingFromUnits() {
         } else {
             packagingSpec += ` x ${quantity} ${nextUnit.name}`;
         }
+    }
+
+    // Thêm giá trị từ trường "Quy cách" vào cuối đuôi nếu có
+    if (noteField && noteField.value && noteField.value.trim()) {
+        packagingSpec += ` (${noteField.value.trim()})`;
     }
 
     // Set the generated packaging specification

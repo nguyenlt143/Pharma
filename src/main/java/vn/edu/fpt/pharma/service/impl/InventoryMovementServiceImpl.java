@@ -214,8 +214,7 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
                                 String concentration = detail.getVariant().getStrength() != null
                                     ? detail.getVariant().getStrength()
                                     : "N/A";
-                                String unit = getDisplayUnitFromVariant(detail.getVariant()); // Base unit
-                                String importUnit = getImportUnitFromVariant(detail.getVariant()); // Import unit
+                                String unit = getDisplayUnitFromVariant(detail.getVariant());
                                 Integer quantity = detail.getQuantity() != null
                                     ? detail.getQuantity().intValue()
                                     : 0;
@@ -237,10 +236,8 @@ public class InventoryMovementServiceImpl extends BaseServiceImpl<InventoryMovem
                                     : 0.0;
 
                                 // Use full constructor with batch info and price
-                                ReceiptDetailVM vm = new ReceiptDetailVM(medicineName, concentration, unit, quantity,
+                                return new ReceiptDetailVM(medicineName, concentration, unit, quantity,
                                         batchCode, mfgDate, expiryDate, importPrice);
-                                vm.setImportUnit(importUnit); // Set import unit
-                                return vm;
                             })
                             .collect(Collectors.toList());
                 })
