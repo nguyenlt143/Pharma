@@ -1829,8 +1829,8 @@ function generatePackagingFromUnits() {
         return;
     }
 
-    if (unitData.length < 2) {
-        showToast('Cần ít nhất 2 đơn vị để tạo quy cách đóng gói', 'error');
+    if (unitData.length < 1) {
+        showToast('Cần ít nhất 1 đơn vị để tạo quy cách đóng gói', 'error');
         return;
     }
 
@@ -1838,22 +1838,28 @@ function generatePackagingFromUnits() {
     unitData.sort((a, b) => b.multiplier - a.multiplier);
 
     // Generate packaging specification
-    // Example: If we have Thùng(100), Hộp(10), Gói(1)
-    // Result: "Thùng x 10 Hộp x 10 Gói"
     let packagingSpec = '';
 
-    for (let i = 0; i < unitData.length - 1; i++) {
-        const currentUnit = unitData[i];
-        const nextUnit = unitData[i + 1];
+    if (unitData.length === 1) {
+        // Nếu chỉ có 1 đơn vị, chỉ hiển thị tên đơn vị đó
+        packagingSpec = unitData[0].name;
+    } else {
+        // Nếu có từ 2 đơn vị trở lên
+        // Example: If we have Thùng(100), Hộp(10), Gói(1)
+        // Result: "Thùng x 10 Hộp x 10 Gói"
+        for (let i = 0; i < unitData.length - 1; i++) {
+            const currentUnit = unitData[i];
+            const nextUnit = unitData[i + 1];
 
-        // Calculate quantity: how many of next unit fit in current unit
-        const quantity = currentUnit.multiplier / nextUnit.multiplier;
+            // Calculate quantity: how many of next unit fit in current unit
+            const quantity = currentUnit.multiplier / nextUnit.multiplier;
 
-        // Add "x" before all units including the first one
-        if (packagingSpec === '') {
-            packagingSpec = `${currentUnit.name} x ${quantity} ${nextUnit.name}`;
-        } else {
-            packagingSpec += ` x ${quantity} ${nextUnit.name}`;
+            // Add "x" before all units including the first one
+            if (packagingSpec === '') {
+                packagingSpec = `${currentUnit.name} x ${quantity} ${nextUnit.name}`;
+            } else {
+                packagingSpec += ` x ${quantity} ${nextUnit.name}`;
+            }
         }
     }
 
