@@ -36,7 +36,7 @@
     @endif
         <section class="search-section">
             <div class="search-container">
-
+                <!-- User nhập từ khóa → pos.js searchInput listener → API /pos/api/search -->
                 <div class="search-input-wrapper">
                     <span class="material-icons search-icon">search</span>
                     <label>
@@ -107,6 +107,7 @@
                         <span id="successMessage"></span>
                     </div>
 
+                    <!-- Form thanh toán → pos.js processPayment() → API POST /pos/api/invoices -->
                     <form id="paymentForm" novalidate>
                         <div class="customer-info">
                             <div class="form-group">

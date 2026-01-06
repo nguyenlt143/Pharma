@@ -155,6 +155,7 @@ public class InvoiceServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
         );
     }
 
+    // Validate: shiftWork, totalAmount, duplicate items → createInvoiceTransaction()
     @Override
     public Invoice createInvoice(InvoiceCreateRequest req) {
         // VALIDATION 1: Validate user đang trong ca làm việc
@@ -222,6 +223,7 @@ public class InvoiceServiceImpl extends BaseServiceImpl<Invoice, Long, InvoiceRe
 
     }
 
+    // Transaction: Lưu Invoice + InvoiceDetail + InventoryMovement → Repository save()
     @Transactional(rollbackFor = Exception.class)
     private Invoice createInvoiceTransaction(InvoiceCreateRequest req, Customer customer) {
         Invoice invoice = new Invoice();

@@ -41,6 +41,7 @@ public class PharmacistController {
     private final ShiftService shiftService;
     private final InvoiceService invoiceService;
 
+    // Render trang POS với inShift status → pos.jte
     @GetMapping("/pos")
     public String pos(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -57,18 +58,21 @@ public class PharmacistController {
         return "pages/pharmacist/pos";
     }
 
+    // API: Tìm thuốc theo keyword → MedicineService.searchMedicinesByKeyword()
     @GetMapping("/pos/api/search")
     @ResponseBody
     public List<MedicineSearchDTO> search(@RequestParam(required = false, defaultValue = "") String keyword) {
         return medicineService.searchMedicinesByKeyword(keyword);
     }
 
+    // API: Lấy variants với inventory → MedicineVariantService.getVariantsWithInventoryByMedicineId()
     @GetMapping("/pos/api/medicine/{medicineId}/variants")
     @ResponseBody
     public List<VariantInventoryDTO> getVariantsWithInventory(@PathVariable Long medicineId) {
         return medicineVariantService.getVariantsWithInventoryByMedicineId(medicineId);
     }
 
+    // API: Tạo hóa đơn mới → InvoiceService.createInvoice()
     @PostMapping("/pos/api/invoices")
     public ResponseEntity<?> createInvoice(@Valid @RequestBody InvoiceCreateRequest req) {
         try {

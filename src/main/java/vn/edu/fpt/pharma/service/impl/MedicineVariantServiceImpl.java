@@ -205,6 +205,7 @@ public class MedicineVariantServiceImpl extends BaseServiceImpl<MedicineVariant,
                 .collect(Collectors.toList());
     }
 
+    // Query variants + join inventory theo medicineId → Repository
     @Override
     public List<vn.edu.fpt.pharma.dto.medicine.VariantInventoryDTO> getVariantsWithInventoryByMedicineId(Long medicineId) {
         List<Object[]> variantRows = medicineVariantRepository.findVariantsByMedicineIdWithDetails(medicineId);

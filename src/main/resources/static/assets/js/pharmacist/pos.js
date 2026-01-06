@@ -251,6 +251,7 @@ if (searchInput) {
       }
 
       console.log('Fetching search results...');
+      // API: Tìm kiếm thuốc → PharmacistController.search() → MedicineService.searchMedicinesByKeyword()
       fetch(`/pharmacist/pos/api/search?keyword=${encodeURIComponent(searchTerm)}`)
         .then(res => {
           console.log('Search API response status:', res.status);
@@ -309,6 +310,7 @@ function addEventListenersToMedicineCards() {
             const isDisplayed = detailsContainer.style.display === 'block';
 
             if (!isDisplayed) {
+                // API: Lấy variants + inventory → PharmacistController.getVariantsWithInventory() → MedicineVariantService
                 // Fetch variants and inventory for the clicked medicine
                 fetch(`/pharmacist/pos/api/medicine/${medicineId}/variants`)
                     .then(res => res.json())
@@ -1018,6 +1020,7 @@ function searchMedication(searchTerm) {
 function processPayment(paymentData) {
   console.log("Sending invoice:", paymentData);
 
+  // API: Tạo hóa đơn → PharmacistController.createInvoice() → InvoiceService.createInvoice()
   fetch('/pharmacist/pos/api/invoices', {
     method: 'POST',
     headers: {

@@ -137,6 +137,7 @@ public class MedicineServiceImpl extends BaseServiceImpl<Medicine, Long, Medicin
         super.deleteById(id);
     }
 
+    // Query database tìm thuốc → MedicineRepository.searchMedicinesByKeyword()
     @Override
     public List<MedicineSearchDTO> searchMedicinesByKeyword(String keyword) {
         List<Object[]> rows = repository.searchMedicinesByKeyword(keyword);
