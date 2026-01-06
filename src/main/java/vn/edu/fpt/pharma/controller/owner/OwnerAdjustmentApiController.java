@@ -1,6 +1,7 @@
 package vn.edu.fpt.pharma.controller.owner;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/owner/adjustments")
 @RequiredArgsConstructor
@@ -35,21 +37,29 @@ public class OwnerAdjustmentApiController {
             @RequestParam(required = false) Long branchId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
+        log.info("Fetching adjustment summary for branchId: {}, user: {}",
+                 branchId, userDetails != null ? userDetails.getUsername() : "null");
+
         if (userDetails == null) {
+            log.warn("Unauthorized access - userDetails is null");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         String role = userDetails.getRole();
         if (role == null || (!role.equalsIgnoreCase("BUSINESS_OWNER") && !role.equalsIgnoreCase("OWNER"))) {
+            log.warn("Access denied - user role: {}", role);
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Map<String, Object> summary = new HashMap<>();
+        try {
+            Map<String, Object> summary = new HashMap<>();
 
-        // Count adjustments in last 30 days
-        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
-        List<MovementType> adjustmentTypes = List.of(MovementType.INVENTORY_ADJUSTMENT, MovementType.BR_TO_WARE2);
+            // Count adjustments in last 30 days
+            LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+            List<MovementType> adjustmentTypes = List.of(MovementType.INVENTORY_ADJUSTMENT, MovementType.BR_TO_WARE2);
 
-        List<InventoryMovement> movements;
+            log.debug("Querying movements since: {}, types: {}", thirtyDaysAgo, adjustmentTypes);
+
+            List<InventoryMovement> movements;
         if (branchId != null) {
             movements = inventoryMovementRepository
                     .findMovementsWithDetailsSinceByBranchAndTypes(thirtyDaysAgo, branchId, adjustmentTypes);
@@ -99,26 +109,34 @@ public class OwnerAdjustmentApiController {
             }
         }
 
-        // Calculate total and net values
-        double totalLoss = totalExpiredValue + totalShortageValue;
-        double netLoss = totalLoss - totalSurplusValue;
+            // Calculate total and net values
+            double totalLoss = totalExpiredValue + totalShortageValue;
+            double netLoss = totalLoss - totalSurplusValue;
 
-        summary.put("totalExpiredValue", totalExpiredValue);
-        summary.put("totalShortageValue", totalShortageValue);
-        summary.put("totalSurplusValue", totalSurplusValue);
-        summary.put("totalLoss", totalLoss);
-        summary.put("netLoss", netLoss);
+            summary.put("totalExpiredValue", totalExpiredValue);
+            summary.put("totalShortageValue", totalShortageValue);
+            summary.put("totalSurplusValue", totalSurplusValue);
+            summary.put("totalLoss", totalLoss);
+            summary.put("netLoss", netLoss);
 
-        summary.put("adjustmentCount", movements.stream()
-                .filter(m -> m.getMovementType() == MovementType.INVENTORY_ADJUSTMENT)
-                .count());
-        summary.put("expiredReturnCount", movements.stream()
-                .filter(m -> m.getMovementType() == MovementType.BR_TO_WARE2)
-                .count());
-        summary.put("totalValue", netLoss);
-        summary.put("totalValueFormatted", importExportService.formatCurrencyReadable(netLoss));
+            summary.put("adjustmentCount", movements.stream()
+                    .filter(m -> m.getMovementType() == MovementType.INVENTORY_ADJUSTMENT)
+                    .count());
+            summary.put("expiredReturnCount", movements.stream()
+                    .filter(m -> m.getMovementType() == MovementType.BR_TO_WARE2)
+                    .count());
+            summary.put("totalValue", netLoss);
+            summary.put("totalValueFormatted", importExportService.formatCurrencyReadable(netLoss));
 
-        return ResponseEntity.ok(summary);
+            log.info("Adjustment summary calculated - movements: {}, totalLoss: {}, netLoss: {}",
+                     movements.size(), totalLoss, netLoss);
+
+            return ResponseEntity.ok(summary);
+
+        } catch (Exception e) {
+            log.error("Error loading adjustment summary for branchId {}: {}", branchId, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     // -------------------- Movements for chart --------------------
@@ -130,13 +148,19 @@ public class OwnerAdjustmentApiController {
             @RequestParam(required = false) Long branchId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
+        log.info("Fetching adjustment movements - range: {}, type: {}, branchId: {}", range, type, branchId);
+
         if (userDetails == null) {
+            log.warn("Unauthorized access - userDetails is null");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         String role = userDetails.getRole();
         if (role == null || (!role.equalsIgnoreCase("BUSINESS_OWNER") && !role.equalsIgnoreCase("OWNER"))) {
+            log.warn("Access denied - user role: {}", role);
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+
+        try {
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime fromDate;
@@ -199,18 +223,26 @@ public class OwnerAdjustmentApiController {
         List<LocalDate> sortedDates = new ArrayList<>(dailyData.keySet());
         Collections.sort(sortedDates);
 
-        for (LocalDate date : sortedDates) {
-            labels.add(date.format(fmt));
-            adjustments.add(dailyData.get(date).getOrDefault("adjustments", 0.0));
-            expiredReturns.add(dailyData.get(date).getOrDefault("expiredReturns", 0.0));
+            for (LocalDate date : sortedDates) {
+                labels.add(date.format(fmt));
+                adjustments.add(dailyData.get(date).getOrDefault("adjustments", 0.0));
+                expiredReturns.add(dailyData.get(date).getOrDefault("expiredReturns", 0.0));
+            }
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("labels", labels);
+            data.put("adjustments", adjustments);
+            data.put("expiredReturns", expiredReturns);
+
+            log.info("Adjustment movements data prepared - {} data points", labels.size());
+
+            return ResponseEntity.ok(data);
+
+        } catch (Exception e) {
+            log.error("Error loading adjustment movements for range {} and branchId {}: {}",
+                      range, branchId, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("labels", labels);
-        data.put("adjustments", adjustments);
-        data.put("expiredReturns", expiredReturns);
-
-        return ResponseEntity.ok(data);
     }
 
     // -------------------- Recent activities --------------------

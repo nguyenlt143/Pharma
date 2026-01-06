@@ -35,7 +35,9 @@ public class OwnerInventoryApiController {
     private final BranchRepository branchRepository;
     private final CategoryRepository categoryRepository;
     private final InventoryMovementRepository inventoryMovementRepository;
+    private final InventoryMovementDetailRepository inventoryMovementDetailRepository;
     private final vn.edu.fpt.pharma.service.RequestFormService requestFormService;
+    private final vn.edu.fpt.pharma.service.InventoryReportService inventoryReportService;
     private final vn.edu.fpt.pharma.repository.MedicineVariantRepository medicineVariantRepository;
     private final vn.edu.fpt.pharma.repository.UnitConversionRepository unitConversionRepository;
 
@@ -197,74 +199,32 @@ public class OwnerInventoryApiController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        // Get categories (filter by categoryId if provided)
-        List<Category> categories;
+        // Use InventoryReportService for optimized query instead of loading all inventory
+        List<Map<String, Object>> stats = inventoryReportService.getCategoryStatistics(branchId);
+
+        // Filter by categoryId if provided
         if (categoryId != null) {
-            categories = categoryRepository.findById(categoryId)
-                    .map(Collections::singletonList)
-                    .orElse(Collections.emptyList());
-        } else {
-            categories = categoryRepository.findAll();
+            stats = stats.stream()
+                .filter(s -> {
+                    Object catIdObj = s.get("categoryId");
+                    if (catIdObj == null) return false;
+                    Long catId = catIdObj instanceof Long ? (Long) catIdObj : ((Number) catIdObj).longValue();
+                    return catId.equals(categoryId);
+                })
+                .toList();
         }
-        List<Map<String, Object>> result = new ArrayList<>();
-        
-        for (Category cat : categories) {
-            // Filter inventory by branch and category
-            List<Inventory> categoryInventory = inventoryRepository.findAll().stream()
-                .filter(inv -> {
-                    if (branchId != null) {
-                        try {
-                            if (inv.getBranch() == null || !inv.getBranch().getId().equals(branchId)) {
-                                return false;
-                            }
-                        } catch (Exception e) {
-                            return false;
-                        }
-                    }
-                    try {
-                        MedicineVariant variant = inv.getVariant();
-                        if (variant == null) return false;
-                        Medicine medicine = variant.getMedicine();
-                        if (medicine == null || medicine.getCategory() == null) return false;
-                        return medicine.getCategory().getId().equals(cat.getId());
-                    } catch (Exception e) {
-                        return false;
-                    }
-                })
-                .collect(java.util.stream.Collectors.toList());
-            
-            // Calculate item count (distinct variants)
-            long itemCount = categoryInventory.stream()
-                .map(Inventory::getVariant)
-                .filter(java.util.Objects::nonNull)
-                .map(MedicineVariant::getId)
-                .distinct()
-                .count();
-            
-            // Calculate total value
-            double totalValue = categoryInventory.stream()
-                .mapToDouble(inv -> {
-                    Long qty = inv.getQuantity() != null ? inv.getQuantity() : 0L;
-                    Double cost = inv.getCostPrice() != null ? inv.getCostPrice() : 0.0;
-                    return qty.doubleValue() * cost;
-                })
-                .sum();
-            
-            if (itemCount > 0 || totalValue > 0) {
+
+        // Transform to expected format for frontend (name, value, itemCount)
+        List<Map<String, Object>> result = stats.stream()
+            .map(stat -> {
                 Map<String, Object> item = new HashMap<>();
-                item.put("name", cat.getName());
-                item.put("value", totalValue);
-                item.put("itemCount", itemCount);
-                result.add(item);
-            }
-        }
-        
-        // Sort by value descending
-        result.sort((a, b) -> Double.compare(
-            (Double) b.get("value"), 
-            (Double) a.get("value")
-        ));
-        
+                item.put("name", stat.get("categoryName"));
+                item.put("value", stat.get("totalValue"));
+                item.put("itemCount", stat.get("itemCount"));
+                return item;
+            })
+            .toList();
+
         return ResponseEntity.ok(result);
     }
 

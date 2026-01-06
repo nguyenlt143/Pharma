@@ -1,6 +1,7 @@
 package vn.edu.fpt.pharma.controller.owner;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,6 +15,7 @@ import vn.edu.fpt.pharma.service.InventoryReportService;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/owner/inventory/current")
 @RequiredArgsConstructor
@@ -22,8 +24,12 @@ public class OwnerInventoryCurrentApiController {
     private final InventoryReportService inventoryReportService;
 
     private boolean isOwner(CustomUserDetails userDetails) {
-        if (userDetails == null) return false;
+        if (userDetails == null) {
+            log.warn("UserDetails is null");
+            return false;
+        }
         String role = userDetails.getRole();
+        log.debug("Checking owner role. User role: {}", role);
         return role != null && (role.equalsIgnoreCase("BUSINESS_OWNER") || role.equalsIgnoreCase("OWNER"));
     }
 
@@ -36,11 +42,21 @@ public class OwnerInventoryCurrentApiController {
             @RequestParam Long branchId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
+        log.info("Fetching inventory summary for branchId: {}", branchId);
+
         if (!isOwner(userDetails)) {
+            log.warn("Access denied - user is not owner");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        Map<String, Object> summary = inventoryReportService.getInventorySummary(branchId);
-        return ResponseEntity.ok(summary);
+
+        try {
+            Map<String, Object> summary = inventoryReportService.getInventorySummary(branchId);
+            log.info("Summary fetched successfully: {}", summary);
+            return ResponseEntity.ok(summary);
+        } catch (Exception e) {
+            log.error("Error fetching inventory summary for branchId {}: {}", branchId, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     /**
@@ -52,11 +68,21 @@ public class OwnerInventoryCurrentApiController {
             @RequestParam Long branchId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
+        log.info("Fetching inventory details for branchId: {}", branchId);
+
         if (!isOwner(userDetails)) {
+            log.warn("Access denied - user is not owner");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        List<Map<String, Object>> details = inventoryReportService.getInventoryDetails(branchId);
-        return ResponseEntity.ok(details);
+
+        try {
+            List<Map<String, Object>> details = inventoryReportService.getInventoryDetails(branchId);
+            log.info("Details fetched successfully: {} items", details != null ? details.size() : 0);
+            return ResponseEntity.ok(details);
+        } catch (Exception e) {
+            log.error("Error fetching inventory details for branchId {}: {}", branchId, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     /**

@@ -403,6 +403,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const loadDataForBranch = async () => {
         const branchId = getSelectedBranchId();
+        console.log('Loading data for branch:', branchId);
+
         if (!branchId) {
             updateKPIs(null);
             allInventoryData = [];
@@ -417,6 +419,9 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchInventoryDetails(branchId)
         ]);
 
+        console.log('Fetched summary:', summary);
+        console.log('Fetched details:', details);
+
         updateKPIs(summary);
         allInventoryData = details || [];
         applyFiltersAndRender();
@@ -429,8 +434,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!select) return;
 
         const branches = await fetchBranches();
+        console.log('Loaded branches:', branches);
+
         select.innerHTML = '<option value="">Chọn chi nhánh</option>' +
             branches.map(b => `<option value="${b.id}">${b.name || ('Chi nhánh #' + b.id)}</option>`).join('');
+
+        // Auto-select first branch if available
+        if (branches && branches.length > 0) {
+            select.value = branches[0].id;
+            // Trigger change event to load data
+            setTimeout(() => {
+                loadDataForBranch();
+            }, 100);
+        }
     };
 
     const setupEventListeners = () => {

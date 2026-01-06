@@ -3,25 +3,41 @@ let revenueChart;
 let currentView = 'revenue';
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Owner dashboard JS loaded');
+
     loadBranches();
-    loadDashboard('revenue');
-    
-    // Auto-load on filter change
+
+    // Set default period to current month
     const periodInput = document.getElementById('periodInput');
-    const branchSelect = document.getElementById('branchSelect');
-    
+    if (periodInput && !periodInput.value) {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        periodInput.value = `${year}-${month}`;
+    }
+
+    // Auto-load dashboard after a short delay to ensure branches are loaded
+    setTimeout(() => {
+        loadDashboard('revenue');
+    }, 300);
+
+    // Auto-load on filter change
     if (periodInput) {
         periodInput.addEventListener('change', () => loadDashboard(currentView));
     }
+
+    const branchSelect = document.getElementById('branchSelect');
     if (branchSelect) {
         branchSelect.addEventListener('change', () => loadDashboard(currentView));
     }
 });
 
 function loadBranches() {
+    console.log('Loading branches...');
     fetch('/api/owner/branches')
         .then(res => res.json())
         .then(data => {
+            console.log('Branches loaded:', data);
             const select = document.getElementById('branchSelect');
             if (select && Array.isArray(data)) {
                 select.innerHTML = '<option value="">Tất cả chi nhánh</option>' +
@@ -29,7 +45,7 @@ function loadBranches() {
             }
         })
         .catch(err => {
-            console.warn('Không thể tải danh sách chi nhánh:', err);
+            console.error('Không thể tải danh sách chi nhánh:', err);
         });
 }
 
@@ -38,6 +54,8 @@ function loadDashboard(view) {
     const period = document.getElementById('periodInput').value;
     const branchId = document.getElementById('branchSelect').value;
 
+    console.log(`Loading dashboard - view: ${view}, period: ${period}, branchId: ${branchId || 'all'}`);
+
     const url = view === 'revenue' ? '/api/owner/dashboard/revenue' : '/api/owner/dashboard/profit';
     
     const params = new URLSearchParams({
@@ -45,9 +63,18 @@ function loadDashboard(view) {
     });
     if (branchId) params.append('branchId', branchId);
 
+    console.log(`Fetching: ${url}?${params}`);
+
     fetch(`${url}?${params}`)
-        .then(res => res.json())
+        .then(res => {
+            console.log('Dashboard response status:', res.status);
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status}`);
+            }
+            return res.json();
+        })
         .then(data => {
+            console.log('Dashboard data received:', data);
             // Update stats
             if (view === 'revenue') {
                 document.getElementById('totalRevenue').textContent = formatCurrency(data.totalRevenue || 0);
@@ -174,3 +201,8 @@ function formatCurrency(value) {
     }).format(value);
 }
 
+function showToast(message, type = 'info') {
+    console.log(`[${type.toUpperCase()}] ${message}`);
+    // Optional: Add visual toast notification here
+    alert(message);
+}

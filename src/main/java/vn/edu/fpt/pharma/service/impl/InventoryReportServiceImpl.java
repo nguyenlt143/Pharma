@@ -236,6 +236,7 @@ public class InventoryReportServiceImpl implements InventoryReportService {
                 item.put("itemCount", row[1] != null ? ((Number) row[1]).intValue() : 0);
                 item.put("totalQuantity", row[2] != null ? ((Number) row[2]).longValue() : 0L);
                 item.put("totalValue", row[3] != null ? ((Number) row[3]).doubleValue() : 0.0);
+                item.put("categoryId", row.length > 4 && row[4] != null ? ((Number) row[4]).longValue() : null);
                 result.add(item);
             }
 

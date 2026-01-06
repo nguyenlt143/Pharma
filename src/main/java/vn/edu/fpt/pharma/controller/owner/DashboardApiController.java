@@ -1,6 +1,7 @@
 package vn.edu.fpt.pharma.controller.owner;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/owner/dashboard")
 @RequiredArgsConstructor
@@ -40,22 +42,33 @@ public class DashboardApiController {
             @RequestParam(required = false) Long branchId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         
+        log.info("Dashboard revenue request - period: {}, branchId: {}, user: {}",
+                 period, branchId, userDetails != null ? userDetails.getUsername() : "null");
+
         // Verify owner role
         if (userDetails == null || !"OWNER".equalsIgnoreCase(userDetails.getRole())) {
+            log.warn("Access denied - user role: {}", userDetails != null ? userDetails.getRole() : "null");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        // Only calculate monthly revenue
-        LocalDate firstOfMonth = parseMonthStart(period);
-        LocalDateTime fromDate = firstOfMonth.atStartOfDay();
-        LocalDateTime toDate = firstOfMonth.plusMonths(1).atStartOfDay();
+        try {
+            // Only calculate monthly revenue
+            LocalDate firstOfMonth = parseMonthStart(period);
+            LocalDateTime fromDate = firstOfMonth.atStartOfDay();
+            LocalDateTime toDate = firstOfMonth.plusMonths(1).atStartOfDay();
 
-        // Doanh thu & lợi nhuận dựa trên phiếu cấp cho chi nhánh (inventory_movements)
-        KpiData kpi = inventoryMovementRepository.sumOwnerRevenue(branchId, fromDate, toDate);
-        List<TopProductItem> tops = inventoryMovementRepository.findOwnerTopCategories(branchId, fromDate, toDate, 6);
-        
-        // Get daily revenue data for chart (monthly breakdown)
-        List<DailyRevenue> dailyRevenues = inventoryMovementRepository.getOwnerDailyRevenue(branchId, fromDate, toDate);
+            log.debug("Querying data from {} to {}", fromDate, toDate);
+
+            // Doanh thu & lợi nhuận dựa trên phiếu cấp cho chi nhánh (inventory_movements)
+            KpiData kpi = inventoryMovementRepository.sumOwnerRevenue(branchId, fromDate, toDate);
+            log.debug("KPI data: {}", kpi);
+
+            List<TopProductItem> tops = inventoryMovementRepository.findOwnerTopCategories(branchId, fromDate, toDate, 6);
+            log.debug("Top products count: {}", tops.size());
+
+            // Get daily revenue data for chart (monthly breakdown)
+            List<DailyRevenue> dailyRevenues = inventoryMovementRepository.getOwnerDailyRevenue(branchId, fromDate, toDate);
+            log.debug("Daily revenues count: {}", dailyRevenues.size());
         List<DailyRevenueItem> dailyRevenueItems = new ArrayList<>();
         for (DailyRevenue dr : dailyRevenues) {
             DailyRevenueItem item = DailyRevenueItem.builder()
@@ -79,16 +92,23 @@ public class DashboardApiController {
             productStats.add(item);
         }
 
-        DashboardRevenueResponse response = DashboardRevenueResponse.builder()
-                .totalRevenue(kpi.getRevenue())
-                .totalProfit(kpi.getProfit())
-                .totalOrders(kpi.getOrderCount())
-                .dailyRevenues(dailyRevenueItems)
-                .productStats(productStats)
-                .totalProducts(totalProducts)
-                .build();
+            DashboardRevenueResponse response = DashboardRevenueResponse.builder()
+                    .totalRevenue(kpi.getRevenue())
+                    .totalProfit(kpi.getProfit())
+                    .totalOrders(kpi.getOrderCount())
+                    .dailyRevenues(dailyRevenueItems)
+                    .productStats(productStats)
+                    .totalProducts(totalProducts)
+                    .build();
 
-        return ResponseEntity.ok(response);
+            log.info("Dashboard revenue response built successfully");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("Error loading dashboard revenue for period {} and branchId {}: {}",
+                      period, branchId, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     /**

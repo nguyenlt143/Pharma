@@ -8,14 +8,20 @@ let currentPage = 1;
 let recordsPerPage = 10;
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadAdjustmentSummary();
-    loadAdjustmentMovements();
-    loadRecentActivities();
+    console.log('Owner adjustments JS loaded');
+
+    // Load branches first, then load data
+    loadBranches().then(() => {
+        loadAdjustmentSummary();
+        loadAdjustmentMovements();
+        loadRecentActivities();
+    });
 
     // Branch select handler
     const branchSelect = document.getElementById('branchSelect');
     if (branchSelect) {
         branchSelect.addEventListener('change', () => {
+            console.log('Branch changed to:', branchSelect.value);
             loadAdjustmentSummary();
             loadAdjustmentMovements();
             loadRecentActivities();
@@ -89,8 +95,11 @@ function loadAdjustmentSummary() {
     const params = new URLSearchParams();
     if (branchId) params.append('branchId', branchId);
 
+    console.log('Loading adjustment summary, branchId:', branchId || 'all');
+
     fetch(`/api/owner/adjustments/summary?${params}`)
         .then(res => {
+            console.log('Summary response status:', res.status);
             if (!res.ok) {
                 throw new Error(`HTTP error! status: ${res.status}`);
             }
@@ -132,12 +141,16 @@ function loadAdjustmentMovements() {
     const params = new URLSearchParams({ range, type });
     if (branchId) params.append('branchId', branchId);
 
+    console.log('Loading adjustment movements, params:', { range, type, branchId: branchId || 'all' });
+
     fetch(`/api/owner/adjustments/movements?${params}`)
         .then(res => {
+            console.log('Movements response status:', res.status);
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return res.json();
         })
         .then(data => {
+            console.log('Movements data received:', data);
             renderAdjustmentChart(data);
         })
         .catch(err => {
@@ -442,7 +455,28 @@ function showError(message) {
         if (window.showToast) {
             window.showToast(message, 'error');
         } else {
-            console.error('Toast not available:', message);
+            console.error(message);
         }
+    }
+}
+
+// Load branches function
+async function loadBranches() {
+    console.log('Loading branches...');
+    try {
+        const res = await fetch('/api/owner/branches');
+        if (!res.ok) {
+            throw new Error('Failed to load branches');
+        }
+        const branches = await res.json();
+        console.log('Branches loaded:', branches);
+
+        const branchSelect = document.getElementById('branchSelect');
+        if (branchSelect && Array.isArray(branches)) {
+            branchSelect.innerHTML = '<option value="">Tất cả chi nhánh</option>' +
+                branches.map(b => `<option value="${b.id}">${b.name || 'Chi nhánh #' + b.id}</option>`).join('');
+        }
+    } catch (err) {
+        console.error('Error loading branches:', err);
     }
 }

@@ -185,7 +185,8 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>, Jpa
             c.name as categoryName,
             COUNT(DISTINCT i.variant_id) as itemCount,
             COALESCE(SUM(i.quantity), 0) as totalQuantity,
-            COALESCE(SUM(i.quantity * i.cost_price), 0) as totalValue
+            COALESCE(SUM(i.quantity * i.cost_price), 0) as totalValue,
+            c.id as categoryId
         FROM inventory i
         JOIN medicine_variant mv ON i.variant_id = mv.id
         JOIN medicines m ON mv.medicine_id = m.id
