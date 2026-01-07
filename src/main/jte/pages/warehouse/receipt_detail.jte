@@ -122,7 +122,7 @@ content = @`
                         <th class="px-4 py-3 text-left font-medium text-gray-600">Số Lô</th>
                         <th class="px-4 py-3 text-left font-medium text-gray-600">Hạn Sử Dụng</th>
                         <th class="px-4 py-3 text-center font-medium text-gray-600">ĐVT</th>
-                        <th class="px-4 py-3 text-right font-medium text-gray-600">Số Lượng Nhập</th>
+                        <th class="px-4 py-3 text-right font-medium text-gray-600">Số Lượng</th>
                         @if(!hidePrice)
                             <th class="px-4 py-3 text-right font-medium text-gray-600">Đơn Giá (VNĐ)</th>
                             <th class="px-4 py-3 text-right font-medium text-gray-600">Thành Tiền (VNĐ)</th>
