@@ -1,3 +1,4 @@
+// SECTION 1: UTILITY FUNCTIONS
 // Helper function to format date as D/M/Y
 function formatDateDMY(date) {
     const d = new Date(date);
@@ -7,6 +8,9 @@ function formatDateDMY(date) {
     return `${day}/${month}/${year}`;
 }
 
+// ========================================
+// SECTION 2: DOM ELEMENTS
+// ========================================
 // DOM Elements
 const searchInput = document.querySelector('.search-input');
 const searchButton = document.querySelector('.search-button');
@@ -71,6 +75,10 @@ if (paymentMethodSelect) {
         }
     });
 }
+
+// ========================================
+// SECTION 3: QR CODE FUNCTIONS
+// ========================================
 
 // QR Modal Elements
 const qrModal = document.getElementById('qrModal');
@@ -214,13 +222,11 @@ if (qrModal) {
     });
 }
 
-// ESC key to close
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && qrModal && qrModal.classList.contains('active')) {
-        hideQRModal();
-    }
-});
+// ESC key handler merged into main keyboard shortcuts section below
 
+// ========================================
+// SECTION 4: SEARCH & MEDICINE DISPLAY
+// ========================================
 
 let debounceTimer;
 
@@ -500,6 +506,10 @@ function ensureCardVisible(card) {
         });
     });
 }
+
+// ========================================
+// SECTION 5: PRESCRIPTION MANAGEMENT
+// ========================================
 
 // State for the prescription
 let prescriptionItems = [];
@@ -984,17 +994,7 @@ if (clearAllBtn) {
     });
 }
 
-// OLD PAYMENT FUNCTIONALITY REMOVED - Now handled by form submission with proper validation
-
-// F8 focus payment input
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'F8') {
-    e.preventDefault();
-    paymentAmountInput.focus();
-  }
-});
-
-// Auto-calc change
+// Auto-calc change (moved to DOMContentLoaded)
 if (paymentAmountInput) {
   paymentAmountInput.addEventListener('input', () => {
     const paymentAmount = parseFloat(paymentAmountInput.value) || 0;
@@ -1008,70 +1008,29 @@ if (paymentAmountInput) {
   });
 }
 
-// Utility functions
-function searchMedication(searchTerm) {
-  console.log('Searching for medication:', searchTerm);
-  setTimeout(() => {
-    console.log('Search results for:', searchTerm);
-  }, 500);
-}
+// ========================================
+// SECTION 6: PAYMENT VALIDATION & PROCESSING
+// ========================================
 
+// ========== OLD FUNCTIONS REMOVED ==========
+// Removed: searchMedication() - empty function
+// Removed: processPayment() - use processPaymentWithValidation() instead
+// Removed: clearPaymentForm() - use resetPaymentFormCompletely() instead
 
-function processPayment(paymentData) {
-  console.log("Sending invoice:", paymentData);
+// Removed clearPaymentForm() - using resetPaymentFormCompletely() instead
 
-  // API: Tạo hóa đơn → PharmacistController.createInvoice() → InvoiceService.createInvoice()
-  fetch('/pharmacist/pos/api/invoices', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(paymentData)
-  })
-  .then(async res => {
-    if (!res.ok) {
-      // Đọc lỗi BE trả về để hiển thị
-      const errData = await res.json().catch(() => ({}));
-      throw new Error(errData.message || "Lỗi tạo hóa đơn");
-    }
-
-    return res.json();
-  })
-  .then(result => {
-    showToast(`Thanh toán thành công! Mã hóa đơn: ${result.invoiceCode}`, 'success');
-    setTimeout(() => {
-        clearPaymentForm();
-        prescriptionItems = [];
-        renderPrescription();
-    }, 1500);
-  })
-  .catch(err => {
-    console.error("Payment error", err);
-    showToast(err.message || "Thanh toán thất bại!", 'error');
-  });
-}
-
-
-function clearPaymentForm() {
-  customerNameInput.value = '';
-  phoneInput.value = '';
-  paymentAmountInput.value = '';
-  notesTextarea.value = '';
-  paymentMethodSelect.selectedIndex = 0;
-
-  // Close QR modal if open
-  hideQRModal();
-
-  const lastPaymentValue = document.querySelector('.payment-row:last-of-type .payment-value');
-  if (lastPaymentValue) {
-    lastPaymentValue.textContent = '0';
-  }
-}
-
-// This function is defined later with QR code functionality
-
-// Keyboard shortcuts
+// ============ KEYBOARD SHORTCUTS (MERGED) ============
 document.addEventListener('keydown', (e) => {
+  // Escape key - Close QR modal or clear search
+  if (e.key === 'Escape') {
+    if (qrModal && qrModal.classList.contains('active')) {
+      hideQRModal();
+    } else if (document.activeElement === searchInput) {
+      searchInput.value = '';
+    }
+  }
+
+  // Ctrl+F - Focus search input
   if (e.ctrlKey && e.key === 'f') {
     e.preventDefault();
     if (searchInput) {
@@ -1080,8 +1039,12 @@ document.addEventListener('keydown', (e) => {
     }
   }
 
-  if (e.key === 'Escape' && document.activeElement === searchInput) {
-    searchInput.value = '';
+  // F8 - Focus payment amount input
+  if (e.key === 'F8') {
+    e.preventDefault();
+    if (paymentAmountInput) {
+      paymentAmountInput.focus();
+    }
   }
 });
 
@@ -1389,17 +1352,6 @@ function resetPaymentFormCompletely() {
     }
 }
 
-// ========================================
-// CUSTOM TOAST NOTIFICATION FUNCTION
-// ========================================
-
-/**
- * Show custom toast notification
- * @param {string} title - Toast title
- * @param {string} message - Toast message
- * @param {string} type - Toast type: 'success', 'error', 'warning', 'info'
- * @param {number} duration - Duration in milliseconds (default: 3000)
- */
 function showToast(title, message, type = 'info', duration = 3000) {
     // Remove existing toasts
     const existingToasts = document.querySelectorAll('.custom-toast');
@@ -1460,12 +1412,28 @@ function getProgressColor(type) {
 }
 
 // ========================================
-// END CUSTOM TOAST FUNCTION
+// SECTION 7: UI COMPONENTS (Toast, Alert, Popup)
 // ========================================
 
 // Initialize validation on page load
 document.addEventListener('DOMContentLoaded', function() {
-    // Form validation
+    console.log('POS system initializing...');
+
+    // 1. Check critical elements
+    const criticalElements = {
+        searchInput: document.querySelector('.search-input'),
+        resultContainer: document.querySelector('#medicine-list'),
+        paymentForm: document.getElementById('paymentForm'),
+        payButton: document.getElementById('payButton')
+    };
+
+    Object.keys(criticalElements).forEach(key => {
+        if (!criticalElements[key]) {
+            console.warn(`${key} not found on initialization`);
+        }
+    });
+
+    // 2. Form validation setup
     const paymentForm = document.getElementById('paymentForm');
     if (paymentForm) {
         paymentForm.addEventListener('submit', function(e) {
@@ -1603,130 +1571,37 @@ document.addEventListener('DOMContentLoaded', function() {
     if (prescriptionTable) {
         observer.observe(prescriptionTable, { childList: true, subtree: true });
     }
+
+    // 8. Initialize Clear All button state
+    updateClearAllButtonState();
+
+    // 9. Disable interactions if not in shift
+    disablePOSInteractions();
+
+    // 10. Initialize payment method to cash (default)
+    const paymentMethodSelectInit = document.getElementById('paymentMethod');
+    if (paymentMethodSelectInit && paymentMethodSelectInit.value === 'cash') {
+        const event = new Event('change');
+        paymentMethodSelectInit.dispatchEvent(event);
+    }
+
+    // 11. Update payment totals
+    updatePaymentTotals();
+
+    // 12. Focus search input if available
+    if (criticalElements.searchInput) {
+        criticalElements.searchInput.focus();
+        console.log('Search input focused');
+    }
+
+    console.log('POS system initialized successfully');
 });
+// ============ QR CODE FUNCTIONS (Consolidated) ============
+// Removed: showQRCodePopup() - using showQRModal() instead
 
-// ============ QR CODE POPUP FUNCTIONS ============
-
-// Function to show QR code popup for transfer payment
-function showQRCodePopup() {
-    const totalAmount = getTotalAmount();
-
-    if (totalAmount <= 0) {
-        showToast('Vui lòng thêm sản phẩm vào đơn hàng trước', 'warning');
-        return;
-    }
-
-    // Generate invoice code
-    const invoiceCode = generateInvoiceCode();
-    const formattedAmount = totalAmount.toLocaleString('vi-VN');
-
-    // Bank configuration
-    const bankCode = 'VCB';
-    const accountNumber = '0123456789';
-    const amount = Math.round(totalAmount);
-    const addInfo = invoiceCode;
-
-    // Generate VietQR URL
-    const vietQRUrl = `https://img.vietqr.io/${bankCode}/${accountNumber}?amount=${amount}&addInfo=${encodeURIComponent(addInfo)}`;
-
-    // Create popup HTML
-    const popupHTML = `
-        <div class="qr-popup-overlay" id="qrPopupOverlay">
-            <div class="qr-popup">
-                <div class="qr-popup-header">
-                    <h2 class="qr-popup-title">
-                        <span class="material-icons">qr_code_2</span>
-                        Quét mã QR để thanh toán
-                    </h2>
-                    <button class="qr-popup-close" onclick="closeQRCodePopup()">
-                        <span class="material-icons">close</span>
-                    </button>
-                </div>
-
-                <div class="qr-popup-content">
-                    <div class="qr-code-display">
-                        <img src="${vietQRUrl}"
-                             alt="QR Code"
-                             class="qr-code-image"
-                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNTAgNTBIMTUwVjE1MEg1MFY1MFoiIGZpbGw9ImJsYWNrIi8+CjxyZWN0IHg9IjcwIiB5PSI3MCIgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4='">
-                    </div>
-
-                    <div class="qr-info-section">
-                        <div class="qr-info-row">
-                            <span class="qr-info-label">Ngân hàng:</span>
-                            <span class="qr-info-value">Vietcombank (VCB)</span>
-                        </div>
-                        <div class="qr-info-row">
-                            <span class="qr-info-label">Số tài khoản:</span>
-                            <span class="qr-info-value">${accountNumber}</span>
-                        </div>
-                        <div class="qr-info-row highlight">
-                            <span class="qr-info-label">Số tiền:</span>
-                            <span class="qr-info-value amount">${formattedAmount} VNĐ</span>
-                        </div>
-                        <div class="qr-info-row">
-                            <span class="qr-info-label">Nội dung:</span>
-                            <span class="qr-info-value code">${invoiceCode}</span>
-                        </div>
-                    </div>
-
-                    <div class="qr-instructions">
-                        <div class="qr-instruction-title">
-                            <span class="material-icons">info</span>
-                            Hướng dẫn thanh toán
-                        </div>
-                        <ul class="qr-instruction-list">
-                            <li>
-                                <span class="material-icons">check_circle</span>
-                                Mở ứng dụng ngân hàng trên điện thoại
-                            </li>
-                            <li>
-                                <span class="material-icons">check_circle</span>
-                                Chọn tính năng quét mã QR
-                            </li>
-                            <li>
-                                <span class="material-icons">check_circle</span>
-                                Quét mã QR bên trên
-                            </li>
-                            <li>
-                                <span class="material-icons">check_circle</span>
-                                Kiểm tra thông tin và xác nhận
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="qr-popup-footer">
-                    <button class="qr-popup-button secondary" onclick="closeQRCodePopup()">
-                        Đóng
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-
-    // Add to body
-    document.body.insertAdjacentHTML('beforeend', popupHTML);
-
-    // Trigger animation
-    setTimeout(() => {
-        document.getElementById('qrPopupOverlay').classList.add('show');
-    }, 10);
-}
-
-// Function to close QR code popup
-function closeQRCodePopup() {
-    const overlay = document.getElementById('qrPopupOverlay');
-    if (overlay) {
-        overlay.classList.remove('show');
-        setTimeout(() => {
-            overlay.remove();
-        }, 300);
-    }
-}
-
-// Make closeQRCodePopup available globally
-window.closeQRCodePopup = closeQRCodePopup;
+// ========================================
+// SECTION 8: SUCCESS POPUP & INVOICE PRINTING
+// ========================================
 
 // ============ SUCCESS POPUP FUNCTIONS ============
 
@@ -2502,37 +2377,9 @@ const validationStyles = `
 // Add styles to head
 document.head.insertAdjacentHTML('beforeend', validationStyles);
 
-// Event delegation is now used instead of global functions
-
-// Initialize POS page
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('POS page DOMContentLoaded');
-
-  // Check if all critical elements are available
-  const criticalElements = {
-    searchInput: document.querySelector('.search-input'),
-    resultContainer: document.querySelector('#medicine-list')
-  };
-
-  console.log('Critical elements check:', criticalElements);
-
-  // Re-check elements if they weren't found during initial load
-  Object.keys(criticalElements).forEach(key => {
-    if (!criticalElements[key]) {
-      console.warn(`${key} not found on DOMContentLoaded`);
-    }
-  });
-
-  updatePaymentTotals();
-
-  // Focus search input if available
-  if (criticalElements.searchInput) {
-    criticalElements.searchInput.focus();
-    console.log('Search input focused');
-  } else {
-    console.warn('Cannot focus search input - element not found');
-  }
-});
+// ========================================
+// SECTION 9: HELPER FUNCTIONS (QR Update, Payment Totals)
+// ========================================
 
 // Function to update QR code with payment amount
 function updateQRCode() {
@@ -2710,22 +2557,3 @@ function disablePOSInteractions() {
     }
 }
 
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize Clear All button state
-    updateClearAllButtonState();
-
-    // Disable interactions if not in shift
-    disablePOSInteractions();
-
-    // Initialize payment method to cash (default)
-    const paymentMethodSelect = document.getElementById('paymentMethod');
-    if (paymentMethodSelect && paymentMethodSelect.value === 'cash') {
-        // Trigger change event to show/hide appropriate fields
-        const event = new Event('change');
-        paymentMethodSelect.dispatchEvent(event);
-    }
-
-    // Initialize other components if needed
-    console.log('POS system initialized');
-});
