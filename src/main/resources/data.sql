@@ -574,7 +574,11 @@ VALUES
     -- 16: Loratadine (Dị ứng)
     (1, 'Uống 1 viên mỗi ngày', '10mg', 'Hộp 10 viên', '8935000001601', 'VN-16001',
      'Bảo quản nơi khô, dưới 30°C', 'Uống nguyên viên, 1 lần/ngày', FALSE,
+     'Giảm dị ứng, mề đay, ngứa. Chống chỉ định: Quá mẫn với loratadine. Tác dụng phụ: Khô miệng, đau đầu', 16, NOW(), FALSE),
+    (1, 'Uống 1 viên mỗi ngày', '30mg', 'Hộp 10 viên', '8935000001602', 'VN-16001',
+     'Bảo quản nơi khô, dưới 30°C', 'Uống nguyên viên, 1 lần/ngày', FALSE,
      'Giảm dị ứng, mề đay, ngứa. Chống chỉ định: Quá mẫn với loratadine. Tác dụng phụ: Khô miệng, đau đầu', 16, NOW(), FALSE);
+
 
 -- ============================================================
 -- BATCHES DATA
