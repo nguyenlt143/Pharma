@@ -136,12 +136,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td style="padding: 8px; text-align: right;">
                         ${uc.multiplier ? uc.multiplier + ' ' + (product.baseUnit || '') : 'N/A'}
                     </td>
-                    <td style="padding: 8px; text-align: center;">
-                        <input type="checkbox" ${uc.isSale ? 'checked' : ''} disabled style="width: 16px; height: 16px;">
-                    </td>
                 </tr>
             `).join('')
-            : '<tr><td colspan="4" style="padding: 20px; text-align: center; color: #9ca3af;">Chưa có đơn vị quy đổi</td></tr>';
+            : '<tr><td colspan="3" style="padding: 20px; text-align: center; color: #9ca3af;">Chưa có đơn vị quy đổi</td></tr>';
 
         modal.innerHTML = `
             <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
@@ -173,26 +170,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
 
                     <!-- Section 2: Đơn vị quy đổi -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; padding: 15px; background: #eff6ff; border-radius: 6px; margin-bottom: 20px;">
-                        <div>
-                            <div style="font-size: 0.875rem; color: #6b7280;">Đơn vị cơ bản</div>
-                            <div style="font-weight: 600; color: #1f2937;">${product.baseUnit || 'N/A'}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 0.875rem; color: #6b7280;">Đơn vị nhập</div>
-                            <div style="font-weight: 600; color: #1f2937;">${product.importUnit || 'N/A'}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 0.875rem; color: #6b7280;">Tỉ lệ quy đổi</div>
-                            <div style="font-weight: 600; color: #1f2937;">
-                                ${product.conversionRatio && product.conversionRatio > 1
-                                    ? '1 ' + (product.importUnit || '') + ' = ' + product.conversionRatio + ' ' + (product.baseUnit || '')
-                                    : 'N/A'}
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius: 8px; margin-bottom: 20px; border: 1px solid #bfdbfe; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
+                        <div style="background: white; padding: 16px; border-radius: 6px; border-left: 4px solid #3b82f6; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
+                            <div style="font-size: 0.8rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 500;">
+                                Đơn vị cơ bản
                             </div>
+                            <div style="font-weight: 600; color: #1f2937; font-size: 1.1rem;">${product.baseUnit || '<span style="color: #9ca3af;">N/A</span>'}</div>
                         </div>
-                        <div style="grid-column: 1 / -1;">
-                            <div style="font-size: 0.875rem; color: #6b7280;">Quy cách đóng gói</div>
-                            <div style="font-weight: 600; color: #1f2937;">${product.packagingSpec || 'N/A'}</div>
+                        <div style="background: white; padding: 16px; border-radius: 6px; border-left: 4px solid #10b981; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
+                            <div style="font-size: 0.8rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 500;">
+                                Quy cách đóng gói
+                            </div>
+                            <div style="font-weight: 600; color: #1f2937; font-size: 1.1rem;">${product.packagingSpec || '<span style="color: #9ca3af;">N/A</span>'}</div>
                         </div>
                     </div>
 
@@ -217,11 +206,25 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px;">
                             <div>
-                                <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #374151;">
-                                    Số lượng nhập (${product.importUnit || 'đơn vị'}) <span style="color: #dc3545;">*</span>
-                                </label>
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #374151;">Đơn vị nhập <span style="color: #dc3545;">*</span></label>
+                                <select id="modal-unit" class="modal-input" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;">
+                                    ${product.unitConversions && product.unitConversions.length > 0
+                                        ? product.unitConversions.map(uc => `
+                                            <option value="${uc.unitName}" data-multiplier="${uc.multiplier || 1}">
+                                                ${uc.unitName}
+                                            </option>
+                                        `).join('')
+                                        : `<option value="${product.importUnit || product.baseUnit}" data-multiplier="${product.conversionRatio || 1}">
+                                            ${product.importUnit || product.baseUnit || 'N/A'}
+                                        </option>`
+                                    }
+                                </select>
+                                <div class="invalid-feedback" style="display: none; color: #dc3545; font-size: 0.875rem; margin-top: 5px;"></div>
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #374151;">Số lượng nhập <span style="color: #dc3545;">*</span></label>
                                 <input type="number" id="modal-quantity" class="modal-input" value="${preFilledDetails ? preFilledDetails.quantity : 1}" min="1" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;">
                                 <div class="invalid-feedback" style="display: none; color: #dc3545; font-size: 0.875rem; margin-top: 5px;"></div>
                             </div>
@@ -248,8 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <tr style="background: #f3f4f6; border-bottom: 2px solid #e5e7eb;">
                                         <th style="padding: 10px 8px; text-align: center; width: 60px; border-right: 1px solid #e5e7eb;">STT</th>
                                         <th style="padding: 10px 8px; text-align: left; border-right: 1px solid #e5e7eb;">Đơn vị</th>
-                                        <th style="padding: 10px 8px; text-align: right; border-right: 1px solid #e5e7eb;">Quy đổi</th>
-                                        <th style="padding: 10px 8px; text-align: center; width: 120px;">Bán hàng</th>
+                                        <th style="padding: 10px 8px; text-align: right;">Quy đổi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -271,6 +273,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const batchInput = modal.querySelector('#modal-batch');
         const mfgInput = modal.querySelector('#modal-mfg-date');
         const expInput = modal.querySelector('#modal-exp-date');
+        const unitSelect = modal.querySelector('#modal-unit');
         const qtyInput = modal.querySelector('#modal-quantity');
         const priceInput = modal.querySelector('#modal-price');
         const totalInput = modal.querySelector('#modal-total');
@@ -278,12 +281,23 @@ document.addEventListener('DOMContentLoaded', function() {
         const btnAdd = modal.querySelector('.btn-modal-add');
         const closeBtn = modal.querySelector('.modal-close');
 
+        // Set the selected unit if pre-filled
+        if (preFilledDetails && preFilledDetails.importUnit) {
+            const options = unitSelect.querySelectorAll('option');
+            options.forEach(option => {
+                if (option.value === preFilledDetails.importUnit) {
+                    option.selected = true;
+                }
+            });
+        }
+
         // Function to calculate and update total amount
         function updateTotalAmount() {
             const quantity = parseFloat(qtyInput.value) || 0;
             const price = parseFloat(priceInput.value) || 0;
-            const conversionRatio = parseFloat(product.conversionRatio) || 1;
-            const total = quantity * price * conversionRatio;
+            const selectedOption = unitSelect.options[unitSelect.selectedIndex];
+            const multiplier = parseFloat(selectedOption.getAttribute('data-multiplier')) || 1;
+            const total = quantity * price * multiplier;
             totalInput.value = total.toLocaleString('vi-VN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
         }
 
@@ -310,6 +324,10 @@ document.addEventListener('DOMContentLoaded', function() {
         batchInput.addEventListener('input', () => clearModalError(batchInput));
         mfgInput.addEventListener('change', () => clearModalError(mfgInput));
         expInput.addEventListener('change', () => clearModalError(expInput));
+        unitSelect.addEventListener('change', () => {
+            clearModalError(unitSelect);
+            updateTotalAmount();
+        });
         qtyInput.addEventListener('input', () => {
             clearModalError(qtyInput);
             updateTotalAmount();
@@ -401,13 +419,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (!isValid) return;
 
+            // Get selected unit and multiplier
+            const selectedOption = unitSelect.options[unitSelect.selectedIndex];
+            const selectedUnit = selectedOption.value;
+            const selectedMultiplier = parseFloat(selectedOption.getAttribute('data-multiplier')) || 1;
+
             // Add product to table
             addProductRow(product, {
                 batchCode: batchInput.value.trim(),
                 manufactureDate: mfgInput.value,
                 expiryDate: expInput.value,
                 quantity: parseInt(qtyInput.value),
-                price: parseFloat(priceInput.value)
+                price: parseFloat(priceInput.value),
+                importUnit: selectedUnit,
+                conversionRatio: selectedMultiplier
             });
 
             modal.remove();
@@ -430,10 +455,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const row = document.createElement('tr');
         row.className = 'table-row';
 
+        // Use the selected unit and conversion ratio from details
+        const importUnit = details.importUnit || product.importUnit || '';
+        const conversionRatio = details.conversionRatio || product.conversionRatio || 1;
+
         // Store all necessary data in dataset (including product info for editing)
         row.dataset.variantId = product.variantId;
-        row.dataset.conversionRatio = product.conversionRatio || 1;
-        row.dataset.importUnit = product.importUnit || '';
+        row.dataset.conversionRatio = conversionRatio;
+        row.dataset.importUnit = importUnit;
         row.dataset.baseUnit = product.baseUnit || '';
         row.dataset.batchCode = details.batchCode;
         row.dataset.expiryDate = details.expiryDate;
@@ -453,14 +482,14 @@ document.addEventListener('DOMContentLoaded', function() {
         row.dataset.unitConversions = JSON.stringify(product.unitConversions || []);
 
         // Calculate total amount for this row
-        const totalAmount = details.quantity * details.price * (product.conversionRatio || 1);
+        const totalAmount = details.quantity * details.price * conversionRatio;
 
         row.innerHTML = `
             <td class="col-stt">${rowCount + 1}</td>
             <td class="col-medicine">${product.medicineName}</td>
             <td class="col-batch">${details.batchCode}</td>
             <td class="col-expiry-date">${formatDate(details.expiryDate)}</td>
-            <td class="col-unit">${product.importUnit || 'N/A'}</td>
+            <td class="col-unit">${importUnit || 'N/A'}</td>
             <td class="col-quantity">${details.quantity}</td>
             <td class="col-price">${formatCurrency(details.price)}</td>
             <td class="col-total">${formatCurrency(totalAmount)}</td>
@@ -510,7 +539,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 manufactureDate: row.dataset.manufactureDate,
                 expiryDate: row.dataset.expiryDate,
                 quantity: parseInt(row.dataset.quantity),
-                price: parseFloat(row.dataset.price)
+                price: parseFloat(row.dataset.price),
+                importUnit: row.dataset.importUnit,
+                conversionRatio: parseFloat(row.dataset.conversionRatio)
             };
 
             // Remove the current row

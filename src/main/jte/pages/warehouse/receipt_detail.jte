@@ -143,11 +143,7 @@ content = @`
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-center text-gray-700">
-                                @if(detail.getImportUnit() != null && !detail.getImportUnit().equals("N/A"))
-                                    ${detail.getImportUnit()}
-                                @else
-                                    ${detail.getUnit()}
-                                @endif
+                                ${detail.getImportUnit() != null && !detail.getImportUnit().equals("N/A") ? detail.getImportUnit() : detail.getUnit()}
                             </td>
                             <td class="px-4 py-3 text-right">
                                 <span class="inline-flex items-center px-3 py-1 rounded-md text-sm font-semibold bg-blue-50 text-blue-700">

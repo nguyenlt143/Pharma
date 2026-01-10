@@ -54,13 +54,8 @@ content = @`
         <section class="product-section">
             <div class="product-container">
                 <div class="search-add-row">
-<%--                    <div class="search-wrapper">--%>
-<%--                        <span class="material-icons search-icon">search</span>--%>
-<%--                        <input type="text" class="search-input" placeholder="Tìm kiếm thuốc">--%>
-<%--                    </div>--%>
                     <button class="add-button" type="button" id="btnAddFromCatalog">
-                        <span class="material-icons">add</span>
-                        <span>THÊM THUỐC VÀO DANH SÁCH (F7)</span>
+                        Thêm thuốc vào danh sách (F7)
                     </button>
                 </div>
 
@@ -94,9 +89,8 @@ content = @`
         </section>
 
         <div class="action-buttons">
-            <button class="btn-secondary" type="button" id="btnCancel">HỦY</button>
-            <button class="btn-primary" type="button" id="btnComplete">HOÀN THÀNH</button>
+            <button class="btn-secondary" type="button" id="btnCancel">Hủy</button>
+            <button class="btn-primary" type="button" id="btnComplete">Hoàn thành</button>
         </div>
-    </main>
 `
 )

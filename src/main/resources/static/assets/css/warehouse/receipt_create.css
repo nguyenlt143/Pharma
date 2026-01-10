@@ -181,28 +181,26 @@ body {
 }
 
 .add-button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    height: 40px;
-    padding: 0 16px;
-    background-color: #4361EE;
-    color: #FFFFFF;
+    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+    color: white;
+    padding: 11px 24px;
+    border-radius: 10px;
     border: none;
-    border-radius: 8px;
+    font-weight: 600;
     font-size: 14px;
     line-height: 20px;
-    font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
 }
 
 .add-button:hover {
-    background-color: #3651d4;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
 }
 
-.add-button .material-icons {
-    font-size: 16px;
+.add-button:active {
+    transform: translateY(0);
 }
 
 /* Table Styles */
@@ -346,43 +344,48 @@ body {
     bottom: 24px;
     right: 24px;
     display: flex;
-    gap: 8px;
+    gap: 12px;
 }
 
 .btn-secondary {
-    height: 36px;
-    padding: 0 16px;
-    background-color: #E5E7EB;
-    color: #111827;
+    background-color: #6B7280;
+    color: white;
+    padding: 11px 24px;
+    border-radius: 10px;
     border: none;
-    border-radius: 8px;
+    font-weight: 600;
     font-size: 14px;
     line-height: 20px;
-    font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.3s ease;
 }
 
 .btn-secondary:hover {
-    background-color: #D1D5DB;
+    background-color: #4B5563;
+    transform: translateY(-1px);
 }
 
 .btn-primary {
-    height: 36px;
-    padding: 0 16px;
-    background-color: #4361EE;
-    color: #FFFFFF;
+    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+    color: white;
+    padding: 11px 24px;
+    border-radius: 10px;
     border: none;
-    border-radius: 8px;
+    font-weight: 600;
     font-size: 14px;
     line-height: 20px;
-    font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
 }
 
 .btn-primary:hover {
-    background-color: #3651d4;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
 }
 
 /* Table Input Styles */
