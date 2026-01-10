@@ -1012,14 +1012,6 @@ if (paymentAmountInput) {
 // SECTION 6: PAYMENT VALIDATION & PROCESSING
 // ========================================
 
-// ========== OLD FUNCTIONS REMOVED ==========
-// Removed: searchMedication() - empty function
-// Removed: processPayment() - use processPaymentWithValidation() instead
-// Removed: clearPaymentForm() - use resetPaymentFormCompletely() instead
-
-// Removed clearPaymentForm() - using resetPaymentFormCompletely() instead
-
-// ============ KEYBOARD SHORTCUTS (MERGED) ============
 document.addEventListener('keydown', (e) => {
   // Escape key - Close QR modal or clear search
   if (e.key === 'Escape') {
@@ -1596,8 +1588,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     console.log('POS system initialized successfully');
 });
-// ============ QR CODE FUNCTIONS (Consolidated) ============
-// Removed: showQRCodePopup() - using showQRModal() instead
 
 // ========================================
 // SECTION 8: SUCCESS POPUP & INVOICE PRINTING

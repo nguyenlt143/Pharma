@@ -46,9 +46,17 @@ function initDataTable() {
                 orderable: false,
                 render: function(data, type, row) {
                     return `
-                        <button onclick="openEditModal(${row.id})" class="btn-link" style="color: #2563EB; margin-right: 12px;">Sửa</button>
-                        <button onclick="viewDetails(${row.id})" class="btn-link" style="color: #7C3AED; margin-right: 12px;">Chi tiết</button>
-                        <button onclick="confirmDelete(${row.id})" class="btn-link delete">Xóa</button>
+                        <div class="action-buttons">
+                            <button onclick="viewDetails(${row.id})" class="btn-action view" title="Xem chi tiết">
+                                Chi tiết
+                            </button>
+                            <button onclick="openEditModal(${row.id})" class="btn-action edit" title="Chỉnh sửa">
+                                Sửa
+                            </button>
+                            <button onclick="confirmDelete(${row.id})" class="btn-action delete" title="Xóa">
+                                Xóa
+                            </button>
+                        </div>
                     `;
                 }
             }
