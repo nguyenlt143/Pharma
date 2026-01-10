@@ -7,14 +7,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     loadBranches();
 
-    // Set default period to current month
-    const periodInput = document.getElementById('periodInput');
-    if (periodInput && !periodInput.value) {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        periodInput.value = `${year}-${month}`;
-    }
+    // Set default month and year to current month/year
+    setCurrentMonthYear();
 
     // Auto-load dashboard after a short delay to ensure branches are loaded
     setTimeout(() => {
@@ -22,15 +16,39 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 300);
 
     // Auto-load on filter change
-    if (periodInput) {
-        periodInput.addEventListener('change', () => loadDashboard(currentView));
+    const monthSelect = document.getElementById('monthSelect');
+    const yearSelect = document.getElementById('yearSelect');
+    const branchSelect = document.getElementById('branchSelect');
+
+    if (monthSelect) {
+        monthSelect.addEventListener('change', () => loadDashboard(currentView));
     }
 
-    const branchSelect = document.getElementById('branchSelect');
+    if (yearSelect) {
+        yearSelect.addEventListener('change', () => loadDashboard(currentView));
+    }
+
     if (branchSelect) {
         branchSelect.addEventListener('change', () => loadDashboard(currentView));
     }
 });
+
+function setCurrentMonthYear() {
+    const now = new Date();
+    const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+    const currentYear = now.getFullYear();
+
+    const monthSelect = document.getElementById('monthSelect');
+    const yearSelect = document.getElementById('yearSelect');
+
+    if (monthSelect) {
+        monthSelect.value = currentMonth;
+    }
+
+    if (yearSelect) {
+        yearSelect.value = String(currentYear);
+    }
+}
 
 function loadBranches() {
     console.log('Loading branches...');
@@ -51,7 +69,9 @@ function loadBranches() {
 
 function loadDashboard(view) {
     currentView = view;
-    const period = document.getElementById('periodInput').value;
+    const month = document.getElementById('monthSelect').value;
+    const year = document.getElementById('yearSelect').value;
+    const period = `${year}-${month}`;
     const branchId = document.getElementById('branchSelect').value;
 
     console.log(`Loading dashboard - view: ${view}, period: ${period}, branchId: ${branchId || 'all'}`);

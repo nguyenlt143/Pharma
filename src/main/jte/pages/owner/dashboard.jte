@@ -134,7 +134,29 @@ content = @`
     <div class="filter-section">
         <div class="filter-group">
             <label class="filter-label">Tháng</label>
-            <input type="month" id="periodInput" class="filter-input" value="${java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM"))}">
+            <select id="monthSelect" class="filter-select">
+                <option value="01" selected>Tháng 1</option>
+                <option value="02">Tháng 2</option>
+                <option value="03">Tháng 3</option>
+                <option value="04">Tháng 4</option>
+                <option value="05">Tháng 5</option>
+                <option value="06">Tháng 6</option>
+                <option value="07">Tháng 7</option>
+                <option value="08">Tháng 8</option>
+                <option value="09">Tháng 9</option>
+                <option value="10">Tháng 10</option>
+                <option value="11">Tháng 11</option>
+                <option value="12">Tháng 12</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label class="filter-label">Năm</label>
+            <select id="yearSelect" class="filter-select">
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+                <option value="2026" selected>2026</option>
+                <option value="2027">2027</option>
+            </select>
         </div>
         <div class="filter-group">
             <label class="filter-label">Chi nhánh</label>
@@ -142,7 +164,6 @@ content = @`
                 <option value="">Tất cả chi nhánh</option>
             </select>
         </div>
-        <button class="btn-primary" onclick="loadDashboard('revenue')">Xem Doanh thu</button>
         <button class="btn-primary" onclick="loadDashboard('profit')">Xem Lợi nhuận</button>
     </div>
 

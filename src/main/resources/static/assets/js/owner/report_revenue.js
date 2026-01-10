@@ -4,6 +4,7 @@ let invoiceTable;
 // Wait for jQuery and DOM to be ready
 if (typeof $ !== 'undefined') {
     $(document).ready(function() {
+        setCurrentMonthYear();
         loadBranches();
         initDataTable();
         bindFilterEvents();
@@ -19,6 +20,7 @@ if (typeof $ !== 'undefined') {
         const checkJQuery = setInterval(function() {
             if (typeof $ !== 'undefined') {
                 clearInterval(checkJQuery);
+                setCurrentMonthYear();
                 loadBranches();
                 initDataTable();
                 bindFilterEvents();
@@ -28,6 +30,23 @@ if (typeof $ !== 'undefined') {
             }
         }, 100);
     });
+}
+
+function setCurrentMonthYear() {
+    const now = new Date();
+    const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+    const currentYear = now.getFullYear();
+
+    const monthSelect = document.getElementById('monthSelect');
+    const yearSelect = document.getElementById('yearSelect');
+
+    if (monthSelect) {
+        monthSelect.value = currentMonth;
+    }
+
+    if (yearSelect) {
+        yearSelect.value = String(currentYear);
+    }
 }
 
 function loadBranches() {
@@ -81,14 +100,21 @@ function initDataTable() {
     });
 }
 
-// Khi thay đổi filter (tháng, chi nhánh) thì tự động tải lại báo cáo,
+// Khi thay đổi filter (tháng, năm, chi nhánh) thì tự động tải lại báo cáo,
 // không bắt buộc người dùng phải bấm nút "Tải báo cáo"
 function bindFilterEvents() {
-    const periodInput = document.getElementById('periodInput');
+    const monthSelect = document.getElementById('monthSelect');
+    const yearSelect = document.getElementById('yearSelect');
     const branchSelect = document.getElementById('branchSelect');
 
-    if (periodInput) {
-        periodInput.addEventListener('change', () => {
+    if (monthSelect) {
+        monthSelect.addEventListener('change', () => {
+            loadReport();
+        });
+    }
+
+    if (yearSelect) {
+        yearSelect.addEventListener('change', () => {
             loadReport();
         });
     }
@@ -107,7 +133,9 @@ function loadReport() {
         initDataTable();
     }
 
-    const period = document.getElementById('periodInput').value;
+    const month = document.getElementById('monthSelect').value;
+    const year = document.getElementById('yearSelect').value;
+    const period = `${year}-${month}`;
     const branchId = document.getElementById('branchSelect').value;
 
     const params = new URLSearchParams({
