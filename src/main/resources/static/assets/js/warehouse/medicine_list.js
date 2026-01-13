@@ -127,10 +127,18 @@ function initDataTable() {
                     const medicineName = ((row.medicineName || row.name || '')).replace(/'/g, "\\'");
                     return `
                         <div class="action-buttons">
-                            <button onclick="openVariantModal(${row.id}, '${medicineName}')" class="btn-link" style="color: #059669; font-weight: 600;">📋 Xem Dạng thuốc</button>
-                            <button onclick="viewDetails(${row.id})" class="btn-link" style="color: #7C3AED; font-weight: 600;">👁 Chi tiết</button>
-                            <button onclick="openEditModal(${row.id})" class="btn-link" style="color: #2563EB;">✏ Sửa</button>
-                            <button onclick="confirmDelete(${row.id})" class="btn-link delete" style="font-weight: 600;">🗑 Xóa</button>
+                            <button onclick="openVariantModal(${row.id}, '${medicineName}')" class="btn-action variant" title="Quản lý dạng thuốc">
+                                <i class="fas fa-pills"></i> Dạng thuốc
+                            </button>
+                            <button onclick="viewDetails(${row.id})" class="btn-action view" title="Xem chi tiết">
+                                <i class="fas fa-eye"></i> Chi tiết
+                            </button>
+                            <button onclick="openEditModal(${row.id})" class="btn-action edit" title="Chỉnh sửa">
+                                <i class="fas fa-edit"></i> Sửa
+                            </button>
+                            <button onclick="confirmDelete(${row.id})" class="btn-action delete" title="Xóa">
+                                <i class="fas fa-trash-alt"></i> Xóa
+                            </button>
                         </div>
                     `;
                 }
@@ -445,7 +453,7 @@ function closeVariantModal() {
     document.querySelectorAll('#unitConversionTableBody .unit-select').forEach(el => el.disabled = false);
     document.querySelectorAll('#unitConversionTableBody .multiplier-input').forEach(el => el.disabled = false);
     document.querySelectorAll('#unitConversionTableBody .note-input').forEach(el => el.disabled = false);
-    document.querySelectorAll('#unitConversionTableBody .btn-link.delete').forEach(el => el.style.display = '');
+    document.querySelectorAll('#unitConversionTableBody .btn-action.delete').forEach(el => el.style.display = '');
 
     // Show add button
     const addButtons = document.querySelectorAll('button[onclick="addUnitConversionRow()"]');
@@ -497,9 +505,17 @@ function loadVariants(medicineId) {
                     <td style="padding: 12px;">${variant.strength || '-'}</td>
                     <td style="padding: 12px;">${variant.barcode || variant.Barcode || '-'}</td>
                     <td style="padding: 12px; text-align: center;">
-                        <button onclick="viewVariantDetail(${variant.id})" class="btn-link" style="color: #7C3AED; margin: 0 4px;">Xem chi tiết</button>
-                        <button onclick="openEditVariantForm(${variant.id})" class="btn-link" style="color: #2563EB; margin: 0 4px;">Sửa</button>
-                        <button onclick="confirmDeleteVariant(${variant.id})" class="btn-link delete" style="margin: 0 4px;">Xóa</button>
+                        <div class="action-buttons">
+                            <button onclick="viewVariantDetail(${variant.id})" class="btn-action view" title="Xem chi tiết">
+                                <i class="fas fa-eye"></i> Chi tiết
+                            </button>
+                            <button onclick="openEditVariantForm(${variant.id})" class="btn-action edit" title="Chỉnh sửa">
+                                <i class="fas fa-edit"></i> Sửa
+                            </button>
+                            <button onclick="confirmDeleteVariant(${variant.id})" class="btn-action delete" title="Xóa">
+                                <i class="fas fa-trash-alt"></i> Xóa
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `}).join('');
@@ -526,7 +542,7 @@ function openCreateVariantForm() {
     document.querySelectorAll('#unitConversionTableBody .unit-select').forEach(el => el.disabled = false);
     document.querySelectorAll('#unitConversionTableBody .multiplier-input').forEach(el => el.disabled = false);
     document.querySelectorAll('#unitConversionTableBody .note-input').forEach(el => el.disabled = false);
-    document.querySelectorAll('#unitConversionTableBody .btn-link.delete').forEach(el => el.style.display = '');
+    document.querySelectorAll('#unitConversionTableBody .btn-action.delete').forEach(el => el.style.display = '');
 
     // Show add button
     const addButtons = document.querySelectorAll('button[onclick="addUnitConversionRow()"]');
@@ -597,7 +613,7 @@ function openEditVariantForm(variantId) {
     document.querySelectorAll('#unitConversionTableBody .unit-select').forEach(el => el.disabled = false);
     document.querySelectorAll('#unitConversionTableBody .multiplier-input').forEach(el => el.disabled = false);
     document.querySelectorAll('#unitConversionTableBody .note-input').forEach(el => el.disabled = false);
-    document.querySelectorAll('#unitConversionTableBody .btn-link.delete').forEach(el => el.style.display = '');
+    document.querySelectorAll('#unitConversionTableBody .btn-action.delete').forEach(el => el.style.display = '');
 
     // Show add button
     const addButtons = document.querySelectorAll('button[onclick="addUnitConversionRow()"]');
@@ -712,7 +728,7 @@ function cancelVariantForm() {
     document.querySelectorAll('#unitConversionTableBody .unit-select').forEach(el => el.disabled = false);
     document.querySelectorAll('#unitConversionTableBody .multiplier-input').forEach(el => el.disabled = false);
     document.querySelectorAll('#unitConversionTableBody .note-input').forEach(el => el.disabled = false);
-    document.querySelectorAll('#unitConversionTableBody .btn-link.delete').forEach(el => el.style.display = '');
+    document.querySelectorAll('#unitConversionTableBody .btn-action.delete').forEach(el => el.style.display = '');
 
     // Show add button
     const addButtons = document.querySelectorAll('button[onclick="addUnitConversionRow()"]');
@@ -770,7 +786,7 @@ function viewVariantDetail(variantId) {
                 document.querySelectorAll('#unitConversionTableBody .unit-select').forEach(el => el.disabled = true);
                 document.querySelectorAll('#unitConversionTableBody .multiplier-input').forEach(el => el.disabled = true);
                 document.querySelectorAll('#unitConversionTableBody .note-input').forEach(el => el.disabled = true);
-                document.querySelectorAll('#unitConversionTableBody .btn-link.delete').forEach(el => el.style.display = 'none');
+                document.querySelectorAll('#unitConversionTableBody .btn-action.delete').forEach(el => el.style.display = 'none');
 
                 // Hide add button
                 const addButtons = document.querySelectorAll('button[onclick="addUnitConversionRow()"]');
@@ -791,7 +807,10 @@ function viewVariantDetail(variantId) {
             const btnGroup = variantForm.querySelector('.btn-group');
             if (btnGroup) {
                 btnGroup.innerHTML = `
-                    <button type="button" class="btn-close-view" onclick="cancelViewVariant()">✓ Đóng xem chi tiết</button>
+                    <button type="button" class="btn-close-view" onclick="cancelViewVariant()">
+                        <span class="material-icons" style="font-size: 18px;">visibility</span>
+                        Đóng xem chi tiết
+                    </button>
                 `;
             }
 
@@ -812,7 +831,7 @@ function cancelViewVariant() {
     document.querySelectorAll('#unitConversionTableBody .unit-select').forEach(el => el.disabled = false);
     document.querySelectorAll('#unitConversionTableBody .multiplier-input').forEach(el => el.disabled = false);
     document.querySelectorAll('#unitConversionTableBody .note-input').forEach(el => el.disabled = false);
-    document.querySelectorAll('#unitConversionTableBody .btn-link.delete').forEach(el => el.style.display = '');
+    document.querySelectorAll('#unitConversionTableBody .btn-action.delete').forEach(el => el.style.display = '');
 
     // Show add button
     const addButtons = document.querySelectorAll('button[onclick="addUnitConversionRow()"]');
@@ -1417,7 +1436,9 @@ function addUnitConversionRow() {
                    style="width: 18px; height: 18px; cursor: pointer;">
         </td>
         <td style="padding: 12px; text-align: center;">
-            <button type="button" onclick="removeUnitConversionRow(this)" class="btn-link delete">Xóa</button>
+            <button type="button" onclick="removeUnitConversionRow(this)" class="btn-action delete" title="Xóa đơn vị">
+                <i class="fas fa-trash-alt"></i> Xóa
+            </button>
         </td>
     `;
 
@@ -1727,7 +1748,9 @@ function renderUnitConversions(conversions) {
                                style="width: 18px; height: 18px; cursor: pointer;">
                     </td>
                     <td style="padding: 12px; text-align: center;">
-                        <button type="button" onclick="removeUnitConversionRow(this)" class="btn-link delete">Xóa</button>
+                        <button type="button" onclick="removeUnitConversionRow(this)" class="btn-action delete" title="Xóa đơn vị">
+                            <i class="fas fa-trash-alt"></i> Xóa
+                        </button>
                     </td>
                 `;
 

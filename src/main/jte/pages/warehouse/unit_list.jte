@@ -134,6 +134,76 @@ headContent = @`
             flex: 1;
             font-weight: 400;
         }
+        .btn-action {
+            padding: 6px 12px;
+            border: 1px solid #D1D5DB;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-right: 6px;
+            background: white;
+            color: #374151;
+        }
+        .btn-action:last-child {
+            margin-right: 0;
+        }
+        .btn-action i {
+            font-size: 12px;
+        }
+        .btn-action:hover {
+            background: #F3F4F6;
+            border-color: #9CA3AF;
+        }
+        .btn-action:active {
+            transform: scale(0.98);
+        }
+        .btn-config {
+            border-color: #6366F1;
+            color: #6366F1;
+        }
+        .btn-config:hover {
+            background: #EEF2FF;
+            border-color: #4F46E5;
+            color: #4F46E5;
+        }
+        .btn-edit {
+            border-color: #F59E0B;
+            color: #F59E0B;
+        }
+        .btn-edit:hover {
+            background: #FEF3C7;
+            border-color: #D97706;
+            color: #D97706;
+        }
+        .btn-delete {
+            border-color: #EF4444;
+            color: #EF4444;
+        }
+        .btn-delete:hover {
+            background: #FEE2E2;
+            border-color: #DC2626;
+            color: #DC2626;
+        }
+        .btn-info {
+            border-color: #3B82F6;
+            color: #3B82F6;
+        }
+        .btn-info:hover {
+            background: #DBEAFE;
+            border-color: #2563EB;
+            color: #2563EB;
+        }
+        .action-buttons-container {
+            display: flex;
+            gap: 6px;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
     </style>
 `,
 content = @`
@@ -385,15 +455,17 @@ content = @`
                         data: null,
                         orderable: false,
                         render: function(data, type, row) {
-                            return '<button onclick="editDosageForm(\'' + row.displayName + '\', \'' + row.displayName + '\', \'' + row.baseUnit + '\')" class="btn btn-sm btn-primary" style="margin-right: 5px;">' +
-                                   '<i class="fas fa-edit"></i> Cấu hình' +
+                            return '<div class="action-buttons-container">' +
+                                   '<button onclick="editDosageForm(\'' + row.displayName + '\', \'' + row.displayName + '\', \'' + row.baseUnit + '\')" class="btn-action btn-config" title="Cấu hình đơn vị quy đổi">' +
+                                   '<i class="fas fa-cog"></i> Cấu hình' +
                                    '</button>' +
-                                   '<button onclick="editDosageFormDetails(' + (row.id || 0) + ')" class="btn btn-sm" style="background: #F59E0B; color: white; margin-right: 5px;">' +
+                                   '<button onclick="editDosageFormDetails(' + (row.id || 0) + ')" class="btn-action btn-edit" title="Chỉnh sửa thông tin">' +
                                    '<i class="fas fa-pencil-alt"></i> Sửa' +
                                    '</button>' +
-                                   '<button onclick="deleteDosageFormItem(' + (row.id || 0) + ', \'' + row.displayName.replace(/'/g, "\\'") + '\')" class="btn btn-sm" style="background: #EF4444; color: white;">' +
-                                   '<i class="fas fa-trash"></i>' +
-                                   '</button>';
+                                   '<button onclick="deleteDosageFormItem(' + (row.id || 0) + ', \'' + row.displayName.replace(/'/g, "\\'") + '\')" class="btn-action btn-delete" title="Xóa dạng bào chế">' +
+                                   '<i class="fas fa-trash-alt"></i> Xóa' +
+                                   '</button>' +
+                                   '</div>';
                         }
                     }
                 ],
@@ -592,12 +664,14 @@ content = @`
                         data: null,
                         orderable: false,
                         render: function(data, type, row) {
-                            return '<button onclick="editUnit(' + row.id + ')" class="btn btn-sm btn-primary" style="margin-right: 5px;">' +
-                                   '<i class="fas fa-edit"></i>' +
+                            return '<div class="action-buttons-container">' +
+                                   '<button onclick="editUnit(' + row.id + ')" class="btn-action btn-info" title="Chỉnh sửa đơn vị">' +
+                                   '<i class="fas fa-edit"></i> Sửa' +
                                    '</button>' +
-                                   '<button onclick="deleteUnit(' + row.id + ', \'' + row.name.replace(/'/g, "\\'") + '\')" class="btn btn-sm" style="background: #EF4444; color: white;">' +
-                                   '<i class="fas fa-trash"></i>' +
-                                   '</button>';
+                                   '<button onclick="deleteUnit(' + row.id + ', \'' + row.name.replace(/'/g, "\\'") + '\')" class="btn-action btn-delete" title="Xóa đơn vị">' +
+                                   '<i class="fas fa-trash-alt"></i> Xóa' +
+                                   '</button>' +
+                                   '</div>';
                         }
                     }
                 ],

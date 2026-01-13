@@ -113,86 +113,108 @@ headContent = @`
             box-shadow: 0 6px 16px rgba(139, 92, 246, 0.35);
         }
 
-        .btn-link {
-            background: none;
-            border: none;
-            cursor: pointer;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            padding: 4px 8px;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-        }
-
-        .btn-link:hover {
-            background-color: #F3F4F6;
-        }
-
-        .btn-link.delete {
-            color: #DC2626;
-        }
-
-        .btn-link.delete:hover {
-            background-color: #FEE2E2;
-        }
-
         /* Action Buttons in Table */
         .action-buttons {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             align-items: center;
             justify-content: center;
             flex-wrap: wrap;
         }
 
+        .btn-close-view {
+            background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%) !important;
+            color: white !important;
+            padding: 11px 24px !important;
+            border-radius: 10px !important;
+            border: none !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.25) !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            font-size: 14px !important;
+        }
+
+        .btn-close-view:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 16px rgba(6, 182, 212, 0.35) !important;
+            background: linear-gradient(135deg, #0891B2 0%, #0E7490 100%) !important;
+        }
+
         .btn-action {
-            background: none;
-            border: 2px solid transparent;
-            cursor: pointer;
-            padding: 6px 14px;
-            border-radius: 8px;
+            padding: 6px 12px;
+            border: 1px solid #D1D5DB;
+            border-radius: 6px;
             font-size: 13px;
-            font-weight: 600;
-            transition: all 0.2s ease;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: white;
+            color: #374151;
             white-space: nowrap;
         }
 
+        .btn-action i {
+            font-size: 12px;
+        }
+
         .btn-action:hover {
-            transform: translateY(-1px);
+            background: #F3F4F6;
+            border-color: #9CA3AF;
+        }
+
+        .btn-action:active {
+            transform: scale(0.98);
         }
 
         .btn-action.view {
+            border-color: #3B82F6;
             color: #3B82F6;
-            background-color: #EFF6FF;
-            border-color: #BFDBFE;
         }
 
         .btn-action.view:hover {
-            background-color: #DBEAFE;
-            border-color: #93C5FD;
+            background: #DBEAFE;
+            border-color: #2563EB;
+            color: #2563EB;
         }
 
         .btn-action.edit {
+            border-color: #F59E0B;
             color: #F59E0B;
-            background-color: #FFFBEB;
-            border-color: #FDE68A;
         }
 
         .btn-action.edit:hover {
-            background-color: #FEF3C7;
-            border-color: #FCD34D;
+            background: #FEF3C7;
+            border-color: #D97706;
+            color: #D97706;
         }
 
         .btn-action.delete {
+            border-color: #EF4444;
             color: #EF4444;
-            background-color: #FEF2F2;
-            border-color: #FECACA;
         }
 
         .btn-action.delete:hover {
-            background-color: #FEE2E2;
-            border-color: #FCA5A5;
+            background: #FEE2E2;
+            border-color: #DC2626;
+            color: #DC2626;
+        }
+
+        .btn-action.variant {
+            border-color: #8B5CF6;
+            color: #8B5CF6;
+        }
+
+        .btn-action.variant:hover {
+            background: #EDE9FE;
+            border-color: #7C3AED;
+            color: #7C3AED;
         }
 
         /* Data Table Container */

@@ -48,13 +48,13 @@ function initDataTable() {
                     return `
                         <div class="action-buttons">
                             <button onclick="viewDetails(${row.id})" class="btn-action view" title="Xem chi tiết">
-                                Chi tiết
+                                <i class="fas fa-eye"></i> Chi tiết
                             </button>
                             <button onclick="openEditModal(${row.id})" class="btn-action edit" title="Chỉnh sửa">
-                                Sửa
+                                <i class="fas fa-edit"></i> Sửa
                             </button>
                             <button onclick="confirmDelete(${row.id})" class="btn-action delete" title="Xóa">
-                                Xóa
+                                <i class="fas fa-trash-alt"></i> Xóa
                             </button>
                         </div>
                     `;

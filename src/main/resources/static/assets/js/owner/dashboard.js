@@ -1,6 +1,6 @@
 // Dashboard JavaScript
 let revenueChart;
-let currentView = 'revenue';
+let currentView = 'profit';
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Owner dashboard JS loaded');
@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Auto-load dashboard after a short delay to ensure branches are loaded
     setTimeout(() => {
-        loadDashboard('revenue');
+        loadDashboard('profit');
     }, 300);
 
     // Auto-load on filter change
@@ -187,8 +187,7 @@ function updateChart(data) {
             maintainAspectRatio: true,
             plugins: {
                 legend: {
-                    display: true,
-                    position: 'top'
+                    display: false
                 },
                 tooltip: {
                     mode: 'index',

@@ -83,19 +83,6 @@ headContent = @`
             font-weight: 500;
             cursor: pointer;
         }
-        .btn-link {
-            background: none;
-            border: none;
-            cursor: pointer;
-            text-decoration: underline;
-            font-size: 14px;
-        }
-        .btn-link:hover {
-            opacity: 0.8;
-        }
-        .btn-link.delete {
-            color: #DC2626;
-        }
         /* Toast Notification */
         .toast {
             position: fixed;
@@ -187,6 +174,67 @@ headContent = @`
             outline: none;
             border-color: #2563EB;
             box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+        }
+        .btn-action {
+            padding: 6px 12px;
+            border: 1px solid #D1D5DB;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-right: 6px;
+            background: white;
+            color: #374151;
+        }
+        .btn-action:last-child {
+            margin-right: 0;
+        }
+        .btn-action i {
+            font-size: 12px;
+        }
+        .btn-action:hover {
+            background: #F3F4F6;
+            border-color: #9CA3AF;
+        }
+        .btn-action:active {
+            transform: scale(0.98);
+        }
+        .btn-info {
+            border-color: #3B82F6;
+            color: #3B82F6;
+        }
+        .btn-info:hover {
+            background: #DBEAFE;
+            border-color: #2563EB;
+            color: #2563EB;
+        }
+        .btn-view {
+            border-color: #8B5CF6;
+            color: #8B5CF6;
+        }
+        .btn-view:hover {
+            background: #EDE9FE;
+            border-color: #7C3AED;
+            color: #7C3AED;
+        }
+        .btn-delete {
+            border-color: #EF4444;
+            color: #EF4444;
+        }
+        .btn-delete:hover {
+            background: #FEE2E2;
+            border-color: #DC2626;
+            color: #DC2626;
+        }
+        .action-buttons-container {
+            display: flex;
+            gap: 6px;
+            justify-content: flex-start;
+            flex-wrap: wrap;
         }
     </style>
 `,
