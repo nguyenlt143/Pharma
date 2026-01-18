@@ -47,9 +47,9 @@ function initDataTable() {
                 orderable: false,
                 render: function(data, type, row) {
                     return `
-                        <button onclick="openEditModal(${row.id})" class="btn-link" style="color: #2563EB; margin-right: 12px;">Sửa</button>
-                        <button onclick="viewDetails(${row.id})" class="btn-link" style="color: #7C3AED; margin-right: 12px;">Chi tiết</button>
-                        <button onclick="confirmDelete(${row.id})" class="btn-link delete">Xóa</button>
+                        <button onclick="openEditModal(${row.id})" class="btn-action" style="margin-right: 8px;">Sửa</button>
+                        <button onclick="viewDetails(${row.id})" class="btn-action" style="margin-right: 8px;">Chi tiết</button>
+                        <button onclick="confirmDelete(${row.id})" class="btn-action delete">Xóa</button>
                     `;
                 }
             }
@@ -65,6 +65,17 @@ function openCreateModal() {
     document.getElementById('modalTitle').textContent = 'Thêm nhà cung cấp mới';
     document.getElementById('supplierForm').reset();
     document.getElementById('supplierId').value = '';
+
+    // Clear validation errors
+    const phoneInput = document.getElementById('phone');
+    const phoneError = document.getElementById('phoneError');
+    if (phoneInput) {
+        phoneInput.classList.remove('error');
+    }
+    if (phoneError) {
+        phoneError.classList.remove('show');
+    }
+
     document.getElementById('supplierModal').style.display = 'block';
 }
 
@@ -77,12 +88,32 @@ function openEditModal(id) {
             document.getElementById('supplierName').value = data.supplierName || '';
             document.getElementById('phone').value = data.phone || '';
             document.getElementById('address').value = data.address || '';
+
+            // Clear validation errors
+            const phoneInput = document.getElementById('phone');
+            const phoneError = document.getElementById('phoneError');
+            if (phoneInput) {
+                phoneInput.classList.remove('error');
+            }
+            if (phoneError) {
+                phoneError.classList.remove('show');
+            }
+
             document.getElementById('supplierModal').style.display = 'block';
         });
 }
 
 function closeSupplierModal() {
     document.getElementById('supplierModal').style.display = 'none';
+    // Clear validation errors
+    const phoneInput = document.getElementById('phone');
+    const phoneError = document.getElementById('phoneError');
+    if (phoneInput) {
+        phoneInput.classList.remove('error');
+    }
+    if (phoneError) {
+        phoneError.classList.remove('show');
+    }
 }
 
 function viewDetails(id) {
@@ -148,10 +179,55 @@ function deleteSupplier(id) {
 
 document.addEventListener('DOMContentLoaded', function() {
     const supplierForm = document.getElementById('supplierForm');
+    const phoneInput = document.getElementById('phone');
+    const phoneError = document.getElementById('phoneError');
+
+    // Real-time phone validation
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function(e) {
+            // Only allow numbers
+            this.value = this.value.replace(/[^0-9]/g, '');
+
+            // Validate phone number
+            validatePhone();
+        });
+
+        phoneInput.addEventListener('blur', function() {
+            validatePhone();
+        });
+    }
+
+    function validatePhone() {
+        const phoneValue = phoneInput.value.trim();
+
+        if (phoneValue === '') {
+            // Phone is optional, so empty is valid
+            phoneInput.classList.remove('error');
+            phoneError.classList.remove('show');
+            return true;
+        }
+
+        if (phoneValue.length < 10 || phoneValue.length > 11) {
+            phoneInput.classList.add('error');
+            phoneError.classList.add('show');
+            return false;
+        }
+
+        phoneInput.classList.remove('error');
+        phoneError.classList.remove('show');
+        return true;
+    }
+
     if (supplierForm) {
         supplierForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
+            // Validate phone before submit
+            if (!validatePhone()) {
+                showToast('Vui lòng kiểm tra lại số điện thoại', 'error');
+                return;
+            }
+
             const id = document.getElementById('supplierId').value;
             const data = {
                 supplierName: document.getElementById('supplierName').value,

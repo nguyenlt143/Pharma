@@ -67,6 +67,18 @@ headContent = @`
             border-radius: 6px;
             font-size: 14px;
         }
+        .form-input.error {
+            border-color: #DC2626;
+        }
+        .error-message {
+            color: #DC2626;
+            font-size: 13px;
+            margin-top: 4px;
+            display: none;
+        }
+        .error-message.show {
+            display: block;
+        }
         .btn-group {
             display: flex;
             gap: 12px;
@@ -82,18 +94,28 @@ headContent = @`
             font-weight: 500;
             cursor: pointer;
         }
-        .btn-link {
-            background: none;
-            border: none;
+        .btn-action {
+            padding: 6px 12px;
+            border: 1px solid #D1D5DB;
+            background: white;
+            border-radius: 6px;
             cursor: pointer;
-            text-decoration: underline;
             font-size: 14px;
+            color: #374151;
+            font-weight: 500;
+            transition: all 0.2s;
         }
-        .btn-link:hover {
-            opacity: 0.8;
+        .btn-action:hover {
+            background: #F3F4F6;
+            border-color: #9CA3AF;
         }
-        .btn-link.delete {
+        .btn-action.delete {
             color: #DC2626;
+            border-color: #FCA5A5;
+        }
+        .btn-action.delete:hover {
+            background: #FEE2E2;
+            border-color: #DC2626;
         }
         /* Toast Notification */
         .toast {
@@ -149,6 +171,19 @@ headContent = @`
             color: #111827;
             font-size: 16px;
         }
+        .btn-close-view {
+            background-color: #6B7280;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-close-view:hover {
+            background-color: #4B5563;
+        }
     </style>
 `,
 content = @`
@@ -192,7 +227,8 @@ content = @`
 
             <div class="form-group">
                 <label class="form-label">Số điện thoại</label>
-                <input type="text" id="phone" class="form-input">
+                <input type="text" id="phone" class="form-input" pattern="[0-9]{10,11}" maxlength="11" placeholder="Nhập 10-11 số">
+                <span class="error-message" id="phoneError">Số điện thoại phải có 10-11 chữ số</span>
             </div>
 
             <div class="form-group">
@@ -216,7 +252,7 @@ content = @`
             <!-- Detail content will be loaded here -->
         </div>
         <div class="btn-group" style="margin-top: 24px;">
-            <button type="button" class="btn-secondary" onclick="closeDetailModal()">Đóng</button>
+            <button type="button" class="btn-close-view" onclick="closeDetailModal()">✓ Đóng</button>
         </div>
     </div>
 </div>
